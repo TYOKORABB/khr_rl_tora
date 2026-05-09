@@ -192,8 +192,11 @@ def get_cfgs():
 
     return env_cfg, obs_cfg, reward_cfg, command_cfg
 
+env=[]
 
 def main():
+    global env
+    
     parser = argparse.ArgumentParser()
     parser.add_argument("-e", "--exp_name", type=str, default="khr-walking")
     parser.add_argument("-B", "--num_envs", type=int, default=4096)

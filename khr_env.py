@@ -64,7 +64,7 @@ class KHREnv:
         # add plain
         self.ground = self.scene.add_entity(
             gs.morphs.URDF(
-                file="urdf/plane/plane.urdf",
+                file="urdf/plane/plane_light.urdf",
                 fixed=True,
             )
         )
@@ -73,6 +73,8 @@ class KHREnv:
         self.robot = self.scene.add_entity(
             gs.morphs.URDF(
                 file="../assets/khr3hv/urdf/khr3hv_12dof.urdf",
+                #file="../assets/khr3hv/urdf/khr3hv_middle_feet.urdf",
+                #file="../assets/khr3hv/urdf/khr3hv_small_feet.urdf",
                 pos=self.env_cfg["base_init_pos"],
                 quat=self.env_cfg["base_init_quat"],
             ),
