@@ -70,16 +70,16 @@ def get_cfgs():
         "default_joint_angles": {  # [rad]
             "l_hip_yaw": 0.0,
             "l_hip_roll": 0.0,
-            "l_hip_pitch": -0.2,
-            "l_knee_pitch": 0.4,
-            "l_ankle_pitch": -0.2,
+            "l_hip_pitch": -0.5,    # -0.2
+            "l_knee_pitch": 1.0,    # 0.4
+            "l_ankle_pitch": -0.5,  # -0.2
             "l_ankle_roll": 0.0,
 
             "r_hip_yaw": 0.0,
             "r_hip_roll": 0.0,
-            "r_hip_pitch": -0.2,
-            "r_knee_pitch": 0.4,
-            "r_ankle_pitch": -0.2,
+            "r_hip_pitch": -0.5,   # -0.2
+            "r_knee_pitch": 1.0,   # 0.4
+            "r_ankle_pitch": -0.5, # -0.2
             "r_ankle_roll": 0.0,
         },
         "joint_names": [
@@ -156,8 +156,8 @@ def get_cfgs():
     }
     reward_cfg = {
         "tracking_sigma": 0.25,
-        "base_height_target": 0.254,
-        "feet_height_target": 0.03,
+        "base_height_target": 0.2395,   # 0.254
+        "feet_height_target": 0.035,
         "reward_scales": {
             "tracking_lin_vel": 1.5,
             "tracking_ang_vel": 1.0,
@@ -202,7 +202,11 @@ def main():
     parser.add_argument("-B", "--num_envs", type=int, default=4096)
     parser.add_argument("-I","--max_iterations", type=int, default=101)
     parser.add_argument("--seed", type=int, default=1)
+    parser.add_argument("--view", action='store_true')
     args = parser.parse_args()
+
+    if not args.view:
+       print("[No viewer mode] To watch the learing robot, add --view flag.")
 
     log_dir = f"logs/{args.exp_name}"
     env_cfg, obs_cfg, reward_cfg, command_cfg = get_cfgs()
@@ -218,7 +222,7 @@ def main():
     gs.init(backend=gs.gpu, precision="32", logging_level="warning", seed=args.seed, performance_mode=True)
 
     env = KHREnv(
-        num_envs=args.num_envs, env_cfg=env_cfg, obs_cfg=obs_cfg, reward_cfg=reward_cfg, command_cfg=command_cfg
+        num_envs=args.num_envs, env_cfg=env_cfg, obs_cfg=obs_cfg, reward_cfg=reward_cfg, command_cfg=command_cfg, show_viewer=args.view
     )
 
     runner = OnPolicyRunner(env, train_cfg, log_dir, device=gs.device)
