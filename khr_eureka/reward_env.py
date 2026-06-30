@@ -63,12 +63,12 @@ def _progress_score(env, eps: float = 1e-6):
     """指令方向への正規化前進スコア (N,)。
 
     progress = (指令方向への実速度) / (指令速度).  静止=0, 指令速度ちょうど=1,
-    超過は 1.2 で頭打ち, 逆走は 0。立っているだけでは 0 になるのがポイント。
+    超過は 1.0 で頭打ち(過速ダイブを優遇しない), 逆走は 0。立つだけでは 0。
     """
     cmd_xy = env.commands[:, :2]
     cmd_speed = torch.norm(cmd_xy, dim=1).clamp(min=eps)
     fwd_speed = torch.sum(env.base_lin_vel[:, :2] * cmd_xy, dim=1) / cmd_speed  # [m/s] 指令方向成分
-    progress = torch.clamp(fwd_speed / cmd_speed, min=0.0, max=1.2)
+    progress = torch.clamp(fwd_speed / cmd_speed, min=0.0, max=1.0)
     return progress, fwd_speed
 
 
@@ -101,10 +101,12 @@ def _install_walk_commands(env, speed_range=(0.10, 0.20)):
 def evaluate_policy(env, policy, num_steps: int = 500, walk_speed_range=(0.10, 0.20)):
     """学習済みポリシーを「前進指令」で num_steps 回し、歩行 fitness を集計。
 
-    fitness = progress_mean + 0.3*yaw_track_mean + 0.5*survival_frac
+    fitness = survival_frac * (progress_mean + 0.3*yaw_track_mean)
+      - survival_frac : 評価中に一度も転倒しなかった env の割合（timeout 除外）。
+        転倒すると fitness が 0 に潰れる = 「速いが倒れる」が「安定歩行」に勝てない。
       - progress_mean : 指令方向への正規化前進量（静止=0, 指令速度=1）← 主指標
       - yaw_track_mean: ヨー追従（前進中は直進=指令0を保つほど高い）
-      - survival_frac : 評価中に一度も転倒しなかった env の割合（timeout は除外）
+    survival でゲートするので、安定歩行 > 静止 > 転倒 の順に並ぶ。
     返り値にはこのほか mean_fwd_speed[m/s]・total_reward_mean・component_stats を含む。
     注意: num_steps は max_episode_length(=1000) 未満にすること（timeout を fall と
     誤カウントしないため）。
@@ -155,7 +157,9 @@ def evaluate_policy(env, policy, num_steps: int = 500, walk_speed_range=(0.10, 0
     progress_mean = (progress_acc / n).item()
     yaw_mean = (yaw_acc / n).item()
     survival_frac = float(1.0 - ever_fell.float().mean().item())
-    fitness = progress_mean + 0.3 * yaw_mean + 0.5 * survival_frac
+    # survival で乗算ゲート: 転倒(survival→0)すると fitness が潰れ、過速ダイブが
+    # 安定歩行に勝てなくなる。安定して指令方向へ進むほど高い。
+    fitness = survival_frac * (progress_mean + 0.3 * yaw_mean)
 
     return {
         "fitness": fitness,

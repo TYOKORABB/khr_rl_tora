@@ -351,6 +351,9 @@ def main():
     parser.add_argument("--final-train", action="store_true", help="最良報酬で本学習する")
     parser.add_argument("--final-iters", type=int, default=300)
     parser.add_argument("--view", action="store_true", help="本学習時にビューア表示")
+    # 探索せず、指定した報酬ファイルだけで本学習する（例: 過去の良候補 reward.py を再学習）
+    parser.add_argument("--train-from", type=str, default=None,
+                        help="この reward.py だけで本学習する(探索スキップ)")
     # 内部: ワーカーモード
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--reward-file", type=str, default=None)
@@ -359,6 +362,10 @@ def main():
 
     if args.worker:
         run_candidate_worker(args)
+    elif args.train_from:
+        code = Path(args.train_from).read_text()
+        print(f"[train-from] {args.train_from} を {args.final_iters} iter で本学習します")
+        _final_train(code, args)
     else:
         run_eureka(args)
 
