@@ -251,8 +251,9 @@ def run_eureka(args):
     for it in range(args.iterations):
         it_dir = base_dir / f"iter{it}"
         it_dir.mkdir(exist_ok=True)
+        client.reset_model_preference()  # 各 iteration はまず最高性能モデルから試す
         print(f"\n===== Eureka iteration {it}: requesting {args.samples} samples from "
-              f"{client.model} =====")
+              f"{client.model} (chain={client.models}) =====")
         (it_dir / "prompt_user.txt").write_text(user_prompt)
 
         responses = client.generate_many(sys_prompt, user_prompt, n=args.samples)
