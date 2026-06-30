@@ -262,11 +262,7 @@ class KHREnv:
         self.cos_phase = torch.cos(2 * np.pi * self.phase ).unsqueeze(1)
 
         # compute reward
-        self.rew_buf.zero_()
-        for name, reward_func in self.reward_functions.items():
-            rew = reward_func() * self.reward_scales[name]
-            self.rew_buf += rew
-            self.episode_sums[name] += rew
+        self._compute_reward()
 
         # resample commands
         self._resample_commands(self.episode_length_buf % int(self.env_cfg["resampling_time_s"] / self.dt) == 0)
@@ -507,6 +503,21 @@ class KHREnv:
             
 
 
+
+    # ------------ reward aggregation hook ----------------
+    def _compute_reward(self):
+        """1ステップ分の報酬を集計して self.rew_buf に格納する。
+
+        既定の挙動は「reward_scales の各成分 _reward_<name>() を重み付き合計」する
+        元の実装と完全に同一（リファクタによる切り出しのみ）。
+        Eureka 版環境(KHREnvEureka)はこのメソッドのみをオーバーライドし、
+        LLM が生成した報酬関数で rew_buf / episode_sums を埋める。
+        """
+        self.rew_buf.zero_()
+        for name, reward_func in self.reward_functions.items():
+            rew = reward_func() * self.reward_scales[name]
+            self.rew_buf += rew
+            self.episode_sums[name] += rew
 
     # ------------ reward functions----------------
     def _reward_tracking_lin_vel(self):
