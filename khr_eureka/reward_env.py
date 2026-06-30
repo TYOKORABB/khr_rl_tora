@@ -54,85 +54,115 @@ class KHREnvEureka(KHREnv):
 
 # ----------------------------------------------------------------------------
 # 候補選抜用の「真のタスク指標」（LLM の報酬とは独立に固定。fitness の根拠）。
+#
+# 歩行重視版: 「立っているだけ」では 0 点になるよう、指令方向への実前進量(progress)を
+# 主指標にする。旧版は exp(-誤差/0.25) が ±0.2m/s レンジに対し緩すぎて、静止でも
+# ~0.9 と高得点になり walker と stander を区別できなかった。その反省を反映。
 # ----------------------------------------------------------------------------
-def task_metrics(env) -> Tuple[torch.Tensor, torch.Tensor]:
-    """(velocity tracking score, upright score) を返す。各 (N,)。"""
-    lin_err = torch.sum(torch.square(env.commands[:, :2] - env.base_lin_vel[:, :2]), dim=1)
-    ang_err = torch.square(env.commands[:, 2] - env.base_ang_vel[:, 2])
-    track = torch.exp(-lin_err / 0.25) + 0.5 * torch.exp(-ang_err / 0.25)
-    upright = (-env.projected_gravity[:, 2]).clamp(min=0.0)  # ~1 直立, ->0 転倒
-    return track, upright
+def _progress_score(env, eps: float = 1e-6):
+    """指令方向への正規化前進スコア (N,)。
+
+    progress = (指令方向への実速度) / (指令速度).  静止=0, 指令速度ちょうど=1,
+    超過は 1.2 で頭打ち, 逆走は 0。立っているだけでは 0 になるのがポイント。
+    """
+    cmd_xy = env.commands[:, :2]
+    cmd_speed = torch.norm(cmd_xy, dim=1).clamp(min=eps)
+    fwd_speed = torch.sum(env.base_lin_vel[:, :2] * cmd_xy, dim=1) / cmd_speed  # [m/s] 指令方向成分
+    progress = torch.clamp(fwd_speed / cmd_speed, min=0.0, max=1.2)
+    return progress, fwd_speed
+
+
+def _install_walk_commands(env, speed_range=(0.10, 0.20)):
+    """評価中は「意味のある前進指令」を全 env に固定する。
+
+    指令を near-zero にしない（=立つだけでは追従できない）ことが肝。reset や周期
+    resample でも維持されるよう env._resample_commands を差し替える。前進(vx>0)のみ、
+    vy=0, yaw=0。必要なら旋回や横移動も混ぜて拡張可能。
+    """
+    N = env.num_envs
+    lo, hi = speed_range
+    fixed = torch.zeros((N, 3), device=env.device, dtype=env.commands.dtype)
+    fixed[:, 0] = torch.rand(N, device=env.device) * (hi - lo) + lo  # 前進速度 vx
+
+    def _fixed_resample(envs_idx):
+        if envs_idx is None:
+            env.commands.copy_(fixed)
+        else:
+            torch.where(envs_idx[:, None], fixed, env.commands, out=env.commands)
+
+    env._resample_commands = _fixed_resample
+    return fixed
 
 
 # inference_mode を使う（no_grad ではない）。rsl_rl の学習中 rollout で env の
 # テンソルが inference tensor 化するため、評価時も inference_mode 内でないと
 # env.reset() の in-place 更新が "Inplace update to inference tensor" で落ちる。
 @torch.inference_mode()
-def evaluate_policy(env, policy, num_steps: int = 500):
-    """学習済みポリシーを num_steps 回しして fitness と成分統計を集計。
+def evaluate_policy(env, policy, num_steps: int = 500, walk_speed_range=(0.10, 0.20)):
+    """学習済みポリシーを「前進指令」で num_steps 回し、歩行 fitness を集計。
 
-    返り値 dict:
-      fitness            : 選抜用スコア（高いほど良い）
-      track_mean         : 速度追従スコア平均
-      upright_mean       : 直立スコア平均
-      survival_frac      : 平均エピソード長 / 最大エピソード長
-      component_stats    : {name: {mean,max,min}}  ← LLM へのリフレクション用
-      total_reward_mean  : 生成報酬の平均
+    fitness = progress_mean + 0.3*yaw_track_mean + 0.5*survival_frac
+      - progress_mean : 指令方向への正規化前進量（静止=0, 指令速度=1）← 主指標
+      - yaw_track_mean: ヨー追従（前進中は直進=指令0を保つほど高い）
+      - survival_frac : 評価中に一度も転倒しなかった env の割合（timeout は除外）
+    返り値にはこのほか mean_fwd_speed[m/s]・total_reward_mean・component_stats を含む。
+    注意: num_steps は max_episode_length(=1000) 未満にすること（timeout を fall と
+    誤カウントしないため）。
     """
     device = env.device
+    _install_walk_commands(env, walk_speed_range)
     obs = env.reset()
-    comp_sum: Dict[str, torch.Tensor] = {}
+
+    comp_sum: Dict[str, float] = {}
     comp_max: Dict[str, float] = {}
     comp_min: Dict[str, float] = {}
-    track_acc = torch.zeros((), device=device)
-    upright_acc = torch.zeros((), device=device)
+    progress_acc = torch.zeros((), device=device)
+    yaw_acc = torch.zeros((), device=device)
+    fwd_speed_acc = torch.zeros((), device=device)
     total_rew_acc = torch.zeros((), device=device)
-    ep_len_done_sum = 0.0
-    ep_len_done_cnt = 0
+    ever_fell = torch.zeros(env.num_envs, dtype=torch.bool, device=device)
 
     for _ in range(num_steps):
         actions = policy(obs)
         obs, rews, dones, infos = env.step(actions)
 
-        track, upright = task_metrics(env)
-        track_acc += track.mean()
-        upright_acc += upright.mean()
+        progress, fwd_speed = _progress_score(env)
+        yaw = torch.exp(-torch.square(env.commands[:, 2] - env.base_ang_vel[:, 2]) / 0.25)
+        progress_acc += progress.mean()
+        yaw_acc += yaw.mean()
+        fwd_speed_acc += fwd_speed.mean()
         total_rew_acc += rews.mean()
 
+        # 転倒のみカウント（timeout は除外）。num_steps<max_episode_length なら timeout は
+        # ほぼ発生しないが念のため extras["time_outs"] で除外する。
+        timeouts = env.extras.get("time_outs")
+        if timeouts is not None:
+            fell_now = dones & (~timeouts.bool())
+        else:
+            fell_now = dones
+        ever_fell |= fell_now
+
         for name, val in env.last_reward_components.items():
-            m = val.mean().item()
-            comp_sum[name] = comp_sum.get(name, 0.0) + m
+            comp_sum[name] = comp_sum.get(name, 0.0) + val.mean().item()
             comp_max[name] = max(comp_max.get(name, -1e30), val.max().item())
             comp_min[name] = min(comp_min.get(name, 1e30), val.min().item())
 
-        done_idx = dones.nonzero(as_tuple=False).flatten()
-        if len(done_idx) > 0:
-            # reset 前の episode_length_buf は step 内で 0 化済みなので近似として
-            # max_episode_length 到達/転倒の別を survival に反映するのは省略し、
-            # ここでは done 数のみカウント（survival は別途下で算出）。
-            ep_len_done_cnt += len(done_idx)
-
     n = float(num_steps)
     component_stats = {
-        name: {"mean": comp_sum[name] / n,
-               "max": comp_max[name],
-               "min": comp_min[name]}
+        name: {"mean": comp_sum[name] / n, "max": comp_max[name], "min": comp_min[name]}
         for name in comp_sum
     }
-    # 生存率: done が少ないほど長く生きている。1ステップあたり平均 done 率から概算。
-    avg_done_rate = ep_len_done_cnt / (n * env.num_envs)
-    survival_frac = float(max(0.0, 1.0 - avg_done_rate * env.max_episode_length))
-    survival_frac = min(1.0, survival_frac)
-
-    track_mean = (track_acc / n).item()
-    upright_mean = (upright_acc / n).item()
-    fitness = track_mean + 0.5 * survival_frac + 0.2 * upright_mean
+    progress_mean = (progress_acc / n).item()
+    yaw_mean = (yaw_acc / n).item()
+    survival_frac = float(1.0 - ever_fell.float().mean().item())
+    fitness = progress_mean + 0.3 * yaw_mean + 0.5 * survival_frac
 
     return {
         "fitness": fitness,
-        "track_mean": track_mean,
-        "upright_mean": upright_mean,
-        "survival_frac": survival_frac,
+        "progress_mean": progress_mean,        # 主指標: 指令方向への前進(0..1.2)
+        "yaw_track_mean": yaw_mean,            # ヨー追従(0..1)
+        "mean_fwd_speed": (fwd_speed_acc / n).item(),  # 実前進速度[m/s]（指令 ~0.1-0.2）
+        "survival_frac": survival_frac,        # 非転倒率(0..1)
         "total_reward_mean": (total_rew_acc / n).item(),
         "component_stats": component_stats,
     }
