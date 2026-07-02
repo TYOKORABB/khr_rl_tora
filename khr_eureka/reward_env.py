@@ -180,9 +180,17 @@ def evaluate_policy(env, policy, num_steps: int = 500):
     action_rate_acc = torch.zeros((), device=device)
     total_rew_acc = torch.zeros((), device=device)
     ever_fell = torch.zeros(env.num_envs, dtype=torch.bool, device=device)
+    prev_act = None          # 前ステップのポリシー出力（action_rate 用）
+    act_rate_steps = 0
 
     for _ in range(num_steps):
         actions = policy(obs)
+        # action_rate は「連続するポリシー出力の差」で測る。env.actions/last_actions は
+        # step() 末尾で last_actions<-actions とコピーされ差が 0 になるため使えない。
+        if prev_act is not None:
+            action_rate_acc += torch.sum(torch.square(actions - prev_act), dim=1).mean()
+            act_rate_steps += 1
+        prev_act = actions
         obs, rews, dones, infos = env.step(actions)
 
         progress, fwd_speed = _progress_score(env)
@@ -196,7 +204,6 @@ def evaluate_policy(env, policy, num_steps: int = 500):
         height_acc += env.base_pos[:, 2].mean()
         fwd_speed_acc += fwd_speed.mean()
         vbounce_sq_acc += torch.square(env.base_lin_vel[:, 2]).mean()
-        action_rate_acc += torch.sum(torch.square(env.actions - env.last_actions), dim=1).mean()
         total_rew_acc += rews.mean()
 
         # 転倒のみカウント（timeout は除外）。num_steps<max_episode_length なら timeout は
@@ -234,7 +241,7 @@ def evaluate_policy(env, policy, num_steps: int = 500):
         "upright_mean": (upright_acc / n).item(),        # 直立度(0..1)
         "base_height_mean": (height_acc / n).item(),     # 平均 base 高さ[m]（目標~0.24）
         "vbounce_rms": float(math.sqrt(max((vbounce_sq_acc / n).item(), 0.0))),  # 上下速度RMS[m/s]
-        "action_rate_mean": (action_rate_acc / n).item(),  # 動作の粗さ(小=滑らか)
+        "action_rate_mean": (action_rate_acc / max(act_rate_steps, 1)).item(),  # 動作の粗さ(小=滑らか)
         "mean_fwd_speed": (fwd_speed_acc / n).item(),    # 指令方向の実前進速度[m/s]
         "survival_frac": survival_frac,        # 非転倒率(0..1)
         "total_reward_mean": (total_rew_acc / n).item(),
