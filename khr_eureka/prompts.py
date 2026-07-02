@@ -20,10 +20,17 @@ tensors (self.device). The code output should be formatted as a single python co
 inside a ```python ... ``` block. Use only torch (and math); do not import anything.
 """
 
-TASK_DESCRIPTION = """The task is: make the KHR-3HV humanoid WALK on flat ground while \
-tracking commanded base velocities (forward/lateral linear velocity and yaw angular \
-velocity) given in self.commands, keeping the torso upright and stable, and producing a \
-natural periodic gait without falling."""
+TASK_DESCRIPTION = """The task is: make the KHR-3HV small humanoid WALK on flat ground so that \
+it is STABLE, FAST, and ROBUST. Concretely, the policy must:
+- TRACK the commanded base velocities in self.commands (forward/lateral linear velocity in \
+m/s and yaw angular velocity in rad/s). Forward commands go up to ~0.3 m/s, so the gait must \
+be able to walk BRISKLY, not just shuffle. It must also follow turning and sideways commands.
+- Stay STABLE: torso upright, base height near its nominal value (~0.24 m), minimal vertical \
+bouncing and roll/pitch oscillation, feet making clean periodic contact.
+- Be ROBUST: domain randomization (friction, base mass, center of mass) is active and the \
+robot must not fall. A smooth, low-energy, symmetric periodic gait transfers better to the \
+real robot, so avoid jittery, high-torque actions.
+Produce a natural periodic walking gait without falling."""
 
 
 def build_initial_user_prompt() -> str:
@@ -46,7 +53,17 @@ rescale its temperature/weight or redesign it.
 ignore the rest.
 (4) Keep components on comparable scales. Velocity-tracking should remain a primary positive \
 signal; penalties (action rate, torque, posture) should be small enough not to suppress walking.
-(5) An explicit "alive"/upright reward and a swing-foot clearance term usually help bipedal walking."""
+(5) An explicit "alive"/upright reward and a swing-foot clearance term usually help bipedal walking.
+(6) STABLE: if stability/upright is low, base height drifts from ~0.24 m, or vertical bounce is \
+high, add/strengthen terms for upright torso (self.projected_gravity[:, :2] -> 0), base-height \
+tracking, and small |base_lin_vel[:, 2]| and roll/pitch angular velocity.
+(7) FAST: velocity tracking should reward matching the FULL commanded speed (up to ~0.3 m/s), \
+not a fixed slow speed. Use exp(-error) style tracking on the FULL command vector so higher \
+commands demand faster motion; do not cap forward speed low.
+(8) ROBUST/sim2real: keep actions smooth (moderate action-rate and joint-velocity/torque \
+penalties) and encourage a symmetric, periodic gait using self.leg_phase / self.sin_phase; \
+this survives domain randomization and transfers to hardware better. But keep these penalties \
+small enough that they never overwhelm forward progress."""
 
 
 def build_reflection_user_prompt(prev_reward_code: str, feedback: str) -> str:
