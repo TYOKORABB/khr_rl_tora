@@ -23,8 +23,9 @@ self.base_lin_vel      : (N, 3)  linear velocity in base frame [m/s]
 self.base_ang_vel      : (N, 3)  angular velocity in base frame [rad/s]
 self.projected_gravity : (N, 3)  gravity unit vector in base frame; [0,0,-1] when upright
 
-# Commands the policy must follow (target velocities). Ranges (see self.command_cfg):
-#   forward/back  x in [-0.30, 0.30] m/s  (so the gait must handle BRISK forward walking)
+# Commands the policy must follow (target velocities). Ranges (see self.command_cfg),
+# kept within a real-robot-safe envelope for sim-to-real:
+#   forward/back  x in [-0.20, 0.20] m/s
 #   lateral       y in [-0.20, 0.20] m/s
 #   yaw           in [-0.50, 0.50] rad/s
 self.commands          : (N, 3)  [target_lin_vel_x, target_lin_vel_y, target_ang_vel_yaw]
@@ -64,6 +65,16 @@ self.command_cfg["lin_vel_x_range"], ["lin_vel_y_range"], ["ang_vel_range"]
 # Robustness: domain randomization is ACTIVE every episode (friction 0.1-1.5, base mass,
 # center-of-mass shift). Your reward should therefore encourage a gait that is robust to these
 # variations (upright, stable, smooth) rather than one tuned to a single dynamics.
+#
+# SIM-TO-REAL (important): this policy runs on a real KHR-3HV servo robot at 50 Hz. Observation
+# noise and a 1-step action latency are already simulated. Design the reward so the gait is
+# smooth and gentle on the hardware:
+#   - low action jerk:      torch.sum(torch.square(self.actions - self.last_actions), dim=1)
+#   - low joint velocity:   torch.sum(torch.square(self.dof_vel), dim=1)
+#   - low joint accel:      torch.sum(torch.square((self.dof_vel - self.last_dof_vel)/self.dt), dim=1)
+#   - low joint torque:     torch.sum(torch.square(self.robot.get_dofs_control_force()), dim=1)
+#   - pose near default:    torch.sum(torch.square(self.dof_pos - self.default_dof_pos), dim=1)
+# These make the motion physically feasible for the servos and greatly improve real-robot transfer.
 '''
 
 # 報酬関数の出力契約（Eureka の reward_signature に相当）。

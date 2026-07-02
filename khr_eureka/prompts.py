@@ -20,17 +20,24 @@ tensors (self.device). The code output should be formatted as a single python co
 inside a ```python ... ``` block. Use only torch (and math); do not import anything.
 """
 
-TASK_DESCRIPTION = """The task is: make the KHR-3HV small humanoid WALK on flat ground so that \
-it is STABLE, FAST, and ROBUST. Concretely, the policy must:
+TASK_DESCRIPTION = """The task is: make the KHR-3HV small humanoid WALK on flat ground with a \
+gait that TRANSFERS TO THE REAL ROBOT (sim-to-real). The learned policy will be deployed on a \
+PHYSICAL KHR-3HV servo robot via the Meridian interface at 50 Hz. Therefore a SMOOTH, gentle, \
+hardware-feasible gait matters as much as speed. Concretely, the policy must:
 - TRACK the commanded base velocities in self.commands (forward/lateral linear velocity in \
-m/s and yaw angular velocity in rad/s). Forward commands go up to ~0.3 m/s, so the gait must \
-be able to walk BRISKLY, not just shuffle. It must also follow turning and sideways commands.
-- Stay STABLE: torso upright, base height near its nominal value (~0.24 m), minimal vertical \
-bouncing and roll/pitch oscillation, feet making clean periodic contact.
-- Be ROBUST: domain randomization (friction, base mass, center of mass) is active and the \
-robot must not fall. A smooth, low-energy, symmetric periodic gait transfers better to the \
-real robot, so avoid jittery, high-torque actions.
-Produce a natural periodic walking gait without falling."""
+m/s and yaw angular velocity in rad/s). Commands stay within a real-robot-safe range \
+(|vx|,|vy| <= 0.2 m/s, |yaw| <= 0.5 rad/s). Walk at the commanded speed (do not just shuffle), \
+and also follow turning and sideways commands.
+- Be SMOOTH and HARDWARE-FRIENDLY (this is critical): small changes in actions between steps \
+(low action-rate / jerk), low joint velocities and joint accelerations, low joint torques, and \
+a posture close to the natural default pose. High-frequency, jittery, or high-torque motions \
+destroy real servos and do NOT transfer. Aim to be as smooth as a carefully hand-tuned \
+controller while walking faster than a slow one.
+- Stay STABLE: torso upright, base height near nominal (~0.24 m), minimal vertical bouncing and \
+roll/pitch oscillation, feet making clean periodic contact with little slip.
+- Be ROBUST to model mismatch: domain randomization (friction, base mass, center of mass), \
+observation noise, and a 1-step action latency are active; the gait must not fall under them.
+Produce a natural, periodic, energy-efficient walking gait without falling."""
 
 
 def build_initial_user_prompt() -> str:
@@ -57,13 +64,18 @@ signal; penalties (action rate, torque, posture) should be small enough not to s
 (6) STABLE: if stability/upright is low, base height drifts from ~0.24 m, or vertical bounce is \
 high, add/strengthen terms for upright torso (self.projected_gravity[:, :2] -> 0), base-height \
 tracking, and small |base_lin_vel[:, 2]| and roll/pitch angular velocity.
-(7) FAST: velocity tracking should reward matching the FULL commanded speed (up to ~0.3 m/s), \
-not a fixed slow speed. Use exp(-error) style tracking on the FULL command vector so higher \
-commands demand faster motion; do not cap forward speed low.
-(8) ROBUST/sim2real: keep actions smooth (moderate action-rate and joint-velocity/torque \
-penalties) and encourage a symmetric, periodic gait using self.leg_phase / self.sin_phase; \
-this survives domain randomization and transfers to hardware better. But keep these penalties \
-small enough that they never overwhelm forward progress."""
+(7) SPEED: velocity tracking should reward matching the commanded speed within +/-0.2 m/s (use \
+exp(-error) on the command vector). Reward actually moving when commanded, but do NOT reward \
+speed beyond the command.
+(8) SMOOTHNESS / SIM-TO-REAL (highest priority when action_rate >> 1): the gait must run on \
+real servos. Add meaningful penalties on action-rate (sum of squared self.actions - \
+self.last_actions), joint velocity (self.dof_vel), joint acceleration ((self.dof_vel - \
+self.last_dof_vel)/self.dt), and joint torque (self.robot.get_dofs_control_force()), plus a term \
+keeping the pose near self.default_dof_pos. A hand-tuned baseline achieves action_rate ~1.0; if \
+yours is far higher, INCREASE these penalties. Encourage a symmetric periodic gait via \
+self.leg_phase / self.sin_phase. Balance is key: make smoothing penalties strong enough to kill \
+jitter, but not so strong that the robot stops stepping. The winning gait is BOTH smooth AND \
+walking at the commanded speed."""
 
 
 def build_reflection_user_prompt(prev_reward_code: str, feedback: str) -> str:

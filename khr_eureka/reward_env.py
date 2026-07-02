@@ -120,13 +120,15 @@ def _build_eval_commands(env, seed: int = 12345):
     vx = torch.zeros(N, device=dev)
     vy = torch.zeros(N, device=dev)
     wz = torch.zeros(N, device=dev)
-    vx = torch.where(fast, U(0.15, 0.30), vx)
-    vx = torch.where(turn, U(0.10, 0.20), vx)
+    # sim2real: 実機(±0.2m/s 相当)で無理のない速度域に収める。過速はジッタ/転倒を招くため
+    # 前進上限は 0.20。速さは「この範囲でどれだけ指令に追従できるか(progress)」で測る。
+    vx = torch.where(fast, U(0.12, 0.20), vx)
+    vx = torch.where(turn, U(0.08, 0.16), vx)
     wz = torch.where(turn, sign_w * U(0.25, 0.45), wz)
-    vx = torch.where(diag, U(0.10, 0.20), vx)
-    vy = torch.where(diag, sign_y * U(0.05, 0.15), vy)
+    vx = torch.where(diag, U(0.08, 0.16), vx)
+    vy = torch.where(diag, sign_y * U(0.05, 0.12), vy)
     vx = torch.where(lat, U(0.03, 0.08), vx)
-    vy = torch.where(lat, sign_y * U(0.12, 0.20), vy)
+    vy = torch.where(lat, sign_y * U(0.10, 0.18), vy)
 
     fixed = torch.zeros((N, 3), device=dev, dtype=env.commands.dtype)
     fixed[:, 0] = vx
@@ -143,23 +145,32 @@ def _build_eval_commands(env, seed: int = 12345):
     return fixed
 
 
+# sim2real: 滑らかさ(低 action_rate=低ジッタ)を fitness に写像する際のスケール。
+# action_rate=連続ポリシー出力の二乗差の和(12関節)。実測: 先輩ハンド報酬~1.0(滑らか),
+# ジッタ大の Eureka 版~11-13。smoothness=exp(-action_rate/6.0) で ~1.0→0.85, ~3→0.61,
+# ~11→0.16 と分離し、「速いがガタガタ」を実機不適として割り引く。
+_SMOOTH_AR_SCALE = 6.0
+
+
 # inference_mode を使う（no_grad ではない）。rsl_rl の学習中 rollout で env の
 # テンソルが inference tensor 化するため、評価時も inference_mode 内でないと
 # env.reset() の in-place 更新が "Inplace update to inference tensor" で落ちる。
 @torch.inference_mode()
 def evaluate_policy(env, policy, num_steps: int = 500):
-    """学習済みポリシーを混合指令分布で num_steps 回し、多目的 fitness を集計。
+    """学習済みポリシーを混合指令分布で num_steps 回し、sim2real 志向の多目的 fitness を集計。
 
-    fitness = survival_frac * (0.60*progress + 0.20*yaw_track + 0.20*stability)
-      - survival_frac : 評価中に一度も転倒しなかった env の割合（timeout 除外）。
-        転倒すると fitness が 0 に潰れる = 「速いが倒れる」が「安定歩行」に勝てない。
-      - progress  : 指令方向への正規化前進(静止=0, 指令速度=1)。速い指令ほど実速度が
-                    必要になるので「速さ」を捉える。← 主軸(重み0.6)
-      - yaw_track : ヨー追従(旋回指令/直進維持どちらも報いる)。← 頑健(旋回)
-      - stability : 直立・目標高さ・低バウンドの平均。survivor 同士で滑らかさを選ぶ。
-    安定して指令(前進/斜め/横/旋回)に追従するほど高い。
-    返り値には上記に加え、reflection 用の詳細統計(実速度・base高さ・上下バウンドRMS・
-    直立度・action_rate・total_reward・component_stats)を含む。
+    fitness = survival * (0.40*progress + 0.15*yaw_track + 0.20*stability + 0.25*smoothness)
+      - survival   : 非転倒率（timeout 除外）。転倒で fitness を 0 に潰す乗算ゲート。
+      - progress   : 指令方向への正規化前進(静止=0, 指令速度=1)。実機妥当な ±0.2 域での
+                     追従＝「速さ」。← 主軸(重み0.40)
+      - yaw_track  : ヨー追従(旋回/直進維持)。← 頑健(旋回)
+      - stability  : 直立・目標高さ・低上下バウンドの平均。
+      - smoothness : exp(-action_rate/6.0)。動作の滑らかさ(=実サーボで動く度合い)。
+                     ジッタの大きいポリシーを実機不適として割り引く sim2real の要。← 重み0.25
+    実機(KHR-3HV/Meridian・50Hz)で動かすことを最優先に、「速い×滑らか×安定×転ばない」を
+    バランス良く満たすほど高い。滑らかで無難な手設計ベースラインも相応に高く評価される。
+    返り値には reflection 用の詳細統計(実速度・base高さ・上下バウンドRMS・直立度・
+    action_rate・torque・dof_vel・total_reward・component_stats)を含む。
     注意: num_steps は max_episode_length(=1000) 未満にすること（timeout を fall と
     誤カウントしないため）。
     """
@@ -178,6 +189,8 @@ def evaluate_policy(env, policy, num_steps: int = 500):
     fwd_speed_acc = torch.zeros((), device=device)
     vbounce_sq_acc = torch.zeros((), device=device)
     action_rate_acc = torch.zeros((), device=device)
+    torque_sq_acc = torch.zeros((), device=device)      # sim2real: サーボ負荷
+    dofvel_sq_acc = torch.zeros((), device=device)      # sim2real: サーボ速度
     total_rew_acc = torch.zeros((), device=device)
     ever_fell = torch.zeros(env.num_envs, dtype=torch.bool, device=device)
     prev_act = None          # 前ステップのポリシー出力（action_rate 用）
@@ -204,6 +217,8 @@ def evaluate_policy(env, policy, num_steps: int = 500):
         height_acc += env.base_pos[:, 2].mean()
         fwd_speed_acc += fwd_speed.mean()
         vbounce_sq_acc += torch.square(env.base_lin_vel[:, 2]).mean()
+        torque_sq_acc += torch.sum(torch.square(env.robot.get_dofs_control_force()), dim=1).mean()
+        dofvel_sq_acc += torch.sum(torch.square(env.dof_vel), dim=1).mean()
         total_rew_acc += rews.mean()
 
         # 転倒のみカウント（timeout は除外）。num_steps<max_episode_length なら timeout は
@@ -228,20 +243,26 @@ def evaluate_policy(env, policy, num_steps: int = 500):
     progress_mean = (progress_acc / n).item()
     yaw_mean = (yaw_acc / n).item()
     stability_mean = (stab_acc / n).item()
+    action_rate_mean = (action_rate_acc / max(act_rate_steps, 1)).item()
     survival_frac = float(1.0 - ever_fell.float().mean().item())
-    # 3 軸(速さ/方向追従・旋回追従・安定)を統合し survival で乗算ゲート。
-    # 転倒(survival→0)で fitness が潰れ、過速ダイブが安定歩行に勝てない。
-    fitness = survival_frac * (0.60 * progress_mean + 0.20 * yaw_mean + 0.20 * stability_mean)
+    # sim2real 志向: 滑らかさ(低ジッタ=実サーボで動く度合い)を第一級の目的に格上げ。
+    smoothness = math.exp(-action_rate_mean / _SMOOTH_AR_SCALE)  # 0..1(高=滑らか)
+    # survival で乗算ゲートしつつ「速い×滑らか×安定×転ばない」を統合。
+    fitness = survival_frac * (0.40 * progress_mean + 0.15 * yaw_mean
+                               + 0.20 * stability_mean + 0.25 * smoothness)
 
     return {
         "fitness": fitness,
-        "progress_mean": progress_mean,        # 主軸: 指令方向への前進(0..1)
+        "progress_mean": progress_mean,        # 速さ/方向追従: 指令方向への前進(0..1)
         "yaw_track_mean": yaw_mean,            # ヨー追従(0..1)
         "stability_mean": stability_mean,      # 直立/高さ/低バウンドの平均(0..1)
+        "smoothness_mean": smoothness,         # 滑らかさ(0..1, 高=実機向き) ← sim2real 第一級
         "upright_mean": (upright_acc / n).item(),        # 直立度(0..1)
         "base_height_mean": (height_acc / n).item(),     # 平均 base 高さ[m]（目標~0.24）
         "vbounce_rms": float(math.sqrt(max((vbounce_sq_acc / n).item(), 0.0))),  # 上下速度RMS[m/s]
-        "action_rate_mean": (action_rate_acc / max(act_rate_steps, 1)).item(),  # 動作の粗さ(小=滑らか)
+        "action_rate_mean": action_rate_mean,            # 動作の粗さ(小=滑らか) ← sim2real 重要
+        "torque_sq_mean": (torque_sq_acc / n).item(),    # 関節トルク二乗和(小=低負荷) sim2real
+        "dof_vel_sq_mean": (dofvel_sq_acc / n).item(),   # 関節速度二乗和(小=低速サーボ) sim2real
         "mean_fwd_speed": (fwd_speed_acc / n).item(),    # 指令方向の実前進速度[m/s]
         "survival_frac": survival_frac,        # 非転倒率(0..1)
         "total_reward_mean": (total_rew_acc / n).item(),

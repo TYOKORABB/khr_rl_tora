@@ -136,17 +136,21 @@ def main():
     print(f"  command range trained: vx {command_cfg['lin_vel_x_range']}  "
           f"vy {command_cfg['lin_vel_y_range']}  yaw {command_cfg['ang_vel_range']}")
     print("=" * 62)
-    print("[MIXED distribution]  (fitness 指標: 速い前進/斜め/横/前進+旋回)")
+    print("[MIXED distribution]  (fitness 指標: 前進/斜め/横/前進+旋回, sim2real 志向)")
     print(f"  fitness={mixed['fitness']:.3f}  progress={mixed['progress_mean']:.3f}  "
-          f"fwd_speed={mixed['mean_fwd_speed']:.3f}  yaw={mixed['yaw_track_mean']:.3f}")
+          f"fwd_speed={mixed['mean_fwd_speed']:.3f}  yaw={mixed['yaw_track_mean']:.3f}  "
+          f"survival={mixed['survival_frac']:.3f}")
     print(f"  stability={mixed['stability_mean']:.3f}  upright={mixed['upright_mean']:.3f}  "
-          f"height={mixed['base_height_mean']:.3f}  vbounce={mixed['vbounce_rms']:.3f}  "
-          f"action_rate={mixed['action_rate_mean']:.2f}  survival={mixed['survival_frac']:.3f}")
+          f"height={mixed['base_height_mean']:.3f}  vbounce={mixed['vbounce_rms']:.3f}")
+    print(f"  [sim2real] smoothness={mixed.get('smoothness_mean', float('nan')):.3f}  "
+          f"action_rate={mixed['action_rate_mean']:.2f}  "
+          f"torque^2={mixed.get('torque_sq_mean', float('nan')):.1f}  "
+          f"dof_vel^2={mixed.get('dof_vel_sq_mean', float('nan')):.2f}")
     print("[FWD 0.10-0.20]  (両者の学習範囲内 = 最も公平な直接比較)")
     print(f"  progress={fwd['progress']:.3f}  fwd_speed={fwd['mean_fwd_speed']:.3f} m/s  "
           f"survival={fwd['survival']:.3f}  stability={fwd['stability']:.3f}  "
           f"upright={fwd['upright']:.3f}  height={fwd['base_height']:.3f}")
-    print("[FWD 0.25-0.30]  (速い直進 = ±0.2学習のベースラインには範囲外/汎化テスト)")
+    print("[FWD 0.25-0.30]  (過速指令 = 全モデルの学習範囲外/汎化・限界テスト)")
     print(f"  progress={fast['progress']:.3f}  fwd_speed={fast['mean_fwd_speed']:.3f} m/s  "
           f"survival={fast['survival']:.3f}")
     print("=" * 62)
