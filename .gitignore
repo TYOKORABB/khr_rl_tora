@@ -209,3 +209,6 @@ __marimo__/
 # rsl-rl logs
 logs/
 *.mp4
+
+# quad_pose_test.py などが出力する姿勢確認用レンダリング画像
+quad_pose_*.png
