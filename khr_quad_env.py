@@ -39,7 +39,8 @@ def gs_rand_float(lower, upper, shape, device):
 
 
 class KHRQuadEnv:
-    def __init__(self, num_envs, env_cfg, obs_cfg, reward_cfg, command_cfg, show_viewer=True):
+    def __init__(self, num_envs, env_cfg, obs_cfg, reward_cfg, command_cfg, show_viewer=True,
+                 add_camera=False, camera_res=(1280, 720)):
         self.num_envs: int = num_envs
         self.num_actions = env_cfg["num_actions"]
         self.cfg = env_cfg
@@ -101,6 +102,19 @@ class KHRQuadEnv:
         global_friction = 0.5
         self.ground.set_friction(global_friction)
         self.robot.set_friction(global_friction)
+
+        # 録画用カメラ（オプション）。ビルド前に追加する必要がある。ビューア不要で
+        # オフスクリーンにレンダリングし MP4 保存に使う（khr_quad_record.py）。
+        # 学習時(add_camera=False)は追加されないので挙動・性能に影響しない。
+        self.cam = None
+        if add_camera:
+            self.cam = self.scene.add_camera(
+                res=camera_res,
+                pos=(1.0, -1.0, 0.6),
+                lookat=(0.0, 0.0, 0.2),
+                fov=40,
+                GUI=False,
+            )
 
         # build
         self.scene.build(n_envs=num_envs)
