@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import pickle
 import shutil
@@ -124,6 +125,7 @@ def get_cfgs():
         "episode_length_s": 20.0,
         "resampling_time_s": 4.0,
         "action_scale": 0.15,  # 0.25→0.15: 1 アクションあたりの関節オフセットを抑え、即転倒しにくくする
+        "gait_period": 0.5,    # [s] トロット歩容の1周期（記録・再現のため cfg 化）
         "simulate_action_latency": True,
         "clip_actions": 100.0,
     
@@ -230,6 +232,28 @@ def main():
     with open(f"{log_dir}/cfgs.pkl", "wb") as f:
         pickle.dump([env_cfg, obs_cfg, reward_cfg, command_cfg, train_cfg], f)
 
+    # 研究記録用: 実行条件(git/CLI/日時)を run_info.json に残す（学習が途中終了しても残る）
+    import datetime as _dt
+    import subprocess as _sp
+
+    def _git(*a):
+        try:
+            return _sp.check_output(["git", *a], text=True, stderr=_sp.DEVNULL).strip()
+        except Exception:
+            return None
+
+    run_info = {
+        "exp_name": args.exp_name,
+        "num_envs": args.num_envs,
+        "max_iterations": args.max_iterations,
+        "seed": args.seed,
+        "started_at": _dt.datetime.now().isoformat(timespec="seconds"),
+        "git_sha": _git("rev-parse", "--short", "HEAD"),
+        "git_dirty": bool(_git("status", "--porcelain")),
+    }
+    with open(f"{log_dir}/run_info.json", "w") as f:
+        json.dump(run_info, f, ensure_ascii=False, indent=2)
+
     gs.init(backend=gs.gpu, precision="32", logging_level="warning", seed=args.seed, performance_mode=True)
 
     env = KHRQuadEnv(
@@ -239,6 +263,13 @@ def main():
     runner = OnPolicyRunner(env, train_cfg, log_dir, device=gs.device)
 
     runner.learn(num_learning_iterations=args.max_iterations, init_at_random_ep_len=True)
+
+    # 学習完了後、研究記録(experiments/<exp>/report.md, metrics.csv, INDEX.md)を自動生成
+    try:
+        import khr_quad_report
+        khr_quad_report.generate(args.exp_name)
+    except Exception as e:
+        print(f"[report] 記録の自動生成に失敗しました（学習自体は完了しています）: {e}")
 
 
 if __name__ == "__main__":

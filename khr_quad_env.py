@@ -203,7 +203,7 @@ class KHRQuadEnv:
         # ------- 歩容位相（トロット） -------
         # master phase を 1 本持ち、4 脚は固定オフセットで駆動する。
         # トロット = 対角ペア (FL,RR) と (FR,RL) が 0.5 位相ずれ。
-        self.gait_period = 0.5  # [s] 1 歩容周期（tunable）
+        self.gait_period = self.env_cfg.get("gait_period", 0.5)  # [s] 1 歩容周期（tunable・cfg優先）
         self.gait_offsets = torch.tensor([0.0, 0.5, 0.5, 0.0], device=self.device, dtype=gs.tc_float)  # FL,FR,RL,RR
         self.phase = torch.zeros(self.num_envs, device=self.device)
         self.leg_phase = torch.zeros((self.num_envs, self.feet_num), device=self.device)
