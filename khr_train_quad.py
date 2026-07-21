@@ -22,7 +22,7 @@ def get_train_cfg(exp_name):
             "class_name": "PPO",
             "clip_param": 0.2,
             "desired_kl": 0.01,
-            "entropy_coef": 0.002,
+            "entropy_coef": 0.01,  # 0.002→0.01: 探索(std)の早期崩壊を抑え、歩容発見の機会を残す
             "gamma": 0.99,
             "lam": 0.95,
             "learning_rate": 0.001,
@@ -39,7 +39,7 @@ def get_train_cfg(exp_name):
             "activation": "elu",
             "distribution_cfg": {
                 "class_name": "GaussianDistribution",
-                "init_std": 1.0,
+                "init_std": 0.5,  # 1.0→0.5: 初期探索を穏やかにし、早期に全滅して学習信号が消えるのを防ぐ
                 "std_type": "scalar",
             },
         },
@@ -123,7 +123,7 @@ def get_cfgs():
         
         "episode_length_s": 20.0,
         "resampling_time_s": 4.0,
-        "action_scale": 0.25,
+        "action_scale": 0.15,  # 0.25→0.15: 1 アクションあたりの関節オフセットを抑え、即転倒しにくくする
         "simulate_action_latency": True,
         "clip_actions": 100.0,
     
