@@ -23,7 +23,9 @@ import matplotlib.pyplot as plt
 
 from rsl_rl.runners import OnPolicyRunner
 import genesis as gs
-from khr_quad_env9 import KHRQuadEnv  # 推論専用(reward無効)なので v4〜v12 の cfgs を評価可能
+# 環境は --env で指定（推論専用=reward無効なので、どの世代の cfgs も評価できる）。
+# import のずれで別バージョンを測ってしまう事故を防ぐため、明示指定にしている。
+from importlib import import_module
 
 # colorblind-safe (Okabe-Ito, 低コントラストの黄は除外)
 CB = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9"]
@@ -39,9 +41,11 @@ def main():
     ap.add_argument("--wz", type=float, default=0.0)
     ap.add_argument("--seconds", type=float, default=6.0)
     ap.add_argument("--warmup", type=float, default=1.0, help="立ち上がりを除く秒数")
+    ap.add_argument("--env", type=int, default=10, help="使用する khr_quad_env{N}.py の番号")
     ap.add_argument("-o", "--out", default=None)
     args = ap.parse_args()
 
+    KHRQuadEnv = import_module(f"khr_quad_env{args.env}").KHRQuadEnv
     gs.init(backend=gs.gpu)
     log_dir = f"logs/{args.exp_name}"
     with open(f"{log_dir}/cfgs.pkl", "rb") as f:
