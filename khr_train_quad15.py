@@ -1,21 +1,36 @@
-"""四足歩行 学習スクリプト v14 — 後脚の「変な力の入れ方」に挑戦（base_height 仮説は反証された）。
+"""四足歩行 学習スクリプト v15 — 遊脚を解放し、膝を主動力に戻す版（犬のような関節運動を目指す）。
 
-khr_train_quad13.py (v13) のコピー。環境は khr_quad_env11.py。
+khr_train_quad14.py (v14) のコピー。環境は khr_quad_env12.py。
 
-診断（v13 実測）: 後脚は膝ROM 9.6〜10.2° とほぼ曲がらず、足首が膝より大トルク(30% > 19%)、
-力の 73〜85% が動きに逆らう向き（ブレーキ）、胴体の上下動はわずか 2mm。
+これまでの診断（v13/v14 実測）:
+  後脚は 膝ROM 6.4〜14.8° とほとんど曲がらず、**足首が膝より大きなトルク(32% > 10%)** を負担する
+  「棒脚」状態。力の 73〜87% が動きに逆らう向き（ブレーキ）。
+  v14 で立てた「胴体が固定されているせい(base_height罰)」という仮説は **反証**
+  （罰を -10→-3 に緩めても上下動は 2.0→1.8mm と不変、膝も解放されず）。
 
-v13 → v14 の変更点（2点）:
-  - base_height -10.0 → -3.0（主対策・胴体の上下動を許し後脚が畳める余地を作る狙い）
-  - クリアランス目標を脚別テンソル化: 前脚 0.012（v12水準へ復帰）/ 後脚 0.02
+v15 の仮説（本命）:
+  `_reward_feet_orientation`(-1.0, v7導入) が **接地/遊脚を区別せず常に後脚の足裏を水平に
+  保たせていた**（実装に contact マスクが無かった）。遊脚中に膝を曲げると足裏が傾いて罰されるため
+  **膝の屈曲が抑制**され、さらに足裏水平を保つ仕事が **足首に集中**する。
+  これは「足首が最大トルク・膝は不使用」という観測を最も自然に説明する。
 
-結果: **仮説は反証**。罰を1/3にしても上下動は 2.0→1.8mm と不変で、膝も解放されなかった
-（左膝ROM は 9.6→6.4° と悪化）。前脚を v12 水準へ戻す点と安全性(飽和0/22)は達成。
-詳細は experiments/khr-quadruped14/results.md。
+v14 → v15 の変更点（変更は1点のみ＝ablation を明確化）:
+  - `_reward_feet_orientation` を **接地時のみ** 適用（`feet_orientation_stance_only: True`）。
+    遊脚中は足裏の傾きを許し、膝・足首を自由に振れるようにする。
+    接地時は従来どおり水平を促すので、v7 で解決した「足の縁で歩く」問題は再発させない狙い。
+  - 他（脚別クリアランス目標 前0.012/後0.02、base_height -3.0、トルク安全策、
+    leg_load_balance、heading_drift、feet_air_time 等）はすべて v14 のまま。
+
+既定 exp_name は khr-quadruped15。v1〜v14 の成果物には一切触れない。
+
+--- 以下、v14 の説明 ---
+四足歩行 学習スクリプト v14 — 後脚の「変な力の入れ方」に挑戦（base_height 仮説は反証）。
+  base_height -10.0→-3.0（胴体の上下動を許す狙い。結果は上下動 2.0→1.8mm と不変で仮説は棄却）、
+  クリアランス目標を脚別テンソル化（前脚 0.012 = v12水準へ復帰 / 後脚 0.02）。
 
 --- 以下、v13 の説明 ---
 四足歩行 学習スクリプト v13 — すり足を解消し、足をしっかり上げて歩かせる版。
-  feet_clearance を「絶対高さ」から「各足の接地基準からの相対クリアランス」へ修正、
+  feet_clearance を「絶対高さ」から「各足の接地基準からの相対クリアランス」へ修正（前脚は3倍改善）、
   _reward_feet_air_time 新設、contact_no_vel -0.2→-1.0。
 
 --- 以下、v11(失敗) の説明 ---
@@ -155,7 +170,7 @@ from rsl_rl.runners import OnPolicyRunner
 
 import genesis as gs
 
-from khr_quad_env11 import KHRQuadEnv  # v14: 上記 + 脚別クリアランス目標／胴体の上下動を許容
+from khr_quad_env12 import KHRQuadEnv  # v15: 上記 + 足裏水平罰を接地時のみに限定（遊脚を解放）
 
 
 def get_train_cfg(exp_name):
@@ -318,6 +333,7 @@ def get_cfgs():
         "tracking_sigma": 0.15,  # v2: 0.25→0.15 速度追従を厳しく（指令速度に届かないと報酬が減る）
         "base_height_target": 0.1946,  # 【変更】初期高さに合わせて目標高さを0.197mに修正
         "feet_height_target": 0.06,  # v12以前の絶対高さ目標（v13のenv10では未使用。互換のため残置）
+        "feet_orientation_stance_only": True,  # v15: 足裏水平罰を接地時のみに（遊脚中の膝・足首を解放）
         "foot_clearance_target_front": 0.012,  # v14: 前脚は v12 水準で十分（v13で0.032まで上がったが不要）
         "foot_clearance_target_rear": 0.02,    # v14: 問題の後脚だけ目標を上げる（v13実測は0.005m）
         "air_time_target": 0.2,     # v13: 滞空時間の目標[s]（swing期=0.45*0.5s=0.225s に対応）
@@ -377,7 +393,7 @@ def main():
     global env
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("-e", "--exp_name", type=str, default="khr-quadruped14") # v14: 後脚の力の入れ方を改善
+    parser.add_argument("-e", "--exp_name", type=str, default="khr-quadruped15") # v15: 遊脚解放で犬のような関節運動へ
     parser.add_argument("-B", "--num_envs", type=int, default=4096)
     parser.add_argument("-I","--max_iterations", type=int, default=101)
     parser.add_argument("--seed", type=int, default=1)
