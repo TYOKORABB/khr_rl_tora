@@ -34,7 +34,7 @@ from rsl_rl.runners import OnPolicyRunner
 
 import genesis as gs
 
-from khr_quad_env9 import KHRQuadEnv  # v12: 上記 + 持続ヘディング偏り(wz誤差EMA)
+from khr_quad_env10 import KHRQuadEnv  # v13: 足上げ改善(相対クリアランス+air_time)
 
 
 def main():
