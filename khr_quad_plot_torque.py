@@ -42,6 +42,8 @@ def main():
     ap.add_argument("--seconds", type=float, default=6.0)
     ap.add_argument("--warmup", type=float, default=1.0, help="立ち上がりを除く秒数")
     ap.add_argument("--env", type=int, default=10, help="使用する khr_quad_env{N}.py の番号")
+    ap.add_argument("--joint-offset", action="store_true",
+                    help="関節オフセットDR(個体差)を有効にしたまま測る（既定は無効＝版間で公平に比較）")
     ap.add_argument("-o", "--out", default=None)
     args = ap.parse_args()
 
@@ -54,6 +56,11 @@ def main():
     obs_cfg["add_noise"] = False
     for k in ("randomize_friction", "randomize_base_mass", "randomize_com", "randomize_kp"):
         env_cfg[k] = False
+    # [v20対応] 関節オフセットDR(v20で追加)も既定で無効化する。無効化しないと v20 だけ
+    # 個体差ありの条件で測ることになり、旧版との比較が不公平になる（実際 v20 のピークが
+    # 81%→100% と見かけ上悪化して見えた）。個体差ありで測りたいときは --joint-offset を付ける。
+    if not args.joint_offset:
+        env_cfg["randomize_joint_offset"] = False
 
     env = KHRQuadEnv(1, env_cfg, obs_cfg, reward_cfg, command_cfg, show_viewer=False)
     jn = list(env_cfg["joint_names"])
