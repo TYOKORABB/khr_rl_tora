@@ -63,8 +63,12 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
 
     n_steps = int(round(seconds / env.dt))
     n_warm = int(round(warmup_s / env.dt))
-    tau, xy, vy, wz, contact, knee, tilt = [], [], [], [], [], [], []
+    tau, xy, vy, wz, contact, knee, tilt, clear = [], [], [], [], [], [], [], []
     up = env.local_up.expand(num_robots, 3)
+    # 前脚/後脚のインデックス（足上げ量を脚グループ別に見るため）
+    rear_set = set(int(i) for i in env.rear_feet_indices)
+    front_cols = [c for c, i in enumerate(env.feet_indices) if int(i) not in rear_set]
+    rear_cols = [c for c, i in enumerate(env.feet_indices) if int(i) in rear_set]
 
     with torch.no_grad():
         for i in range(n_steps):
@@ -85,10 +89,14 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
                 v = transform_by_quat(up, quat[:, f, :]).cpu().numpy()
                 per_foot.append(np.degrees(np.arctan2(np.linalg.norm(v[:, :2], axis=1), np.abs(v[:, 2]))))
             tilt.append(np.stack(per_foot, axis=1))
+            # 足上げ量: 接地基準 foot_ref_z からの相対高さ（v13 の設計則の主指標）
+            if env.foot_ref_z is not None:
+                clear.append((env.feet_pos[:, :, 2] - env.foot_ref_z).cpu().numpy())
 
     tau = np.abs(np.array(tau)) / EFFORT_LIMIT
     xy, vy, wz = np.array(xy), np.array(vy), np.array(wz)
     contact, knee, tilt = np.array(contact), np.array(knee), np.array(tilt)
+    clear = np.array(clear) if clear else None
     dur = (n_steps - n_warm) * env.dt
 
     # 横ずれ率: 初期の進行方向を基準に、進んだ距離に対する直交方向のずれの割合
@@ -118,6 +126,9 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
         "knee_rom_deg": float(np.degrees(knee.max(axis=0) - knee.min(axis=0)).mean()),
         "duty_asym_pt": float(np.abs(duty[:, 0] - duty[:, 1]).mean()),
         "sole_tilt_deg": float((tilt * contact).sum() / max(contact.sum(), 1)),
+        # 足上げ量（接地基準からの相対高さのピーク）。v13 の「絶対量→相対量」設計則の主指標。
+        "clearance_front_m": (float(clear[:, :, front_cols].max(axis=0).mean()) if clear is not None else None),
+        "clearance_rear_m": (float(clear[:, :, rear_cols].max(axis=0).mean()) if clear is not None else None),
     }
 
 

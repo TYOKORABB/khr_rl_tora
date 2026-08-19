@@ -25,6 +25,8 @@ METRICS = [
     ("knee_rom_deg",           "膝ROM",           "deg",    0),
     ("sole_tilt_deg",          "足裏傾き",        "deg",   -1),
     ("duty_asym_pt",           "接地率左右差",    "pt",    -1),
+    ("clearance_front_m",      "前脚の足上げ量",  "m",     +1),
+    ("clearance_rear_m",       "後脚の足上げ量",  "m",     +1),
 ]
 CONDS = [("no_offset", "個体差なし"), ("with_offset", "個体差あり（関節オフセット±1.15°）")]
 
@@ -66,7 +68,7 @@ def main():
                 continue
             v = res[key][mkey]
             b = base.get(key, {}).get(mkey)
-            fmt = "{:.4f}" if unit == "m/s" else "{:.2f}"
+            fmt = "{:.4f}" if unit in ("m/s", "m") else "{:.2f}"
             if b is None:
                 print(f"{name:<18}{'—':>20}{'—':>9}{fmt.format(v):>11}   —（ノイズ床なし）")
                 continue
