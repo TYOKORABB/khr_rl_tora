@@ -1,0 +1,46 @@
+{
+  "exp_name": "khr-quadruped24-s3",
+  "env_module": "khr_quad_env18",
+  "ckpt": 3999,
+  "num_robots": 8,
+  "measure_seconds": 10.0,
+  "command": [
+    0.3,
+    0.0,
+    0.0
+  ],
+  "no_offset": {
+    "lateral_pct": 18.1199119546783,
+    "speed_mps": 0.21797815561294553,
+    "yaw_accum_deg": 24.898983001708984,
+    "yaw_accum_abs_deg": 24.898983001708984,
+    "yaw_accum_spread_deg": 0.7507883310317993,
+    "vy_mps": 0.004284914117306471,
+    "torque_mean_pct": 17.998071670532227,
+    "torque_p99_pct": 62.6480827331543,
+    "torque_peak_pct": 80.74613952636719,
+    "torque_over90_pct_time": 0.0,
+    "knee_rom_deg": 18.67894172668457,
+    "duty_asym_pt": 10.375,
+    "sole_tilt_deg": 9.202096939086914,
+    "clearance_front_m": 0.01793152466416359,
+    "clearance_rear_m": 0.014465384185314178
+  },
+  "with_offset": {
+    "lateral_pct": 14.750430641882044,
+    "speed_mps": 0.21628236323595046,
+    "yaw_accum_deg": 16.721546173095703,
+    "yaw_accum_abs_deg": 19.833459854125977,
+    "yaw_accum_spread_deg": 18.664012908935547,
+    "vy_mps": 0.00261380965821445,
+    "torque_mean_pct": 18.211929321289062,
+    "torque_p99_pct": 63.9061164855957,
+    "torque_peak_pct": 86.75386810302734,
+    "torque_over90_pct_time": 0.0,
+    "knee_rom_deg": 18.76755142211914,
+    "duty_asym_pt": 9.624999046325684,
+    "sole_tilt_deg": 9.237772941589355,
+    "clearance_front_m": 0.01891576312482357,
+    "clearance_rear_m": 0.014863250777125359
+  }
+}

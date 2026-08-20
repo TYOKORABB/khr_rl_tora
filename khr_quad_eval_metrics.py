@@ -22,14 +22,22 @@ import json
 import os
 import pickle
 
+import random
+
 import numpy as np
 import torch
 
 EFFORT_LIMIT = 1.373  # URDF の effort limit [Nm]。トルクはこれに対する百分率で報告する。
 
 
-def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, joint_offset):
-    """1 条件ぶんの測定。戻り値は指標の dict。"""
+def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, joint_offset, rng_seed=0):
+    """1 条件ぶんの測定。戻り値は指標の dict。
+
+    rng_seed: 測定そのものの乱数種。**プロセスをまたいで再現させるために必須**。
+      gs.init(seed=None) は numpy/random をシードしないため、これを明示しないと
+      プロセスごとに測定値が変わる（実際に v24 の横ずれが 2.53% と 7.49% に割れた）。
+      複数の rng_seed で測って平均±σ を取れば、測定自体のばらつきを分離できる。
+    """
     import genesis as gs
     from rsl_rl.runners import OnPolicyRunner
     from genesis.utils.geom import transform_by_quat
@@ -47,7 +55,11 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
         env_cfg[k] = False                    # DR off
     env_cfg["randomize_joint_offset"] = joint_offset  # 個体差だけは明示的に切り替える
 
-    torch.manual_seed(0)  # 個体差の引き方を版間で揃える
+    # 個体差の引き方を版間で揃え、かつプロセスをまたいで再現させる（全 RNG をシードする）
+    torch.manual_seed(rng_seed)
+    torch.cuda.manual_seed_all(rng_seed)
+    np.random.seed(rng_seed)
+    random.seed(rng_seed)
     env = KHRQuadEnv(num_robots, env_cfg, obs_cfg, reward_cfg, command_cfg, show_viewer=False)
     # 指令のリサンプルを止める（測定中ずっと同じ指令を与えるため）
     zero = torch.zeros(3, dtype=gs.tc_float, device=gs.device)
@@ -142,18 +154,31 @@ def main():
     ap.add_argument("--warmup", type=float, default=2.0, help="過渡を捨てる秒数")
     ap.add_argument("--cmd", type=float, nargs=3, default=[0.3, 0.0, 0.0],
                     help="固定指令 vx vy wz")
+    ap.add_argument("-r", "--repeats", type=int, default=3,
+                    help="測定の繰り返し回数（乱数種 0..N-1）。測定ばらつきを分離するため既定3")
     ap.add_argument("-o", "--out", default=None)
     args = ap.parse_args()
 
     import genesis as gs
-    gs.init(backend=gs.gpu)
+    gs.init(backend=gs.gpu, seed=0)   # プロセス状態を決定的にする
 
     result = {"exp_name": args.exp_name, "env_module": args.env, "ckpt": args.ckpt,
               "num_robots": args.num_robots, "measure_seconds": args.seconds - args.warmup,
-              "command": args.cmd}
+              "command": args.cmd, "repeats": args.repeats}
     for label, offset in (("no_offset", False), ("with_offset", True)):
-        result[label] = measure(args.exp_name, args.env, args.ckpt, args.num_robots,
-                                args.seconds, args.warmup, args.cmd, offset)
+        runs = [measure(args.exp_name, args.env, args.ckpt, args.num_robots,
+                        args.seconds, args.warmup, args.cmd, offset, rng_seed=r)
+                for r in range(args.repeats)]
+        agg = {}
+        for key in runs[0]:
+            vals = [r[key] for r in runs if r[key] is not None]
+            if not vals:
+                agg[key] = None
+                continue
+            agg[key] = float(np.mean(vals))
+            agg[key + "__sd"] = float(np.std(vals))
+            agg[key + "__runs"] = [float(v) for v in vals]
+        result[label] = agg
 
     text = json.dumps(result, indent=2, ensure_ascii=False)
     print(text)

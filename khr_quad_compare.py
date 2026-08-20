@@ -61,20 +61,29 @@ def main():
         if key not in res:
             continue
         print(f"\n### {label}")
-        print(f"{'指標':<18}{'baseline(平均±σ)':>20}{'2σ':>9}{'測定値':>11}   判定")
-        print("-" * 74)
+        rep = res.get("repeats")
+        head_meas = "測定値(±測定σ)" if rep else "測定値"
+        print(f"{'指標':<18}{'baseline(平均±σ)':>20}{'2σ':>9}{head_meas:>20}   判定")
+        print("-" * 84)
         for mkey, name, unit, good in METRICS:
             if mkey not in res[key]:
                 continue
             v = res[key][mkey]
+            if v is None:
+                continue
+            sd = res[key].get(mkey + "__sd")
             b = base.get(key, {}).get(mkey)
             fmt = "{:.4f}" if unit in ("m/s", "m") else "{:.2f}"
+            shown = fmt.format(v) + (" ± " + fmt.format(sd) if sd is not None else "")
             if b is None:
-                print(f"{name:<18}{'—':>20}{'—':>9}{fmt.format(v):>11}   —（ノイズ床なし）")
+                print(f"{name:<18}{'—':>20}{'—':>9}{shown:>20}   —（ノイズ床なし）")
                 continue
             verdict = judge(v, b["mean"], b["two_sigma"], good)
+            # 測定ばらつきが baseline の 2σ に匹敵する場合は判定を保留する
+            if sd is not None and b["two_sigma"] > 0 and 2 * sd > b["two_sigma"]:
+                verdict += "（測定ばらつき大・要注意）"
             bs = fmt.format(b["mean"]) + " ± " + fmt.format(b["sd"])
-            print(f"{name:<18}{bs:>20}{b['two_sigma']:>9.3f}{fmt.format(v):>11}   {verdict}")
+            print(f"{name:<18}{bs:>20}{b['two_sigma']:>9.3f}{shown:>20}   {verdict}")
     print("\n注: 「変化なし」は差が無いことの証明ではなく、seed ばらつきと区別できないという意味。")
 
 
