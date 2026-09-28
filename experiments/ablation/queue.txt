@@ -1,0 +1,28 @@
+# 報酬総点検のキュー: <学習スクリプト> <exp_name> <seed>
+# 第1段(minor16)は別途実行済み。第1段で差が出た場合のみ第2段(g*)を実施する。
+# --- 第2段: 機能別5群（事前の疑い度が高い順） ---
+khr_train_quad27_abl_g5heading.py   khr-quadruped27-abl-g5heading-s1   1
+khr_train_quad27_abl_g5heading.py   khr-quadruped27-abl-g5heading-s2   2
+khr_train_quad27_abl_g1smooth.py    khr-quadruped27-abl-g1smooth-s1    1
+khr_train_quad27_abl_g1smooth.py    khr-quadruped27-abl-g1smooth-s2    2
+khr_train_quad27_abl_g2posture.py   khr-quadruped27-abl-g2posture-s1   1
+khr_train_quad27_abl_g2posture.py   khr-quadruped27-abl-g2posture-s2   2
+khr_train_quad27_abl_g3jointreg.py  khr-quadruped27-abl-g3jointreg-s1  1
+khr_train_quad27_abl_g3jointreg.py  khr-quadruped27-abl-g3jointreg-s2  2
+khr_train_quad27_abl_g4gaittime.py  khr-quadruped27-abl-g4gaittime-s1  1
+khr_train_quad27_abl_g4gaittime.py  khr-quadruped27-abl-g4gaittime-s2  2
+# --- 第3段: 大寄与の単項目 leave-one-out（価値の高い順。tracking_lin_vel は自明なので最後）---
+khr_train_quad27_abl_only_drift.py            khr-quadruped27-abl-only-drift-s1            1
+khr_train_quad27_abl_only_drift.py            khr-quadruped27-abl-only-drift-s2            2
+khr_train_quad27_abl_only_acceleration.py     khr-quadruped27-abl-only-acceleration-s1     1
+khr_train_quad27_abl_only_acceleration.py     khr-quadruped27-abl-only-acceleration-s2     2
+khr_train_quad27_abl_only_feet_orientation.py khr-quadruped27-abl-only-feet_orientation-s1 1
+khr_train_quad27_abl_only_feet_orientation.py khr-quadruped27-abl-only-feet_orientation-s2 2
+khr_train_quad27_abl_only_gait_contact.py     khr-quadruped27-abl-only-gait_contact-s1     1
+khr_train_quad27_abl_only_gait_contact.py     khr-quadruped27-abl-only-gait_contact-s2     2
+khr_train_quad27_abl_only_alive.py            khr-quadruped27-abl-only-alive-s1            1
+khr_train_quad27_abl_only_alive.py            khr-quadruped27-abl-only-alive-s2            2
+khr_train_quad27_abl_only_tracking_ang_vel.py khr-quadruped27-abl-only-tracking_ang_vel-s1 1
+khr_train_quad27_abl_only_tracking_ang_vel.py khr-quadruped27-abl-only-tracking_ang_vel-s2 2
+khr_train_quad27_abl_only_tracking_lin_vel.py khr-quadruped27-abl-only-tracking_lin_vel-s1 1
+khr_train_quad27_abl_only_tracking_lin_vel.py khr-quadruped27-abl-only-tracking_lin_vel-s2 2
