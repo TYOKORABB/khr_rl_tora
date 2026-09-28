@@ -64,7 +64,8 @@ def gs_rand_float(lower, upper, shape, device):
 
 class KHRQuadEnv:
     def __init__(self, num_envs, env_cfg, obs_cfg, reward_cfg, command_cfg, show_viewer=True,
-                 add_camera=False, camera_res=(1280, 720)):
+                 add_camera=False, camera_res=(1280, 720),
+                 rendered_envs_idx=None, env_spacing=None, n_envs_per_row=None):
         self.num_envs: int = num_envs
         self.num_actions = env_cfg["num_actions"]
         self.cfg = env_cfg
@@ -103,7 +104,11 @@ class KHRQuadEnv:
                 camera_fov=40,
                 max_FPS=int(1.0 / self.dt),
             ),
-            vis_options=gs.options.VisOptions(rendered_envs_idx=[0]),
+            # [可視化用] 既定は env 0 のみ描画（学習・評価時の挙動は従来どおり）。
+            # seed 比較動画のように複数体を同時に描画したい場合だけ明示的に渡す。
+            vis_options=gs.options.VisOptions(
+                rendered_envs_idx=list(rendered_envs_idx) if rendered_envs_idx is not None else [0]
+            ),
             show_viewer=show_viewer,
         )
 
@@ -141,7 +146,15 @@ class KHRQuadEnv:
             )
 
         # build
-        self.scene.build(n_envs=num_envs)
+        # [可視化用] env_spacing を渡すと各 env の原点をずらして並べて描画できる。
+        # 既定 None では従来どおり全 env が同一原点（物理は env 間で独立なので影響なし）。
+        if env_spacing is not None:
+            _kw = {"env_spacing": tuple(env_spacing)}
+            if n_envs_per_row is not None:
+                _kw["n_envs_per_row"] = int(n_envs_per_row)
+            self.scene.build(n_envs=num_envs, **_kw)
+        else:
+            self.scene.build(n_envs=num_envs)
 
         # names to indices（config の joint_names 順。DOF 内部順とは異なるが index 指定で吸収）
         self.motors_dof_idx = torch.tensor(
