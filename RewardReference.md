@@ -494,3 +494,41 @@ v24（罰のみ）は効かず、v25（観測にも追加）で劇的に効い�
 4. **「削除可」の項目をまとめて外した検証がまだない。** 個別に影響が無くても、
    同時に外すと相互作用で崩れる可能性がある。これを確認して初めて「27→18 に削減できる」と言える。
 5. 判定はすべて**シミュレーション上**のもの。実機での確認は未実施。
+
+---
+
+## 12. 【自動更新】ablation 測定結果一覧
+
+<!-- AUTO:ablation-results:start -->
+*このセクションは `update_reward_reference.py` が自動生成している。最終更新: 2026-10-02 13:55*
+
+判定条件: 個体差あり・v23 の 4 seed ノイズ床に対する 2σ 検定。**安全要件はトルクピークの seed 別最悪値 < 90%** で別途判定する。
+
+### 12.1 構成ごとの判定
+
+| 構成 | 外した報酬 | seed | ピーク最悪 | 2σ を超えた指標 | 判定 |
+|---|---|---|---|---|---|
+| `khr-quadruped27-abl-g1smooth` | `action_rate`, `action_smoothness2`, `dof_vel`, `joint_torques` | 2 | 93.1 % ⚠️ | トルク平均悪化(2.2σ), 横ずれ率改善(3.0σ) | ❌ 削除不可（ピーク 93.1%） |
+| `khr-quadruped27-abl-g2posture` | `orientation`, `ang_vel_xy`, `lin_vel_z`, `base_height` | 2 | 91.8 % ⚠️ | 横ずれ率改善(2.7σ), 前進速度改善(2.4σ) | ❌ 削除不可（ピーク 91.8%） |
+| `khr-quadruped27-abl-g3jointreg` | `similar_to_default`, `hip_pos`, `dof_pos_error` | 2 | 79.5 % | 横ずれ率改善(2.1σ) | ✅ 削除可 |
+| `khr-quadruped27-abl-g4gaittime` | `gait_swing`, `feet_air_time`, `contact_no_vel` | 2 | 87.3 % | — | ✅ 削除可 |
+| `khr-quadruped27-abl-g5heading` | `heading_drift`, `leg_load_balance` | 2 | 85.8 % | — | ✅ 削除可 |
+| `khr-quadruped27-abl-only-acceleration` | `acceleration` | 2 | 84.0 % | 横ずれ率改善(2.3σ), 前進速度改善(3.8σ) | ✅ 削除可 |
+| `khr-quadruped27-abl-only-drift` | `drift` | 2 | 87.0 % | トルク平均悪化(2.2σ), 横ずれ率改善(3.2σ) | ❌ 削除不可（トルク平均悪化2.2σ） |
+| `khr-quadruped27-abl-only-feet_orientation` | `feet_orientation` | 2 | 83.1 % | トルク平均改善(2.7σ), 横ずれ率改善(2.7σ), 足裏傾き(着地)悪化(30.3σ) | ❌ 削除不可（足裏傾き(着地)悪化30.3σ） |
+| `khr-quadruped27-abl-only-gait_contact` | `gait_contact` | 1 | 82.9 % | 横ずれ率改善(2.5σ), 接地率左右差悪化(2.8σ) | ❌ 削除不可（接地率左右差悪化2.8σ） |
+
+### 12.2 主要指標の実測値（個体差あり・平均）
+
+| 構成 | トルク平均 | 横ずれ率 | 前進速度 | 膝ROM | 足裏傾き(着地) | 接地率左右差 | 後脚足上げ |
+|---|---|---|---|---|---|---|---|
+| `khr-quadruped27-abl-g1smooth` | 18.76 | 1.82 | 0.2346 | 33.95 | 3.99 | 4.97 | 0.0176 |
+| `khr-quadruped27-abl-g2posture` | 18.55 | 2.48 | 0.2373 | 42.51 | 5.86 | 7.07 | 0.0220 |
+| `khr-quadruped27-abl-g3jointreg` | 18.10 | 3.80 | 0.2307 | 31.35 | 5.19 | 7.22 | 0.0186 |
+| `khr-quadruped27-abl-g4gaittime` | 18.33 | 4.05 | 0.2330 | 35.29 | 5.07 | 4.02 | 0.0201 |
+| `khr-quadruped27-abl-g5heading` | 17.82 | 4.16 | 0.2262 | 33.90 | 3.18 | 5.66 | 0.0186 |
+| `khr-quadruped27-abl-only-acceleration` | 17.90 | 3.28 | 0.2458 | 31.45 | 4.75 | 4.54 | 0.0208 |
+| `khr-quadruped27-abl-only-drift` | 18.75 | 1.49 | 0.2308 | 36.50 | 3.32 | 4.75 | 0.0176 |
+| `khr-quadruped27-abl-only-feet_orientation` | 17.28 | 2.55 | 0.2210 | 24.08 | 34.33 | 5.84 | 0.0226 |
+| `khr-quadruped27-abl-only-gait_contact` | 17.79 | 2.92 | 0.2261 | 29.91 | 4.03 | 9.35 | 0.0204 |
+<!-- AUTO:ablation-results:end -->

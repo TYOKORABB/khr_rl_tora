@@ -134,6 +134,13 @@ while IFS= read -r line; do
   echo "$line" >> "$DONE"
 done < "$QUEUE"
 
+# キューを最後まで processing できた＝未実行が残っていない場合のみ、資料を自動更新する。
+# （枠切れで途中終了したときは exit 0 で抜けるのでここには来ない）
+if [ "$DRY" -eq 0 ]; then
+  echo "[doc ] $(date +%H:%M) キュー完了。RewardReference.md を更新します"
+  "$PY" update_reward_reference.py 2>&1 | sed 's/^/        /'
+fi
+
 if [ "$DRY" -eq 1 ]; then
   echo "--- 未実行 ${pending} 本（1本 ≒ 65-70分、枠 $((END_H - START_H)) 時間で 1 日あたり最大 $(( (END_H - START_H) * 60 / 70 )) 本）---"
 else
