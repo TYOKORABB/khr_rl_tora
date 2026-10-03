@@ -28,6 +28,8 @@ METRICS = [
     ("sole_tilt_deg",          "足裏傾き(接地平均)","deg", -1),
     ("sole_tilt_pushoff_deg",  "足裏傾き(蹴り出し)","deg",  0),
     ("duty_asym_pt",           "接地率左右差",    "pt",    -1),
+    ("gait_match_pct",         "歩容一致率",      "%",     +1),
+    ("falls",                  "転倒回数",        "回",    -1),
     ("clearance_front_m",      "前脚の足上げ量",  "m",     +1),
     ("clearance_rear_m",       "後脚の足上げ量",  "m",     +1),
 ]

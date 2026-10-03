@@ -76,6 +76,16 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
     n_steps = int(round(seconds / env.dt))
     n_warm = int(round(warmup_s / env.dt))
     tau, xy, vy, wz, contact, knee, tilt, clear, phase = [], [], [], [], [], [], [], [], []
+    # [2026-10-04 追加] 転倒と歩容の一致率。
+    #   env.step() は内部で終了判定→リセットを行うため、転倒すると**位置がワープ**し
+    #   軌跡系の指標（横ずれ・速度）が汚れる。転倒が起きたかどうかは必ず記録する。
+    #   歩容一致率は gait_contact / gait_swing が狙っている量そのもの（位相どおりの接地）。
+    #   ※ 毎ステップ .item() で同期すると CUDA のカーネル実行順が変わり、float32 の
+    #     丸め差が接触計算で増幅して**既存の指標まで変わってしまう**ことを実測で確認した。
+    #     そのため GPU 上のテンソルに累積し、取り出しはループ後に 1 回だけ行う。
+    falls_warm_t = torch.zeros((), dtype=torch.long, device=gs.device)
+    falls_t = torch.zeros((), dtype=torch.long, device=gs.device)
+    gait_match = []     # 4脚ぶんの「位相どおりか」
     up = env.local_up.expand(num_robots, 3)
     # 前脚/後脚のインデックス（足上げ量を脚グループ別に見るため）
     rear_set = set(int(i) for i in env.rear_feet_indices)
@@ -85,10 +95,15 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
     with torch.no_grad():
         for i in range(n_steps):
             env.commands[:] = cmd_t
-            obs, _, _, _ = env.step(policy(obs))
+            obs, _, dones, _ = env.step(policy(obs))
             env.commands[:] = cmd_t   # step 内の resample を上書きして指令を固定
             if i < n_warm:
+                falls_warm_t += dones.sum()
                 continue
+            falls_t += dones.sum()
+            # 歩容一致率: 4脚とも「stance 期(位相<0.55)に接地 / swing 期に離地」なら 1
+            _ct_all = env.contact_forces[:, env.feet_indices, 2] > 1.0
+            gait_match.append((~(_ct_all ^ (env.leg_phase < 0.55))).float().cpu().numpy())
             tau.append(env.robot.get_dofs_control_force(env.motors_dof_idx).cpu().numpy())
             xy.append(env.base_pos[:, :2].cpu().numpy())
             vy.append(env.loco_lin_vel[:, 1].cpu().numpy())   # loco 座標系（base ではない）
@@ -111,6 +126,8 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
     contact, knee, tilt = np.array(contact), np.array(knee), np.array(tilt)
     clear = np.array(clear) if clear else None
     phase = np.array(phase)
+    gait_match = np.array(gait_match)
+    falls = int(falls_t.item()); falls_warm = int(falls_warm_t.item())
     # 接地の立ち上がり＝着地の瞬間。「踵だけ／つま先だけで着く」を直接測る指標。
     cb = contact.astype(bool)
     touchdown = np.zeros_like(cb); touchdown[1:] = cb[1:] & ~cb[:-1]
@@ -154,6 +171,14 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
         # 足上げ量（接地基準からの相対高さのピーク）。v13 の「絶対量→相対量」設計則の主指標。
         "clearance_front_m": (float(clear[:, :, front_cols].max(axis=0).mean()) if clear is not None else None),
         "clearance_rear_m": (float(clear[:, :, rear_cols].max(axis=0).mean()) if clear is not None else None),
+        # [2026-10-04 追加]
+        # 転倒回数。測定区間で 0 でないと、軌跡系の指標（横ずれ・前進速度）は信用できない。
+        "falls": int(falls),
+        "falls_warmup": int(falls_warm),
+        "fall_rate_per_robot_min": float(falls / max(num_robots, 1) / (dur / 60.0)),
+        # 歩容一致率[%]: 4脚が位相どおりに接地/離地している時間の割合。
+        # gait_contact / gait_swing が直接狙っている量。
+        "gait_match_pct": float(gait_match.mean() * 100),
     }
 
 
