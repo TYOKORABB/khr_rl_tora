@@ -30,7 +30,8 @@ import torch
 EFFORT_LIMIT = 1.373  # URDF の effort limit [Nm]。トルクはこれに対する百分率で報告する。
 
 
-def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, joint_offset, rng_seed=0):
+def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, joint_offset,
+            rng_seed=0, push=False):
     """1 条件ぶんの測定。戻り値は指標の dict。
 
     rng_seed: 測定そのものの乱数種。**プロセスをまたいで再現させるために必須**。
@@ -54,6 +55,12 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
     for k in ("randomize_friction", "randomize_base_mass", "randomize_com", "randomize_kp"):
         env_cfg[k] = False                    # DR off
     env_cfg["randomize_joint_offset"] = joint_offset  # 個体差だけは明示的に切り替える
+    # [2026-10-04] push 外乱。既定の push_curriculum_steps=50000 のままだと評価の 600 step では
+    #   push_scale = 600/50000 = 0.012 となり**外乱がほぼ掛からない**。
+    #   転倒耐性を測るときは curriculum を 0 にして最初から全強度で押す。
+    if push:
+        env_cfg["Mode_push_vel"] = True
+        env_cfg["push_curriculum_steps"] = 0
 
     # 個体差の引き方を版間で揃え、かつプロセスをまたいで再現させる（全 RNG をシードする）
     torch.manual_seed(rng_seed)
@@ -179,6 +186,8 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
         # 歩容一致率[%]: 4脚が位相どおりに接地/離地している時間の割合。
         # gait_contact / gait_swing が直接狙っている量。
         "gait_match_pct": float(gait_match.mean() * 100),
+        "gait_match_front_pct": float(gait_match[:, :, front_cols].mean() * 100),
+        "gait_match_rear_pct": float(gait_match[:, :, rear_cols].mean() * 100),
     }
 
 
@@ -194,6 +203,8 @@ def main():
                     help="固定指令 vx vy wz")
     ap.add_argument("-r", "--repeats", type=int, default=3,
                     help="測定の繰り返し回数（乱数種 0..N-1）。測定ばらつきを分離するため既定3")
+    ap.add_argument("--push", action="store_true",
+                    help="push 外乱を最初から全強度で与える（転倒耐性の測定用）")
     ap.add_argument("-o", "--out", default=None)
     args = ap.parse_args()
 
@@ -202,10 +213,10 @@ def main():
 
     result = {"exp_name": args.exp_name, "env_module": args.env, "ckpt": args.ckpt,
               "num_robots": args.num_robots, "measure_seconds": args.seconds - args.warmup,
-              "command": args.cmd, "repeats": args.repeats}
+              "command": args.cmd, "repeats": args.repeats, "push": bool(args.push)}
     for label, offset in (("no_offset", False), ("with_offset", True)):
         runs = [measure(args.exp_name, args.env, args.ckpt, args.num_robots,
-                        args.seconds, args.warmup, args.cmd, offset, rng_seed=r)
+                        args.seconds, args.warmup, args.cmd, offset, rng_seed=r, push=args.push)
                 for r in range(args.repeats)]
         agg = {}
         for key in runs[0]:
