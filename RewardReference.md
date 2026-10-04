@@ -60,24 +60,24 @@ loco_lin_vel = transform_by_quat(base_lin_vel, init_base_quat)   # 公称姿勢�
 
 | # | 報酬項 | scale | 寄与 | 検証 | 判定 |
 |---|---|---|---|---|---|
-| 1 | `tracking_lin_vel` | 5 | +4.2734 | 実行待ち | — |
+| 1 | `tracking_lin_vel` | 5 | +4.2734 | ✅ 2seed | **必須**（外すと前進速度 22.0σ 悪化＝歩かなくなる） |
 | 2 | `knee_swing_flexion` | 1.8 | +1.3415 | ✅ 3seed | **必須**（外すと膝 ROM 33.9→6.6°） |
 | 3 | `feet_clearance` | 1 | +1.2155 | ✅ 3seed | **必須**（絶対高さに戻すと前脚足上げ −22%、4.8σ） |
 | 4 | `acceleration` | −4e−05 | −1.0295 | ✅ 2seed | **削除可** |
 | 5 | `drift` | −10 | −0.9172 | ✅ 2seed | **必須**（外すとトルク平均 2.2σ 悪化） |
-| 6 | `tracking_ang_vel` | 1 | +0.5710 | 実行待ち | — |
-| 7 | `gait_contact` | 0.18 | +0.5676 | 実行中 | — |
+| 6 | `tracking_ang_vel` | 1 | +0.5710 | ✅ 2seed | **削除候補**（旋回追従も 101% を維持。`drift`+`heading_error` が代替） |
+| 7 | `gait_contact` | 0.18 | +0.5676 | ✅ 2seed | **削除候補**（歩容一致率 87.0→85.7% の 1.3pt 低下のみ） |
 | 8 | `torque_limits` | −8 | −0.5301 | ✅ 3seed | **必須**（外すと 90%超 0.00→11.17%） |
-| 9 | `alive` | 0.5 | +0.4858 | 実行待ち | — |
+| 9 | `alive` | 0.5 | +0.4858 | 🟡 判定不能 | 外乱下でも転倒 1 件 vs 2 件で区別できず（指標が床） |
 | 10 | `feet_orientation` | −4.5 | −0.0980 | ✅ 2seed | **最重要**（外すと着地時の足裏 4.41→34.33°、30.3σ） |
-| 11 | `ang_vel_xy` | −0.2 | −0.0878 | ✅ 群 2seed | **必須**（群でピーク 91.8%） |
+| 11 | `ang_vel_xy` | −0.2 | −0.0878 | ✅ 群 2seed | **必須**（群でトルク99%点 63.0%＝2σ超） |
 | 12 | `orientation` | −5 | −0.0805 | ✅ 群 2seed | **必須**（同上） |
 | 13 | `similar_to_default` | −0.02 | −0.0767 | ✅ 群 2seed | **削除可** |
 | 14 | `hip_pos` | −1 | −0.0611 | ✅ 群 2seed | **削除可** |
 | 15 | `heading_drift` | −40 | −0.0492 | ✅ 群 2seed | **削除可**（`heading_error` と冗長） |
 | 16 | `gait_swing` | −0.05 | −0.0367 | ✅ 群 2seed | **削除可** |
 | 17 | `heading_error` | −10 | −0.0352 | ✅ 対照実験 | **必須**（v24→v25 で横ずれ 12.18→2.88%） |
-| 18 | `action_smoothness2` | −0.01 | −0.0222 | ✅ 群 2seed | **必須**（群でピーク 93.1%） |
+| 18 | `action_smoothness2` | −0.01 | −0.0222 | ✅ 群 2seed | **必須**（群でトルク平均 2.2σ 悪化） |
 | 19 | `contact_no_vel` | −1 | −0.0192 | ✅ 群 2seed | **削除可** |
 | 20 | `action_rate` | −0.02 | −0.0184 | ✅ 群 2seed | **必須**（同 18） |
 | 21 | `dof_vel` | −0.001 | −0.0176 | ✅ 群 2seed | **必須**（同 18） |
@@ -88,6 +88,33 @@ loco_lin_vel = transform_by_quat(base_lin_vel, init_base_quat)   # 公称姿勢�
 | 26 | `lin_vel_z` | −0.1 | −0.0004 | ✅ 群 2seed | **必須**（同 11/12） |
 | 27 | `base_height` | −3 | −0.0004 | ✅ 群 2seed | **必須**（同 11/12） |
 | 28 | `contact_duty_balance` | **0**（無効） | — | ✅ 3seed | **寄与なしと実証済み**（既に削除） |
+
+### ✅ 結論: 報酬は **27 → 18 項目**に削減できる（v28）
+
+**「削除可」と判定した 9 項目をまとめて外した構成（`combo9`）を 3 seed で検証した結果、
+v27 と同等以上だった。**（128 体・3 回反復・個体差あり）
+
+| 指標 | v27（27項目） | **combo9（18項目）** |
+|---|---|---|
+| トルク平均 | 18.12 ± 0.36 % | 18.41 ± 0.29 %（2σ 内） |
+| トルク 99%点 | 59.25 ± 0.21 % | **58.51 ± 0.88 %** |
+| 90%超の延べ時間 | 0.0003 % | **0.0000 %** |
+| **横ずれ率** | 3.84 ± 1.95 % | **2.01 ± 0.27 %** |
+| **前進速度** | 0.2298 ± 0.0063 | **0.2410 ± 0.0050** |
+| 膝 ROM | 32.00 ± 4.87 ° | 32.74 ± 5.04 ° |
+| 足裏傾き（着地） | 4.23 ± 0.40 ° | 4.71 ± 0.73 °（2σ 内） |
+| 歩容一致率 | 86.96 ± 1.09 % | 86.79 ± 0.32 % |
+| 転倒（外乱あり） | 0 | 0 |
+
+**削った 9 項目**: `heading_drift`, `leg_load_balance`, `similar_to_default`, `hip_pos`,
+`dof_pos_error`, `gait_swing`, `feet_air_time`, `contact_no_vel`, `acceleration`
+
+**劣化なし。横ずれは seed 間のばらつきごと縮み（σ 1.95 → 0.27）、速度は上がった。**
+
+> **さらに削れる可能性**: `alive` / `gait_contact` / `tracking_ang_vel` も単独では「削除可」だった。
+> 全部外せば **27 → 15 項目**になるが、これはまだ**まとめて検証していない**。
+> また `alive` は判定不能（転倒が起きない条件でしか測れていない）、
+> `gait_contact` は歩容一致率が 1.3pt 落ちるので、削るかは別途判断が要る。
 
 > **群で検証した項目の注意**: 11〜27 の多くは「4 項目まとめて除去」した結果なので、
 > **群の中の個々の項目まで切り分けられてはいない**。「必須」は「その群は外せない」の意味。
@@ -500,35 +527,43 @@ v24（罰のみ）は効かず、v25（観測にも追加）で劇的に効い�
 ## 12. 【自動更新】ablation 測定結果一覧
 
 <!-- AUTO:ablation-results:start -->
-*このセクションは `update_reward_reference.py` が自動生成している。最終更新: 2026-10-02 13:55*
+*このセクションは `update_reward_reference.py` が自動生成している。最終更新: 2026-10-04 13:56*
 
-判定条件: 個体差あり・v23 の 4 seed ノイズ床に対する 2σ 検定。**安全要件はトルクピークの seed 別最悪値 < 90%** で別途判定する。
+判定条件: 個体差あり・v23 の 4 seed ノイズ床に対する 2σ 検定。**安全要件は体数に依存しない トルク99%点 と 90%超の延べ時間**で判定する（ピークは極値統計のため閾値判定に使えない。`measurement_caveats.md` §1）。
 
 ### 12.1 構成ごとの判定
 
-| 構成 | 外した報酬 | seed | ピーク最悪 | 2σ を超えた指標 | 判定 |
+| 構成 | 外した報酬 | seed | トルク99%点 | 2σ を超えた指標 | 判定 |
 |---|---|---|---|---|---|
-| `khr-quadruped27-abl-g1smooth` | `action_rate`, `action_smoothness2`, `dof_vel`, `joint_torques` | 2 | 93.1 % ⚠️ | トルク平均悪化(2.2σ), 横ずれ率改善(3.0σ) | ❌ 削除不可（ピーク 93.1%） |
-| `khr-quadruped27-abl-g2posture` | `orientation`, `ang_vel_xy`, `lin_vel_z`, `base_height` | 2 | 91.8 % ⚠️ | 横ずれ率改善(2.7σ), 前進速度改善(2.4σ) | ❌ 削除不可（ピーク 91.8%） |
-| `khr-quadruped27-abl-g3jointreg` | `similar_to_default`, `hip_pos`, `dof_pos_error` | 2 | 79.5 % | 横ずれ率改善(2.1σ) | ✅ 削除可 |
-| `khr-quadruped27-abl-g4gaittime` | `gait_swing`, `feet_air_time`, `contact_no_vel` | 2 | 87.3 % | — | ✅ 削除可 |
-| `khr-quadruped27-abl-g5heading` | `heading_drift`, `leg_load_balance` | 2 | 85.8 % | — | ✅ 削除可 |
-| `khr-quadruped27-abl-only-acceleration` | `acceleration` | 2 | 84.0 % | 横ずれ率改善(2.3σ), 前進速度改善(3.8σ) | ✅ 削除可 |
-| `khr-quadruped27-abl-only-drift` | `drift` | 2 | 87.0 % | トルク平均悪化(2.2σ), 横ずれ率改善(3.2σ) | ❌ 削除不可（トルク平均悪化2.2σ） |
-| `khr-quadruped27-abl-only-feet_orientation` | `feet_orientation` | 2 | 83.1 % | トルク平均改善(2.7σ), 横ずれ率改善(2.7σ), 足裏傾き(着地)悪化(30.3σ) | ❌ 削除不可（足裏傾き(着地)悪化30.3σ） |
-| `khr-quadruped27-abl-only-gait_contact` | `gait_contact` | 1 | 82.9 % | 横ずれ率改善(2.5σ), 接地率左右差悪化(2.8σ) | ❌ 削除不可（接地率左右差悪化2.8σ） |
+| `khr-quadruped27-abl-g1smooth` | `action_rate`, `action_smoothness2`, `dof_vel`, `joint_torques` | 2 | 59.5 % | トルク平均悪化(2.2σ), 横ずれ率改善(3.0σ) | ❌ 削除不可（トルク平均悪化2.2σ） |
+| `khr-quadruped27-abl-g2posture` | `orientation`, `ang_vel_xy`, `lin_vel_z`, `base_height` | 2 | 63.0 % ⚠️ | 横ずれ率改善(2.7σ), 前進速度改善(2.4σ) | ❌ 削除不可（トルク99%点 63.0%） |
+| `khr-quadruped27-abl-g3jointreg` | `similar_to_default`, `hip_pos`, `dof_pos_error` | 2 | 59.3 % | 横ずれ率改善(2.1σ) | ✅ 削除可 |
+| `khr-quadruped27-abl-g4gaittime` | `gait_swing`, `feet_air_time`, `contact_no_vel` | 2 | 60.9 % | — | ✅ 削除可 |
+| `khr-quadruped27-abl-g5heading` | `heading_drift`, `leg_load_balance` | 2 | 58.9 % | — | ✅ 削除可 |
+| `khr-quadruped27-abl-only-acceleration` | `acceleration` | 2 | 58.7 % | 横ずれ率改善(2.3σ), 前進速度改善(3.8σ) | ✅ 削除可 |
+| `khr-quadruped27-abl-only-alive` | `alive` | 2 | 55.8 % | トルク平均改善(3.3σ), 横ずれ率改善(2.5σ) | ✅ 削除可 |
+| `khr-quadruped27-abl-only-drift` | `drift` | 2 | 60.7 % | トルク平均悪化(2.2σ), 横ずれ率改善(3.2σ) | ❌ 削除不可（トルク平均悪化2.2σ） |
+| `khr-quadruped27-abl-only-feet_orientation` | `feet_orientation` | 2 | 53.8 % | トルク平均改善(2.7σ), 横ずれ率改善(2.7σ), 足裏傾き(着地)悪化(30.3σ) | ❌ 削除不可（足裏傾き(着地)悪化30.3σ） |
+| `khr-quadruped27-abl-only-gait_contact` | `gait_contact` | 2 | 56.8 % | トルク平均改善(2.2σ), 横ずれ率改善(2.6σ) | ✅ 削除可 |
+| `khr-quadruped27-abl-only-tracking_ang_vel` | `tracking_ang_vel` | 2 | 57.4 % | 横ずれ率改善(3.0σ) | ✅ 削除可 |
+| `khr-quadruped27-abl-only-tracking_lin_vel` | `tracking_lin_vel` | 2 | 56.8 % | トルク平均改善(13.0σ), 前進速度悪化(22.0σ), 足裏傾き(着地)改善(2.0σ) | ❌ 削除不可（前進速度悪化22.0σ） |
+| `khr-quadruped28-combo9` | `heading_drift`, `leg_load_balance`, `similar_to_default`, `hip_pos`, `dof_pos_error`, `gait_swing`, `feet_air_time`, `contact_no_vel`, `acceleration` | 3 | 58.5 % | 横ずれ率改善(2.9σ), 前進速度改善(2.9σ) | ✅ 削除可 |
 
 ### 12.2 主要指標の実測値（個体差あり・平均）
 
-| 構成 | トルク平均 | 横ずれ率 | 前進速度 | 膝ROM | 足裏傾き(着地) | 接地率左右差 | 後脚足上げ |
-|---|---|---|---|---|---|---|---|
-| `khr-quadruped27-abl-g1smooth` | 18.76 | 1.82 | 0.2346 | 33.95 | 3.99 | 4.97 | 0.0176 |
-| `khr-quadruped27-abl-g2posture` | 18.55 | 2.48 | 0.2373 | 42.51 | 5.86 | 7.07 | 0.0220 |
-| `khr-quadruped27-abl-g3jointreg` | 18.10 | 3.80 | 0.2307 | 31.35 | 5.19 | 7.22 | 0.0186 |
-| `khr-quadruped27-abl-g4gaittime` | 18.33 | 4.05 | 0.2330 | 35.29 | 5.07 | 4.02 | 0.0201 |
-| `khr-quadruped27-abl-g5heading` | 17.82 | 4.16 | 0.2262 | 33.90 | 3.18 | 5.66 | 0.0186 |
-| `khr-quadruped27-abl-only-acceleration` | 17.90 | 3.28 | 0.2458 | 31.45 | 4.75 | 4.54 | 0.0208 |
-| `khr-quadruped27-abl-only-drift` | 18.75 | 1.49 | 0.2308 | 36.50 | 3.32 | 4.75 | 0.0176 |
-| `khr-quadruped27-abl-only-feet_orientation` | 17.28 | 2.55 | 0.2210 | 24.08 | 34.33 | 5.84 | 0.0226 |
-| `khr-quadruped27-abl-only-gait_contact` | 17.79 | 2.92 | 0.2261 | 29.91 | 4.03 | 9.35 | 0.0204 |
+| 構成 | トルク平均 | 横ずれ率 | 前進速度 | 膝ROM | 足裏傾き(着地) | 接地率左右差 | 後脚足上げ | 歩容一致率 |
+|---|---|---|---|---|---|---|---|---|
+| `khr-quadruped27-abl-g1smooth` | 18.76 | 1.82 | 0.2346 | 33.95 | 3.99 | 4.97 | 0.0176 | — |
+| `khr-quadruped27-abl-g2posture` | 18.55 | 2.48 | 0.2373 | 42.51 | 5.86 | 7.07 | 0.0220 | — |
+| `khr-quadruped27-abl-g3jointreg` | 18.10 | 3.80 | 0.2307 | 31.35 | 5.19 | 7.22 | 0.0186 | — |
+| `khr-quadruped27-abl-g4gaittime` | 18.33 | 4.05 | 0.2330 | 35.29 | 5.07 | 4.02 | 0.0201 | — |
+| `khr-quadruped27-abl-g5heading` | 17.82 | 4.16 | 0.2262 | 33.90 | 3.18 | 5.66 | 0.0186 | — |
+| `khr-quadruped27-abl-only-acceleration` | 17.90 | 3.28 | 0.2458 | 31.45 | 4.75 | 4.54 | 0.0208 | — |
+| `khr-quadruped27-abl-only-alive` | 17.08 | 2.99 | 0.2122 | 25.21 | 4.74 | 7.02 | 0.0158 | — |
+| `khr-quadruped27-abl-only-drift` | 18.75 | 1.49 | 0.2308 | 36.50 | 3.32 | 4.75 | 0.0176 | — |
+| `khr-quadruped27-abl-only-feet_orientation` | 17.28 | 2.55 | 0.2210 | 24.08 | 34.33 | 5.84 | 0.0226 | — |
+| `khr-quadruped27-abl-only-gait_contact` | 17.41 | 2.64 | 0.2283 | 27.20 | 4.08 | 7.34 | 0.0193 | — |
+| `khr-quadruped27-abl-only-tracking_ang_vel` | 17.54 | 1.76 | 0.2274 | 29.45 | 4.64 | 4.21 | 0.0183 | — |
+| `khr-quadruped27-abl-only-tracking_lin_vel` | 14.15 | 4.97 | 0.0910 | 44.35 | 2.24 | 6.02 | 0.0169 | — |
+| `khr-quadruped28-combo9` | 18.36 | 2.03 | 0.2403 | 32.83 | 4.82 | 4.51 | 0.0209 | 86.46 |
 <!-- AUTO:ablation-results:end -->

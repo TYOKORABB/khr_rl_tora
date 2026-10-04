@@ -40,15 +40,19 @@ METRICS = [
     ("sole_tilt_touchdown_deg", "足裏傾き(着地)", "deg", -1),
     ("duty_asym_pt", "接地率左右差", "pt", -1),
     ("clearance_rear_m", "後脚足上げ", "m", +1),
+    ("gait_match_pct", "歩容一致率", "%", +1),
 ]
 COND = "with_offset"          # 実機に近い条件で判定する
-SAFE_PEAK = 90.0              # トルクピークのハード上限[%]
+# [2026-10-04 訂正] 旧版は「トルクピーク < 90%」を安全判定に使っていたが、これは誤りだった。
+#   ピークは最大値＝極値統計で、体数を増やせば必ず上がる（同一ポリシーで 8体85.4% → 128体94.7%）。
+#   体数に依存しない **99%点** と **90%超の延べ時間** で判定する。
+#   詳細: experiments/ablation/measurement_caveats.md §1
 
 
 def removed_terms():
     """各 ablation 学習スクリプトが無効化している報酬項を読み取る（AST で安全に）。"""
     out = {}
-    for path in sorted(glob.glob(os.path.join(REPO, "khr_train_quad2*_abl_*.py"))):
+    for path in sorted(glob.glob(os.path.join(REPO, "khr_train_quad2*_abl_*.py")) + glob.glob(os.path.join(REPO, "khr_train_quad2*_combo*.py"))):
         tree = ast.parse(open(path).read())
         terms = None
         for node in ast.walk(tree):
@@ -81,10 +85,20 @@ def agg(xs, key):
 
 
 def verdict(xs, nf):
-    """2σ 検定＋安全判定。戻り値: (最悪ピーク, 安全か, 2σ超の指標リスト, 総合判定)"""
-    peaks = [x[COND]["torque_peak_pct"] for x in xs]
-    worst = max(peaks)
-    safe = worst < SAFE_PEAK
+    """2σ 検定＋安全判定。戻り値: (99%点, 安全か, 2σ超の指標リスト, 総合判定)
+
+    安全判定は体数に依存しない統計で行う: トルク 99%点と 90%超の延べ時間が
+    どちらもノイズ床の 2σ 以内なら安全とみなす。
+    """
+    p99 = st.mean([x[COND]["torque_p99_pct"] for x in xs])
+    t90 = max(x[COND]["torque_over90_pct_time"] for x in xs)
+    b99, b90 = nf[COND].get("torque_p99_pct"), nf[COND].get("torque_over90_pct_time")
+    safe = True
+    if b99 and p99 - b99["mean"] > b99["two_sigma"]:
+        safe = False
+    if b90 and t90 - b90["mean"] > b90["two_sigma"]:
+        safe = False
+    worst = p99
     hits = []
     for k, nm, u, good in METRICS:
         b = nf[COND].get(k)
@@ -101,7 +115,7 @@ def verdict(xs, nf):
         hits.append((nm, lab, abs(d) / b["sd"] if b["sd"] else float("inf")))
     worsened = [h for h in hits if h[1] == "悪化"]
     if not safe:
-        final = f"❌ 削除不可（ピーク {worst:.1f}%）"
+        final = f"❌ 削除不可（トルク99%点 {worst:.1f}%）"
     elif worsened:
         final = "❌ 削除不可（" + ", ".join(f"{n}{l}{s:.1f}σ" for n, l, s in worsened) + "）"
     else:
@@ -116,27 +130,28 @@ def render(nf, runs, rm):
     L.append(f"*このセクションは `update_reward_reference.py` が自動生成している。"
              f"最終更新: {__import__('datetime').datetime.now():%Y-%m-%d %H:%M}*")
     L.append("")
-    L.append(f"判定条件: 個体差あり・v23 の 4 seed ノイズ床に対する 2σ 検定。"
-             f"**安全要件はトルクピークの seed 別最悪値 < {SAFE_PEAK:.0f}%** で別途判定する。")
+    L.append("判定条件: 個体差あり・v23 の 4 seed ノイズ床に対する 2σ 検定。"
+             "**安全要件は体数に依存しない トルク99%点 と 90%超の延べ時間**で判定する"
+             "（ピークは極値統計のため閾値判定に使えない。`measurement_caveats.md` §1）。")
     L.append("")
 
     # --- 構成ごとの判定 ---
     L.append("### 12.1 構成ごとの判定")
     L.append("")
-    L.append("| 構成 | 外した報酬 | seed | ピーク最悪 | 2σ を超えた指標 | 判定 |")
+    L.append("| 構成 | 外した報酬 | seed | トルク99%点 | 2σ を超えた指標 | 判定 |")
     L.append("|---|---|---|---|---|---|")
     if base:
-        w = max(x[COND]["torque_peak_pct"] for x in base)
+        w = st.mean([x[COND]["torque_p99_pct"] for x in base])
         L.append(f"| **v27**（基準） | — | {len(base)} | {w:.1f} % | — | — |")
     name_map = {}
     for script, terms in rm.items():
-        tag = re.sub(r"^khr_train_quad2\d+_abl_", "", script)[:-3]
+        tag = re.sub(r"^khr_train_quad2\d+_(abl_)?", "", script)[:-3]
         name_map[tag] = terms
     for exp in sorted(runs):
         if exp == "v27_p080" or exp.startswith("v2") or exp.startswith("abl_"):
             continue
         xs = runs[exp]
-        key = re.sub(r"^khr-quadruped2\d+-abl-", "", exp).replace("-", "_")
+        key = re.sub(r"^khr-quadruped2\d+-(abl-)?", "", exp).replace("-", "_")
         terms = None
         for tag, t in name_map.items():
             if tag.replace("only_", "") == key.replace("only_", "") or tag == key:
@@ -205,7 +220,7 @@ def main():
             continue
         _, safe, _, final = verdict(xs, nf)
         if not safe:
-            warn.append(f"{exp}: 安全要件違反（ピーク {max(x[COND]['torque_peak_pct'] for x in xs):.1f}%）")
+            warn.append(f"{exp}: 安全要件違反（トルク99%点 {st.mean([x[COND]['torque_p99_pct'] for x in xs]):.1f}%）")
     if warn:
         print("\n[注意] 安全要件に触れた構成:")
         for w in warn:
