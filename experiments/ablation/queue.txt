@@ -30,3 +30,7 @@ khr_train_quad27_abl_only_tracking_lin_vel.py khr-quadruped27-abl-only-tracking_
 khr_train_quad28_combo9.py khr-quadruped28-combo9-s1 1
 khr_train_quad28_combo9.py khr-quadruped28-combo9-s2 2
 khr_train_quad28_combo9.py khr-quadruped28-combo9-s3 3
+# --- v29: v28 に左右対称性の2項目(leg_load_balance/hip_pos)を戻す（18→20項目）。3seed ---
+khr_train_quad29.py khr-quadruped29-s1 1
+khr_train_quad29.py khr-quadruped29-s2 2
+khr_train_quad29.py khr-quadruped29-s3 3
