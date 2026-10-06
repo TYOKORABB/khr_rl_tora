@@ -85,7 +85,26 @@ quad_compat.py ───────┤
 
 - チェックポイント: `logs/fixurdf-vNN-sS/`
 - 測定結果: `experiments/results_json_fixurdf/fixurdf-vNN-sS.json`
+- 新しいノイズ床: `experiments/noise_floor_fixurdf.json`
+  （Tier A の 4 本が揃った時点で `build_noise_floor.py` が**自動生成**する）
 - 進捗の記録: `queue.done`（学習成功を記録）/ `queue.evalfail`（評価のみ失敗）
+
+### 測定プロトコルの変更（意図的）
+
+| | 旧（v1〜v29 の判定に使用） | 新（`fixurdf-*`） |
+|---|---|---|
+| 体数 | 8 体 | **128 体** |
+| 指令・時間 | `[0.3,0,0]`・12 秒（先頭 2 秒を捨てる） | 同じ |
+| 繰り返し | 3 回平均 | 同じ |
+| ノイズ床 | `experiments/noise_floor.json` | `experiments/noise_floor_fixurdf.json` |
+
+**体数を上げた理由**: 横ずれ率は 8 体では信用できない（8 体 2.25 ± **0.63** →
+128 体 1.93 ± **0.06** で σ が 10 分の 1。[`../ablation/measurement_caveats.md`](../ablation/measurement_caveats.md) §2）。
+ノイズ床をゼロから作り直すこの機会なら互換性の代償がなく、しかも実測で
+**128 体 29.8 秒 vs 8 体 28.1 秒** とほぼ無償だった（GPU が体数方向を並列化するため）。
+
+**旧ノイズ床は上書きせず残す。** 過去の判定を再現できるようにするため。
+旧と新を同じ表に並べてはいけない（機体もプロトコルも違う）。
 
 `exp` 名を `fixurdf-` 接頭辞にし、結果 JSON も別ディレクトリに置いているのは、
 `update_reward_reference.py` の自動集計（`^khr-quadruped\d+...` にマッチ）に
@@ -115,7 +134,8 @@ quad_compat.py ───────┤
 | 凍結した測定ツールが旧環境でも動くか | v1–v15 は属性欠落で落ちる → 互換シムで解決。<br>v1 の既存 ckpt で全指標が値を返すことを確認 |
 | 二重起動ロック | 動作確認済み（§5） |
 | ディスク | 1 本 41 MB × 88 = 約 3.6 GB（空き 702 GB） |
-| GPU | 学習 1 本で VRAM 1757 MiB / 使用率 平均 65%（8151 MiB 搭載） |
+| GPU | 学習 1 本で VRAM 1757 MiB / 使用率 平均 65%（RTX 5050・8151 MiB 搭載） |
+| 128 体測定の追加コスト | 実測 29.8 秒（8 体は 28.1 秒）＝ほぼゼロ |
 
 ## 7. 所要時間を縮める余地（未採用）
 

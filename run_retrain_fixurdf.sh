@@ -36,6 +36,10 @@ START_H="${RT_START_H:-12}"
 END_H="${RT_END_H:-18}"
 MIN_MARGIN="${RT_MIN_MARGIN:-80}"          # 1本 ≒ 72分(学習) + 3分(評価)
 ITERS="${RT_ITERS:-4000}"
+# 測定は 128 体で行う。横ずれ率は 8 体では σ が 10 倍大きく信用できない
+# （8体 2.25±0.63 / 128体 1.93±0.06、measurement_caveats.md §2）。
+# 実測 128体 29.8秒 vs 8体 28.1秒 でほぼ無償だった。
+EVAL_N="${RT_EVAL_N:-128}"
 NUM_ENVS="${RT_NUM_ENVS:-4096}"
 
 MODE=run
@@ -143,7 +147,7 @@ while :; do
   echo "$line" >> "$DONE"
 
   echo "[eval] $(date +%H:%M) $exp を測定中..."
-  "$PY" eval_with_urdf_fix.py "$emod" -e "$exp" -r 3 \
+  "$PY" eval_with_urdf_fix.py "$emod" -e "$exp" -n "$EVAL_N" -r 3 \
         -o "$RESJSON/${exp}.json" >>"$LOGDIR/${exp}.log" 2>&1
   erc=$?
   if [ $erc -ne 0 ]; then
@@ -151,6 +155,10 @@ while :; do
     grep -Fxq "$exp" "$EVALFAIL" || echo "$exp" >> "$EVALFAIL"
   else
     echo "[eval] $(date +%H:%M) $exp -> $RESJSON/${exp}.json"
+  fi
+  # Tier A(v23 x 4seed) が揃ったらノイズ床を作り直す。これが全ての 2σ 判定の土台になる。
+  if [ ! -f experiments/noise_floor_fixurdf.json ]; then
+    "$PY" build_noise_floor.py 2>&1 | sed 's/^/       /'
   fi
   echo "[prog] 完了 $(grep -c '^khr_train_quad' "$DONE") / ${total} 本"
 done
