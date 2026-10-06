@@ -104,6 +104,17 @@ trap 'rm -rf "$LOCK"' EXIT
 
 if [ ! -x "$PY" ]; then echo "[abort] python が見つかりません: $PY"; exit 1; fi
 
+# このリポジトリの python（学習・評価・録画）が走っていないか。
+# nvidia-smi のメモリ監視だけでは、学習が終わって評価が始まる「数秒の隙間」に
+# 滑り込んでしまう。そこで新規学習を始めると v31 のような進行中の測定と競合し、
+# 接触物理のカオス性で測定値まで動く（measurement_caveats.md §2）。
+# そのため「学習中か」ではなく「このリポジトリの作業が進行中か」で見る。
+repo_busy() {
+  ps -eo pid,cmd --no-headers \
+    | grep -E "python[0-9.]* +(khr_(train|quad|eval)|train_with_urdf_fix|eval_with_urdf_fix)" \
+    | grep -v "^ *$$ " | grep -v grep || true
+}
+
 # 他プロセスが GPU を使っていないか（相手が誰であっても競合は避ける）
 gpu_busy() {
   local out
@@ -126,6 +137,12 @@ while :; do
   left=$(minutes_left)
   if (( left < MIN_MARGIN )); then
     echo "[stop] 残り ${left} 分（新規開始には ${MIN_MARGIN} 分必要）。次の枠で再開します。"; break
+  fi
+  RB="$(repo_busy)"
+  if [ -n "$RB" ]; then
+    echo "[stop] このリポジトリの学習/評価が進行中のため開始しません（測定を汚さないため）:"
+    echo "$RB" | sed 's/^/          /'
+    break
   fi
   if gpu_busy; then
     echo "[stop] 他プロセスが GPU を使用中のため開始しません:"
