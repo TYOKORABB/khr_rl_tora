@@ -39,6 +39,7 @@ PARALLEL="${RT_PARALLEL:-2}"               # 同時に走らせる学習の本�
 # 実測: 単独 70.1 iter/分 = 57 分/本。2本並列では各 43.8 iter/分 = 91 分/本
 # （GPU 使用率 65% → 98%、総スループット約 1.25 倍）。3 本は使用率が既に飽和しており無駄。
 BATCH_MIN="${RT_BATCH_MIN:-95}"            # 1バッチ(並列2本)の所要[分]＋余裕
+SOLO_MIN="${RT_SOLO_MIN:-65}"              # 単独1本の所要[分]＋余裕（枠の端で使う）
 ITERS="${RT_ITERS:-4000}"
 NUM_ENVS="${RT_NUM_ENVS:-4096}"
 # 測定は 128 体。横ずれ率は 8 体では σ が 10 倍大きく信用できない
@@ -257,15 +258,23 @@ fi
 echo "=== 再学習キュー $(date '+%F %T')  学習完了 ${ndone}/${total}  並列 ${PARALLEL} ==="
 
 while :; do
-  mapfile -t batch < <(pending_lines | head -"$PARALLEL")
+  mapfile -t batch < <(pending_lines | head -"$PARALLEL")   # 必要なら後で want 本に絞る
   if [ "${#batch[@]}" -eq 0 ]; then
     echo "=== キューをすべて処理しました $(date '+%F %T') ==="; run_pending_evals; break
   fi
 
   mub=$(minutes_until_busy)
+  # 枠の端は 2 本並列(95分)が入らなくても 1 本(65分)なら入ることがある。
+  # 440 分の枠だと 4 バッチ=364 分で 79 分余るので、そこを捨てずに 1 本流す。
+  want=$PARALLEL
   if (( mub < BATCH_MIN )); then
-    echo "[stop] 次に GPU が埋まるまで ${mub} 分（1バッチに ${BATCH_MIN} 分必要）。相手の処理を潰さないためここで終了。"
-    run_pending_evals; break
+    if (( mub >= SOLO_MIN )); then
+      want=1
+      echo "[info] 残り ${mub} 分。2本並列(${BATCH_MIN}分)は入らないので 1 本だけ流します"
+    else
+      echo "[stop] 次に GPU が埋まるまで ${mub} 分（1本に ${SOLO_MIN} 分必要）。相手の処理を潰さないためここで終了。"
+      run_pending_evals; break
+    fi
   fi
   fg=$(foreign_gpu_mib)
   if (( fg > 500 )); then
@@ -279,9 +288,9 @@ while :; do
 
   # 自分の外で走っている学習（v31 のチェーンなど）も数に入れ、並列上限を超えない
   running=$(training_count)
-  slots=$(( PARALLEL - running ))
+  slots=$(( want - running ))
   if (( slots <= 0 )); then
-    echo "[stop] 既に ${running} 本の学習が走っており、並列上限 ${PARALLEL} に達しています。"
+    echo "[stop] 既に ${running} 本の学習が走っており、今回の上限 ${want} 本に達しています。"
     run_pending_evals; break
   fi
   if (( ${#batch[@]} > slots )); then
