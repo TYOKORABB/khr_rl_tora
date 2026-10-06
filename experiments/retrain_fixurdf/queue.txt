@@ -1,0 +1,101 @@
+# URDF 可動域是正後の全バージョン再学習キュー
+# 形式: <学習モジュール> <環境モジュール> <exp名> <seed>
+# 生成: experiments/retrain_fixurdf/make_queue.py  （順序の根拠は同ファイルの docstring）
+
+# --- Tier A  ノイズ床の再構築 (v23 x 4seed)  4 本 ---
+khr_train_quad23 khr_quad_env17 fixurdf-v23-s1 1
+khr_train_quad23 khr_quad_env17 fixurdf-v23-s2 2
+khr_train_quad23 khr_quad_env17 fixurdf-v23-s3 3
+khr_train_quad23 khr_quad_env17 fixurdf-v23-s4 4
+
+# --- Tier B  結論が載っている節目の版 (v19/v25/v27/v28 x 3seed)  12 本 ---
+khr_train_quad19 khr_quad_env15 fixurdf-v19-s1 1
+khr_train_quad19 khr_quad_env15 fixurdf-v19-s2 2
+khr_train_quad19 khr_quad_env15 fixurdf-v19-s3 3
+khr_train_quad25 khr_quad_env19 fixurdf-v25-s1 1
+khr_train_quad25 khr_quad_env19 fixurdf-v25-s2 2
+khr_train_quad25 khr_quad_env19 fixurdf-v25-s3 3
+khr_train_quad27_p080 khr_quad_env19 fixurdf-v27-s1 1
+khr_train_quad27_p080 khr_quad_env19 fixurdf-v27-s2 2
+khr_train_quad27_p080 khr_quad_env19 fixurdf-v27-s3 3
+khr_train_quad28 khr_quad_env19 fixurdf-v28-s1 1
+khr_train_quad28 khr_quad_env19 fixurdf-v28-s2 2
+khr_train_quad28 khr_quad_env19 fixurdf-v28-s3 3
+
+# --- Tier C  残り全版に最低1点 (x 1seed)  24 本 ---
+khr_train_quad khr_quad_env fixurdf-v01-s1 1
+khr_train_quad2 khr_quad_env fixurdf-v02-s1 1
+khr_train_quad3 khr_quad_env fixurdf-v03-s1 1
+khr_train_quad4 khr_quad_env fixurdf-v04-s1 1
+khr_train_quad5 khr_quad_env2 fixurdf-v05-s1 1
+khr_train_quad6 khr_quad_env3 fixurdf-v06-s1 1
+khr_train_quad7 khr_quad_env4 fixurdf-v07-s1 1
+khr_train_quad8 khr_quad_env5 fixurdf-v08-s1 1
+khr_train_quad9 khr_quad_env6 fixurdf-v09-s1 1
+khr_train_quad10 khr_quad_env7 fixurdf-v10-s1 1
+khr_train_quad11 khr_quad_env8 fixurdf-v11-s1 1
+khr_train_quad12 khr_quad_env9 fixurdf-v12-s1 1
+khr_train_quad13 khr_quad_env10 fixurdf-v13-s1 1
+khr_train_quad14 khr_quad_env11 fixurdf-v14-s1 1
+khr_train_quad15 khr_quad_env12 fixurdf-v15-s1 1
+khr_train_quad16 khr_quad_env13 fixurdf-v16-s1 1
+khr_train_quad17 khr_quad_env14 fixurdf-v17-s1 1
+khr_train_quad18 khr_quad_env15 fixurdf-v18-s1 1
+khr_train_quad20 khr_quad_env16 fixurdf-v20-s1 1
+khr_train_quad21 khr_quad_env16 fixurdf-v21-s1 1
+khr_train_quad22 khr_quad_env17 fixurdf-v22-s1 1
+khr_train_quad24 khr_quad_env18 fixurdf-v24-s1 1
+khr_train_quad26 khr_quad_env20 fixurdf-v26-s1 1
+khr_train_quad29 khr_quad_env19 fixurdf-v29-s1 1
+
+# --- Tier D  統計を3seedに揃える (x seed2,3)  48 本 ---
+khr_train_quad khr_quad_env fixurdf-v01-s2 2
+khr_train_quad khr_quad_env fixurdf-v01-s3 3
+khr_train_quad2 khr_quad_env fixurdf-v02-s2 2
+khr_train_quad2 khr_quad_env fixurdf-v02-s3 3
+khr_train_quad3 khr_quad_env fixurdf-v03-s2 2
+khr_train_quad3 khr_quad_env fixurdf-v03-s3 3
+khr_train_quad4 khr_quad_env fixurdf-v04-s2 2
+khr_train_quad4 khr_quad_env fixurdf-v04-s3 3
+khr_train_quad5 khr_quad_env2 fixurdf-v05-s2 2
+khr_train_quad5 khr_quad_env2 fixurdf-v05-s3 3
+khr_train_quad6 khr_quad_env3 fixurdf-v06-s2 2
+khr_train_quad6 khr_quad_env3 fixurdf-v06-s3 3
+khr_train_quad7 khr_quad_env4 fixurdf-v07-s2 2
+khr_train_quad7 khr_quad_env4 fixurdf-v07-s3 3
+khr_train_quad8 khr_quad_env5 fixurdf-v08-s2 2
+khr_train_quad8 khr_quad_env5 fixurdf-v08-s3 3
+khr_train_quad9 khr_quad_env6 fixurdf-v09-s2 2
+khr_train_quad9 khr_quad_env6 fixurdf-v09-s3 3
+khr_train_quad10 khr_quad_env7 fixurdf-v10-s2 2
+khr_train_quad10 khr_quad_env7 fixurdf-v10-s3 3
+khr_train_quad11 khr_quad_env8 fixurdf-v11-s2 2
+khr_train_quad11 khr_quad_env8 fixurdf-v11-s3 3
+khr_train_quad12 khr_quad_env9 fixurdf-v12-s2 2
+khr_train_quad12 khr_quad_env9 fixurdf-v12-s3 3
+khr_train_quad13 khr_quad_env10 fixurdf-v13-s2 2
+khr_train_quad13 khr_quad_env10 fixurdf-v13-s3 3
+khr_train_quad14 khr_quad_env11 fixurdf-v14-s2 2
+khr_train_quad14 khr_quad_env11 fixurdf-v14-s3 3
+khr_train_quad15 khr_quad_env12 fixurdf-v15-s2 2
+khr_train_quad15 khr_quad_env12 fixurdf-v15-s3 3
+khr_train_quad16 khr_quad_env13 fixurdf-v16-s2 2
+khr_train_quad16 khr_quad_env13 fixurdf-v16-s3 3
+khr_train_quad17 khr_quad_env14 fixurdf-v17-s2 2
+khr_train_quad17 khr_quad_env14 fixurdf-v17-s3 3
+khr_train_quad18 khr_quad_env15 fixurdf-v18-s2 2
+khr_train_quad18 khr_quad_env15 fixurdf-v18-s3 3
+khr_train_quad20 khr_quad_env16 fixurdf-v20-s2 2
+khr_train_quad20 khr_quad_env16 fixurdf-v20-s3 3
+khr_train_quad21 khr_quad_env16 fixurdf-v21-s2 2
+khr_train_quad21 khr_quad_env16 fixurdf-v21-s3 3
+khr_train_quad22 khr_quad_env17 fixurdf-v22-s2 2
+khr_train_quad22 khr_quad_env17 fixurdf-v22-s3 3
+khr_train_quad24 khr_quad_env18 fixurdf-v24-s2 2
+khr_train_quad24 khr_quad_env18 fixurdf-v24-s3 3
+khr_train_quad26 khr_quad_env20 fixurdf-v26-s2 2
+khr_train_quad26 khr_quad_env20 fixurdf-v26-s3 3
+khr_train_quad29 khr_quad_env19 fixurdf-v29-s2 2
+khr_train_quad29 khr_quad_env19 fixurdf-v29-s3 3
+
+# 合計 88 本
