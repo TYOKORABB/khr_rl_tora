@@ -68,21 +68,20 @@ touch "$DONE"
 
 now_min() { echo $(( $(date +%-H) * 60 + $(date +%-M) )); }
 
-# ユーザー自身の **GPU を使う** ジョブが、いま実際に走っているか。
-# 予定表の予算（--deadline-min）は上限なので、早く終わった分を遊ばせないために
-# 時刻ではなくプロセスの有無で判定する。
-#
 # 対象に入れるもの:
-#   asmr.one-downloader / main.py --scheduled … whisper.cpp(large-v3-turbo) = GPU
-#   asmr_night_runner                          … heavy lock を取る重いジョブ（念のため）
-# 入れないもの:
-#   gen_enrich.sh … Gemini / Claude の API 呼び出しで GPU を使わない
-#                   （12:45 から稼働中でも nvidia-smi に現れないことを実測で確認）。
-#                   3時間ごとに 45-60 分走るため、これを待つと枠がほとんど無くなる。
+#   main.py --scheduled（WHISPER_CPP_MODEL 付き）… whisper.cpp(large-v3-turbo) = GPU を使う
+# 入れないもの（いずれも実測で GPU を使わないことを確認した）:
+#   gen_enrich.sh      … Gemini / Claude の API 呼び出し。50 分稼働中でも nvidia-smi に
+#                        現れない。3 時間ごとに 45-60 分走るため、待つと枠がほぼ無くなる。
+#   asmr_night_runner  … Supabase から transcript を読んで API で要約するだけ。
+#                        whisper も torch も呼んでいない。14 分稼働中に GPU 0% /
+#                        323 MiB（表示のみ）を確認。1 日 6 回 × 最大 42 分あるので、
+#                        待つと最大 4 時間を失う。
+#   main.py --scout    … 解析キューの補充。asmr.one の API を叩くだけ。
 # 予定外のプロセスは foreign_gpu_mib() が実測で捕まえるので、ここは取りこぼしても安全。
 heavy_running() {
   ps -eo pid,cmd --no-headers \
-    | grep -E "asmr\.one-downloader|main\.py --scheduled|asmr_night_runner" \
+    | grep -E "WHISPER_CPP_MODEL|main\.py +--scheduled" \
     | grep -v grep || true
 }
 
@@ -164,7 +163,7 @@ unevaluated_lines() {
   while IFS= read -r l; do
     [ -z "$l" ] && continue
     set -- $l
-    [ -f "$RESJSON/$3.json" ] || echo "$l"
+    if [ ! -f "$RESJSON/$3.json" ] || [ ! -f "$RESJSON/sym_$3.json" ]; then echo "$l"; fi
   done < "$DONE"
 }
 
@@ -185,15 +184,19 @@ if [ "$MODE" = status ]; then
   if (( nleft > 0 )); then
     # 1日に使える分数 = 予定表の空き帯のうち BATCH_MIN 以上あるものの合計
     perday=$("$PY" - <<PYEOF
+# 空き帯ごとに「並列バッチを何回入れられるか＋端に単独1本が入るか」を数える
 sched = [(int(h)*60+int(m), int(o)) for h, m, o in
          (x.replace('=',':').split(':') for x in "$HEAVY_SCHEDULE".split())]
 sched.sort()
-free = []
-for i, (s, o) in enumerate(sched):
+runs = 0
+for i, (st, oc) in enumerate(sched):
     nxt = sched[(i+1) % len(sched)][0] + (1440 if i+1 == len(sched) else 0)
-    free.append(nxt - (s + o))
-usable = sum(f for f in free if f >= $BATCH_MIN)
-print(max(1, (usable // $BATCH_MIN) * $PARALLEL))
+    gap = nxt - (st + oc)
+    nb = gap // $BATCH_MIN
+    runs += nb * $PARALLEL
+    if gap - nb * $BATCH_MIN >= $SOLO_MIN:
+        runs += 1
+print(max(1, runs))
 PYEOF
 )
     echo "  1日あたり約 ${perday} 本 → 残り約 $(( (nleft + perday - 1) / perday )) 日"
@@ -238,11 +241,22 @@ run_pending_evals() {
     if [ -n "$(eval_running)" ] || (( $(training_count) > 0 )); then
       echo "[eval] 他の処理が走っているため測定は後回し（次回拾います）"; return
     fi
-    echo "[eval] $(date +%H:%M) $exp を測定中（${EVAL_N}体・単独実行）..."
-    "$PY" eval_with_urdf_fix.py "$emod" -e "$exp" -n "$EVAL_N" -r 3 \
-          -o "$RESJSON/${exp}.json" >>"$LOGDIR/${exp}.log" 2>&1
-    if [ $? -eq 0 ]; then echo "[eval] -> $RESJSON/${exp}.json"; n=$((n+1))
-    else echo "[warn] 測定に失敗（ckpt は残っているので次回また試します）: $exp"; fi
+    if [ ! -f "$RESJSON/${exp}.json" ]; then
+      echo "[eval] $(date +%H:%M) $exp を測定中（${EVAL_N}体・単独実行）..."
+      "$PY" eval_with_urdf_fix.py "$emod" -e "$exp" -n "$EVAL_N" -r 3 \
+            -o "$RESJSON/${exp}.json" >>"$LOGDIR/${exp}.log" 2>&1
+      if [ $? -eq 0 ]; then echo "[eval] -> $RESJSON/${exp}.json"; n=$((n+1))
+      else echo "[warn] 測定に失敗（ckpt は残っているので次回また試します）: $exp"; fi
+    fi
+    # 股関節の左右差は**この可動域バグが最も直接効く指標**だが、標準の測定ツールには
+    # 入っていない（別ツールに切り出してある。あちらを凍結したまま指標を足せないため）。
+    # 是正の効果を見るのが再学習の目的なので、専用ツールも併せて回す。
+    if [ ! -f "$RESJSON/sym_${exp}.json" ]; then
+      "$PY" sym_with_urdf_fix.py "$emod" -e "$exp" -r 3 -n 64 \
+            -o "$RESJSON/sym_${exp}.json" >>"$LOGDIR/${exp}.log" 2>&1 \
+        && { echo "[eval] -> $RESJSON/sym_${exp}.json"; n=$((n+1)); } \
+        || echo "[warn] 対称性の測定に失敗: $exp"
+    fi
   done < <(unevaluated_lines)
   # Tier A(v23 x 4seed) が揃ったらノイズ床を作り直す。全ての 2σ 判定の土台になる。
   if (( n > 0 )) && [ ! -f experiments/noise_floor_fixurdf.json ]; then

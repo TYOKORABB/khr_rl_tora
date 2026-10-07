@@ -34,7 +34,7 @@ from rsl_rl.runners import OnPolicyRunner
 
 import genesis as gs
 
-from khr_quad_env21 import KHRQuadEnv  # v30: 可動域を左右対称にした URDF
+from khr_quad_env21 import KHRQuadEnv  # v31: 可動域を左右対称にした URDF
 
 
 def main():
