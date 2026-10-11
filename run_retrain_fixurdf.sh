@@ -111,10 +111,15 @@ training_count() {
   ps -eo cmd --no-headers \
     | grep -cE "python[0-9.]* +(khr_train_quad|train_with_urdf_fix)" || true
 }
-# 他人が GPU を使っていないか（予定表に無いジョブへの保険）
+# 他人が GPU を使っていないか（予定表に無いジョブへの保険）。
+# nvidia-smi が使えないときは **0 ではなく -1** を返す。
+# 0 を返すと「誰も使っていない」と誤判定して保険が黙って無効になるため
+# （2026-10-11、ドライバ更新後に再起動しておらず NVML のバージョン不一致で
+#  nvidia-smi が落ちている状態で、実際にこれが起きていた）。
+# 判定の主役は ps ベースの heavy_running() なのでキューは止めず、警告だけ出す。
 foreign_gpu_mib() {
   local out mine
-  out=$(nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader 2>/dev/null) || { echo 0; return; }
+  out=$(nvidia-smi --query-compute-apps=pid,used_memory --format=csv,noheader 2>/dev/null) || { echo -1; return; }
   [ -z "$out" ] && { echo 0; return; }
   mine=$(ps -eo pid,cmd --no-headers \
          | grep -E "python[0-9.]* +(khr_|train_with_urdf_fix|eval_with_urdf_fix)" \
@@ -167,8 +172,6 @@ unevaluated_lines() {
   done < "$DONE"
 }
 
-reconcile_done
-
 total=$(grep -c '^khr_train_quad' "$QUEUE")
 ndone=$(grep -c '^khr_train_quad' "$DONE" 2>/dev/null)
 nleft=$(pending_lines | wc -l)
@@ -210,7 +213,8 @@ fi
 if [ "$MODE" = dry ]; then
   echo "=== dry-run  学習完了 ${ndone}/${total}  残り ${nleft}  未測定 ${nuneval} ==="
   echo "  次に GPU が埋まるまで $(minutes_until_busy) 分 / 必要 ${BATCH_MIN} 分"
-  echo "  他人の GPU 使用 $(foreign_gpu_mib) MiB / 自分の学習 $(training_count) 本"
+  echo "  他人の GPU 使用 $(foreign_gpu_mib) MiB（-1 は nvidia-smi が使えず確認不能）"
+  echo "  自分の学習 $(training_count) 本"
   pending_lines | awk '{printf "[plan] %-20s env=%-16s seed %s\n", $3, $2, $4}'
   exit 0
 fi
@@ -230,6 +234,13 @@ fi
 trap 'rm -rf "$LOCK"' EXIT
 
 [ -x "$PY" ] || { echo "[abort] python が見つかりません: $PY"; exit 1; }
+
+# .done の記録漏れの自己修復は**ロックを取った後だけ**行う。
+# 以前は --status / --dry-run でも実行していたため、ロック外の追記が
+# 実行中インスタンスの追記と重なり、.done に重複行ができていた。
+reconcile_done
+total=$(grep -c '^khr_train_quad' "$QUEUE")
+ndone=$(grep -c '^khr_train_quad' "$DONE" 2>/dev/null)
 
 # 学習済み・未測定のものを測る。**他のプロセスが走っていない時だけ**行う。
 run_pending_evals() {
@@ -291,6 +302,12 @@ while :; do
     fi
   fi
   fg=$(foreign_gpu_mib)
+  if (( fg < 0 )); then
+    echo "[warn] nvidia-smi が使えないため「予定表に無い GPU 利用」の確認ができません。"
+    echo "       ps ベースの判定（whisper 解析）だけで続行します。"
+    echo "       直すには: sudo modprobe -r nvidia_uvm nvidia_drm nvidia_modeset nvidia && sudo modprobe nvidia"
+    echo "       （または再起動）。$(nvidia-smi 2>&1 | head -1)"
+  fi
   if (( fg > 500 )); then
     echo "[stop] 予定表に無いプロセスが GPU を ${fg} MiB 使用中のため開始しません:"
     nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader | sed 's/^/          /'
@@ -335,7 +352,7 @@ while :; do
       fail=1
     fi
   done
-  echo "[prog] 学習完了 $(grep -c '^khr_train_quad' "$DONE") / ${total} 本"
+  echo "[prog] 学習完了 $(grep '^khr_train_quad' "$DONE" | sort -u | wc -l) / ${total} 本"
 
   run_pending_evals
 
