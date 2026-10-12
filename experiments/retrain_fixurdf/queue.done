@@ -63,3 +63,14 @@ khr_train_quad11 khr_quad_env8 fixurdf-v11-s3 3
 khr_train_quad12 khr_quad_env9 fixurdf-v12-s2 2
 khr_train_quad12 khr_quad_env9 fixurdf-v12-s3 3
 khr_train_quad13 khr_quad_env10 fixurdf-v13-s2 2
+khr_train_quad13 khr_quad_env10 fixurdf-v13-s3 3
+khr_train_quad14 khr_quad_env11 fixurdf-v14-s2 2
+khr_train_quad14 khr_quad_env11 fixurdf-v14-s3 3
+khr_train_quad15 khr_quad_env12 fixurdf-v15-s2 2
+khr_train_quad15 khr_quad_env12 fixurdf-v15-s3 3
+khr_train_quad16 khr_quad_env13 fixurdf-v16-s2 2
+khr_train_quad16 khr_quad_env13 fixurdf-v16-s3 3
+khr_train_quad17 khr_quad_env14 fixurdf-v17-s2 2
+khr_train_quad17 khr_quad_env14 fixurdf-v17-s3 3
+khr_train_quad18 khr_quad_env15 fixurdf-v18-s2 2
+khr_train_quad18 khr_quad_env15 fixurdf-v18-s3 3

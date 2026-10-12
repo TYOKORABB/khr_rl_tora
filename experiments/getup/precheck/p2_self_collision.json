@@ -1,0 +1,205 @@
+{
+  "params": {
+    "out": "experiments/getup/precheck/p2_self_collision.json",
+    "n_poses": 150,
+    "n_drops": 20,
+    "seed": 1
+  },
+  "options": {
+    "enable_collision": true,
+    "enable_self_collision": true,
+    "enable_adjacent_collision": false,
+    "enable_neutral_collision": true,
+    "max_collision_pairs_v31": 30,
+    "max_collision_pairs_genesis_default": 150,
+    "neutral_filter_voxel_pitch_mm": 10.0
+  },
+  "neutral_filter": {
+    "n_pairs_v31": 292,
+    "n_pairs_genesis_default": 290,
+    "filtered_pairs": [
+      {
+        "geom_a": 10,
+        "geom_b": 20,
+        "link_a": "l_hipjointlower",
+        "link_b": "l_lowerarm",
+        "min_distance_mm": 1.5606818409597905
+      },
+      {
+        "geom_a": 11,
+        "geom_b": 21,
+        "link_a": "r_hipjointlower",
+        "link_b": "r_lowerarm",
+        "min_distance_mm": 1.5606973942099958
+      }
+    ],
+    "voxel_pitch_mm": 10.0
+  },
+  "random_self_collision": {
+    "n_poses": 150,
+    "seed": 1,
+    "n_poses_with_self_contact": 68,
+    "max_penetration_mm": 44.8373481631279,
+    "p95_penetration_mm": 36.27115450799465,
+    "top_pairs": [
+      {
+        "pair": [
+          "c_chest_c",
+          "r_foot"
+        ],
+        "max_penetration_mm": 44.8373481631279
+      },
+      {
+        "pair": [
+          "l_foot",
+          "l_hipjointlower"
+        ],
+        "max_penetration_mm": 38.40316832065582
+      },
+      {
+        "pair": [
+          "l_lowerleg",
+          "r_foot"
+        ],
+        "max_penetration_mm": 38.120850920677185
+      },
+      {
+        "pair": [
+          "l_lowerleg",
+          "r_ankle"
+        ],
+        "max_penetration_mm": 36.475397646427155
+      },
+      {
+        "pair": [
+          "base_link",
+          "l_foot"
+        ],
+        "max_penetration_mm": 35.89184582233429
+      },
+      {
+        "pair": [
+          "base_link",
+          "r_foot"
+        ],
+        "max_penetration_mm": 34.51119735836983
+      },
+      {
+        "pair": [
+          "r_foot",
+          "r_hipjointlower"
+        ],
+        "max_penetration_mm": 32.358936965465546
+      },
+      {
+        "pair": [
+          "r_foot",
+          "r_hipjointupper"
+        ],
+        "max_penetration_mm": 32.12469816207886
+      },
+      {
+        "pair": [
+          "base_link",
+          "r_ankle"
+        ],
+        "max_penetration_mm": 30.75201064348221
+      },
+      {
+        "pair": [
+          "base_link",
+          "l_ankle"
+        ],
+        "max_penetration_mm": 30.50428070127964
+      },
+      {
+        "pair": [
+          "c_chest_c",
+          "l_foot"
+        ],
+        "max_penetration_mm": 30.145540833473206
+      },
+      {
+        "pair": [
+          "l_ankle",
+          "l_hipjointlower"
+        ],
+        "max_penetration_mm": 28.728488832712173
+      }
+    ]
+  },
+  "floor_contacts": [
+    {
+      "max_collision_pairs": 30,
+      "n_poses": 20,
+      "contacts_mean": 7.45,
+      "contacts_max": 14,
+      "pairs_mean": 4.45,
+      "pairs_max": 8,
+      "links_touching_floor": [
+        "c_chest_c",
+        "l_elbow",
+        "l_foot",
+        "l_hipjointlower",
+        "l_lowerarm",
+        "l_lowerleg",
+        "l_upperarm",
+        "l_upperleg",
+        "r_elbow",
+        "r_foot",
+        "r_hipjointlower",
+        "r_lowerarm",
+        "r_lowerleg",
+        "r_upperleg"
+      ]
+    },
+    {
+      "max_collision_pairs": 150,
+      "n_poses": 20,
+      "contacts_mean": 7.45,
+      "contacts_max": 14,
+      "pairs_mean": 4.45,
+      "pairs_max": 8,
+      "links_touching_floor": [
+        "c_chest_c",
+        "l_elbow",
+        "l_foot",
+        "l_hipjointlower",
+        "l_lowerarm",
+        "l_lowerleg",
+        "l_upperarm",
+        "l_upperleg",
+        "r_elbow",
+        "r_foot",
+        "r_hipjointlower",
+        "r_lowerarm",
+        "r_lowerleg",
+        "r_upperleg"
+      ]
+    },
+    {
+      "max_collision_pairs": 400,
+      "n_poses": 20,
+      "contacts_mean": 7.45,
+      "contacts_max": 14,
+      "pairs_mean": 4.45,
+      "pairs_max": 8,
+      "links_touching_floor": [
+        "c_chest_c",
+        "l_elbow",
+        "l_foot",
+        "l_hipjointlower",
+        "l_lowerarm",
+        "l_lowerleg",
+        "l_upperarm",
+        "l_upperleg",
+        "r_elbow",
+        "r_foot",
+        "r_hipjointlower",
+        "r_lowerarm",
+        "r_lowerleg",
+        "r_upperleg"
+      ]
+    }
+  ]
+}
