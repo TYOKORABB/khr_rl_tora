@@ -38,7 +38,7 @@ def packet(seq: int, echo: int, slot: int | None, target_deg: float) -> bytes:
     """slot（電源フラグの位置）のサーボだけ電源を入れて target_deg へ。slot=None なら全サーボ脱力。"""
     m = np.zeros(MRDM_LEN, dtype=np.int16)
     m[0] = MRDM_LEN
-    m[1] = seq % 60000
+    m[1] = np.uint16(seq % 60000).astype(np.int16)   # シーケンス番号は 0〜59999（int16 では 32768 以上が負になる）
     m[ECHO] = echo % 30000
     if slot is not None:
         m[slot] = 1
@@ -195,15 +195,19 @@ def main() -> int:
                     raise RuntimeError(f"指令と実測の差 {err:.1f}° が {ABORT_HOLD_S} s 続いた（ぶつかった・追従しない）")
             nxt += 0.01
             time.sleep(max(0.0, nxt - time.monotonic()))
-    except (RuntimeError, KeyboardInterrupt) as e:
-        state["aborted"] = str(e) or "Ctrl-C"
+    except (Exception, KeyboardInterrupt) as e:   # 想定外の例外でも必ず下の脱力に進む
+        state["aborted"] = f"{type(e).__name__}: {e}" if not isinstance(e, (RuntimeError, KeyboardInterrupt)) else (str(e) or "Ctrl-C")
         print(f"[stop] {state['aborted']} → 脱力")
     finally:
         # 3) 必ず脱力パケットで終える
         t2 = time.monotonic()
         nxt = t2
         while time.monotonic() - t2 < 1.0:
-            send(False, 0.0)
+            try:
+                send(False, 0.0)
+            except Exception as e:
+                print(f"[error] 脱力パケットを送れません: {e}")
+                break
             nxt += 0.01
             time.sleep(max(0.0, nxt - time.monotonic()))
         time.sleep(0.2)

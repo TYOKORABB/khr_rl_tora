@@ -4,8 +4,9 @@
 
 | パス | 内容 |
 |---|---|
-| `firmware_patches/` | ESP32 ファーム（梶田研の Meridian_LITE）への改造パッチ `khr-getup.3`: IMU の重力ベクトル送信（一括読み取り）と通信監視による脱力。バックアップつき書き込み `flash_with_backup.py`。詳細は同フォルダの README |
-| `fw_check.py` | 改造ファームの実機確認ツール（状態表示・IMU の 6 姿勢記録と取り付け回転の推定・通信監視の試験・IMU の読み取り方の比較 `imu-ab`）。サーボに電源を入れる指令は送らない |
+| `firmware_patches/` | ESP32 ファーム（梶田研の Meridian_LITE）への改造パッチ `khr-getup.4`: IMU の重力ベクトル送信（一括読み取り）・通信監視による脱力・受信の古いパケットの読み捨て。バックアップつき書き込み `flash_with_backup.py`。詳細は同フォルダの README |
+| `fw_check.py` | 改造ファームの実機確認ツール（状態表示・IMU の 6 姿勢記録と取り付け回転の推定・通信監視の試験・IMU の読み取り方の比較 `imu-ab`・往復遅れ `latency`）。サーボに電源を入れる指令は送らない |
+| `pose_session.py` | IMU の 6 姿勢試験を、全サーボに電源を入れて今の姿勢を保ったまま行う（`serve` を裏で動かし `record <姿勢>`）。指令とのずれが 5° を 0.3 s 超えたら全サーボ脱力 |
 | `servo_jog.py` | サーボ 1 個だけに電源を入れ、今の角度から小さく（既定 ±5°）1 往復させる動作確認。追従誤差と遅れを記録。ずれが 2° を 0.3 s 超えたら脱力 |
 | `calib/` | 実機で測った IMU の取り付け回転など（`fw_check pose` / `solve` が書く） |
 
@@ -13,7 +14,7 @@ PC 側の共通コードは `khr_common/`（`gravity.py`: IMU 信号 → base �
 
 ## 出所とライセンス
 
-- `firmware_patches/khr-getup.3.patch` は `s-kajita/Meridian_LITE`（公開 fork）のコミット `85a62d1` に対する差分で、
+- `firmware_patches/khr-getup.4.patch` は `s-kajita/Meridian_LITE`（公開 fork）のコミット `85a62d1` に対する差分で、
   差分の文脈として元のコードを数行ずつ含む。上流は `Ninagawa123/Meridian_LITE`
   — MIT License, Copyright (c) 2021 Ninagawa123 (GitHub) and Project Meridian Team。
 - 四脚デプロイヤ（`Meridian_consoleS_quad.py`・`khr_quad_env_no_gs.py`）は研究室の手元にだけある版なので、

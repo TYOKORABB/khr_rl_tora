@@ -1,0 +1,253 @@
+{
+ "poses": {
+  "prone": {
+   "g_mean": [
+    -9.68,
+    0.78,
+    -1.29
+   ],
+   "norm": 9.797,
+   "n": 498,
+   "spread_p95_deg": 0.0,
+   "sys_calib_min": 0,
+   "accel_calib_min": 0,
+   "euler_mean": [
+    148.69,
+    81.12,
+    -151.44
+   ],
+   "time": "2026-10-13T18:59:33",
+   "servo_err_max_deg": 1.65,
+   "servo_err_worst": "R7"
+  },
+  "supine": {
+   "g_mean": [
+    9.23,
+    -0.67,
+    3.24
+   ],
+   "norm": 9.805,
+   "n": 496,
+   "spread_p95_deg": 0.0,
+   "sys_calib_min": 0,
+   "accel_calib_min": 0,
+   "euler_mean": [
+    -11.81,
+    -70.25,
+    -157.0
+   ],
+   "time": "2026-10-13T19:00:06",
+   "servo_err_max_deg": 0.98,
+   "servo_err_worst": "L8"
+  },
+  "left_down": {
+   "g_mean": [
+    4.24,
+    -8.82,
+    0.47
+   ],
+   "norm": 9.797,
+   "n": 494,
+   "spread_p95_deg": 0.0,
+   "sys_calib_min": 3,
+   "accel_calib_min": 1,
+   "euler_mean": [
+    -86.88,
+    -25.63,
+    -84.56
+   ],
+   "time": "2026-10-13T19:02:20",
+   "servo_err_max_deg": 2.87,
+   "servo_err_worst": "L2"
+  },
+  "right_down": {
+   "g_mean": [
+    4.02,
+    8.93,
+    0.36
+   ],
+   "norm": 9.8,
+   "n": 498,
+   "spread_p95_deg": 0.0,
+   "sys_calib_min": 3,
+   "accel_calib_min": 1,
+   "euler_mean": [
+    87.63,
+    -24.19,
+    153.38
+   ],
+   "time": "2026-10-13T19:02:56",
+   "servo_err_max_deg": 2.64,
+   "servo_err_worst": "R2"
+  },
+  "upright": {
+   "g_mean": [
+    -2.31,
+    -0.74,
+    9.5
+   ],
+   "norm": 9.805,
+   "n": 500,
+   "spread_p95_deg": 0.0,
+   "sys_calib_min": 3,
+   "accel_calib_min": 3,
+   "euler_mean": [
+    -4.44,
+    13.63,
+    -166.19
+   ],
+   "time": "2026-10-13T19:03:44",
+   "servo_err_max_deg": 0.68,
+   "servo_err_worst": "L8"
+  }
+ },
+ "pairwise_angle": {
+  "upright-prone": {
+   "deg": 84.3,
+   "ideal": 90
+  },
+  "upright-supine": {
+   "deg": 84.1,
+   "ideal": 90
+  },
+  "upright-left_down": {
+   "deg": 89.3,
+   "ideal": 90
+  },
+  "upright-right_down": {
+   "deg": 97.5,
+   "ideal": 90
+  },
+  "prone-supine": {
+   "deg": 168.3,
+   "ideal": 180
+  },
+  "prone-left_down": {
+   "deg": 120.4,
+   "ideal": 90
+  },
+  "prone-right_down": {
+   "deg": 109.7,
+   "ideal": 90
+  },
+  "supine-left_down": {
+   "deg": 61.0,
+   "ideal": 90
+  },
+  "supine-right_down": {
+   "deg": 70.4,
+   "ideal": 90
+  },
+  "left_down-right_down": {
+   "deg": 129.9,
+   "ideal": 180
+  }
+ },
+ "fits": {
+  "upright+prone+supine+left_down+right_down": {
+   "r_mount": [
+    [
+     0.97174,
+     -0.0325,
+     0.2338
+    ],
+    [
+     0.02577,
+     0.99916,
+     0.03179
+    ],
+    [
+     -0.23463,
+     -0.02487,
+     0.97177
+    ]
+   ],
+   "residual_deg": {
+    "upright": 2.9,
+    "prone": 6.5,
+    "supine": 6.2,
+    "left_down": 27.5,
+    "right_down": 22.7
+   }
+  },
+  "upright+prone": {
+   "r_mount": [
+    [
+     0.98,
+     -0.08368,
+     0.18052
+    ],
+    [
+     0.06754,
+     0.9933,
+     0.0938
+    ],
+    [
+     -0.18716,
+     -0.07973,
+     0.97909
+    ]
+   ],
+   "residual_deg": {
+    "upright": 2.8,
+    "prone": 2.8,
+    "supine": 8.9,
+    "left_down": 30.6,
+    "right_down": 20.6
+   }
+  },
+  "upright+supine": {
+   "r_mount": [
+    [
+     0.95744,
+     -0.06468,
+     0.28128
+    ],
+    [
+     0.04149,
+     0.99529,
+     0.08762
+    ],
+    [
+     -0.28562,
+     -0.07222,
+     0.95562
+    ]
+   ],
+   "residual_deg": {
+    "upright": 3.0,
+    "prone": 8.8,
+    "supine": 3.0,
+    "left_down": 29.1,
+    "right_down": 22.0
+   }
+  },
+  "upright+prone+supine": {
+   "r_mount": [
+    [
+     0.96998,
+     -0.07431,
+     0.23157
+    ],
+    [
+     0.05452,
+     0.99438,
+     0.09071
+    ],
+    [
+     -0.23701,
+     -0.07537,
+     0.96858
+    ]
+   ],
+   "residual_deg": {
+    "upright": 0.1,
+    "prone": 5.8,
+    "supine": 5.9,
+    "left_down": 29.9,
+    "right_down": 21.3
+   }
+  }
+ },
+ "note": "1 回目（2026-10-13 19:00 ごろ、khr-getup.4、全サーボ保持）。head_down は記録中にツールの不具合で中断して取れていない"
+}

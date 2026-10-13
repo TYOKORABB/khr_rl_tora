@@ -1,6 +1,6 @@
 --- a/Meridian_LITE_for_ESP32/src/config.h
 +++ b/Meridian_LITE_for_ESP32/src/config.h
-@@ -132,6 +132,22 @@
+@@ -132,6 +132,25 @@
  #define MODE_UDP_RECEIVE      1 // PCからのデータ受信(0:OFF, 1:ON, 通常は1)
  #define MODE_UDP_SEND         1 // PCへのデータ送信(0:OFF, 1:ON, 通常は1)
  
@@ -19,13 +19,16 @@
 +// 0: 梶田版と同じ個別の読み取り(+重力). 1 のときも, PC が Meridim[87] に 0x6B4C を送っている間は 0 と同じ読み方になる(比較用).
 +#define KHR_IMU_BURST       1
 +#define KHR_BNO055_I2C_ADDR 0x28 // main.h の Adafruit_BNO055(55, 0x28, &Wire) と同じ
++// 受信: 1 だと, 受けたあとに受信バッファに溜まっている古い通常パケットを読み捨てて最新だけを使う(PC の指令の遅れを減らす).
++// 特殊コマンド(脱力・トリム設定など)は読み捨てない. 0 だと改造前と同じく毎フレーム一番古いパケットを1つ読む.
++#define KHR_UDP_DRAIN 1
 +
  // Wifiの設定(SSID,パスワード等は別途keys.hで指定)
  #define MODE_FIXED_IP 0 // IPアドレスを固定するか(0:NO, 1:YES)
  #define UDP_TIMEOUT   3 // UDPの待受タイムアウト(単位ms,推奨値0)
 --- a/Meridian_LITE_for_ESP32/src/khr_core.h
 +++ b/Meridian_LITE_for_ESP32/src/khr_core.h
-@@ -0,0 +1,149 @@
+@@ -0,0 +1,191 @@
 +#ifndef __KHR_CORE_H__
 +#define __KHR_CORE_H__
 +
@@ -35,6 +38,7 @@
 +///          追加: khr_rl_tora (起き上がり実験の安全系 P0-2 と IMU の P0-1), 2026-10.
 +
 +#include <stdint.h>
++#include <string.h>
 +
 +enum KhrWdgState : uint8_t {
 +  KHR_WDG_DISARMED = 0, // 起動後, Power OFF のパケットをまだ受けていない: 全サーボ脱力
@@ -174,10 +178,51 @@
 +                    ((uint16_t)(a_mode & 0x03) << 12));
 +}
 +
++// ---- 受信バッファの読み捨て(khr-getup.4) -----------------------------------------------------------
++// 梶田版は受信バッファから毎フレーム一番古いパケットを1つだけ読むので, 溜まった分だけ PC の指令が遅れる
++// (2026-10-13 実測で往復 約 50 ms). 受けたあとに溜まっている通常パケットを読み捨て, 最新だけを使う.
++// 特殊コマンド(マスターコマンドが Meridim の長さ 90 以外: 脱力・トリム設定など)は読み捨てない.
++#define KHR_MRDM_LEN    90 // Meridim の長さ(= 通常パケットのマスターコマンド [0])
++#define KHR_DRAIN_MAX   16 // 1 フレームに読み捨てる上限
++
++/// @brief Meridian のチェックサム(Meridian::cksm_rslt と同じ計算)が合っているか.
++inline bool khr_cksm_ok(const int16_t *a_m) {
++  int sum = 0;
++  for (int i = 0; i < KHR_MRDM_LEN - 1; i++) {
++    sum += (int)a_m[i];
++  }
++  return (int16_t)(~sum) == a_m[KHR_MRDM_LEN - 1];
++}
++
++/// @brief 受信バッファに溜まった通常パケットを読み捨て, a_cur を最新にする.
++/// @param a_cur いま受けたパケット(int16 の Meridim). 最新のパケットで上書きされる.
++/// @param a_recv 次のパケットを引数の配列に読めたら true を返す受信関数(無ければ false).
++/// @param a_prev_seq 読み捨てたとき, 最後に残したパケットの1つ前に持っていたパケットのシーケンス番号 [1].
++/// @return 読み捨てた数(0 なら a_cur も a_prev_seq も変えない).
++/// @details a_cur が特殊コマンドなら何もしない. 特殊コマンドが来たらそれを a_cur にしてそこで止める(後ろは次のフレーム).
++///          チェックサムが合わないパケットは捨てて続ける.
++template <class Recv>
++int khr_udp_drain(int16_t *a_cur, Recv a_recv, uint16_t &a_prev_seq, int a_max = KHR_DRAIN_MAX) {
++  int drained = 0;
++  int16_t next[KHR_MRDM_LEN];
++  for (int k = 0; k < a_max && a_cur[0] == KHR_MRDM_LEN; k++) {
++    if (!a_recv(next)) {
++      break;
++    }
++    if (!khr_cksm_ok(next)) {
++      continue;
++    }
++    a_prev_seq = (uint16_t)a_cur[1];
++    memcpy(a_cur, next, sizeof(next));
++    drained++;
++  }
++  return drained;
++}
++
 +#endif // __KHR_CORE_H__
 --- a/Meridian_LITE_for_ESP32/src/khr_ext.h
 +++ b/Meridian_LITE_for_ESP32/src/khr_ext.h
-@@ -0,0 +1,145 @@
+@@ -0,0 +1,156 @@
 +#ifndef __KHR_EXT_H__
 +#define __KHR_EXT_H__
 +
@@ -202,6 +247,7 @@
 +///                 bit 12-13 読み取り方(0: 一括, 1: 梶田版と同じ個別). khr_core.h の khr_pack_imu_diag().
 +///            [86] は使わない(PC が往復遅れの測定に使う. ESP32 は受信した値をそのまま返す).
 +///          PC → ESP32: [87] に 0x6B4C を送っている間は, IMU を梶田版と同じ個別の読み取りにする(比較用).
++///          3) 受信 (khr-getup.4 から): 受信バッファに溜まった古い通常パケットを読み捨て, 最新だけを使う(KHR_UDP_DRAIN).
 +
 +#include "config.h"
 +#include "main.h"
@@ -223,6 +269,14 @@
 +    }
 +  }
 +  return true;
++}
++
++/// @brief [2-1] で受けたあと, 受信バッファに溜まった古い通常パケットを読み捨てて最新だけを残す(khr-getup.4).
++/// @return 読み捨てた数. 1 以上なら a_prev_seq に, 残したパケットの1つ前のシーケンス番号.
++int khr_udp_drain_rx(Meridim90Union &a_received, WiFiUDP &a_udp, uint16_t &a_prev_seq) {
++  return khr_udp_drain(
++      a_received.sval, [&a_udp](int16_t *a_dst) { return mrd_wifi_udp_receive((byte *)a_dst, MRDM_BYTE, a_udp); },
++      a_prev_seq);
 +}
 +
 +/// @brief PC からの診断用の指定を反映する(正しいパケットを受けたフレームだけ).
@@ -254,6 +308,8 @@
 +  Serial.println(KHR_SEND_GRAVITY ? "ON" : "OFF");
 +  Serial.print("[khr] BNO055 fusion mode: 0x");
 +  Serial.println((int)KHR_BNO055_MODE, HEX);
++  Serial.print("[khr] UDP receive: ");
++  Serial.println(KHR_UDP_DRAIN ? "newest packet (drain older normal packets)" : "oldest packet (kajita)");
 +  Serial.print("[khr] IMU read: ");
 +  Serial.println((KHR_SEND_GRAVITY && KHR_IMU_BURST) ? "burst 0x08-0x33 (44 bytes, 1 transaction)" : "per vector (kajita)");
 +}
@@ -330,7 +386,7 @@
  #define __MERIDIAN_LITE_MAIN__
  
 -#define VERSION "Meridian_LITE_v1.1.1_2025_08.22(kajita)" // バージョン表示
-+#define VERSION "Meridian_LITE_v1.1.1_2025_08.22(kajita)+khr-getup.3" // バージョン表示([khr] 改造版)
++#define VERSION "Meridian_LITE_v1.1.1_2025_08.22(kajita)+khr-getup.4" // バージョン表示([khr] 改造版)
  
  /// @file    Meridian_LITE_for_ESP32/src/main.cpp
  /// @brief   Meridian is a system that smartly realizes the digital twin of a robot.
@@ -350,7 +406,20 @@
  
    // WiFiの初期化と開始
    mrd_disp.esp_wifi(WIFI_AP_SSID);
-@@ -276,9 +278,13 @@
+@@ -272,13 +274,26 @@
+       }
+       delay(1);
+     }
++#if KHR_UDP_DRAIN
++    // [khr] 受信バッファに溜まった古い通常パケットを読み捨て, 最新だけを使う(PC の指令の遅れを減らす)
++    if (flg.udp_rcvd) {
++      uint16_t khr_prev_seq = 0;
++      if (khr_udp_drain_rx(r_udp_meridim, udp, khr_prev_seq) > 0) {
++        mrdsq.r_expect = khr_prev_seq; // 読み捨てた分は [2-5] でシーケンス番号の飛び(スキップ)として数えない
++      }
++    }
++#endif
+   }
    flg.udp_busy = false; // UDP使用中フラグをサゲる
  
    // @[2-2] チェックサムを確認
@@ -364,7 +433,7 @@
  
      // @[2-3] UDP受信配列から UDP送信配列にデータを転写
      memcpy(s_udp_meridim.bval, r_udp_meridim.bval, MRDM_LEN * 2);
-@@ -381,6 +387,10 @@
+@@ -381,6 +396,10 @@
    // @[6-1] MasterCommand group2 の処理
    execute_master_command_2(s_udp_meridim, flg.meridim_rcvd, sv, Serial);
  
@@ -375,7 +444,7 @@
    //------------------------------------------------------------------------------------
    //  [ 7 ] ESP32内部で位置制御する場合の処理
    //------------------------------------------------------------------------------------
-@@ -454,8 +464,11 @@
+@@ -454,8 +473,11 @@
      now = millis();
    }
    imu_read_done = true;    // タイムアウト時でも読み終えたことにする

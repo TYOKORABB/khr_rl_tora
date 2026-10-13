@@ -9,6 +9,7 @@
   python -m real.fw_check solve                    # 記録した姿勢から取り付け回転 R_mount を求める
   python -m real.fw_check wdg-test                 # 通信監視の状態遷移（OK→HOLD→LIMP→解除）を確かめる
   python -m real.fw_check imu-ab                   # IMU の読み取り方（一括 / 梶田版と同じ個別）を切り替えて比べる（khr-getup.3 から）
+  python -m real.fw_check latency                  # 往復遅れ（PC → ESP32 → PC）を 2 通りの送り方で測る
   python -m real.fw_check selftest                 # 偽の ESP32 を相手にこのツール自体を試す（実機不要）
 
 姿勢名: upright（直立）/ head_down（逆さ）/ prone（うつ伏せ）/ supine（仰向け）/ left_down / right_down
@@ -58,7 +59,7 @@ def limp_packet(seq: int, echo: int = 0, imu_legacy: bool = False) -> bytes:
     imu_legacy=True なら [87] に印を入れ、ESP32 の IMU の読み取りを梶田版と同じ個別の読み取りにさせる（比較用）。"""
     m = np.zeros(MRDM_LEN, dtype=np.int16)
     m[0] = MRDM_LEN          # マスターコマンド: 通常（コンソールの既定値と同じ）
-    m[1] = seq % 60000
+    m[1] = np.uint16(seq % 60000).astype(np.int16)   # シーケンス番号は 0〜59999（int16 では 32768 以上が負になる）
     m[gv.MRD_ECHO] = echo % 30000
     if imu_legacy:
         m[gv.MRD_IMU_DIAG] = gv.IMU_LEGACY_MAGIC
@@ -202,6 +203,44 @@ def cmd_listen(a) -> int:
     return 0
 
 
+def pose_record(rows: list[tuple[float, np.ndarray]]) -> dict:
+    """静止させた区間の受信から、重力ベクトルの平均・ばらつき・キャリブレーション状態をまとめる。"""
+    st = [gv.decode_status(m[gv.MRD_STATUS]) for _, m in rows]
+    if not st or not st[0].patched:
+        raise RuntimeError("改造ファームのパケットが届いていません")
+    g = np.array([gv.gravity_sensor(m) for (_, m), s in zip(rows, st) if s.gravity_fresh])
+    if len(g) < 10:
+        raise RuntimeError(f"重力ベクトルが読めたフレームが {len(g)} 個しかありません")
+    mean = g.mean(axis=0)
+    unit = g / np.linalg.norm(g, axis=1, keepdims=True)
+    spread = np.degrees(np.arccos(np.clip(unit @ (mean / np.linalg.norm(mean)), -1, 1)))
+    return {
+        "g_mean": mean.round(4).tolist(), "norm": float(np.linalg.norm(mean).round(3)),
+        "n": int(len(g)), "spread_p95_deg": float(np.percentile(spread, 95).round(2)),
+        "sys_calib_min": min(s.sys_calib for s in st), "accel_calib_min": min(s.accel_calib for s in st),
+        "euler_mean": (np.mean([m[gv.MRD_EULER] for _, m in rows], axis=0) / 100).round(2).tolist(),
+        "time": dt.datetime.now().isoformat(timespec="seconds"),
+    }
+
+
+def save_pose(name: str, rec: dict) -> list[str]:
+    """real/calib/imu_poses.json に 1 姿勢を書き足し、記録済みの姿勢名を返す。警告も表示する。"""
+    CALIB_DIR.mkdir(parents=True, exist_ok=True)
+    p = CALIB_DIR / "imu_poses.json"
+    data = json.loads(p.read_text()) if p.exists() else {}
+    data[name] = rec
+    p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+    print(f"[ok  ] {name}: g={rec['g_mean']} |g|={rec['norm']} ばらつき p95 {rec['spread_p95_deg']}° "
+          f"(n={rec['n']}, calib sys≥{rec['sys_calib_min']} acc≥{rec['accel_calib_min']}) → {p}")
+    if abs(rec["norm"] - 9.81) > 0.3:
+        print("[warn] |g| が 9.81 から外れています（静止していない、または融合が未収束）")
+    if rec["spread_p95_deg"] > 1.0:
+        print("[warn] 記録中に向きが 1° 以上揺れています（静止させて取り直す）")
+    done = [k for k in gv.KNOWN_POSES if k in data]
+    print(f"[info] 記録済み {len(done)}/6: {done}")
+    return done
+
+
 def cmd_pose(a) -> int:
     if a.name not in gv.KNOWN_POSES:
         sys.exit(f"[error] 姿勢名は {list(gv.KNOWN_POSES)} のどれか")
@@ -212,35 +251,10 @@ def cmd_pose(a) -> int:
     time.sleep(a.seconds)
     rows = link.since(t0)
     link.close()
-    st = [gv.decode_status(m[gv.MRD_STATUS]) for _, m in rows]
-    if not st or not st[0].patched:
-        sys.exit("[error] 改造ファームのパケットが届いていません")
-    g = np.array([gv.gravity_sensor(m) for (_, m), s in zip(rows, st) if s.gravity_fresh])
-    if len(g) < 10:
-        sys.exit(f"[error] 重力ベクトルが読めたフレームが {len(g)} 個しかありません")
-    mean = g.mean(axis=0)
-    unit = g / np.linalg.norm(g, axis=1, keepdims=True)
-    spread = np.degrees(np.arccos(np.clip(unit @ (mean / np.linalg.norm(mean)), -1, 1)))
-    rec = {
-        "g_mean": mean.round(4).tolist(), "norm": float(np.linalg.norm(mean).round(3)),
-        "n": int(len(g)), "spread_p95_deg": float(np.percentile(spread, 95).round(2)),
-        "sys_calib_min": min(s.sys_calib for s in st), "accel_calib_min": min(s.accel_calib for s in st),
-        "euler_mean": (np.mean([m[gv.MRD_EULER] for _, m in rows], axis=0) / 100).round(2).tolist(),
-        "time": dt.datetime.now().isoformat(timespec="seconds"),
-    }
-    CALIB_DIR.mkdir(parents=True, exist_ok=True)
-    p = CALIB_DIR / "imu_poses.json"
-    data = json.loads(p.read_text()) if p.exists() else {}
-    data[a.name] = rec
-    p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
-    print(f"[ok  ] {a.name}: g={rec['g_mean']} |g|={rec['norm']} ばらつき p95 {rec['spread_p95_deg']}° "
-          f"(n={rec['n']}, calib sys≥{rec['sys_calib_min']} acc≥{rec['accel_calib_min']}) → {p}")
-    if abs(rec["norm"] - 9.81) > 0.3:
-        print("[warn] |g| が 9.81 から外れています（静止していない、または融合が未収束）")
-    if rec["spread_p95_deg"] > 1.0:
-        print("[warn] 記録中に向きが 1° 以上揺れています（静止させて取り直す）")
-    done = [k for k in gv.KNOWN_POSES if k in data]
-    print(f"[info] 記録済み {len(done)}/6: {done}")
+    try:
+        save_pose(a.name, pose_record(rows))
+    except RuntimeError as e:
+        sys.exit(f"[error] {e}")
     return 0
 
 
@@ -443,6 +457,64 @@ def cmd_imu_ab(a) -> int:
     return 0 if all(checks.values()) else 1
 
 
+def cmd_latency(a) -> int:
+    """脱力パケットの [86] に番号を入れて送り、ESP32 がそれを返してくるまでの往復遅れを測る。
+    free: PC が 100 Hz で送り続ける / pingpong: ESP32 から受けるたびに 1 つ返す。"""
+    esp_ip = a.esp_ip or esp_ip_from_board_txt()
+    if not esp_ip:
+        sys.exit("[error] --esp-ip で ESP32 の IP を指定してください")
+    link = Link(a.recv_port, esp_ip=esp_ip, send_port=a.send_port)
+    wait_first(link)
+    res = {}
+    for mode in ("free", "pingpong"):
+        sent: dict[int, float] = {}
+        t0 = time.monotonic()
+        nxt = t0
+        n_seen = len(link.since(0))
+        while time.monotonic() - t0 < a.seconds:
+            if mode == "free":
+                link.send_limp()
+                sent[link.last_echo] = link.t_last_send
+                nxt += 0.01
+                time.sleep(max(0.0, nxt - time.monotonic()))
+            else:
+                with link.lock:
+                    n_now = len(link.rx)
+                if n_now > n_seen:     # 受けた分だけ返す
+                    n_seen = n_now
+                    link.send_limp()
+                    sent[link.last_echo] = link.t_last_send
+                else:
+                    time.sleep(0.0002)
+        time.sleep(0.3)
+        first: dict[int, float] = {}
+        rows = link.since(t0)
+        for t, m in rows:
+            e = int(m[gv.MRD_ECHO])
+            if e in sent and e not in first:
+                first[e] = t
+        keys = sorted(first)[len(first) // 10:]          # 最初の 1 割（立ち上がり）は捨てる
+        rtt = np.array([first[e] - sent[e] for e in keys]) * 1000
+        skip = np.mean([(int(m[88]) >> 10) & 1 for _, m in rows]) if rows else None
+        res[mode] = {"sent": len(sent), "echoed": len(first),
+                     "rtt_ms": {"min": round(float(rtt.min()), 1), "p50": round(float(np.median(rtt)), 1),
+                                "p90": round(float(np.percentile(rtt, 90)), 1), "p99": round(float(np.percentile(rtt, 99)), 1),
+                                "max": round(float(rtt.max()), 1)},
+                     "esp_skip_flag_frames": None if skip is None else round(float(skip), 3)}
+        r = res[mode]["rtt_ms"]
+        print(f"[{mode:8s}] 往復 最小 {r['min']} / 中央値 {r['p50']} / p90 {r['p90']} / p99 {r['p99']} / 最大 {r['max']} ms  "
+              f"（返ってきた {res[mode]['echoed']}/{res[mode]['sent']}、ESP32 のスキップ検出 {res[mode]['esp_skip_flag_frames']}）")
+        time.sleep(0.5)
+    link.close()
+    out_dir = Path(a.out_dir) if a.out_dir else REPO_ROOT / "experiments" / "real" / f"{dt.date.today():%Y%m%d}_fw_check"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out = out_dir / f"latency_{dt.datetime.now():%H%M%S}.json"
+    out.write_text(json.dumps({**res, "seconds": a.seconds, "time": dt.datetime.now().isoformat(timespec="seconds")},
+                              indent=1, ensure_ascii=False) + "\n")
+    print(f"[記録] → {out}")
+    return 0
+
+
 # ---- 偽の ESP32（selftest 用）-------------------------------------------------------------------
 class FakeEsp:
     """改造ファームの main loop を 10 ms 周期で真似る。状態機械は khr_core.h と同じ規則。"""
@@ -524,6 +596,10 @@ def cmd_selftest(a) -> int:
         rc = rc or rc_ab
     fake.stop()
     assert parse(limp_packet(123)) is not None
+    # シーケンス番号は 0〜59999。int16 の範囲（32767）を超えても作れて、読み戻せること（2026-10-13 の不具合）
+    for sq in (32767, 32768, 59999, 60000, 123456):
+        m = parse(limp_packet(sq))
+        assert m is not None and int(m.view(np.uint16)[1]) == sq % 60000, sq
     print(f"fw_check selftest: {'OK' if rc == 0 else 'NG'}")
     return rc
 
@@ -557,10 +633,15 @@ def main(argv=None) -> int:
     s.add_argument("--seconds", type=float, default=5.0, help="1 区間の長さ")
     s.add_argument("--settle", type=float, default=0.5, help="切り替え直後に捨てる秒数")
     s.add_argument("--out-dir", default=None, help="省略時は experiments/real/<日付>_fw_check/")
+    s = sub.add_parser("latency")
+    s.add_argument("--esp-ip", default=None, help="省略時は Meridian_consoleS/board_ip.txt から読む")
+    s.add_argument("--send-port", type=int, default=SEND_PORT)
+    s.add_argument("--seconds", type=float, default=8.0, help="1 つの送り方の長さ")
+    s.add_argument("--out-dir", default=None, help="省略時は experiments/real/<日付>_fw_check/")
     sub.add_parser("selftest")
     a = p.parse_args(argv)
     return {"listen": cmd_listen, "pose": cmd_pose, "solve": cmd_solve,
-            "wdg-test": cmd_wdg_test, "imu-ab": cmd_imu_ab, "selftest": cmd_selftest}[a.cmd](a)
+            "wdg-test": cmd_wdg_test, "imu-ab": cmd_imu_ab, "latency": cmd_latency, "selftest": cmd_selftest}[a.cmd](a)
 
 
 if __name__ == "__main__":
