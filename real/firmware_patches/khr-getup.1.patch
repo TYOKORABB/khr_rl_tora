@@ -1,0 +1,325 @@
+--- a/Meridian_LITE_for_ESP32/src/config.h
++++ b/Meridian_LITE_for_ESP32/src/config.h
+@@ -132,6 +132,18 @@
+ #define MODE_UDP_RECEIVE      1 // PCからのデータ受信(0:OFF, 1:ON, 通常は1)
+ #define MODE_UDP_SEND         1 // PCへのデータ送信(0:OFF, 1:ON, 通常は1)
+ 
++// [khr] 起き上がり実験のための追加(khr_ext.h). 3つとも0/NDOFにすると改造前と同じ動作になる.
++// 通信監視: PCからの正しいパケットが途絶えたら, 最後の目標角を保持 → 全サーボ脱力(ラッチ).
++//           ラッチはコンソールの Power を切ったパケットが届くと解ける. 起動直後も同じ(Power OFF を受けるまで脱力).
++#define KHR_WDG_ENABLE     1    // 通信監視(0:OFF=改造前と同じく最後の目標角を保持し続ける, 1:ON)
++#define KHR_WDG_TIMEOUT_MS 200  // 途絶がこれ以上で HOLD(最後の目標角を保持)
++#define KHR_WDG_HOLD_MS    1000 // HOLD がこれだけ続いたら LIMP(全サーボ脱力)
++// IMU: BNO055 の融合推定の重力ベクトルを Meridim[8..10](100倍値, m/s^2)に, 状態語を[11]に入れる.
++#define KHR_SEND_GRAVITY 1 // (0:OFF, 1:ON)
++// BNO055 の融合モード. 改造前と同じ OPERATION_MODE_NDOF(地磁気あり)が既定.
++// 地磁気を使わないなら OPERATION_MODE_IMUPLUS(ヨーは起動時を基準とした相対値になる).
++#define KHR_BNO055_MODE OPERATION_MODE_NDOF
++
+ // Wifiの設定(SSID,パスワード等は別途keys.hで指定)
+ #define MODE_FIXED_IP 0 // IPアドレスを固定するか(0:NO, 1:YES)
+ #define UDP_TIMEOUT   3 // UDPの待受タイムアウト(単位ms,推奨値0)
+--- a/Meridian_LITE_for_ESP32/src/khr_core.h
++++ b/Meridian_LITE_for_ESP32/src/khr_core.h
+@@ -0,0 +1,88 @@
++#ifndef __KHR_CORE_H__
++#define __KHR_CORE_H__
++
++/// @file    khr_core.h
++/// @brief   [khr] khr_ext.h のうち Arduino に依存しない部分(通信監視の状態機械と状態語の組み立て).
++/// @details ホストの g++ で単体テストできる(khr_rl_tora/real/firmware_patches/test/test_khr_core.cpp).
++///          追加: khr_rl_tora (起き上がり実験の安全系 P0-2 と IMU の P0-1), 2026-10.
++
++#include <stdint.h>
++
++enum KhrWdgState : uint8_t {
++  KHR_WDG_DISARMED = 0, // 起動後, Power OFF のパケットをまだ受けていない: 全サーボ脱力
++  KHR_WDG_OK = 1,       // 正常
++  KHR_WDG_HOLD = 2,     // 途絶が timeout_ms 以上: 最後の目標角を保持(改造前と同じ挙動)
++  KHR_WDG_LIMP = 3      // 途絶が timeout_ms + hold_ms 以上: 全サーボ脱力. ラッチする
++};
++
++struct KhrWatchdog {
++  uint32_t timeout_ms;
++  uint32_t hold_ms;
++  uint8_t state = KHR_WDG_DISARMED;
++  uint32_t last_fresh_ms = 0;
++
++  KhrWatchdog(uint32_t a_timeout_ms, uint32_t a_hold_ms)
++      : timeout_ms(a_timeout_ms), hold_ms(a_hold_ms) {}
++
++  /// @brief 1フレームに1回呼び, 新しい状態を返す.
++  /// @param a_now_ms 現在時刻(millis()).
++  /// @param a_fresh このフレームでPCから正しい(チェックサムOKの)パケットを受けたか.
++  /// @param a_all_power_off そのパケットで, マウントされた全サーボの電源フラグが0か.
++  /// @details LIMP のラッチは「パケットが戻った」だけでは解けない. コンソールの Power を切った
++  ///          パケット(全サーボの電源フラグ0)が届いて初めて解ける. 解いたあと再び Power を入れる
++  ///          のはコンソールの通常手順に任せる(コンソールは Power ON の瞬間の実測角を目標にする)ので,
++  ///          脱力して崩れた姿勢から古い目標角へ跳ぶことはない.
++  ///          起動直後(DISARMED)も同じ条件で抜ける. 実験中に ESP32 が電圧降下などで再起動しても,
++  ///          コンソールが Power ON のまま送り続けている目標角へいきなり動き出さない.
++  ///          (コンソールは Power OFF で起動するので, 通常の起動手順は改造前と変わらない.)
++  uint8_t update(uint32_t a_now_ms, bool a_fresh, bool a_all_power_off) {
++    if (a_fresh) {
++      last_fresh_ms = a_now_ms;
++    }
++    const uint32_t silent_ms = a_now_ms - last_fresh_ms; // 符号なし減算なので millis() の桁あふれでも正しい
++
++    switch (state) {
++    case KHR_WDG_OK:
++    case KHR_WDG_HOLD:
++      if (silent_ms >= timeout_ms + hold_ms) {
++        state = KHR_WDG_LIMP;
++      } else if (silent_ms >= timeout_ms) {
++        state = KHR_WDG_HOLD;
++      } else {
++        state = KHR_WDG_OK;
++      }
++      break;
++    case KHR_WDG_DISARMED:
++    case KHR_WDG_LIMP:
++      if (a_fresh && a_all_power_off) {
++        state = KHR_WDG_OK;
++      }
++      break;
++    default: // ありえない値になったら安全側(脱力)へ
++      state = KHR_WDG_LIMP;
++      break;
++    }
++    return state;
++  }
++};
++
++#define KHR_STATUS_MAGIC 0x6B
++
++/// @brief 状態語 Meridim[11] を組み立てる. ビットの割り当ては khr_ext.h の冒頭を参照.
++///        PC 側の読み取りは khr_rl_tora/khr_common/gravity.py の decode_status().
++/// @param a_wdg_state 通信監視の状態(KhrWdgState).
++/// @param a_gravity_fresh このフレームで重力ベクトルを読めたか.
++/// @param a_wdg_enabled 通信監視が有効か.
++/// @param a_calib_stat BNO055 の CALIB_STAT レジスタの値(sys<<6 | gyro<<4 | accel<<2 | mag).
++inline uint16_t khr_pack_status(uint8_t a_wdg_state, bool a_gravity_fresh, bool a_wdg_enabled,
++                                uint8_t a_calib_stat) {
++  uint16_t status = (uint16_t)KHR_STATUS_MAGIC << 8;
++  status |= (uint16_t)(a_wdg_state & 0x03);
++  status |= (uint16_t)(a_gravity_fresh ? 1 : 0) << 2;
++  status |= (uint16_t)(a_wdg_enabled ? 1 : 0) << 3;
++  status |= (uint16_t)((a_calib_stat >> 2) & 0x03) << 4; // 加速度センサ
++  status |= (uint16_t)((a_calib_stat >> 6) & 0x03) << 6; // システム(融合)
++  return status;
++}
++
++#endif // __KHR_CORE_H__
+--- a/Meridian_LITE_for_ESP32/src/khr_ext.h
++++ b/Meridian_LITE_for_ESP32/src/khr_ext.h
+@@ -0,0 +1,115 @@
++#ifndef __KHR_EXT_H__
++#define __KHR_EXT_H__
++
++/// @file    khr_ext.h
++/// @brief   [khr] 起き上がり実験のための追加 (khr_rl_tora/real/firmware, 2026-10).
++/// @details 1) 通信監視: PCからの正しいパケットが途絶えたら, 保持 → 全サーボ脱力(ラッチ).
++///             起動直後も, コンソールの Power OFF のパケットを一度受けるまでは全サーボ脱力.
++///          2) IMU: BNO055 の融合推定の重力ベクトルを Meridim[8..10] に, 状態語を [11] に入れる.
++///             改造前のファームはこの4スロットに常に0を送っていた(地磁気・温度は読んでいない).
++///             Euler 角 [12..14] は改造前のまま送るので, 既存のコンソール・デプロイヤはそのまま動く.
++///
++///          状態語 Meridim[11] (unsigned short):
++///            bit 0-1  通信監視の状態 (0:DISARMED 1:OK 2:HOLD 3:LIMP)
++///            bit 2    このフレームの重力ベクトルが新しい(I2C の読み取りに成功した)
++///            bit 3    通信監視が有効 (KHR_WDG_ENABLE)
++///            bit 4-5  BNO055 の加速度センサのキャリブレーション状態 (0-3)
++///            bit 6-7  BNO055 のシステム(融合)のキャリブレーション状態 (0-3)
++///            bit 8-15 0x6B (改造ファームの印. 改造前は [11] が常に0)
++
++#include "config.h"
++#include "main.h"
++#include "khr_core.h"
++
++KhrWatchdog khr_wdg(KHR_WDG_TIMEOUT_MS, KHR_WDG_HOLD_MS);
++
++float khr_gravity[3] = {0.0, 0.0, 0.0}; // 最後に読めた重力ベクトル(m/s^2, BNO055 の軸の付け替え後の座標)
++bool khr_gravity_fresh = false;         // このフレームで読めたか
++
++/// @brief 受信した Meridim で, マウントされた全サーボの電源フラグが0か.
++bool khr_all_power_off(const Meridim90Union &a_meridim, const ServoParam &a_sv) {
++  for (int i = 0; i < a_sv.num_max; i++) {
++    if (a_sv.ixl_mount[i] && a_meridim.sval[i * 2 + MRD_L_ORIGIDX] != 0) {
++      return false;
++    }
++    if (a_sv.ixr_mount[i] && a_meridim.sval[i * 2 + MRD_R_ORIGIDX] != 0) {
++      return false;
++    }
++  }
++  return true;
++}
++
++/// @brief 起動時の設定表示.
++void khr_ext_hello() {
++  Serial.print("[khr] watchdog: ");
++  if (KHR_WDG_ENABLE) {
++    Serial.print("ON (hold after ");
++    Serial.print(KHR_WDG_TIMEOUT_MS);
++    Serial.print(" ms, limp after ");
++    Serial.print(KHR_WDG_TIMEOUT_MS + KHR_WDG_HOLD_MS);
++    Serial.println(" ms)");
++  } else {
++    Serial.println("OFF");
++  }
++  Serial.print("[khr] gravity vector -> Meridim[8..10]: ");
++  Serial.println(KHR_SEND_GRAVITY ? "ON" : "OFF");
++  Serial.print("[khr] BNO055 fusion mode: 0x");
++  Serial.println((int)KHR_BNO055_MODE, HEX);
++}
++
++/// @brief 通信監視を1フレーム進め, LIMP なら全サーボの電源フラグを0にする.
++/// @param a_meridim サーボ駆動に使う送信用 Meridim (s_udp_meridim).
++/// @param a_received PCから受信した Meridim (r_udp_meridim). 電源フラグの判定に使う.
++///        マスターコマンドは送信用の配列を書き換えることがあるので, 判定は受信した配列で行う.
++/// @param a_sv サーボパラメータ.
++/// @param a_fresh このフレームでPCから正しいパケットを受けたか.
++/// @details マスターコマンド第2群の後, [7] でサーボ目標を読む前に呼ぶ.
++void khr_wdg_step(Meridim90Union &a_meridim, const Meridim90Union &a_received,
++                  const ServoParam &a_sv, bool a_fresh) {
++  if (!KHR_WDG_ENABLE) {
++    return;
++  }
++  const uint8_t prev = khr_wdg.state;
++  const bool all_off = a_fresh && khr_all_power_off(a_received, a_sv);
++  const uint8_t state = khr_wdg.update(millis(), a_fresh, all_off);
++
++  if (state != prev) { // 状態が変わったときだけ表示する
++    static const char *names[] = {"DISARMED", "OK", "HOLD", "LIMP"};
++    Serial.print("[khr] watchdog ");
++    Serial.print(names[prev & 0x03]);
++    Serial.print(" -> ");
++    Serial.println(names[state & 0x03]);
++    if (state == KHR_WDG_LIMP) {
++      Serial.println("[khr] all servos limp. Turn console 'Power' OFF to release, then ON again.");
++    }
++  }
++
++  if (state == KHR_WDG_LIMP || state == KHR_WDG_DISARMED) {
++    for (int i = 0; i < MRD_SERVO_SLOTS; i++) {
++      a_meridim.sval[i * 2 + MRD_L_ORIGIDX] = 0; // 電源フラグ0 → [8] で ICS の setFree(脱力)
++      a_meridim.sval[i * 2 + MRD_R_ORIGIDX] = 0;
++    }
++  }
++}
++
++/// @brief 重力ベクトルを Meridim[8..10] に, 状態語を [11] に入れる.
++/// @details meriput90_ahrs() の直後に呼ぶ(あちらが [8..11] に0を書くので上書きする).
++void khr_meriput90_ext(Meridim90Union &a_meridim) {
++#if KHR_SEND_GRAVITY
++  const float gx = (float)gravity_v.x();
++  const float gy = (float)gravity_v.y();
++  const float gz = (float)gravity_v.z();
++  khr_gravity_fresh = (gx != 0.0 || gy != 0.0 || gz != 0.0); // I2C の読み取りに失敗すると全要素0になる
++  if (khr_gravity_fresh) {                                   // 失敗時は前回の値を使う(加速度・Euler と同じ扱い)
++    khr_gravity[0] = gx;
++    khr_gravity[1] = gy;
++    khr_gravity[2] = gz;
++  }
++  a_meridim.sval[MRD_MAG_X] = mrd.float2HfShort(khr_gravity[0]); // 100倍値(0.01 m/s^2 刻み)
++  a_meridim.sval[MRD_MAG_Y] = mrd.float2HfShort(khr_gravity[1]);
++  a_meridim.sval[MRD_MAG_Z] = mrd.float2HfShort(khr_gravity[2]);
++#endif
++  a_meridim.usval[MRD_TEMP] = khr_pack_status(khr_wdg.state, khr_gravity_fresh, KHR_WDG_ENABLE, khr_calib_stat);
++}
++
++#endif // __KHR_EXT_H__
+--- a/Meridian_LITE_for_ESP32/src/main.cpp
++++ b/Meridian_LITE_for_ESP32/src/main.cpp
+@@ -1,7 +1,7 @@
+ #ifndef __MERIDIAN_LITE_MAIN__
+ #define __MERIDIAN_LITE_MAIN__
+ 
+-#define VERSION "Meridian_LITE_v1.1.1_2025_08.22(kajita)" // バージョン表示
++#define VERSION "Meridian_LITE_v1.1.1_2025_08.22(kajita)+khr-getup.1" // バージョン表示([khr] 改造版)
+ 
+ /// @file    Meridian_LITE_for_ESP32/src/main.cpp
+ /// @brief   Meridian is a system that smartly realizes the digital twin of a robot.
+@@ -29,6 +29,7 @@
+ #include "mrd_util.h"
+ #include "mrd_wifi.h"
+ #include "mrd_wire0.h"
++#include "khr_ext.h" // [khr] 通信監視と重力ベクトル(khr_rl_tora/real/firmware_patches)
+ 
+ MERIDIANFLOW::Meridian mrd;
+ IcsHardSerialClass ics_L(&Serial1, PIN_EN_L, SERVO_BAUDRATE_L, SERVO_TIMEOUT_L);
+@@ -161,6 +162,7 @@
+     delay(10);
+   }
+ #endif
++  khr_ext_hello(); // [khr] 追加機能の設定を表示
+ 
+   // WiFiの初期化と開始
+   mrd_disp.esp_wifi(WIFI_AP_SSID);
+@@ -276,9 +278,13 @@
+   flg.udp_busy = false; // UDP使用中フラグをサゲる
+ 
+   // @[2-2] チェックサムを確認
++  bool khr_fresh = false;                          // [khr] このフレームでPCから正しいパケットを受けたか
+   if (mrd.cksm_rslt(r_udp_meridim.sval, MRDM_LEN)) // Check sum OK!
+   {
+     mrd.monitor_check_flow("CsOK", monitor.flow); // デバグ用フロー表示
++    // [khr] 受信がタイムアウトしても r_udp_meridim には前回のパケットが残っていてチェックサムが通るので,
++    //       「今回受けたか」は udp_rcvd と組み合わせて判定する
++    khr_fresh = flg.udp_rcvd;
+ 
+     // @[2-3] UDP受信配列から UDP送信配列にデータを転写
+     memcpy(s_udp_meridim.bval, r_udp_meridim.bval, MRDM_LEN * 2);
+@@ -381,6 +387,9 @@
+   // @[6-1] MasterCommand group2 の処理
+   execute_master_command_2(s_udp_meridim, flg.meridim_rcvd, sv, Serial);
+ 
++  // @[6-2] [khr] 通信監視(途絶えたら保持 → 全サーボ脱力). [7] でサーボ目標を読む前に行う
++  khr_wdg_step(s_udp_meridim, r_udp_meridim, sv, khr_fresh);
++
+   //------------------------------------------------------------------------------------
+   //  [ 7 ] ESP32内部で位置制御する場合の処理
+   //------------------------------------------------------------------------------------
+@@ -456,6 +465,7 @@
+   imu_read_done = true;    // タイムアウト時でも読み終えたことにする
+   imu2ahrs();
+   meriput90_ahrs(s_udp_meridim, ahrs.read, MOUNT_IMUAHRS);
++  khr_meriput90_ext(s_udp_meridim); // [khr] 重力ベクトル [8..10] と状態語 [11]
+   unsigned long T_sensor_read = millis();  
+   #endif
+ 
+--- a/Meridian_LITE_for_ESP32/src/mrd_wire0.h
++++ b/Meridian_LITE_for_ESP32/src/mrd_wire0.h
+@@ -72,7 +72,7 @@
+ /// @return BNO055センサーの初期化が成功した場合はtrue, それ以外の場合はfalseを返す.
+ ///         現在, この関数は常にfalseを返すように設定されています.
+ bool mrd_wire0_init_bno055(AhrsValue &a_ahrs) {
+-  if (!a_ahrs.bno.begin()) {
++  if (!a_ahrs.bno.begin(KHR_BNO055_MODE)) { // [khr] 融合モードを config.h で選ぶ(既定は改造前と同じ NDOF)
+     Serial.println("No BNO055 detected ... Check your wiring or I2C ADDR!");
+     return false;
+   } else {
+@@ -202,6 +202,8 @@
+ imu::Vector<3> accelerometer;
+ imu::Vector<3> magnetometer;
+ imu::Quaternion quat;
++imu::Vector<3> gravity_v;            // [khr] 融合推定の重力ベクトル(m/s^2)
++volatile uint8_t khr_calib_stat = 0; // [khr] BNO055 のキャリブレーション状態(sys<<6|gyro<<4|accel<<2|mag)
+ 
+ void read_bno055() {
+   // ジャイロセンサ値の取得 - VECTOR_GYROSCOPE - rad/s
+@@ -368,6 +370,15 @@
+     // 加速度センサ値の取得 - VECTOR_ACCELEROMETER - m/s^2
+     accelerometer = ahrs.bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+ 
++#if KHR_SEND_GRAVITY
++    // [khr] 融合推定の重力ベクトル - VECTOR_GRAVITY - m/s^2
++    // Euler 角と違い特異点がないので, うつ伏せ・仰向け・四脚姿勢(ピッチ90°)でも姿勢が求まる.
++    gravity_v = ahrs.bno.getVector(Adafruit_BNO055::VECTOR_GRAVITY);
++    uint8_t cal_sys, cal_gyro, cal_accel, cal_mag;
++    ahrs.bno.getCalibration(&cal_sys, &cal_gyro, &cal_accel, &cal_mag);
++    khr_calib_stat = (cal_sys << 6) | (cal_gyro << 4) | (cal_accel << 2) | cal_mag;
++#endif
++
+     // 読み取り完了フラグをセット（メインloopが確認）
+     imu_read_done = true;
+   }

@@ -212,3 +212,9 @@ logs/
 
 # quad_pose_test.py などが出力する姿勢確認用レンダリング画像
 quad_pose_*.png
+
+# 実機側（real/）: ファームのビルド作業場・生ログ・ネットワーク設定は追跡しない
+real/firmware_patches/_work/
+real/data/raw/
+keys.h
+board_ip.txt
