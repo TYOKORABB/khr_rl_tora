@@ -1,0 +1,194 @@
+{
+ "source_urdf": "/home/tora/gsw4/assets/khr3hv/urdf/khr3hv_symhip.urdf",
+ "source_sha256": "d51774399c7f39511ce5e7fdb4faabb3f53745b8657020321a09766253d74ef2",
+ "output_urdf": "/home/tora/gsw4/assets/khr3hv/urdf/khr3hv_symhip_getup.urdf",
+ "coacd": {
+  "threshold": 0.02,
+  "max_parts": 8,
+  "seed": 0
+ },
+ "links": {
+  "c_chest_c": {
+   "mesh": "c_chest_c.stl",
+   "mesh_sha256": "df4cb456ebfd4b014cfc2110e39d191ce15649274c12cf030e02ee3bcfd445c3",
+   "parts": 5,
+   "gap_hull_p95_max_mm": [
+    7.5,
+    15.8
+   ],
+   "gap_parts_p95_max_mm": [
+    3.2,
+    4.9
+   ],
+   "volume_hull_cm3": 302.76,
+   "volume_parts_cm3": 167.9
+  },
+  "c_chest_a": {
+   "mesh": "c_chest_a.stl",
+   "mesh_sha256": "367a6f895c358d19125fdfa84ef5d9bbd62699ea6b49f56bad1cb77970ba09d6",
+   "parts": 4,
+   "gap_hull_p95_max_mm": [
+    28.9,
+    37.6
+   ],
+   "gap_parts_p95_max_mm": [
+    0.1,
+    3.7
+   ],
+   "volume_hull_cm3": 341.44,
+   "volume_parts_cm3": 136.28
+  },
+  "l_lowerarm": {
+   "mesh": "l_lowerarm_v7.stl",
+   "mesh_sha256": "67861c49f95c2cbc95b109d88d8013d1c66f9ec89aae02d24fe4d54d006e795b",
+   "parts": 6,
+   "gap_hull_p95_max_mm": [
+    10.8,
+    17.3
+   ],
+   "gap_parts_p95_max_mm": [
+    3.5,
+    5.2
+   ],
+   "volume_hull_cm3": 87.02,
+   "volume_parts_cm3": 53.87
+  },
+  "r_lowerarm": {
+   "mesh": "r_lowerarm_v5.stl",
+   "mesh_sha256": "11df3958c1c5fd5458b9684d9c7095d988e7d3655505414019a531c1b69d9e8c",
+   "parts": 8,
+   "gap_hull_p95_max_mm": [
+    11.3,
+    17.2
+   ],
+   "gap_parts_p95_max_mm": [
+    2.3,
+    4.8
+   ],
+   "volume_hull_cm3": 87.02,
+   "volume_parts_cm3": 48.28
+  },
+  "l_hipjointupper": {
+   "mesh": "l_hipjointupper_v4.stl",
+   "mesh_sha256": "f6fb34bbc168be74bb499ebe5ff1f23fe32e776932f8d1aa854aa02c05eb7a7e",
+   "parts": 3,
+   "gap_hull_p95_max_mm": [
+    15.4,
+    19.0
+   ],
+   "gap_parts_p95_max_mm": [
+    3.5,
+    4.8
+   ],
+   "volume_hull_cm3": 22.15,
+   "volume_parts_cm3": 5.93
+  },
+  "l_hipjointlower": {
+   "mesh": "l_hipjointlower_v4.stl",
+   "mesh_sha256": "638bee572ba0291b9411304fc31ca390ba0a71718d2504c059286f8cbae30422",
+   "parts": 4,
+   "gap_hull_p95_max_mm": [
+    11.9,
+    17.5
+   ],
+   "gap_parts_p95_max_mm": [
+    3.0,
+    4.7
+   ],
+   "volume_hull_cm3": 69.01,
+   "volume_parts_cm3": 51.35
+  },
+  "l_lowerleg": {
+   "mesh": "l_lowerleg_v5.stl",
+   "mesh_sha256": "4af57eb09e5ab1601f9fa61f346c16cfdd268bf7fc15e3094d908e87be359b68",
+   "parts": 8,
+   "gap_hull_p95_max_mm": [
+    12.3,
+    17.5
+   ],
+   "gap_parts_p95_max_mm": [
+    2.6,
+    5.1
+   ],
+   "volume_hull_cm3": 90.37,
+   "volume_parts_cm3": 50.48
+  },
+  "l_ankle": {
+   "mesh": "l_ankle_v5.stl",
+   "mesh_sha256": "a91a8cff43bcfc32ceb259152e6f275b564f5ddcffa1dbfe9327d56ba02bedc8",
+   "parts": 3,
+   "gap_hull_p95_max_mm": [
+    12.3,
+    17.6
+   ],
+   "gap_parts_p95_max_mm": [
+    2.9,
+    4.8
+   ],
+   "volume_hull_cm3": 71.05,
+   "volume_parts_cm3": 47.8
+  },
+  "r_hipjointupper": {
+   "mesh": "r_hipjointupper_v4.stl",
+   "mesh_sha256": "783f713ce3d7870dc95c7563104d59b10f57b5a685dd50e4ec60e249927eec30",
+   "parts": 5,
+   "gap_hull_p95_max_mm": [
+    15.6,
+    19.0
+   ],
+   "gap_parts_p95_max_mm": [
+    2.9,
+    4.6
+   ],
+   "volume_hull_cm3": 22.15,
+   "volume_parts_cm3": 5.64
+  },
+  "r_hipjointlower": {
+   "mesh": "r_hipjointlower_v4.stl",
+   "mesh_sha256": "3da8808abf84005ba61866a24d92b9ad9f4da560263d56008d8266fdfab8003e",
+   "parts": 4,
+   "gap_hull_p95_max_mm": [
+    12.1,
+    17.5
+   ],
+   "gap_parts_p95_max_mm": [
+    2.8,
+    4.9
+   ],
+   "volume_hull_cm3": 69.01,
+   "volume_parts_cm3": 51.57
+  },
+  "r_lowerleg": {
+   "mesh": "r_lowerleg_v5.stl",
+   "mesh_sha256": "dd7d42027c22c8ff0fab590010d7d7730fd49d29500c2c44e16b7ce5df140b39",
+   "parts": 4,
+   "gap_hull_p95_max_mm": [
+    12.2,
+    17.5
+   ],
+   "gap_parts_p95_max_mm": [
+    2.6,
+    4.8
+   ],
+   "volume_hull_cm3": 90.37,
+   "volume_parts_cm3": 51.34
+  },
+  "r_ankle": {
+   "mesh": "r_ankle_v5.stl",
+   "mesh_sha256": "e5aafe29efb486459a1789818e948febce60d427d2cab9a60061ff982bc6eb50",
+   "parts": 3,
+   "gap_hull_p95_max_mm": [
+    12.1,
+    17.7
+   ],
+   "gap_parts_p95_max_mm": [
+    2.8,
+    4.7
+   ],
+   "volume_hull_cm3": 71.05,
+   "volume_parts_cm3": 47.6
+  }
+ },
+ "time": "2026-10-14T04:02:56",
+ "output_sha256": "9cf8b8a96aa708daceb33be94f863e626de9d0bf4954aa18e6a6af48c7057486"
+}

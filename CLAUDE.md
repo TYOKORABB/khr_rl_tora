@@ -93,6 +93,19 @@ training exactly. Change hyperparameters in `get_cfgs()` / `get_train_cfg()`, no
 - `logs/` and `*.mp4` are gitignored (see `.gitignore` bottom) — checkpoints and recordings
   are not tracked.
 
+## Get-up / Sim2Real work (2026-10, `GetUpSim2RealPlan.md`)
+
+Run everything from the repo root as modules (`python -m <pkg>.<name>`); paths resolve via `khr_common/paths.py`.
+
+- `khr_common/` — Genesis-free code shared by sim and the real-robot tools (joint map, IMU gravity, action post-processing,
+  height estimate by forward kinematics).
+- `real/` — real-robot tools over Meridian (firmware patches, `walk_session.py` deployer, IMU/latency checks). `real/ROBOT_STATUS.md`
+  is the robot checklist. Never commit `keys.h`, `board_ip.txt`, raw logs, or flash backups.
+- `sysid/` — sim-vs-real comparison of recorded walks (closed-loop sweeps, segment replay E4a). Results in `experiments/sysid/`.
+- `getup/` — get-up task: `precheck/`, `tools/make_getup_urdf.py` (writes a derived URDF to `../assets`, not committed),
+  `gen_init_states.py` (initial-state bank, committed under `getup/data/banks/`), `envs/getup_env1.py`, `train_getup1.py`.
+  Version history in `getup/DIARY.md`. Do not start GPU training while the cron retrain queue (`run_retrain_fixurdf.sh`) is running.
+
 ## GitHub workflow
 
 This repo is actively managed on GitHub. **Commit and push changes frequently** with concise,

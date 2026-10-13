@@ -1,0 +1,170 @@
+{
+ "original": {
+  "urdf": "/home/tora/gsw4/assets/khr3hv/urdf/khr3hv_symhip.urdf",
+  "n_geoms": 25,
+  "mass_kg": 1.6,
+  "stance_height_m": 0.1932,
+  "stance_roll_deg": 0.02,
+  "stance_pitch_deg": -0.66,
+  "cpu_ms_per_step_64envs": 10.8,
+  "walk": {
+   "fell_at_s": null,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "vel_xy": [
+      0.001,
+      -0.0
+     ],
+     "yaw_dps": 0.44,
+     "roll": -2.12,
+     "pitch": -2.63
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "vel_xy": [
+      0.226,
+      -0.001
+     ],
+     "yaw_dps": 0.1,
+     "roll": 0.85,
+     "pitch": -7.88
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "vel_xy": [
+      -0.192,
+      0.005
+     ],
+     "yaw_dps": -1.18,
+     "roll": -1.57,
+     "pitch": -7.76
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "vel_xy": [
+      -0.016,
+      0.111
+     ],
+     "yaw_dps": 0.82,
+     "roll": -2.84,
+     "pitch": -8.74
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "vel_xy": [
+      -0.008,
+      -0.003
+     ],
+     "yaw_dps": 29.36,
+     "roll": -1.0,
+     "pitch": -9.28
+    }
+   ]
+  }
+ },
+ "getup": {
+  "urdf": "/home/tora/gsw4/assets/khr3hv/urdf/khr3hv_symhip_getup.urdf",
+  "n_geoms": 70,
+  "mass_kg": 1.6,
+  "stance_height_m": 0.1932,
+  "stance_roll_deg": 0.02,
+  "stance_pitch_deg": -0.66,
+  "cpu_ms_per_step_64envs": 12.3,
+  "walk": {
+   "fell_at_s": null,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "vel_xy": [
+      0.003,
+      -0.002
+     ],
+     "yaw_dps": 0.41,
+     "roll": -2.31,
+     "pitch": -2.46
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "vel_xy": [
+      0.226,
+      -0.003
+     ],
+     "yaw_dps": 0.09,
+     "roll": 0.81,
+     "pitch": -7.8
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "vel_xy": [
+      -0.193,
+      0.005
+     ],
+     "yaw_dps": -1.16,
+     "roll": -1.73,
+     "pitch": -7.72
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "vel_xy": [
+      -0.014,
+      0.111
+     ],
+     "yaw_dps": 0.67,
+     "roll": -2.81,
+     "pitch": -8.77
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "vel_xy": [
+      -0.008,
+      -0.003
+     ],
+     "yaw_dps": 29.42,
+     "roll": -1.05,
+     "pitch": -9.29
+    }
+   ]
+  }
+ }
+}

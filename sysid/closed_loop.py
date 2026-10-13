@@ -114,9 +114,21 @@ def _init_genesis():
     return gs
 
 
-def make_env(n_envs: int, exp: str, env_module: str = "khr_quad_env21"):
-    """評価用の学習環境（ノイズ・個体差・押しなし、エピソードは十分長く）。"""
+def make_env(n_envs: int, exp: str, env_module: str = "khr_quad_env21", urdf: str | None = None):
+    """評価用の学習環境（ノイズ・個体差・押しなし、エピソードは十分長く）。
+    urdf: 学習環境が読む khr3hv_symhip.urdf の代わりに使う URDF（起き上がり用の別名 URDF で歩けるかの確認など）。"""
     gs = _init_genesis()
+    if urdf is not None:
+        # 学習環境のコードはパスを直書きしているので、URDF の読み込みのときだけ差し替える
+        # （Genesis は isinstance(morph, gs.morphs.URDF) で種類を見るので、関数ではなくサブクラスで差し替える）
+        orig = gs.morphs.URDF
+
+        class _Swap(orig):
+            def __init__(self, **kw):
+                if str(kw.get("file", "")).endswith("khr3hv_symhip.urdf"):
+                    kw["file"] = urdf
+                super().__init__(**kw)
+        gs.morphs.URDF = _Swap
     chdir_repo_root()
     env_cfg, obs_cfg, reward_cfg, command_cfg, train_cfg = pickle.load(open(LOG_ROOT / exp / "cfgs.pkl", "rb"))
     reward_cfg = copy.deepcopy(reward_cfg)
@@ -128,8 +140,12 @@ def make_env(n_envs: int, exp: str, env_module: str = "khr_quad_env21"):
         env_cfg[k] = False
     env_cfg["episode_length_s"] = 1000.0
     env_cfg["resampling_time_s"] = 1000.0   # 4 秒ごとの指令の引き直しを止める（物理には影響しない。観測の比較で邪魔になる）
-    env = getattr(importlib.import_module(env_module), "KHRQuadEnv")(n_envs, env_cfg, obs_cfg, reward_cfg, command_cfg,
-                                                                      show_viewer=False)
+    try:
+        env = getattr(importlib.import_module(env_module), "KHRQuadEnv")(n_envs, env_cfg, obs_cfg, reward_cfg, command_cfg,
+                                                                          show_viewer=False)
+    finally:
+        if urdf is not None:
+            gs.morphs.URDF = orig
     import torch
     zero = torch.zeros(3, dtype=gs.tc_float, device=gs.device)
     env.commands_limits = (zero, zero)
@@ -137,7 +153,8 @@ def make_env(n_envs: int, exp: str, env_module: str = "khr_quad_env21"):
 
 
 def run(schedule: list[tuple[np.ndarray, float]], conds: list[Cond], exp: str = "khr-quadruped31-s2", ckpt: int = 3999,
-        kp_scale: float = 1.0, kd_scale: float = 1.0, force_scale: float = 1.0, env_module: str = "khr_quad_env21") -> dict:
+        kp_scale: float = 1.0, kd_scale: float = 1.0, force_scale: float = 1.0, env_module: str = "khr_quad_env21",
+        urdf: str | None = None) -> dict:
     """指令の列を全員同時に動かす。戻り値:
       rows   (B, T, 列)  walk_session の policy_log と同じ列（重力・角速度は方策が見た値＝IMU の誤差込み）
       down_true (B, T, 3)  本当の重力の向き（base 座標）
@@ -146,7 +163,7 @@ def run(schedule: list[tuple[np.ndarray, float]], conds: list[Cond], exp: str = 
     """
     import torch
     B = len(conds)
-    gs, env, env_cfg, obs_cfg, reward_cfg = make_env(B, exp, env_module)
+    gs, env, env_cfg, obs_cfg, reward_cfg = make_env(B, exp, env_module, urdf)
     names = list(env_cfg["joint_names"])
     n = len(names)
     if kp_scale != 1.0:
