@@ -8,6 +8,7 @@
   python -m real.fw_check pose prone --seconds 5   # 既知の姿勢で重力ベクトルを記録（6 姿勢）
   python -m real.fw_check solve                    # 記録した姿勢から取り付け回転 R_mount を求める
   python -m real.fw_check wdg-test                 # 通信監視の状態遷移（OK→HOLD→LIMP→解除）を確かめる
+  python -m real.fw_check imu-ab                   # IMU の読み取り方（一括 / 梶田版と同じ個別）を切り替えて比べる（khr-getup.3 から）
   python -m real.fw_check selftest                 # 偽の ESP32 を相手にこのツール自体を試す（実機不要）
 
 姿勢名: upright（直立）/ head_down（逆さ）/ prone（うつ伏せ）/ supine（仰向け）/ left_down / right_down
@@ -51,13 +52,16 @@ def parse(data: bytes) -> np.ndarray | None:
     return m if checksum(m) == m[MRDM_LEN - 1] else None
 
 
-def limp_packet(seq: int, echo: int = 0) -> bytes:
+def limp_packet(seq: int, echo: int = 0, imu_legacy: bool = False) -> bytes:
     """全サーボ脱力（電源フラグ 0）のパケット。このツールが送るのはこれだけ。
-    echo は空きスロット [86] に入れる番号で、ESP32 がそのまま返してくる（そのパケットを処理した時刻が分かる）。"""
+    echo は空きスロット [86] に入れる番号で、ESP32 がそのまま返してくる（そのパケットを処理した時刻が分かる）。
+    imu_legacy=True なら [87] に印を入れ、ESP32 の IMU の読み取りを梶田版と同じ個別の読み取りにさせる（比較用）。"""
     m = np.zeros(MRDM_LEN, dtype=np.int16)
     m[0] = MRDM_LEN          # マスターコマンド: 通常（コンソールの既定値と同じ）
     m[1] = seq % 60000
     m[gv.MRD_ECHO] = echo % 30000
+    if imu_legacy:
+        m[gv.MRD_IMU_DIAG] = gv.IMU_LEGACY_MAGIC
     assert not m[list(L_CMD)].any() and not m[list(R_CMD)].any()  # 電源を入れる指令は絶対に送らない
     m[MRDM_LEN - 1] = checksum(m)
     return m.astype("<i2").tobytes()
@@ -122,10 +126,10 @@ class Link:
         with self.lock:
             return self.rx[-1] if self.rx else None
 
-    def send_limp(self):
+    def send_limp(self, imu_legacy: bool = False):
         assert self.esp is not None
         self.last_echo = self.seq % 29999 + 1     # 0 は使わない
-        self.sock.sendto(limp_packet(self.seq, self.last_echo), self.esp)
+        self.sock.sendto(limp_packet(self.seq, self.last_echo, imu_legacy), self.esp)
         self.t_last_send = time.monotonic()
         self.seq += 1
 
@@ -186,6 +190,10 @@ def cmd_listen(a) -> int:
                 # khr-getup.2 から: 1 秒間に届いた新しい重力ベクトルの数と IMU スレッドの読み取り時間
                 n_new = len({int(m[gv.MRD_GRAV_SEQ]) for _, m in win}) - 1
                 extra = f"  grav {n_new:3d}/s imu {int(last[1][gv.MRD_IMU_US]) & 0xFFFF:5d} us"
+                # khr-getup.3 から: 読み取りの失敗（1 秒間の回数・最後の理由）と読み取り方
+                d = gv.decode_imu_diag(last[1][gv.MRD_IMU_DIAG])
+                fails = (int(win[-1][1][gv.MRD_IMU_DIAG]) - int(win[0][1][gv.MRD_IMU_DIAG])) & 0xFF
+                extra += f" fail {fails:3d}/s ({gv.IMU_FAIL_REASONS.get(d.last_reason, d.last_reason)}) {d.mode}"
             print(f"t={time.monotonic() - t0:6.1f}s  {n:3d} pkt/s{extra}  {describe(last[1], r_mount)}", flush=True)
             time.sleep(0.25)
     except KeyboardInterrupt:
@@ -349,6 +357,92 @@ def cmd_wdg_test(a) -> int:
     return 0 if ok else 1
 
 
+def summarize_imu(rows: list[tuple[float, np.ndarray]]) -> dict:
+    """1 区間の受信から、IMU の更新頻度・失敗・読み取り時間・値の平均を求める。"""
+    t = np.array([r[0] for r in rows])
+    M = np.array([r[1] for r in rows]).astype(np.int64)
+    dur = float(t[-1] - t[0])
+    diag = [gv.decode_imu_diag(w) for w in M[:, gv.MRD_IMU_DIAG]]
+    dseq = np.diff(M[:, gv.MRD_GRAV_SEQ] & 0xFFFF) % 65536
+    dfail = np.diff(M[:, gv.MRD_IMU_DIAG] & 0xFF) % 256
+    reasons: dict[str, int] = {}
+    for d, df in zip(diag[1:], dfail):
+        if df > 0:
+            k = gv.IMU_FAIL_REASONS.get(d.last_reason, str(d.last_reason))
+            reasons[k] = reasons.get(k, 0) + int(df)
+    us = M[:, gv.MRD_IMU_US] & 0xFFFF
+
+    def ms(sl, scale=100.0):
+        x = M[:, sl] / scale
+        return {"mean": np.round(x.mean(0), 4).tolist(), "std": np.round(x.std(0), 4).tolist()}
+
+    return {
+        "packets": int(len(M)), "seconds": round(dur, 2), "pkt_hz": round(len(M) / dur, 1),
+        "mode_seen": {m: sum(1 for d in diag if d.mode == m) for m in sorted({d.mode for d in diag})},
+        "gravity_new_hz": round(float(dseq.sum()) / dur, 1),
+        "gravity_fresh_frames": round(float(np.mean((M[:, gv.MRD_STATUS] & 0x04) != 0)), 3),
+        "fail_hz": round(float(dfail.sum()) / dur, 1), "fail_reasons": reasons,
+        "read_us": {"p50": int(np.median(us)), "p90": int(np.percentile(us, 90)), "max": int(us.max())},
+        "gyro_zero_frames": round(float(np.mean(np.all(M[:, 5:8] == 0, axis=1))), 4),
+        "accel": ms(slice(2, 5)), "gyro": ms(slice(5, 8)), "gravity": ms(gv.MRD_GRAVITY), "euler": ms(gv.MRD_EULER),
+    }
+
+
+def cmd_imu_ab(a) -> int:
+    esp_ip = a.esp_ip or esp_ip_from_board_txt()
+    if not esp_ip:
+        sys.exit("[error] --esp-ip で ESP32 の IP を指定してください")
+    if not a.yes:
+        print("全サーボ脱力のパケットを送りながら、ESP32 の IMU の読み取り方を 一括 → 個別（梶田版と同じ）→ 一括 と切り替えて比べます。\n"
+              "サーボに電源を入れる指令は送りません。比べるのでロボットは動かさず静止させておいてください。")
+        if input("始めますか？ [y/N] ").strip().lower() != "y":
+            return 0
+    link = Link(a.recv_port, esp_ip=esp_ip, send_port=a.send_port)
+    first = wait_first(link)
+    if not gv.decode_status(first[gv.MRD_STATUS]).patched:
+        sys.exit("[error] 改造前のファームです（[11] に 0x6B の印がない）")
+    res = {}
+    for name, legacy in (("burst", False), ("legacy", True), ("burst_again", False)):
+        t0 = time.monotonic()
+        nxt = t0
+        while time.monotonic() - t0 < a.seconds:
+            link.send_limp(imu_legacy=legacy)
+            nxt += 0.01
+            time.sleep(max(0.0, nxt - time.monotonic()))
+        # 切り替えが効くまで（受信バッファの溜まり・IMU スレッドの 1 周）の a.settle 秒は捨てる
+        rows = [(t, m) for t, m in link.since(t0 + a.settle) if t <= time.monotonic()]
+        res[name] = summarize_imu(rows)
+        r = res[name]
+        print(f"[{name:11s}] 読み取り方 {r['mode_seen']}  重力の更新 {r['gravity_new_hz']:5.1f} Hz  "
+              f"失敗 {r['fail_hz']:5.1f} 回/s {r['fail_reasons']}  読み取り {r['read_us']['p50']} us (p90 {r['read_us']['p90']})")
+    link.close()
+
+    # 一括と個別で、静止中の値（平均）がそろっているか: 差が「両方の標準偏差の 3 倍 + 量子化 0.02」以内
+    agree = {}
+    for k in ("accel", "gravity", "euler"):
+        b, l = res["burst"][k], res["legacy"][k]
+        tol = 3 * (np.array(b["std"]) + np.array(l["std"])) + 0.02
+        diff = np.abs(np.array(b["mean"]) - np.array(l["mean"]))
+        agree[k] = {"max_diff": round(float(diff.max()), 4), "ok": bool(np.all(diff <= tol))}
+    checks = {
+        "一括の区間は一括で読んでいた": res["burst"]["mode_seen"].get("burst", 0) >= 0.95 * res["burst"]["packets"],
+        "個別の区間は個別で読んでいた": res["legacy"]["mode_seen"].get("legacy", 0) >= 0.95 * res["legacy"]["packets"],
+        **{f"静止中の値がそろう: {k}（最大差 {v['max_diff']}）": v["ok"] for k, v in agree.items()},
+    }
+    for k, v in checks.items():
+        print(f"  [{'ok' if v else 'NG'}] {k}")
+    g_b, g_l = res["burst"]["gravity_new_hz"], res["legacy"]["gravity_new_hz"]
+    print(f"[結果] 重力ベクトルの更新: 一括 {g_b} Hz / 個別 {g_l} Hz（2 回目の一括 {res['burst_again']['gravity_new_hz']} Hz）")
+    out_dir = Path(a.out_dir) if a.out_dir else REPO_ROOT / "experiments" / "real" / f"{dt.date.today():%Y%m%d}_fw_check"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out = out_dir / f"imu_ab_{dt.datetime.now():%H%M%S}.json"
+    out.write_text(json.dumps({"checks": checks, "phases": res, "agree": agree, "seconds": a.seconds, "settle": a.settle,
+                               "time": dt.datetime.now().isoformat(timespec="seconds")},
+                              indent=1, ensure_ascii=False) + "\n")
+    print(f"[記録] → {out}")
+    return 0 if all(checks.values()) else 1
+
+
 # ---- 偽の ESP32（selftest 用）-------------------------------------------------------------------
 class FakeEsp:
     """改造ファームの main loop を 10 ms 周期で真似る。状態機械は khr_core.h と同じ規則。"""
@@ -388,8 +482,17 @@ class FakeEsp:
             out[0] = MRDM_LEN
             out[8:11] = np.round(g_up * 100).astype(np.int16)
             out[11] = (0x6B << 8) | self.state | 0x04 | 0x08 | (3 << 4) | (3 << 6)  # 0x6B.. は int16 で正
-            self.grav_seq = getattr(self, "grav_seq", 0) + 1
-            out[gv.MRD_GRAV_SEQ] = self.grav_seq % 30000
+            # IMU: 一括なら毎フレーム新しい重力、個別（PC が [87] に印）なら 5 フレームに 1 回で残りは「重力だけ 0」
+            legacy = int(self.last_rx[gv.MRD_IMU_DIAG]) == gv.IMU_LEGACY_MAGIC
+            self.frame = getattr(self, "frame", 0) + 1
+            if not legacy or self.frame % 5 == 0:
+                self.grav_seq = getattr(self, "grav_seq", 0) + 1
+            else:
+                self.fails = getattr(self, "fails", 0) + 1
+            out[gv.MRD_GRAV_SEQ] = getattr(self, "grav_seq", 0) % 30000
+            out[gv.MRD_IMU_US] = 6000 if legacy else 1500
+            out[gv.MRD_IMU_DIAG] = (getattr(self, "fails", 0) & 0xFF) | ((0xF if getattr(self, "fails", 0) else 0) << 8) | (int(legacy) << 12)
+            out[2:5] = (12, -30, 981)
             out[gv.MRD_ECHO] = self.last_rx[gv.MRD_ECHO]          # 受信した値をそのまま返す（r→s のコピー）
             out[MRDM_LEN - 1] = checksum(out)
             self.tx.sendto(out.astype("<i2").tobytes(), self.pc)
@@ -413,6 +516,12 @@ def cmd_selftest(a) -> int:
         ns = argparse.Namespace(esp_ip="127.0.0.1", yes=True, recv_port=pc_port, send_port=esp_port,
                                 phase_a=1.0, phase_b=1.6, phase_c=0.5, latency_ms=60, jitter_ms=30, out_dir=tmp)
         rc = cmd_wdg_test(ns)
+        ns_ab = argparse.Namespace(esp_ip="127.0.0.1", yes=True, recv_port=pc_port, send_port=esp_port,
+                                   seconds=1.0, settle=0.3, out_dir=tmp)
+        rc_ab = cmd_imu_ab(ns_ab)
+        ab = json.loads(next(Path(tmp).glob("imu_ab_*.json")).read_text())["phases"]
+        assert ab["burst"]["gravity_new_hz"] > 80 and 10 < ab["legacy"]["gravity_new_hz"] < 30, ab
+        rc = rc or rc_ab
     fake.stop()
     assert parse(limp_packet(123)) is not None
     print(f"fw_check selftest: {'OK' if rc == 0 else 'NG'}")
@@ -441,10 +550,17 @@ def main(argv=None) -> int:
                    help="番号が返ってこないとき（最後に送った時刻から測るとき）に許す遅れ")
     s.add_argument("--jitter-ms", type=int, default=30, help="ESP32 が処理した時刻から測るときに許す Wi-Fi の揺らぎ")
     s.add_argument("--out-dir", default=None, help="省略時は experiments/real/<日付>_fw_check/")
+    s = sub.add_parser("imu-ab")
+    s.add_argument("--esp-ip", default=None, help="省略時は Meridian_consoleS/board_ip.txt から読む")
+    s.add_argument("--send-port", type=int, default=SEND_PORT)
+    s.add_argument("--yes", action="store_true", help="確認を省く")
+    s.add_argument("--seconds", type=float, default=5.0, help="1 区間の長さ")
+    s.add_argument("--settle", type=float, default=0.5, help="切り替え直後に捨てる秒数")
+    s.add_argument("--out-dir", default=None, help="省略時は experiments/real/<日付>_fw_check/")
     sub.add_parser("selftest")
     a = p.parse_args(argv)
     return {"listen": cmd_listen, "pose": cmd_pose, "solve": cmd_solve,
-            "wdg-test": cmd_wdg_test, "selftest": cmd_selftest}[a.cmd](a)
+            "wdg-test": cmd_wdg_test, "imu-ab": cmd_imu_ab, "selftest": cmd_selftest}[a.cmd](a)
 
 
 if __name__ == "__main__":

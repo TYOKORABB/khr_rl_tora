@@ -30,6 +30,13 @@ MRD_EULER = slice(12, 15)    # 改造前からある Euler 角（roll, pitch, ya
 MRD_GRAV_SEQ = 84            # 重力ベクトルの通し番号（下位 16 bit。khr-getup.2 から）
 MRD_IMU_US = 85              # IMU スレッド 1 周の読み取り時間 [us]（khr-getup.2 から）
 MRD_ECHO = 86                # PC が入れた値を ESP32 がそのまま返す空きスロット（往復遅れの測定に使う）
+MRD_IMU_DIAG = 87            # IMU の診断語（khr-getup.3 から。decode_imu_diag()）。PC → ESP32 では読み取り方の指定
+IMU_LEGACY_MAGIC = 0x6B4C    # PC が [87] にこれを送っている間、ESP32 は梶田版と同じ個別の読み取りになる（比較用）
+IMU_MODES = ("burst", "legacy", "?", "?")
+# 読み取りに失敗した理由（ファームの khr_core.h と同じ。0〜8 は Arduino-ESP32 1.0.6 の i2c_err_t）
+IMU_FAIL_REASONS = {0: "なし", 1: "I2C_DEV", 2: "I2C_ACK", 3: "I2C_TIMEOUT", 4: "I2C_BUS", 5: "I2C_BUSY",
+                    6: "I2C_MEMORY", 7: "I2C_CONTINUE", 8: "I2C_NO_BEGIN",
+                    0xD: "44 バイトすべて 0", 0xE: "受信バイト数の不足", 0xF: "重力だけ 0"}
 STATUS_MAGIC = 0x6B
 WDG_STATES = ("DISARMED", "OK", "HOLD", "LIMP")
 
@@ -66,6 +73,19 @@ def decode_status(word: int) -> FwStatus:
         accel_calib=(w >> 4) & 0x03,
         sys_calib=(w >> 6) & 0x03,
     )
+
+
+@dataclass(frozen=True)
+class ImuDiag:
+    fail_count8: int       # 読み取りの失敗の累計（下位 8 bit。差分を取って数える）
+    last_reason: int       # 最後の失敗の理由（IMU_FAIL_REASONS）
+    mode: str              # 読み取り方（burst / legacy）
+
+
+def decode_imu_diag(word: int) -> ImuDiag:
+    """Meridim[87]（khr-getup.3 から）を読む。"""
+    w = int(word) & 0xFFFF
+    return ImuDiag(fail_count8=w & 0xFF, last_reason=(w >> 8) & 0x0F, mode=IMU_MODES[(w >> 12) & 0x03])
 
 
 def gravity_sensor(meridim) -> np.ndarray:
@@ -174,6 +194,11 @@ def _selftest() -> None:
     assert s.patched and s.wdg_state == "OK" and not s.gravity_fresh and s.wdg_enabled
     assert not decode_status(0).patched
     assert decode_status(np.int16(-1)).patched is False
+    # IMU の診断語: ファーム側の単体テスト（test_khr_core.cpp の [15]）と同じ値
+    d = decode_imu_diag(0x1F01)
+    assert d.fail_count8 == 1 and d.last_reason == 0xF and d.mode == "legacy", d
+    d = decode_imu_diag(0x0E03)
+    assert d.fail_count8 == 3 and IMU_FAIL_REASONS[d.last_reason] == "受信バイト数の不足" and d.mode == "burst", d
     # gravity_base: センサが base と同じ向きで水平（z 上向きに +9.8）なら下向き [0, 0, -1]
     np.testing.assert_allclose(gravity_base([0, 0, 9.8], np.eye(3)), [0, 0, -1])
     print("khr_common.gravity: selftest OK")

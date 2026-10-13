@@ -167,6 +167,58 @@ int main() {
     CHECK((int16_t)khr_pack_status(KHR_WDG_LIMP, true, true, 0xFF) > 0, "負になった");
   }
 
+  std::printf("[13] 一括読み取りの位置はレジスタ番地どおり（加速度 0x08・ジャイロ 0x14・Euler 0x1A・重力 0x2E〜0x33）\n");
+  {
+    CHECK(KHR_BNO_OFS_GYR == 0x14 - KHR_BNO_BURST_ADDR, "ジャイロの位置 %d", KHR_BNO_OFS_GYR);
+    CHECK(KHR_BNO_OFS_EUL == 0x1A - KHR_BNO_BURST_ADDR, "Euler の位置 %d", KHR_BNO_OFS_EUL);
+    CHECK(KHR_BNO_OFS_GRV == 0x2E - KHR_BNO_BURST_ADDR, "重力の位置 %d", KHR_BNO_OFS_GRV);
+    CHECK(KHR_BNO_BURST_LEN == 0x34 - KHR_BNO_BURST_ADDR, "長さ %d", KHR_BNO_BURST_LEN);
+  }
+
+  std::printf("[14] 一括読み取りの換算は Adafruit_BNO055::getVector() と同じ（リトルエンディアン・符号つき）\n");
+  {
+    uint8_t buf[KHR_BNO_BURST_LEN] = {0};
+    auto put = [&](int ofs, int16_t x, int16_t y, int16_t z) {
+      const int16_t v[3] = {x, y, z};
+      for (int i = 0; i < 3; i++) {
+        buf[ofs + 2 * i] = (uint8_t)((uint16_t)v[i] & 0xFF);
+        buf[ofs + 2 * i + 1] = (uint8_t)((uint16_t)v[i] >> 8);
+      }
+    };
+    put(KHR_BNO_OFS_ACC, 981, -12, 0);
+    put(KHR_BNO_OFS_GYR, 16, -32, 1);
+    put(KHR_BNO_OFS_EUL, 5759, -1440, 32767);
+    put(KHR_BNO_OFS_GRV, -967, 59, -32768);
+    buf[6] = 0x55;   // 地磁気（使わない）
+    buf[24] = 0x77;  // クォータニオン（使わない）
+    KhrImuSample s;
+    khr_decode_bno_burst(buf, s);
+    CHECK(s.acc[0] == 981 / 100.0 && s.acc[1] == -12 / 100.0 && s.acc[2] == 0.0, "acc %f %f %f", s.acc[0], s.acc[1], s.acc[2]);
+    CHECK(s.gyr[0] == 1.0 && s.gyr[1] == -2.0 && s.gyr[2] == 0.0625, "gyr %f %f %f", s.gyr[0], s.gyr[1], s.gyr[2]);
+    CHECK(s.eul[0] == 5759 / 16.0 && s.eul[1] == -90.0 && s.eul[2] == 32767 / 16.0, "eul %f %f %f", s.eul[0], s.eul[1], s.eul[2]);
+    CHECK(s.grv[0] == -967 / 100.0 && s.grv[1] == 59 / 100.0 && s.grv[2] == -32768 / 100.0, "grv %f %f %f", s.grv[0], s.grv[1], s.grv[2]);
+    CHECK(!khr_all_zero(buf, KHR_BNO_BURST_LEN), "全部 0 と判定された");
+    uint8_t zero[KHR_BNO_BURST_LEN] = {0};
+    CHECK(khr_all_zero(zero, KHR_BNO_BURST_LEN), "全部 0 を見逃した");
+    zero[KHR_BNO_BURST_LEN - 1] = 0x80; // 最後の 1 バイトだけ 0 でない
+    CHECK(!khr_all_zero(zero, KHR_BNO_BURST_LEN), "最後の 1 バイトだけ 0 でないのを全部 0 と判定した");
+  }
+
+  std::printf("[15] IMU の診断語（PC 側 khr_common/gravity.py の selftest と同じ値で突き合わせる）\n");
+  {
+    CHECK(khr_pack_imu_diag(257, KHR_IMU_FAIL_ZERO_GRAV, KHR_IMU_MODE_LEGACY) == 0x1F01, "0x%04X",
+          khr_pack_imu_diag(257, KHR_IMU_FAIL_ZERO_GRAV, KHR_IMU_MODE_LEGACY));
+    CHECK(khr_pack_imu_diag(3, KHR_IMU_FAIL_SHORT, KHR_IMU_MODE_BURST) == 0x0E03, "0x%04X",
+          khr_pack_imu_diag(3, KHR_IMU_FAIL_SHORT, KHR_IMU_MODE_BURST));
+    // 診断語が PC → ESP32 の切り替えの印（0x6B4C）と取り違えられないこと
+    bool clash = false;
+    for (uint32_t c = 0; c < 256; c++)
+      for (uint8_t r = 0; r < 16; r++)
+        for (uint8_t m = 0; m < 4; m++)
+          if (khr_pack_imu_diag(c, r, m) == KHR_IMU_LEGACY_MAGIC) clash = true;
+    CHECK(!clash, "診断語が 0x6B4C になりうる");
+  }
+
   if (g_fail) {
     std::printf("FAILED: %d 件\n", g_fail);
     return EXIT_FAILURE;
