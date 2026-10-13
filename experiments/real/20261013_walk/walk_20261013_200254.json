@@ -1,0 +1,16 @@
+{
+ "exp": "khr-quadruped31-s2",
+ "ckpt": 3999,
+ "reason": "RuntimeError: 改造ファームの通信監視が OK になりません（FwStatus(patched=False, wdg_state='DISARMED', gravity_fresh=False, wdg_enabled=False, accel_calib=0, sys_calib=0)）",
+ "schedule": null,
+ "limit_clamp_steps": 0,
+ "max_err_deg": 0.0,
+ "max_tilt_deg": 0.0,
+ "policy_steps": 0,
+ "echo_rtt_ms": {
+  "p50": 36.5,
+  "p99": 63.2
+ },
+ "raw": "real/data/raw/walk_20261013_200254.npz",
+ "time": "2026-10-13T20:02:54"
+}
