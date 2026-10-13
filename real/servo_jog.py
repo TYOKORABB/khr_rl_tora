@@ -152,7 +152,7 @@ def main() -> int:
         nonlocal seq, echo
         echo += 1
         link.sock.sendto(packet(seq, echo, slot if power else None, target), link.esp)
-        tx.append((time.monotonic(), echo, int(power), target))
+        tx.append((time.monotonic(), echo % 30000, int(power), target))   # パケットに入れたのと同じ番号
         seq += 1
 
     def measured(m):

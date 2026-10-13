@@ -13,6 +13,7 @@
   python -m real.fw_check selftest                 # 偽の ESP32 を相手にこのツール自体を試す（実機不要）
 
 姿勢名: upright（直立）/ head_down（逆さ）/ prone（うつ伏せ）/ supine（仰向け）/ left_down / right_down
+（left / right はロボット自身の左右。向かい合った人から見た左右とは逆）
 """
 
 from __future__ import annotations

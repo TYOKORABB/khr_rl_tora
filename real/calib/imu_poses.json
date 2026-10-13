@@ -1,0 +1,124 @@
+{
+  "upright": {
+    "g_mean": [
+      0.42,
+      -0.35,
+      9.79
+    ],
+    "norm": 9.805,
+    "n": 501,
+    "spread_p95_deg": 0.0,
+    "sys_calib_min": 0,
+    "accel_calib_min": 1,
+    "euler_mean": [
+      -2.06,
+      -2.44,
+      -173.81
+    ],
+    "time": "2026-10-13T19:15:42",
+    "servo_err_max_deg": 0.78,
+    "servo_err_worst": "L3"
+  },
+  "head_down": {
+    "g_mean": [
+      0.26,
+      0.01,
+      -9.8
+    ],
+    "norm": 9.803,
+    "n": 501,
+    "spread_p95_deg": 0.0,
+    "sys_calib_min": 2,
+    "accel_calib_min": 3,
+    "euler_mean": [
+      179.88,
+      -1.5,
+      -74.94
+    ],
+    "time": "2026-10-13T19:23:43",
+    "servo_err_max_deg": 0.77,
+    "servo_err_worst": "R4"
+  },
+  "prone": {
+    "g_mean": [
+      -9.79,
+      0.33,
+      0.33
+    ],
+    "norm": 9.801,
+    "n": 498,
+    "spread_p95_deg": 0.0,
+    "sys_calib_min": 0,
+    "accel_calib_min": 3,
+    "euler_mean": [
+      1.94,
+      87.19,
+      13.5
+    ],
+    "time": "2026-10-13T19:25:07",
+    "servo_err_max_deg": 1.15,
+    "servo_err_worst": "L7"
+  },
+  "supine": {
+    "g_mean": [
+      9.75,
+      -0.97,
+      0.03
+    ],
+    "norm": 9.798,
+    "n": 500,
+    "spread_p95_deg": 0.0,
+    "sys_calib_min": 0,
+    "accel_calib_min": 1,
+    "euler_mean": [
+      -5.63,
+      -84.31,
+      -179.0
+    ],
+    "time": "2026-10-13T19:18:47",
+    "servo_err_max_deg": 1.17,
+    "servo_err_worst": "L1"
+  },
+  "left_down": {
+    "g_mean": [
+      -0.79,
+      -9.77,
+      -0.04
+    ],
+    "norm": 9.802,
+    "n": 499,
+    "spread_p95_deg": 0.0,
+    "sys_calib_min": 3,
+    "accel_calib_min": 3,
+    "euler_mean": [
+      -90.19,
+      4.63,
+      105.87
+    ],
+    "time": "2026-10-13T19:20:37",
+    "servo_err_max_deg": 0.92,
+    "servo_err_worst": "L2",
+    "note": "2026-10-13 2 回目: 記録時の指示「左側面を下に」がユーザーから見た左と取られ、ロボット自身の右が下だった。1 回目・直立・うつ伏せと整合するよう、ロボット自身の左右に入れ替えた"
+  },
+  "right_down": {
+    "g_mean": [
+      1.07,
+      9.73,
+      0.58
+    ],
+    "norm": 9.806,
+    "n": 497,
+    "spread_p95_deg": 0.0,
+    "sys_calib_min": 3,
+    "accel_calib_min": 3,
+    "euler_mean": [
+      86.56,
+      -6.25,
+      -70.38
+    ],
+    "time": "2026-10-13T19:19:56",
+    "servo_err_max_deg": 1.04,
+    "servo_err_worst": "L6",
+    "note": "2026-10-13 2 回目: 記録時の指示「左側面を下に」がユーザーから見た左と取られ、ロボット自身の右が下だった。1 回目・直立・うつ伏せと整合するよう、ロボット自身の左右に入れ替えた"
+  }
+}

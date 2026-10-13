@@ -5,10 +5,14 @@
 コンソールを閉じた状態で、コンソールと同じ PC から使う。
 
   python -m real.pose_session serve &          # 1) 保持を始める（バックグラウンドで動かし続ける）
+  python -m real.pose_session serve --home &   #    または、全関節 0°（コンソールの Home の姿勢）へ 4 秒かけて動かしてから保持
   python -m real.pose_session record prone     # 2) 姿勢を置いて静止したら 5 秒記録（6 姿勢くり返す）
   python -m real.pose_session status           #    保持の状態（各サーボの指令とのずれ）
   python -m real.pose_session stop             # 3) 脱力して終える
   python -m real.fw_check solve                # 4) 取り付け回転を求める（合格: 全姿勢で誤差 < 3°）
+
+置き方のこつ（2026-10-13 の 2 回目で合格）: --home で膝を伸ばした形にし、胸・背中の板に水準器を当てて合わせる。
+left_down / right_down は**ロボット自身の**左右（向かい合った人から見ると逆）。背中のケースを床に当てない。
 
 serve の流れ: 脱力パケット 1 s（改造ファームの DISARMED/LIMP を解き、今の関節角を読む）→
 その角度を目標に、マウントされた 22 個のサーボに電源を入れて保持し続ける（コンソールの Power ON と同じ考え方）。
@@ -66,6 +70,20 @@ def write_json(p: Path, obj) -> None:
     os.replace(tmp, p)   # 読む側が書きかけを見ないように
 
 
+def echo_rtt_ms(tx, rx) -> np.ndarray:
+    """送った番号 [86] が最初に返ってくるまでの時間 [ms]。番号は 30000 で一巡するので、
+    時刻順にたどって「その番号を最後に送った時刻」とだけ組にする（一巡前の送信と取り違えない）。"""
+    events = sorted([(t, 0, int(e) % 30000) for t, e, _ in tx] + [(t, 1, int(m[gv.MRD_ECHO])) for t, m in rx])
+    last_sent: dict[int, float] = {}
+    out = []
+    for t, kind, e in events:
+        if kind == 0:
+            last_sent[e] = t
+        elif e in last_sent:
+            out.append(t - last_sent.pop(e))
+    return np.array(out) * 1000
+
+
 # ---- serve -------------------------------------------------------------------------------------
 def cmd_serve(a) -> int:
     esp_ip = a.esp_ip or esp_ip_from_board_txt()
@@ -89,7 +107,7 @@ def cmd_serve(a) -> int:
         nonlocal seq, echo
         echo += 1
         link.sock.sendto(hold_packet(seq, echo, tgt), link.esp)
-        tx.append((time.monotonic(), echo, tgt is not None))
+        tx.append((time.monotonic(), echo % 30000, tgt is not None))   # パケットに入れたのと同じ番号
         seq += 1
 
     def status(phase, **kw):
@@ -118,9 +136,15 @@ def cmd_serve(a) -> int:
         spread = np.ptp(M[:, [s + 1 for s in SLOTS]], axis=0) / 100.0
         if spread.max() > 2.0:
             raise RuntimeError(f"脱力中の関節角が動いています（最大 {spread.max():.1f}°、{NAMES[int(spread.argmax())]}）。静止させてから")
-        print(f"[info] 保持する関節角 [deg]: " + " ".join(f"{n}={v:+.1f}" for n, v in zip(NAMES, targets)), flush=True)
+        print(f"[info] 今の関節角 [deg]: " + " ".join(f"{n}={v:+.1f}" for n, v in zip(NAMES, targets)), flush=True)
+        # --home: コンソールの Home ボタンと同じ「全関節 0°（トリム基準の初期姿勢）」へ。ただし一瞬ではなく a.ramp_s 秒かけて動かす
+        start = targets.copy()
+        goal = np.zeros_like(start) if a.home else start
+        ramp = a.ramp_s if a.home else 0.0
+        if a.home:
+            print(f"[info] {ramp:.0f} 秒かけて全関節 0°（Home）へ動かしてから保持します", flush=True)
 
-        # 2) 保持: 22 個に電源を入れて今の角度を保つ
+        # 2) 保持: 22 個に電源を入れて目標の角度を保つ
         t_hold = time.monotonic()
         nxt = t_hold
         over_since = None
@@ -134,6 +158,8 @@ def cmd_serve(a) -> int:
             if now - t_hold > a.max_minutes * 60:
                 reason = f"{a.max_minutes} 分たった"
                 break
+            frac = min(1.0, (now - t_hold) / ramp) if ramp > 0 else 1.0
+            targets = start + (goal - start) * (0.5 - 0.5 * np.cos(np.pi * frac))   # なめらかに動かす
             send(targets)
             last = link.latest()
             if last is None or now - last[0] > ABORT_HOLD_S:
@@ -154,7 +180,7 @@ def cmd_serve(a) -> int:
                     over_since = None
             # 記録の依頼（record コマンドが request.json を置く）
             rq = RUN_DIR / "request.json"
-            if req is None and rq.exists():
+            if req is None and frac >= 1.0 and rq.exists():   # 動いている間は記録しない
                 req = json.loads(rq.read_text())
                 rq.unlink()
                 req["t0"] = now
@@ -175,7 +201,7 @@ def cmd_serve(a) -> int:
                 write_json(RUN_DIR / f"result_{req['id']}.json", res)
                 req = None
             if now - last_status > 0.5:
-                status("holding", err_now_deg=np.round(err, 2).tolist(), err_max_deg=np.round(max_err_all, 2).tolist(),
+                status("holding" if frac >= 1.0 else "moving_home", err_now_deg=np.round(err, 2).tolist(), err_max_deg=np.round(max_err_all, 2).tolist(),
                        powered_all=bool(powered.all()), wdg=gv.decode_status(int(m[gv.MRD_STATUS])).wdg_state,
                        recording=None if req is None else req["pose"])
                 last_status = now
@@ -206,14 +232,7 @@ def cmd_serve(a) -> int:
             np.savez_compressed(raw, t_rx=np.array([t for t, _ in rx_all]) - t_start,
                                 meridim=np.array([m for _, m in rx_all]), tx=T - [t_start, 0, 0],
                                 targets=np.array([] if targets is None else targets), slots=np.array(SLOTS))
-        # 往復遅れ（送った番号 [86] が返ってくるまで）
-        sent = {int(e): t for t, e, _ in tx}
-        first = {}
-        for t, m in rx_all:
-            e = int(m[gv.MRD_ECHO])
-            if e in sent and e not in first:
-                first[e] = t
-        rtt = np.array([first[e] - sent[e] for e in first]) * 1000
+        rtt = echo_rtt_ms(tx, rx_all)
         status("stopped", reason=reason, raw=str(raw.relative_to(REPO_ROOT)) if len(rx_all) else None,
                err_max_deg=np.round(max_err_all, 2).tolist(),
                echo_rtt_ms=None if not len(rtt) else {"p50": round(float(np.median(rtt)), 1),
@@ -289,6 +308,9 @@ def main(argv=None) -> int:
     s.add_argument("--esp-ip", default=None, help="省略時は Meridian_consoleS/board_ip.txt から読む")
     s.add_argument("--abort-deg", type=float, default=5.0, help="指令とのずれがこれを 0.3 s 超えたら脱力して終える")
     s.add_argument("--max-minutes", type=float, default=12.0)
+    s.add_argument("--home", action="store_true",
+                   help="今の角度ではなく全関節 0°（コンソールの Home と同じ初期姿勢）で保持する。--ramp-s 秒かけて動かす")
+    s.add_argument("--ramp-s", type=float, default=4.0)
     s.add_argument("--recv-port", type=int, default=RECV_PORT, help=argparse.SUPPRESS)   # 偽 ESP32 での試験用
     s.add_argument("--send-port", type=int, default=SEND_PORT, help=argparse.SUPPRESS)
     s = sub.add_parser("record")

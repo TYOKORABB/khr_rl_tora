@@ -1,0 +1,251 @@
+{
+ "summary": "2 回目（2026-10-13 19:25〜19:36、khr-getup.4、全関節 0°（Home）で保持）。最大誤差 2.94° で合格",
+ "hold": {
+  "posture": "全関節 0°（コンソールの Home と同じ。4 秒かけて移動）",
+  "seconds": 651.3,
+  "servo_err_max_deg": 3.16,
+  "echo_rtt_ms": {
+   "p50": 16.9,
+   "p90": 29.4,
+   "p99": 41.2,
+   "max": 559.7
+  }
+ },
+ "label_fix": "記録時の指示「左側面を下に」が向かい合った人から見た左と取られ、ロボット自身の右が下だった。1 回目・直立・うつ伏せと整合するよう、left_down と right_down をロボット自身の左右に入れ替えた（入れ替えないと符号が逆の解になる）",
+ "steps": [
+  {
+   "what": "6 姿勢（左右を入れ替えたあと）",
+   "poses": {
+    "upright": {
+     "g_mean": [
+      0.42,
+      -0.35,
+      9.79
+     ],
+     "norm": 9.805,
+     "n": 501,
+     "spread_p95_deg": 0.0,
+     "sys_calib_min": 0,
+     "accel_calib_min": 1,
+     "euler_mean": [
+      -2.06,
+      -2.44,
+      -173.81
+     ],
+     "time": "2026-10-13T19:15:42",
+     "servo_err_max_deg": 0.78,
+     "servo_err_worst": "L3"
+    },
+    "head_down": {
+     "g_mean": [
+      -0.8209,
+      1.2106,
+      -9.69
+     ],
+     "norm": 9.8,
+     "n": 497,
+     "spread_p95_deg": 0.24,
+     "sys_calib_min": 0,
+     "accel_calib_min": 1,
+     "euler_mean": [
+      172.85,
+      4.79,
+      -7.14
+     ],
+     "time": "2026-10-13T19:16:46",
+     "servo_err_max_deg": 0.83,
+     "servo_err_worst": "L1"
+    },
+    "prone": {
+     "g_mean": [
+      -9.8,
+      -0.03,
+      0.03
+     ],
+     "norm": 9.8,
+     "n": 498,
+     "spread_p95_deg": 0.0,
+     "sys_calib_min": 3,
+     "accel_calib_min": 3,
+     "euler_mean": [
+      -0.19,
+      89.69,
+      26.13
+     ],
+     "time": "2026-10-13T19:17:44",
+     "servo_err_max_deg": 1.15,
+     "servo_err_worst": "L7"
+    },
+    "supine": {
+     "g_mean": [
+      9.75,
+      -0.97,
+      0.03
+     ],
+     "norm": 9.798,
+     "n": 500,
+     "spread_p95_deg": 0.0,
+     "sys_calib_min": 0,
+     "accel_calib_min": 1,
+     "euler_mean": [
+      -5.63,
+      -84.31,
+      -179.0
+     ],
+     "time": "2026-10-13T19:18:47",
+     "servo_err_max_deg": 1.17,
+     "servo_err_worst": "L1"
+    },
+    "left_down": {
+     "g_mean": [
+      -0.79,
+      -9.77,
+      -0.04
+     ],
+     "norm": 9.802,
+     "n": 499,
+     "spread_p95_deg": 0.0,
+     "sys_calib_min": 3,
+     "accel_calib_min": 3,
+     "euler_mean": [
+      -90.19,
+      4.63,
+      105.87
+     ],
+     "time": "2026-10-13T19:20:37",
+     "servo_err_max_deg": 0.92,
+     "servo_err_worst": "L2",
+     "note": "2026-10-13 2 回目: 記録時の指示「左側面を下に」がユーザーから見た左と取られ、ロボット自身の右が下だった。1 回目・直立・うつ伏せと整合するよう、ロボット自身の左右に入れ替えた"
+    },
+    "right_down": {
+     "g_mean": [
+      1.07,
+      9.73,
+      0.58
+     ],
+     "norm": 9.806,
+     "n": 497,
+     "spread_p95_deg": 0.0,
+     "sys_calib_min": 3,
+     "accel_calib_min": 3,
+     "euler_mean": [
+      86.56,
+      -6.25,
+      -70.38
+     ],
+     "time": "2026-10-13T19:19:56",
+     "servo_err_max_deg": 1.04,
+     "servo_err_worst": "L6",
+     "note": "2026-10-13 2 回目: 記録時の指示「左側面を下に」がユーザーから見た左と取られ、ロボット自身の右が下だった。1 回目・直立・うつ伏せと整合するよう、ロボット自身の左右に入れ替えた"
+    }
+   },
+   "residual_deg": {
+    "upright": 1.35,
+    "head_down": 4.93,
+    "prone": 4.57,
+    "supine": 2.75,
+    "left_down": 2.89,
+    "right_down": 2.17
+   },
+   "worst_deg": 4.93
+  },
+  {
+   "what": "逆さを取り直し",
+   "head_down": {
+    "g_mean": [
+     0.26,
+     0.01,
+     -9.8
+    ],
+    "norm": 9.803,
+    "n": 501,
+    "spread_p95_deg": 0.0,
+    "sys_calib_min": 2,
+    "accel_calib_min": 3,
+    "euler_mean": [
+     179.88,
+     -1.5,
+     -74.94
+    ],
+    "time": "2026-10-13T19:23:43",
+    "servo_err_max_deg": 0.77,
+    "servo_err_worst": "R4"
+   },
+   "residual_deg": {
+    "upright": 2.35,
+    "head_down": 2.19,
+    "prone": 4.27,
+    "supine": 1.65,
+    "left_down": 1.29,
+    "right_down": 2.94
+   },
+   "worst_deg": 4.27
+  },
+  {
+   "what": "うつ伏せを取り直し（最終）",
+   "prone": {
+    "g_mean": [
+     -9.79,
+     0.33,
+     0.33
+    ],
+    "norm": 9.801,
+    "n": 498,
+    "spread_p95_deg": 0.0,
+    "sys_calib_min": 0,
+    "accel_calib_min": 3,
+    "euler_mean": [
+     1.94,
+     87.19,
+     13.5
+    ],
+    "time": "2026-10-13T19:25:07",
+    "servo_err_max_deg": 1.15,
+    "servo_err_worst": "L7"
+   },
+   "residual_deg": {
+    "upright": 1.94,
+    "head_down": 2.55,
+    "prone": 2.94,
+    "supine": 1.39,
+    "left_down": 1.18,
+    "right_down": 2.56
+   },
+   "worst_deg": 2.94
+  }
+ ],
+ "final": {
+  "r_mount": [
+   [
+    0.996674,
+    -0.080505,
+    -0.012641
+   ],
+   [
+    0.080799,
+    0.996423,
+    0.024733
+   ],
+   [
+    0.010605,
+    -0.025673,
+    0.999614
+   ]
+  ],
+  "residual_deg": {
+   "upright": 1.94,
+   "head_down": 2.55,
+   "prone": 2.94,
+   "supine": 1.39,
+   "left_down": 1.18,
+   "right_down": 2.56
+  },
+  "worst_deg": 2.94,
+  "pass": true,
+  "rotation_from_identity_deg": 4.89,
+  "error_if_ignored_deg": {
+   "upright": 1.59,
+   "prone_or_quadruped": 4.67
+  }
+ }
+}

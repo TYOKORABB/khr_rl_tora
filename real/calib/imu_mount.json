@@ -1,0 +1,41 @@
+{
+  "r_mount": [
+    [
+      0.996674,
+      -0.080505,
+      -0.012641
+    ],
+    [
+      0.080799,
+      0.996423,
+      0.024733
+    ],
+    [
+      0.010605,
+      -0.025673,
+      0.999614
+    ]
+  ],
+  "residual_deg": {
+    "upright": 1.94,
+    "head_down": 2.55,
+    "prone": 2.94,
+    "supine": 1.39,
+    "left_down": 1.18,
+    "right_down": 2.56
+  },
+  "worst_deg": 2.94,
+  "tol_deg": 3.0,
+  "pass": true,
+  "sign_flipped": false,
+  "residual_other_sign_deg": 85.33,
+  "poses": [
+    "head_down",
+    "left_down",
+    "prone",
+    "right_down",
+    "supine",
+    "upright"
+  ],
+  "time": "2026-10-13T19:25:07"
+}
