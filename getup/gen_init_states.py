@@ -52,6 +52,8 @@ def main() -> int:
     chdir_repo_root()
     import genesis as gs
     import torch
+    git = lambda *x: subprocess.run(["git", *x], text=True, capture_output=True, cwd=REPO_ROOT).stdout.strip()
+    git_at_start = (git("rev-parse", "--short", "HEAD"), bool(git("status", "--porcelain", "--", "getup", "khr_common")))
     gs.init(backend=gs.cpu, seed=a.seed, logging_level="warning")
     from getup.envs.getup_env1 import URDF_GETUP, build_scene, quat_mul, quat_rotate_inv
     from getup.train_getup1 import get_cfgs
@@ -191,12 +193,12 @@ def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     p = OUT_DIR / a.out
     _t.save(bank, p)
-    git = lambda *x: subprocess.run(["git", *x], text=True, capture_output=True, cwd=REPO_ROOT).stdout.strip()
     u0 = arr["u0"][main_mask]
     man_p = OUT_DIR / "MANIFEST.json"
     man = json.loads(man_p.read_text()) if man_p.exists() else {}
     man[a.out] = {"created": dt.datetime.now().isoformat(timespec="seconds"), "generator": "getup/gen_init_states.py",
-                  "generator_commit": git("rev-parse", "--short", "HEAD"), "generator_dirty": bool(git("status", "--porcelain")),
+                  # 生成を始めた時点のコミットと、getup/・khr_common/ に未コミットの変更があったか
+                  "generator_commit": git_at_start[0], "generator_dirty": git_at_start[1],
                   "seed": a.seed, "sha256": sha256(p), "urdf": str(URDF_GETUP), "urdf_sha256": meta["urdf_sha256"],
                   "count": {"main": int(main_mask.sum()), "near": int((~main_mask).sum()), "eval": int(ev.sum())},
                   "acceptance": {str(k): v for k, v in totals.items()},

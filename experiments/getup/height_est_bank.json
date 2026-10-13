@@ -1,0 +1,18 @@
+{
+ "bank": "getup/data/banks/bank_v1.pt",
+ "n": 24000,
+ "main": {
+  "mean_mm": 0.11,
+  "p5_mm": 0.04,
+  "p95_mm": 0.24,
+  "max_abs_mm": 2.4,
+  "within_5mm_pct": 100.0
+ },
+ "near": {
+  "mean_mm": 0.12,
+  "p5_mm": 0.07,
+  "p95_mm": 0.19,
+  "max_abs_mm": 0.97,
+  "within_5mm_pct": 100.0
+ }
+}

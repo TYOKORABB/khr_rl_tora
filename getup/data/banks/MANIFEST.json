@@ -1,0 +1,108 @@
+{
+ "bank_test.pt": {
+  "created": "2026-10-14T04:20:20",
+  "generator": "getup/gen_init_states.py",
+  "generator_commit": "70bdb71",
+  "generator_dirty": true,
+  "seed": 0,
+  "sha256": "1ebf7f97a413ef0d8257bb09dc03ca363e315e6200876b90e34fa0340ce2f237",
+  "urdf": "/home/tora/gsw4/assets/khr3hv/urdf/khr3hv_symhip_getup.urdf",
+  "urdf_sha256": "9cf8b8a96aa708daceb33be94f863e626de9d0bf4954aa18e6a6af48c7057486",
+  "count": {
+   "main": 200,
+   "near": 50,
+   "eval": 50
+  },
+  "acceptance": {
+   "0": {
+    "tried": 384,
+    "kept": 217,
+    "self_pen_reject": 128,
+    "error": 0,
+    "moving": 39
+   },
+   "1": {
+    "tried": 128,
+    "kept": 77,
+    "self_pen_reject": 41,
+    "error": 0,
+    "moving": 10
+   }
+  },
+  "u0_main": {
+   "ge_0.9": 37,
+   "ge_0.5": 78,
+   "ge_0": 98,
+   "lt_0": 102
+  },
+  "heights_m": {
+   "h_star_base": 0.1932,
+   "h_star_chest": 0.1937,
+   "h_prone_base": 0.0887,
+   "h_prone_chest": 0.0869
+  },
+  "settle_s": {
+   "main": 2.5,
+   "near": 1.5
+  },
+  "accept": {
+   "v_max": 0.05,
+   "w_max": 0.2,
+   "self_pen_max_m": 0.005
+  },
+  "note": "動作確認用の小さなバンク（train_getup1 --cpu --bank で使う）。学習には使わない。"
+ },
+ "bank_v1.pt": {
+  "created": "2026-10-14T05:01:47",
+  "generator": "getup/gen_init_states.py",
+  "generator_commit": "d062057",
+  "generator_dirty": true,
+  "seed": 0,
+  "sha256": "cefbd2db870536edef6bcc63e2f4d1b9cf04504c9df05a7351562217c0525903",
+  "urdf": "/home/tora/gsw4/assets/khr3hv/urdf/khr3hv_symhip_getup.urdf",
+  "urdf_sha256": "9cf8b8a96aa708daceb33be94f863e626de9d0bf4954aa18e6a6af48c7057486",
+  "count": {
+   "main": 20000,
+   "near": 4000,
+   "eval": 4800
+  },
+  "acceptance": {
+   "0": {
+    "tried": 36352,
+    "kept": 20183,
+    "self_pen_reject": 11958,
+    "error": 0,
+    "moving": 4211
+   },
+   "1": {
+    "tried": 7680,
+    "kept": 4189,
+    "self_pen_reject": 2847,
+    "error": 0,
+    "moving": 644
+   }
+  },
+  "u0_main": {
+   "ge_0.9": 3775,
+   "ge_0.5": 7966,
+   "ge_0": 10823,
+   "lt_0": 9177
+  },
+  "heights_m": {
+   "h_star_base": 0.1932,
+   "h_star_chest": 0.1937,
+   "h_prone_base": 0.0858,
+   "h_prone_chest": 0.0814
+  },
+  "settle_s": {
+   "main": 2.5,
+   "near": 1.5
+  },
+  "accept": {
+   "v_max": 0.05,
+   "w_max": 0.2,
+   "self_pen_max_m": 0.005
+  },
+  "note": "generator_commit は書き終えた時点（05:01）の HEAD。生成を始めた 04:20 の時点のコードは 063166f と同じで、063166f → d062057 の差分（getup_env1 の接触数の記録、train_getup1 の run_info）はバンクの生成（build_scene・get_cfgs）に影響しない。generator_dirty は再学習キューの未コミットのデータによるもの。"
+ }
+}
