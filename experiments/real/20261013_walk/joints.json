@@ -1,0 +1,2940 @@
+{
+ "npz": "real/data/raw/walk_20261013_201837.npz",
+ "exp": "khr-quadruped31-s2",
+ "ckpt": 3999,
+ "runs": [
+  3,
+  4,
+  5
+ ],
+ "reps": 4,
+ "dist_real_to_nominal_median": 6.18,
+ "dist_real_runs_spread": 0.54,
+ "dist_sim_reps_spread": 0.43,
+ "feature": "区間ごとの関節角 22 本と胴体の傾き 2 本の位相平均波形（度）を、特徴量ごとのばらつきで割った差の RMS",
+ "rule": "反転を 4 回とも転倒 → +1。反転の効き（反転したシミュと +1 のシミュの距離）が学習環境の繰り返しのばらつきの 2 倍未満 → 判定できない。実機 3 回 × 繰り返しのすべての組で、反転したシミュとの距離 > +1 のシミュとの距離 → +1。すべて逆 → −1 の疑い。それ以外で、平均を除いた形だけの比較がすべての組で +1 に近い → +1（形だけ。結果を見てから加えた手順）。それ以外 → 要確認",
+ "body": [
+  {
+   "cmd": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "roll_corr": -0.132,
+   "pitch_corr": -0.374,
+   "roll_p2p_real_sim": [
+    1.36,
+    1.38
+   ],
+   "pitch_p2p_real_sim": [
+    0.9,
+    2.58
+   ]
+  },
+  {
+   "cmd": [
+    0.3,
+    0.0,
+    0.0
+   ],
+   "roll_corr": -0.518,
+   "pitch_corr": 0.681,
+   "roll_p2p_real_sim": [
+    3.24,
+    1.42
+   ],
+   "pitch_p2p_real_sim": [
+    2.06,
+    2.66
+   ]
+  },
+  {
+   "cmd": [
+    -0.2,
+    0.0,
+    0.0
+   ],
+   "roll_corr": 0.894,
+   "pitch_corr": -0.402,
+   "roll_p2p_real_sim": [
+    5.23,
+    5.26
+   ],
+   "pitch_p2p_real_sim": [
+    1.83,
+    2.08
+   ]
+  },
+  {
+   "cmd": [
+    0.0,
+    0.15,
+    0.0
+   ],
+   "roll_corr": -0.025,
+   "pitch_corr": 0.74,
+   "roll_p2p_real_sim": [
+    2.54,
+    2.37
+   ],
+   "pitch_p2p_real_sim": [
+    2.69,
+    2.42
+   ]
+  },
+  {
+   "cmd": [
+    0.0,
+    -0.15,
+    0.0
+   ],
+   "roll_corr": -0.035,
+   "pitch_corr": -0.149,
+   "roll_p2p_real_sim": [
+    2.12,
+    1.37
+   ],
+   "pitch_p2p_real_sim": [
+    2.44,
+    1.64
+   ]
+  },
+  {
+   "cmd": [
+    0.0,
+    0.0,
+    0.5
+   ],
+   "roll_corr": 0.553,
+   "pitch_corr": -0.24,
+   "roll_p2p_real_sim": [
+    2.97,
+    2.53
+   ],
+   "pitch_p2p_real_sim": [
+    1.83,
+    1.42
+   ]
+  },
+  {
+   "cmd": [
+    0.0,
+    0.0,
+    -0.5
+   ],
+   "roll_corr": 0.727,
+   "pitch_corr": -0.278,
+   "roll_p2p_real_sim": [
+    1.67,
+    0.99
+   ],
+   "pitch_p2p_real_sim": [
+    1.94,
+    1.82
+   ]
+  },
+  {
+   "cmd": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "roll_corr": 0.584,
+   "pitch_corr": -0.406,
+   "roll_p2p_real_sim": [
+    1.47,
+    1.54
+   ],
+   "pitch_p2p_real_sim": [
+    1.98,
+    2.08
+   ]
+  }
+ ],
+ "joints": {
+  "l_shoulder_pitch": {
+   "verdict": "+1（反転すると学習環境で転倒する）",
+   "flip_fell": "4/4",
+   "flip_fell_at_s": [
+    1.12,
+    1.1,
+    1.12,
+    1.06
+   ],
+   "margin_min_median_max": null,
+   "separation_median": null,
+   "shape_margin_min_median_max": null,
+   "corr_median_moving": 0.97,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -101.21,
+     "sim_mean_deg": -100.62,
+     "real_p2p_deg": 2.93,
+     "sim_p2p_deg": 2.79,
+     "corr": 0.933,
+     "rms_diff_deg": 0.68
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -97.61,
+     "sim_mean_deg": -97.81,
+     "real_p2p_deg": 11.57,
+     "sim_p2p_deg": 14.88,
+     "corr": 0.97,
+     "rms_diff_deg": 1.52
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -100.46,
+     "sim_mean_deg": -100.74,
+     "real_p2p_deg": 7.95,
+     "sim_p2p_deg": 8.44,
+     "corr": 0.996,
+     "rms_diff_deg": 0.4
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -96.89,
+     "sim_mean_deg": -97.43,
+     "real_p2p_deg": 4.43,
+     "sim_p2p_deg": 4.42,
+     "corr": 0.97,
+     "rms_diff_deg": 0.67
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -98.83,
+     "sim_mean_deg": -99.13,
+     "real_p2p_deg": 1.64,
+     "sim_p2p_deg": 1.23,
+     "corr": 0.606,
+     "rms_diff_deg": 0.46
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -99.5,
+     "sim_mean_deg": -100.4,
+     "real_p2p_deg": 4.32,
+     "sim_p2p_deg": 2.89,
+     "corr": 0.966,
+     "rms_diff_deg": 1.05
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -97.19,
+     "sim_mean_deg": -97.61,
+     "real_p2p_deg": 4.61,
+     "sim_p2p_deg": 4.98,
+     "corr": 0.973,
+     "rms_diff_deg": 0.58
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -98.58,
+     "sim_mean_deg": -98.97,
+     "real_p2p_deg": 3.05,
+     "sim_p2p_deg": 2.33,
+     "corr": 0.889,
+     "rms_diff_deg": 0.59
+    }
+   ]
+  },
+  "l_shoulder_roll": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    0.72,
+    0.98,
+    1.13
+   ],
+   "separation_median": 4.65,
+   "shape_margin_min_median_max": [
+    0.69,
+    0.73,
+    0.78
+   ],
+   "corr_median_moving": 0.974,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 2.65,
+     "sim_mean_deg": 4.15,
+     "real_p2p_deg": 3.93,
+     "sim_p2p_deg": 4.71,
+     "corr": 0.957,
+     "rms_diff_deg": 1.57
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 8.56,
+     "sim_mean_deg": 8.42,
+     "real_p2p_deg": 6.22,
+     "sim_p2p_deg": 7.71,
+     "corr": 0.989,
+     "rms_diff_deg": 0.7
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 5.99,
+     "sim_mean_deg": 7.18,
+     "real_p2p_deg": 6.18,
+     "sim_p2p_deg": 6.33,
+     "corr": 0.975,
+     "rms_diff_deg": 1.27
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": 7.64,
+     "sim_mean_deg": 8.14,
+     "real_p2p_deg": 9.79,
+     "sim_p2p_deg": 10.52,
+     "corr": 0.974,
+     "rms_diff_deg": 0.95
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": 9.38,
+     "sim_mean_deg": 9.7,
+     "real_p2p_deg": 10.65,
+     "sim_p2p_deg": 12.33,
+     "corr": 0.978,
+     "rms_diff_deg": 1.0
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": 6.71,
+     "sim_mean_deg": 7.63,
+     "real_p2p_deg": 8.22,
+     "sim_p2p_deg": 7.32,
+     "corr": 0.993,
+     "rms_diff_deg": 1.01
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": 8.82,
+     "sim_mean_deg": 9.1,
+     "real_p2p_deg": 7.02,
+     "sim_p2p_deg": 8.21,
+     "corr": 0.972,
+     "rms_diff_deg": 0.79
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 7.76,
+     "sim_mean_deg": 8.78,
+     "real_p2p_deg": 2.85,
+     "sim_p2p_deg": 3.47,
+     "corr": 0.883,
+     "rms_diff_deg": 1.15
+    }
+   ]
+  },
+  "l_elbow_yaw": {
+   "verdict": "判定できない（反転しても学習環境の動きがほとんど変わらない）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    0.03,
+    0.09,
+    0.16
+   ],
+   "separation_median": 0.45,
+   "shape_margin_min_median_max": [
+    -0.01,
+    0.0,
+    0.02
+   ],
+   "corr_median_moving": 0.952,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -12.4,
+     "sim_mean_deg": -10.62,
+     "real_p2p_deg": 1.59,
+     "sim_p2p_deg": 1.89,
+     "corr": 0.376,
+     "rms_diff_deg": 1.88
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -0.94,
+     "sim_mean_deg": -0.27,
+     "real_p2p_deg": 3.67,
+     "sim_p2p_deg": 5.4,
+     "corr": 0.955,
+     "rms_diff_deg": 0.97
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 7.03,
+     "sim_mean_deg": 6.1,
+     "real_p2p_deg": 2.64,
+     "sim_p2p_deg": 3.02,
+     "corr": 0.92,
+     "rms_diff_deg": 1.02
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": 1.8,
+     "sim_mean_deg": -0.22,
+     "real_p2p_deg": 2.36,
+     "sim_p2p_deg": 3.17,
+     "corr": 0.952,
+     "rms_diff_deg": 2.05
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": 4.18,
+     "sim_mean_deg": 3.47,
+     "real_p2p_deg": 1.84,
+     "sim_p2p_deg": 2.54,
+     "corr": 0.942,
+     "rms_diff_deg": 0.79
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": 3.31,
+     "sim_mean_deg": 2.64,
+     "real_p2p_deg": 3.48,
+     "sim_p2p_deg": 3.41,
+     "corr": 0.936,
+     "rms_diff_deg": 0.78
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": 5.9,
+     "sim_mean_deg": 4.38,
+     "real_p2p_deg": 1.87,
+     "sim_p2p_deg": 2.31,
+     "corr": 0.987,
+     "rms_diff_deg": 1.53
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 4.52,
+     "sim_mean_deg": 3.79,
+     "real_p2p_deg": 1.99,
+     "sim_p2p_deg": 2.59,
+     "corr": 0.97,
+     "rms_diff_deg": 0.79
+    }
+   ]
+  },
+  "l_elbow_pitch": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    0.14,
+    0.4,
+    0.67
+   ],
+   "separation_median": 6.02,
+   "shape_margin_min_median_max": [
+    0.18,
+    0.21,
+    0.24
+   ],
+   "corr_median_moving": 0.976,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 9.59,
+     "sim_mean_deg": 10.07,
+     "real_p2p_deg": 3.35,
+     "sim_p2p_deg": 2.95,
+     "corr": 0.978,
+     "rms_diff_deg": 0.56
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 20.78,
+     "sim_mean_deg": 21.19,
+     "real_p2p_deg": 9.53,
+     "sim_p2p_deg": 10.39,
+     "corr": 0.991,
+     "rms_diff_deg": 0.65
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 18.54,
+     "sim_mean_deg": 17.5,
+     "real_p2p_deg": 9.75,
+     "sim_p2p_deg": 10.5,
+     "corr": 0.995,
+     "rms_diff_deg": 1.13
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": 19.43,
+     "sim_mean_deg": 17.9,
+     "real_p2p_deg": 1.78,
+     "sim_p2p_deg": 2.5,
+     "corr": 0.953,
+     "rms_diff_deg": 1.55
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": 22.97,
+     "sim_mean_deg": 22.08,
+     "real_p2p_deg": 1.55,
+     "sim_p2p_deg": 1.89,
+     "corr": 0.974,
+     "rms_diff_deg": 0.91
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": 19.11,
+     "sim_mean_deg": 19.21,
+     "real_p2p_deg": 3.24,
+     "sim_p2p_deg": 2.87,
+     "corr": 0.951,
+     "rms_diff_deg": 0.36
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": 22.87,
+     "sim_mean_deg": 21.82,
+     "real_p2p_deg": 0.45,
+     "sim_p2p_deg": 1.2,
+     "corr": 0.791,
+     "rms_diff_deg": 1.08
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 21.92,
+     "sim_mean_deg": 20.86,
+     "real_p2p_deg": 1.65,
+     "sim_p2p_deg": 2.4,
+     "corr": 0.973,
+     "rms_diff_deg": 1.09
+    }
+   ]
+  },
+  "r_shoulder_pitch": {
+   "verdict": "+1（反転すると学習環境で転倒する）",
+   "flip_fell": "4/4",
+   "flip_fell_at_s": [
+    0.62,
+    0.64,
+    0.62,
+    0.62
+   ],
+   "margin_min_median_max": null,
+   "separation_median": null,
+   "shape_margin_min_median_max": null,
+   "corr_median_moving": 0.931,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -104.12,
+     "sim_mean_deg": -105.21,
+     "real_p2p_deg": 2.03,
+     "sim_p2p_deg": 3.79,
+     "corr": 0.912,
+     "rms_diff_deg": 1.26
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -100.93,
+     "sim_mean_deg": -100.8,
+     "real_p2p_deg": 11.36,
+     "sim_p2p_deg": 14.87,
+     "corr": 0.943,
+     "rms_diff_deg": 1.8
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -103.05,
+     "sim_mean_deg": -103.61,
+     "real_p2p_deg": 9.18,
+     "sim_p2p_deg": 11.83,
+     "corr": 0.953,
+     "rms_diff_deg": 1.38
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -97.63,
+     "sim_mean_deg": -99.18,
+     "real_p2p_deg": 4.99,
+     "sim_p2p_deg": 5.62,
+     "corr": 0.986,
+     "rms_diff_deg": 1.6
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -100.71,
+     "sim_mean_deg": -101.38,
+     "real_p2p_deg": 1.52,
+     "sim_p2p_deg": 2.16,
+     "corr": 0.917,
+     "rms_diff_deg": 0.74
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -97.85,
+     "sim_mean_deg": -101.31,
+     "real_p2p_deg": 2.97,
+     "sim_p2p_deg": 5.27,
+     "corr": 0.872,
+     "rms_diff_deg": 3.62
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -99.9,
+     "sim_mean_deg": -100.94,
+     "real_p2p_deg": 5.39,
+     "sim_p2p_deg": 7.9,
+     "corr": 0.943,
+     "rms_diff_deg": 1.44
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -100.39,
+     "sim_mean_deg": -100.92,
+     "real_p2p_deg": 2.58,
+     "sim_p2p_deg": 4.03,
+     "corr": 0.919,
+     "rms_diff_deg": 0.81
+    }
+   ]
+  },
+  "r_shoulder_roll": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    0.31,
+    0.5,
+    0.63
+   ],
+   "separation_median": 3.15,
+   "shape_margin_min_median_max": [
+    0.36,
+    0.41,
+    0.45
+   ],
+   "corr_median_moving": 0.947,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -0.04,
+     "sim_mean_deg": 0.03,
+     "real_p2p_deg": 2.59,
+     "sim_p2p_deg": 2.66,
+     "corr": 0.682,
+     "rms_diff_deg": 0.6
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -4.96,
+     "sim_mean_deg": -4.45,
+     "real_p2p_deg": 7.69,
+     "sim_p2p_deg": 8.61,
+     "corr": 0.945,
+     "rms_diff_deg": 1.09
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -1.16,
+     "sim_mean_deg": -1.14,
+     "real_p2p_deg": 5.24,
+     "sim_p2p_deg": 5.85,
+     "corr": 0.989,
+     "rms_diff_deg": 0.32
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -3.05,
+     "sim_mean_deg": -2.49,
+     "real_p2p_deg": 8.18,
+     "sim_p2p_deg": 8.91,
+     "corr": 0.99,
+     "rms_diff_deg": 0.76
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -3.78,
+     "sim_mean_deg": -3.48,
+     "real_p2p_deg": 6.97,
+     "sim_p2p_deg": 8.66,
+     "corr": 0.949,
+     "rms_diff_deg": 1.03
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -1.8,
+     "sim_mean_deg": -2.01,
+     "real_p2p_deg": 6.82,
+     "sim_p2p_deg": 4.93,
+     "corr": 0.94,
+     "rms_diff_deg": 0.85
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -3.83,
+     "sim_mean_deg": -3.37,
+     "real_p2p_deg": 3.62,
+     "sim_p2p_deg": 5.8,
+     "corr": 0.955,
+     "rms_diff_deg": 0.89
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -2.94,
+     "sim_mean_deg": -2.75,
+     "real_p2p_deg": 1.77,
+     "sim_p2p_deg": 2.49,
+     "corr": 0.782,
+     "rms_diff_deg": 0.53
+    }
+   ]
+  },
+  "r_elbow_yaw": {
+   "verdict": "判定できない（反転しても学習環境の動きがほとんど変わらない）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    0.03,
+    0.08,
+    0.11
+   ],
+   "separation_median": 0.42,
+   "shape_margin_min_median_max": [
+    -0.02,
+    -0.01,
+    0.0
+   ],
+   "corr_median_moving": 0.978,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 8.72,
+     "sim_mean_deg": 9.67,
+     "real_p2p_deg": 2.38,
+     "sim_p2p_deg": 2.4,
+     "corr": 0.959,
+     "rms_diff_deg": 0.98
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 6.27,
+     "sim_mean_deg": 6.37,
+     "real_p2p_deg": 1.62,
+     "sim_p2p_deg": 2.21,
+     "corr": 0.754,
+     "rms_diff_deg": 0.48
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -1.21,
+     "sim_mean_deg": 0.3,
+     "real_p2p_deg": 5.21,
+     "sim_p2p_deg": 5.73,
+     "corr": 0.978,
+     "rms_diff_deg": 1.57
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -2.73,
+     "sim_mean_deg": -0.09,
+     "real_p2p_deg": 3.44,
+     "sim_p2p_deg": 3.0,
+     "corr": 0.967,
+     "rms_diff_deg": 2.66
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": 2.17,
+     "sim_mean_deg": 3.59,
+     "real_p2p_deg": 4.68,
+     "sim_p2p_deg": 5.42,
+     "corr": 0.982,
+     "rms_diff_deg": 1.48
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -2.31,
+     "sim_mean_deg": 0.82,
+     "real_p2p_deg": 8.0,
+     "sim_p2p_deg": 5.78,
+     "corr": 0.992,
+     "rms_diff_deg": 3.23
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -0.98,
+     "sim_mean_deg": 1.36,
+     "real_p2p_deg": 1.8,
+     "sim_p2p_deg": 1.65,
+     "corr": 0.924,
+     "rms_diff_deg": 2.35
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -0.81,
+     "sim_mean_deg": 0.75,
+     "real_p2p_deg": 3.03,
+     "sim_p2p_deg": 3.5,
+     "corr": 0.992,
+     "rms_diff_deg": 1.57
+    }
+   ]
+  },
+  "r_elbow_pitch": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    13.87,
+    14.13,
+    14.52
+   ],
+   "separation_median": 15.6,
+   "shape_margin_min_median_max": [
+    0.84,
+    0.91,
+    0.98
+   ],
+   "corr_median_moving": 0.907,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 18.15,
+     "sim_mean_deg": 19.08,
+     "real_p2p_deg": 2.03,
+     "sim_p2p_deg": 2.36,
+     "corr": 0.558,
+     "rms_diff_deg": 1.15
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 22.92,
+     "sim_mean_deg": 22.76,
+     "real_p2p_deg": 9.72,
+     "sim_p2p_deg": 12.82,
+     "corr": 0.996,
+     "rms_diff_deg": 0.94
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 20.3,
+     "sim_mean_deg": 21.28,
+     "real_p2p_deg": 9.05,
+     "sim_p2p_deg": 8.61,
+     "corr": 0.997,
+     "rms_diff_deg": 1.03
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": 17.33,
+     "sim_mean_deg": 17.79,
+     "real_p2p_deg": 0.86,
+     "sim_p2p_deg": 1.73,
+     "corr": 0.287,
+     "rms_diff_deg": 0.69
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": 21.5,
+     "sim_mean_deg": 22.1,
+     "real_p2p_deg": 2.91,
+     "sim_p2p_deg": 2.62,
+     "corr": 0.896,
+     "rms_diff_deg": 0.75
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": 20.33,
+     "sim_mean_deg": 22.24,
+     "real_p2p_deg": 1.95,
+     "sim_p2p_deg": 1.42,
+     "corr": 0.845,
+     "rms_diff_deg": 1.94
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": 19.16,
+     "sim_mean_deg": 19.8,
+     "real_p2p_deg": 3.76,
+     "sim_p2p_deg": 4.14,
+     "corr": 0.917,
+     "rms_diff_deg": 0.87
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 20.57,
+     "sim_mean_deg": 21.37,
+     "real_p2p_deg": 2.27,
+     "sim_p2p_deg": 1.69,
+     "corr": 0.669,
+     "rms_diff_deg": 0.99
+    }
+   ]
+  },
+  "l_hip_yaw": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    2.58,
+    2.68,
+    2.86
+   ],
+   "separation_median": 5.54,
+   "shape_margin_min_median_max": [
+    0.44,
+    0.5,
+    0.54
+   ],
+   "corr_median_moving": 0.96,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -0.42,
+     "sim_mean_deg": -0.91,
+     "real_p2p_deg": 1.4,
+     "sim_p2p_deg": 1.93,
+     "corr": 0.354,
+     "rms_diff_deg": 0.76
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 5.81,
+     "sim_mean_deg": 6.4,
+     "real_p2p_deg": 2.01,
+     "sim_p2p_deg": 3.92,
+     "corr": 0.67,
+     "rms_diff_deg": 1.14
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 4.97,
+     "sim_mean_deg": 3.38,
+     "real_p2p_deg": 5.05,
+     "sim_p2p_deg": 5.52,
+     "corr": 0.96,
+     "rms_diff_deg": 1.68
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": 3.05,
+     "sim_mean_deg": 2.0,
+     "real_p2p_deg": 10.87,
+     "sim_p2p_deg": 11.11,
+     "corr": 0.992,
+     "rms_diff_deg": 1.16
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": 6.48,
+     "sim_mean_deg": 6.1,
+     "real_p2p_deg": 5.96,
+     "sim_p2p_deg": 7.21,
+     "corr": 0.962,
+     "rms_diff_deg": 0.83
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": 6.62,
+     "sim_mean_deg": 4.44,
+     "real_p2p_deg": 4.79,
+     "sim_p2p_deg": 4.06,
+     "corr": 0.98,
+     "rms_diff_deg": 2.24
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": 4.41,
+     "sim_mean_deg": 3.65,
+     "real_p2p_deg": 3.26,
+     "sim_p2p_deg": 2.53,
+     "corr": 0.926,
+     "rms_diff_deg": 0.91
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 4.84,
+     "sim_mean_deg": 3.85,
+     "real_p2p_deg": 3.23,
+     "sim_p2p_deg": 3.2,
+     "corr": 0.954,
+     "rms_diff_deg": 1.03
+    }
+   ]
+  },
+  "l_hip_roll": {
+   "verdict": "+1（波形の形だけの比較で。平均姿勢込みでは決まらない＝トリムの可能性）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    -0.04,
+    0.01,
+    0.13
+   ],
+   "separation_median": 2.08,
+   "shape_margin_min_median_max": [
+    0.21,
+    0.24,
+    0.28
+   ],
+   "corr_median_moving": 0.98,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 2.31,
+     "sim_mean_deg": 2.66,
+     "real_p2p_deg": 1.65,
+     "sim_p2p_deg": 1.42,
+     "corr": 0.671,
+     "rms_diff_deg": 0.54
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -2.89,
+     "sim_mean_deg": -3.58,
+     "real_p2p_deg": 8.69,
+     "sim_p2p_deg": 9.76,
+     "corr": 0.98,
+     "rms_diff_deg": 1.03
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -4.28,
+     "sim_mean_deg": -4.57,
+     "real_p2p_deg": 5.86,
+     "sim_p2p_deg": 6.94,
+     "corr": 0.991,
+     "rms_diff_deg": 0.56
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -3.59,
+     "sim_mean_deg": -3.36,
+     "real_p2p_deg": 4.08,
+     "sim_p2p_deg": 3.83,
+     "corr": 0.972,
+     "rms_diff_deg": 0.39
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -1.51,
+     "sim_mean_deg": -1.34,
+     "real_p2p_deg": 1.88,
+     "sim_p2p_deg": 3.32,
+     "corr": 0.953,
+     "rms_diff_deg": 0.51
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -3.35,
+     "sim_mean_deg": -5.38,
+     "real_p2p_deg": 8.87,
+     "sim_p2p_deg": 8.29,
+     "corr": 0.994,
+     "rms_diff_deg": 2.06
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -2.65,
+     "sim_mean_deg": -2.45,
+     "real_p2p_deg": 7.18,
+     "sim_p2p_deg": 8.67,
+     "corr": 0.988,
+     "rms_diff_deg": 0.59
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -3.57,
+     "sim_mean_deg": -3.74,
+     "real_p2p_deg": 2.1,
+     "sim_p2p_deg": 2.24,
+     "corr": 0.893,
+     "rms_diff_deg": 0.38
+    }
+   ]
+  },
+  "l_hip_pitch": {
+   "verdict": "+1（反転すると学習環境で転倒する）",
+   "flip_fell": "4/4",
+   "flip_fell_at_s": [
+    6.3,
+    6.86,
+    8.52,
+    8.24
+   ],
+   "margin_min_median_max": null,
+   "separation_median": null,
+   "shape_margin_min_median_max": null,
+   "corr_median_moving": 0.967,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -104.97,
+     "sim_mean_deg": -104.82,
+     "real_p2p_deg": 4.32,
+     "sim_p2p_deg": 5.02,
+     "corr": 0.942,
+     "rms_diff_deg": 0.59
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -100.33,
+     "sim_mean_deg": -99.45,
+     "real_p2p_deg": 13.94,
+     "sim_p2p_deg": 17.74,
+     "corr": 0.989,
+     "rms_diff_deg": 1.64
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -107.28,
+     "sim_mean_deg": -107.0,
+     "real_p2p_deg": 3.21,
+     "sim_p2p_deg": 4.07,
+     "corr": 0.964,
+     "rms_diff_deg": 0.49
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -106.61,
+     "sim_mean_deg": -106.22,
+     "real_p2p_deg": 4.48,
+     "sim_p2p_deg": 5.35,
+     "corr": 0.963,
+     "rms_diff_deg": 0.7
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -106.05,
+     "sim_mean_deg": -105.62,
+     "real_p2p_deg": 4.35,
+     "sim_p2p_deg": 4.65,
+     "corr": 0.967,
+     "rms_diff_deg": 0.59
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -105.12,
+     "sim_mean_deg": -105.42,
+     "real_p2p_deg": 3.43,
+     "sim_p2p_deg": 4.26,
+     "corr": 0.977,
+     "rms_diff_deg": 0.47
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -106.89,
+     "sim_mean_deg": -106.62,
+     "real_p2p_deg": 4.55,
+     "sim_p2p_deg": 4.76,
+     "corr": 0.973,
+     "rms_diff_deg": 0.49
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -106.67,
+     "sim_mean_deg": -106.22,
+     "real_p2p_deg": 4.02,
+     "sim_p2p_deg": 4.68,
+     "corr": 0.967,
+     "rms_diff_deg": 0.61
+    }
+   ]
+  },
+  "l_knee_pitch": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    58.6,
+    58.83,
+    59.1
+   ],
+   "separation_median": 62.0,
+   "shape_margin_min_median_max": [
+    4.07,
+    4.26,
+    4.38
+   ],
+   "corr_median_moving": 0.99,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 36.53,
+     "sim_mean_deg": 38.68,
+     "real_p2p_deg": 14.23,
+     "sim_p2p_deg": 16.12,
+     "corr": 0.991,
+     "rms_diff_deg": 2.34
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 67.96,
+     "sim_mean_deg": 68.85,
+     "real_p2p_deg": 13.75,
+     "sim_p2p_deg": 14.95,
+     "corr": 0.971,
+     "rms_diff_deg": 1.53
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 77.34,
+     "sim_mean_deg": 74.46,
+     "real_p2p_deg": 19.53,
+     "sim_p2p_deg": 21.26,
+     "corr": 0.99,
+     "rms_diff_deg": 3.13
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": 77.3,
+     "sim_mean_deg": 73.4,
+     "real_p2p_deg": 17.77,
+     "sim_p2p_deg": 19.2,
+     "corr": 0.992,
+     "rms_diff_deg": 4.03
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": 79.69,
+     "sim_mean_deg": 77.42,
+     "real_p2p_deg": 17.83,
+     "sim_p2p_deg": 19.74,
+     "corr": 0.983,
+     "rms_diff_deg": 2.66
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": 77.22,
+     "sim_mean_deg": 76.53,
+     "real_p2p_deg": 18.63,
+     "sim_p2p_deg": 19.69,
+     "corr": 0.99,
+     "rms_diff_deg": 1.25
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": 79.58,
+     "sim_mean_deg": 76.42,
+     "real_p2p_deg": 18.14,
+     "sim_p2p_deg": 20.04,
+     "corr": 0.986,
+     "rms_diff_deg": 3.43
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 79.74,
+     "sim_mean_deg": 77.57,
+     "real_p2p_deg": 18.76,
+     "sim_p2p_deg": 19.81,
+     "corr": 0.989,
+     "rms_diff_deg": 2.44
+    }
+   ]
+  },
+  "l_ankle_pitch": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    0.55,
+    1.03,
+    1.31
+   ],
+   "separation_median": 5.36,
+   "shape_margin_min_median_max": [
+    0.46,
+    0.51,
+    0.56
+   ],
+   "corr_median_moving": 0.963,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -19.62,
+     "sim_mean_deg": -20.63,
+     "real_p2p_deg": 6.87,
+     "sim_p2p_deg": 7.79,
+     "corr": 0.984,
+     "rms_diff_deg": 1.14
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -46.35,
+     "sim_mean_deg": -45.8,
+     "real_p2p_deg": 6.21,
+     "sim_p2p_deg": 6.5,
+     "corr": 0.869,
+     "rms_diff_deg": 1.32
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -46.78,
+     "sim_mean_deg": -44.44,
+     "real_p2p_deg": 6.95,
+     "sim_p2p_deg": 8.1,
+     "corr": 0.965,
+     "rms_diff_deg": 2.47
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -48.79,
+     "sim_mean_deg": -45.43,
+     "real_p2p_deg": 7.08,
+     "sim_p2p_deg": 8.73,
+     "corr": 0.958,
+     "rms_diff_deg": 3.54
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -51.22,
+     "sim_mean_deg": -49.33,
+     "real_p2p_deg": 5.96,
+     "sim_p2p_deg": 8.11,
+     "corr": 0.955,
+     "rms_diff_deg": 2.11
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -49.25,
+     "sim_mean_deg": -48.18,
+     "real_p2p_deg": 6.54,
+     "sim_p2p_deg": 8.59,
+     "corr": 0.97,
+     "rms_diff_deg": 1.41
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -50.55,
+     "sim_mean_deg": -48.08,
+     "real_p2p_deg": 6.66,
+     "sim_p2p_deg": 8.68,
+     "corr": 0.973,
+     "rms_diff_deg": 2.63
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -50.67,
+     "sim_mean_deg": -48.94,
+     "real_p2p_deg": 7.19,
+     "sim_p2p_deg": 8.32,
+     "corr": 0.961,
+     "rms_diff_deg": 1.94
+    }
+   ]
+  },
+  "l_ankle_roll": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    0.24,
+    0.36,
+    0.43
+   ],
+   "separation_median": 2.43,
+   "shape_margin_min_median_max": [
+    0.31,
+    0.35,
+    0.37
+   ],
+   "corr_median_moving": 0.919,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -0.73,
+     "sim_mean_deg": -1.17,
+     "real_p2p_deg": 1.75,
+     "sim_p2p_deg": 1.83,
+     "corr": 0.928,
+     "rms_diff_deg": 0.48
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -3.04,
+     "sim_mean_deg": -3.12,
+     "real_p2p_deg": 2.95,
+     "sim_p2p_deg": 3.73,
+     "corr": 0.969,
+     "rms_diff_deg": 0.36
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -4.65,
+     "sim_mean_deg": -4.49,
+     "real_p2p_deg": 1.84,
+     "sim_p2p_deg": 3.11,
+     "corr": 0.779,
+     "rms_diff_deg": 0.63
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -1.87,
+     "sim_mean_deg": -2.51,
+     "real_p2p_deg": 2.47,
+     "sim_p2p_deg": 3.58,
+     "corr": 0.919,
+     "rms_diff_deg": 0.8
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -6.43,
+     "sim_mean_deg": -6.66,
+     "real_p2p_deg": 4.67,
+     "sim_p2p_deg": 5.09,
+     "corr": 0.941,
+     "rms_diff_deg": 0.58
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -5.62,
+     "sim_mean_deg": -5.26,
+     "real_p2p_deg": 2.62,
+     "sim_p2p_deg": 3.36,
+     "corr": 0.887,
+     "rms_diff_deg": 0.59
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -2.47,
+     "sim_mean_deg": -3.39,
+     "real_p2p_deg": 2.4,
+     "sim_p2p_deg": 3.0,
+     "corr": 0.653,
+     "rms_diff_deg": 1.12
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -4.04,
+     "sim_mean_deg": -4.15,
+     "real_p2p_deg": 2.85,
+     "sim_p2p_deg": 2.48,
+     "corr": 0.958,
+     "rms_diff_deg": 0.27
+    }
+   ]
+  },
+  "r_hip_yaw": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    1.38,
+    1.59,
+    1.75
+   ],
+   "separation_median": 4.41,
+   "shape_margin_min_median_max": [
+    0.5,
+    0.52,
+    0.56
+   ],
+   "corr_median_moving": 0.935,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -6.45,
+     "sim_mean_deg": -5.99,
+     "real_p2p_deg": 1.69,
+     "sim_p2p_deg": 2.51,
+     "corr": 0.474,
+     "rms_diff_deg": 0.8
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 4.98,
+     "sim_mean_deg": 5.2,
+     "real_p2p_deg": 3.75,
+     "sim_p2p_deg": 4.18,
+     "corr": 0.979,
+     "rms_diff_deg": 0.4
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 4.55,
+     "sim_mean_deg": 3.74,
+     "real_p2p_deg": 1.79,
+     "sim_p2p_deg": 2.55,
+     "corr": 0.581,
+     "rms_diff_deg": 1.05
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": 3.24,
+     "sim_mean_deg": 1.49,
+     "real_p2p_deg": 7.17,
+     "sim_p2p_deg": 9.42,
+     "corr": 0.96,
+     "rms_diff_deg": 2.06
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": 8.27,
+     "sim_mean_deg": 7.25,
+     "real_p2p_deg": 7.27,
+     "sim_p2p_deg": 8.3,
+     "corr": 0.994,
+     "rms_diff_deg": 1.12
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": 5.12,
+     "sim_mean_deg": 5.42,
+     "real_p2p_deg": 3.1,
+     "sim_p2p_deg": 2.82,
+     "corr": 0.76,
+     "rms_diff_deg": 0.66
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": 7.13,
+     "sim_mean_deg": 6.04,
+     "real_p2p_deg": 3.38,
+     "sim_p2p_deg": 4.22,
+     "corr": 0.936,
+     "rms_diff_deg": 1.21
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 6.5,
+     "sim_mean_deg": 5.98,
+     "real_p2p_deg": 2.14,
+     "sim_p2p_deg": 3.01,
+     "corr": 0.935,
+     "rms_diff_deg": 0.66
+    }
+   ]
+  },
+  "r_hip_roll": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    7.87,
+    8.03,
+    8.16
+   ],
+   "separation_median": 10.76,
+   "shape_margin_min_median_max": [
+    1.19,
+    1.23,
+    1.32
+   ],
+   "corr_median_moving": 0.966,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -8.63,
+     "sim_mean_deg": -9.6,
+     "real_p2p_deg": 4.46,
+     "sim_p2p_deg": 4.25,
+     "corr": 0.979,
+     "rms_diff_deg": 1.02
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -9.83,
+     "sim_mean_deg": -9.11,
+     "real_p2p_deg": 12.96,
+     "sim_p2p_deg": 14.27,
+     "corr": 0.988,
+     "rms_diff_deg": 1.07
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -20.97,
+     "sim_mean_deg": -20.93,
+     "real_p2p_deg": 2.25,
+     "sim_p2p_deg": 2.95,
+     "corr": 0.759,
+     "rms_diff_deg": 0.64
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -19.62,
+     "sim_mean_deg": -18.74,
+     "real_p2p_deg": 2.43,
+     "sim_p2p_deg": 3.09,
+     "corr": 0.951,
+     "rms_diff_deg": 0.94
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -18.37,
+     "sim_mean_deg": -18.34,
+     "real_p2p_deg": 5.05,
+     "sim_p2p_deg": 5.44,
+     "corr": 0.973,
+     "rms_diff_deg": 0.44
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -18.89,
+     "sim_mean_deg": -17.46,
+     "real_p2p_deg": 6.0,
+     "sim_p2p_deg": 6.3,
+     "corr": 0.955,
+     "rms_diff_deg": 1.56
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -19.5,
+     "sim_mean_deg": -19.29,
+     "real_p2p_deg": 0.8,
+     "sim_p2p_deg": 1.73,
+     "corr": 0.718,
+     "rms_diff_deg": 0.45
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -19.28,
+     "sim_mean_deg": -18.93,
+     "real_p2p_deg": 2.99,
+     "sim_p2p_deg": 3.4,
+     "corr": 0.966,
+     "rms_diff_deg": 0.47
+    }
+   ]
+  },
+  "r_hip_pitch": {
+   "verdict": "+1（反転すると学習環境で転倒する）",
+   "flip_fell": "4/4",
+   "flip_fell_at_s": [
+    0.96,
+    0.86,
+    0.92,
+    7.46
+   ],
+   "margin_min_median_max": null,
+   "separation_median": null,
+   "shape_margin_min_median_max": null,
+   "corr_median_moving": 0.618,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -106.54,
+     "sim_mean_deg": -106.08,
+     "real_p2p_deg": 3.31,
+     "sim_p2p_deg": 4.13,
+     "corr": 0.858,
+     "rms_diff_deg": 0.81
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -101.86,
+     "sim_mean_deg": -100.59,
+     "real_p2p_deg": 11.44,
+     "sim_p2p_deg": 14.28,
+     "corr": 0.963,
+     "rms_diff_deg": 2.01
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -106.84,
+     "sim_mean_deg": -106.62,
+     "real_p2p_deg": 4.73,
+     "sim_p2p_deg": 4.78,
+     "corr": 0.987,
+     "rms_diff_deg": 0.37
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -107.11,
+     "sim_mean_deg": -106.49,
+     "real_p2p_deg": 1.64,
+     "sim_p2p_deg": 3.17,
+     "corr": 0.702,
+     "rms_diff_deg": 0.97
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -106.16,
+     "sim_mean_deg": -105.78,
+     "real_p2p_deg": 1.62,
+     "sim_p2p_deg": 2.38,
+     "corr": -0.003,
+     "rms_diff_deg": 0.95
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -107.46,
+     "sim_mean_deg": -106.37,
+     "real_p2p_deg": 1.95,
+     "sim_p2p_deg": 3.07,
+     "corr": 0.533,
+     "rms_diff_deg": 1.37
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -106.01,
+     "sim_mean_deg": -105.68,
+     "real_p2p_deg": 1.7,
+     "sim_p2p_deg": 3.29,
+     "corr": 0.416,
+     "rms_diff_deg": 0.89
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -106.63,
+     "sim_mean_deg": -106.24,
+     "real_p2p_deg": 1.72,
+     "sim_p2p_deg": 3.31,
+     "corr": 0.534,
+     "rms_diff_deg": 0.87
+    }
+   ]
+  },
+  "r_knee_pitch": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    61.68,
+    61.95,
+    62.19
+   ],
+   "separation_median": 66.5,
+   "shape_margin_min_median_max": [
+    4.89,
+    4.99,
+    5.06
+   ],
+   "corr_median_moving": 0.986,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 48.7,
+     "sim_mean_deg": 51.14,
+     "real_p2p_deg": 15.77,
+     "sim_p2p_deg": 17.27,
+     "corr": 0.981,
+     "rms_diff_deg": 2.74
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 72.92,
+     "sim_mean_deg": 72.87,
+     "real_p2p_deg": 21.22,
+     "sim_p2p_deg": 23.05,
+     "corr": 0.986,
+     "rms_diff_deg": 1.48
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 80.07,
+     "sim_mean_deg": 78.61,
+     "real_p2p_deg": 18.98,
+     "sim_p2p_deg": 20.68,
+     "corr": 0.986,
+     "rms_diff_deg": 2.02
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": 80.05,
+     "sim_mean_deg": 77.65,
+     "real_p2p_deg": 17.65,
+     "sim_p2p_deg": 19.41,
+     "corr": 0.99,
+     "rms_diff_deg": 2.66
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": 81.15,
+     "sim_mean_deg": 79.85,
+     "real_p2p_deg": 18.2,
+     "sim_p2p_deg": 20.22,
+     "corr": 0.984,
+     "rms_diff_deg": 1.9
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": 80.7,
+     "sim_mean_deg": 80.02,
+     "real_p2p_deg": 18.54,
+     "sim_p2p_deg": 19.8,
+     "corr": 0.985,
+     "rms_diff_deg": 1.43
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": 81.35,
+     "sim_mean_deg": 79.71,
+     "real_p2p_deg": 17.84,
+     "sim_p2p_deg": 19.15,
+     "corr": 0.992,
+     "rms_diff_deg": 1.91
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 82.25,
+     "sim_mean_deg": 80.92,
+     "real_p2p_deg": 17.72,
+     "sim_p2p_deg": 19.59,
+     "corr": 0.983,
+     "rms_diff_deg": 1.94
+    }
+   ]
+  },
+  "r_ankle_pitch": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    2.59,
+    2.86,
+    3.03
+   ],
+   "separation_median": 4.76,
+   "shape_margin_min_median_max": [
+    0.29,
+    0.34,
+    0.41
+   ],
+   "corr_median_moving": 0.971,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -29.7,
+     "sim_mean_deg": -31.5,
+     "real_p2p_deg": 6.39,
+     "sim_p2p_deg": 8.02,
+     "corr": 0.987,
+     "rms_diff_deg": 1.92
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -47.97,
+     "sim_mean_deg": -47.28,
+     "real_p2p_deg": 7.2,
+     "sim_p2p_deg": 10.88,
+     "corr": 0.946,
+     "rms_diff_deg": 1.82
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -49.09,
+     "sim_mean_deg": -47.96,
+     "real_p2p_deg": 7.32,
+     "sim_p2p_deg": 9.83,
+     "corr": 0.971,
+     "rms_diff_deg": 1.68
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -49.33,
+     "sim_mean_deg": -47.61,
+     "real_p2p_deg": 4.84,
+     "sim_p2p_deg": 7.06,
+     "corr": 0.967,
+     "rms_diff_deg": 1.96
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -50.83,
+     "sim_mean_deg": -49.78,
+     "real_p2p_deg": 6.92,
+     "sim_p2p_deg": 10.1,
+     "corr": 0.971,
+     "rms_diff_deg": 1.66
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -49.08,
+     "sim_mean_deg": -49.42,
+     "real_p2p_deg": 6.06,
+     "sim_p2p_deg": 8.53,
+     "corr": 0.977,
+     "rms_diff_deg": 1.09
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -50.92,
+     "sim_mean_deg": -49.63,
+     "real_p2p_deg": 6.02,
+     "sim_p2p_deg": 8.52,
+     "corr": 0.977,
+     "rms_diff_deg": 1.6
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -51.28,
+     "sim_mean_deg": -50.32,
+     "real_p2p_deg": 5.73,
+     "sim_p2p_deg": 8.86,
+     "corr": 0.971,
+     "rms_diff_deg": 1.55
+    }
+   ]
+  },
+  "r_ankle_roll": {
+   "verdict": "+1（波形の形だけの比較で。平均姿勢込みでは決まらない＝トリムの可能性）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    -0.12,
+    -0.04,
+    0.06
+   ],
+   "separation_median": 3.76,
+   "shape_margin_min_median_max": [
+    0.37,
+    0.41,
+    0.44
+   ],
+   "corr_median_moving": 0.97,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 7.48,
+     "sim_mean_deg": 6.93,
+     "real_p2p_deg": 5.35,
+     "sim_p2p_deg": 7.0,
+     "corr": 0.976,
+     "rms_diff_deg": 0.86
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -2.97,
+     "sim_mean_deg": -3.75,
+     "real_p2p_deg": 7.91,
+     "sim_p2p_deg": 8.93,
+     "corr": 0.97,
+     "rms_diff_deg": 1.09
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -2.23,
+     "sim_mean_deg": -2.09,
+     "real_p2p_deg": 4.87,
+     "sim_p2p_deg": 7.3,
+     "corr": 0.971,
+     "rms_diff_deg": 0.85
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -1.48,
+     "sim_mean_deg": -1.5,
+     "real_p2p_deg": 8.01,
+     "sim_p2p_deg": 8.75,
+     "corr": 0.963,
+     "rms_diff_deg": 0.83
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -5.77,
+     "sim_mean_deg": -5.5,
+     "real_p2p_deg": 6.17,
+     "sim_p2p_deg": 7.35,
+     "corr": 0.978,
+     "rms_diff_deg": 0.7
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -3.12,
+     "sim_mean_deg": -4.16,
+     "real_p2p_deg": 5.34,
+     "sim_p2p_deg": 5.14,
+     "corr": 0.949,
+     "rms_diff_deg": 1.24
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -3.33,
+     "sim_mean_deg": -3.46,
+     "real_p2p_deg": 3.66,
+     "sim_p2p_deg": 5.84,
+     "corr": 0.971,
+     "rms_diff_deg": 0.8
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -3.89,
+     "sim_mean_deg": -3.65,
+     "real_p2p_deg": 4.0,
+     "sim_p2p_deg": 5.24,
+     "corr": 0.946,
+     "rms_diff_deg": 0.72
+    }
+   ]
+  },
+  "c_chest_yaw": {
+   "verdict": "+1（実機は、反転したシミュより符号 +1 のシミュに近い）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    0.42,
+    0.54,
+    0.71
+   ],
+   "separation_median": 6.68,
+   "shape_margin_min_median_max": [
+    1.5,
+    1.55,
+    1.61
+   ],
+   "corr_median_moving": 0.935,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -1.67,
+     "sim_mean_deg": -2.15,
+     "real_p2p_deg": 3.59,
+     "sim_p2p_deg": 6.16,
+     "corr": 0.887,
+     "rms_diff_deg": 1.17
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": 0.29,
+     "sim_mean_deg": 0.8,
+     "real_p2p_deg": 6.89,
+     "sim_p2p_deg": 7.28,
+     "corr": 0.976,
+     "rms_diff_deg": 0.84
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -0.46,
+     "sim_mean_deg": -1.13,
+     "real_p2p_deg": 4.8,
+     "sim_p2p_deg": 6.66,
+     "corr": 0.778,
+     "rms_diff_deg": 1.58
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -0.97,
+     "sim_mean_deg": -1.99,
+     "real_p2p_deg": 4.67,
+     "sim_p2p_deg": 5.07,
+     "corr": 0.98,
+     "rms_diff_deg": 1.09
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -1.11,
+     "sim_mean_deg": -1.51,
+     "real_p2p_deg": 3.42,
+     "sim_p2p_deg": 5.47,
+     "corr": 0.933,
+     "rms_diff_deg": 0.88
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -1.13,
+     "sim_mean_deg": -1.41,
+     "real_p2p_deg": 5.54,
+     "sim_p2p_deg": 4.88,
+     "corr": 0.966,
+     "rms_diff_deg": 0.61
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -0.29,
+     "sim_mean_deg": -1.28,
+     "real_p2p_deg": 3.7,
+     "sim_p2p_deg": 6.09,
+     "corr": 0.9,
+     "rms_diff_deg": 1.41
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -0.92,
+     "sim_mean_deg": -1.45,
+     "real_p2p_deg": 3.29,
+     "sim_p2p_deg": 5.67,
+     "corr": 0.938,
+     "rms_diff_deg": 1.01
+    }
+   ]
+  },
+  "c_head_yaw": {
+   "verdict": "判定できない（反転しても学習環境の動きがほとんど変わらない）",
+   "flip_fell": "0/4",
+   "flip_fell_at_s": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "margin_min_median_max": [
+    0.01,
+    0.05,
+    0.1
+   ],
+   "separation_median": 0.31,
+   "shape_margin_min_median_max": [
+    -0.01,
+    -0.0,
+    0.0
+   ],
+   "corr_median_moving": 0.957,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -1.31,
+     "sim_mean_deg": -1.7,
+     "real_p2p_deg": 3.73,
+     "sim_p2p_deg": 3.31,
+     "corr": 0.891,
+     "rms_diff_deg": 0.72
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -7.67,
+     "sim_mean_deg": -7.42,
+     "real_p2p_deg": 1.68,
+     "sim_p2p_deg": 2.24,
+     "corr": 0.682,
+     "rms_diff_deg": 0.5
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -8.58,
+     "sim_mean_deg": -8.57,
+     "real_p2p_deg": 1.98,
+     "sim_p2p_deg": 2.01,
+     "corr": 0.963,
+     "rms_diff_deg": 0.19
+    },
+    {
+     "cmd": [
+      0.0,
+      0.15,
+      0.0
+     ],
+     "real_mean_deg": -12.81,
+     "sim_mean_deg": -11.07,
+     "real_p2p_deg": 4.25,
+     "sim_p2p_deg": 6.15,
+     "corr": 0.991,
+     "rms_diff_deg": 1.85
+    },
+    {
+     "cmd": [
+      0.0,
+      -0.15,
+      0.0
+     ],
+     "real_mean_deg": -8.81,
+     "sim_mean_deg": -8.76,
+     "real_p2p_deg": 1.63,
+     "sim_p2p_deg": 2.03,
+     "corr": 0.918,
+     "rms_diff_deg": 0.27
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.5
+     ],
+     "real_mean_deg": -10.01,
+     "sim_mean_deg": -10.23,
+     "real_p2p_deg": 2.95,
+     "sim_p2p_deg": 3.47,
+     "corr": 0.951,
+     "rms_diff_deg": 0.43
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      -0.5
+     ],
+     "real_mean_deg": -12.09,
+     "sim_mean_deg": -10.82,
+     "real_p2p_deg": 3.18,
+     "sim_p2p_deg": 4.72,
+     "corr": 0.993,
+     "rms_diff_deg": 1.37
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "real_mean_deg": -12.17,
+     "sim_mean_deg": -11.03,
+     "real_p2p_deg": 3.21,
+     "sim_p2p_deg": 3.8,
+     "corr": 0.993,
+     "rms_diff_deg": 1.16
+    }
+   ]
+  }
+ }
+}

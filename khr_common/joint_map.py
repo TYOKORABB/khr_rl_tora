@@ -6,7 +6,7 @@ GetUpSim2RealPlan.md §4.1 の `khr_common/joint_map.py`。
 出所:
   - JOINT_NAMES / NOMINAL_QUAD : khr_train_quad31.py get_cfgs()（四足 v31）
   - JOINT2MERIDIM              : Meridian_consoleS/Meridian_consoleS_quad.py:486-495
-  - SIGN_GENESIS_TO_REAL       : 同 :499-506 ＝ **全て +1 で「符号未検証」**
+  - SIGN_GENESIS_TO_REAL       : 同 :499-506 ＝ 全て +1。2026-10-14 に歩行の記録で 19 関節を間接的に確認、3 関節は未確認（SIGN_UNDETERMINED）
 
 `tools/check_joint_map.py` が v31 の cfg と URDF に対して一致を検証する。
 """
@@ -89,12 +89,15 @@ MERIDIM_INDICES: tuple[int, ...] = tuple(JOINT2MERIDIM[n] for n in JOINT_NAMES)
 # --------------------------------------------------------------------------
 # URDF の正回転方向 → 実機サーボの正回転方向の符号
 #
-# !!! 未検証 !!!  Meridian_consoleS_quad.py:499-506 の状態をそのまま写した。
-# 全て +1 は「1 関節ずつ実機で確認した記録が無い」ことを意味し、
-# 正しさの主張ではない。GetUpSim2RealPlan.md §3.3・付録 A で検証する項目。
-# 検証前に左右対称性の学習拡張（§4.5）を使ってはいけない。
+# Meridian_consoleS_quad.py:499-506 の状態（全て +1）をそのまま写した。
+# 2026-10-14: v31 の実機歩行の記録（real/walk_joints.py、experiments/real/20261013_walk/joints.json）で、
+#   19 関節は「関節 j だけ反転した学習環境」より「全て +1 の学習環境」に実機が近い（または反転すると転倒する）ことを確認した。
+#   これは閉ループの歩行からの間接的な裏づけで、1 関節ずつ実機で動かした確認ではない。
+#   SIGN_UNDETERMINED の 3 関節は、反転しても学習環境の歩行がほとんど変わらないので歩行の記録では判定できない。
+# 左右対称性の学習拡張（§4.5）を使う前に、SIGN_UNDETERMINED を実機で 1 関節ずつ確かめる。
 # --------------------------------------------------------------------------
 SIGN_GENESIS_TO_REAL: dict[str, int] = {n: +1 for n in JOINT_NAMES}
+SIGN_UNDETERMINED: tuple[str, ...] = ("l_elbow_yaw", "r_elbow_yaw", "c_head_yaw")
 SIGN_VERIFIED: bool = False
 
 # --------------------------------------------------------------------------

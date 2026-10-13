@@ -151,6 +151,15 @@ def joint_limits(names: list[str]) -> tuple[np.ndarray, np.ndarray]:
     return lo, hi
 
 
+def read_meridim(m, slots: list[int], R: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """受信した Meridim（int16 の 90 要素）→ 関節角 [rad]（学習時の関節順）、base 座標の角速度 [rad/s]、base 座標の重力（下向き単位ベクトル）。
+    real/obs_check.py（P0-3 の単体テスト）も同じ関数を通す。"""
+    q = np.radians(np.array([m[s + 1] for s in slots], dtype=np.float64) / 100.0)
+    gyro = np.radians(np.asarray(m[5:8], dtype=np.float64) / 100.0)
+    down = gv.gravity_base(gv.gravity_sensor(m), R)
+    return q, R @ gyro, down
+
+
 def run_policy(policy, obs: np.ndarray) -> np.ndarray:
     """rsl-rl 5 の方策は TensorDict（観測の組の名前 → テンソル）を受け取る。actor が使うのは "policy" の組だけ。"""
     from tensordict import TensorDict
@@ -221,10 +230,7 @@ def cmd_serve(a) -> int:
         seq += 1
 
     def read_state(m):
-        q = np.radians(np.array([m[s + 1] for s in slots], dtype=np.float64) / 100.0)
-        gyro = np.radians(np.asarray(m[5:8], dtype=np.float64) / 100.0)
-        down = gv.gravity_base(gv.gravity_sensor(m), R)
-        return q, R @ gyro, down
+        return read_meridim(m, slots, R)
 
     def status(**kw):
         write_json(RUN_DIR / "server.json", {**state, "pid": os.getpid(), "exp": a.exp, "elapsed_s": round(time.monotonic() - t_start, 1),
@@ -406,7 +412,7 @@ def cmd_replay_check(a) -> int:
     env_cfg, obs_cfg, reward_cfg, command_cfg, train_cfg = pickle.load(open(LOG_ROOT / a.exp / "cfgs.pkl", "rb"))
     reward_cfg["reward_scales"] = {}
     obs_cfg["add_noise"] = False
-    for k in ("randomize_friction", "randomize_base_mass", "randomize_com", "randomize_kp", "randomize_joint_offset"):
+    for k in ("randomize_friction", "randomize_base_mass", "randomize_com", "randomize_kp", "randomize_joint_offset", "Mode_push_vel"):
         env_cfg[k] = False
     env_mod = a.env_module
     env = getattr(importlib.import_module(env_mod), "KHRQuadEnv")(1, env_cfg, obs_cfg, reward_cfg, command_cfg, show_viewer=False)

@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 import argparse
-import datetime as dt
 import json
 import math
 from pathlib import Path
@@ -86,7 +85,6 @@ def seg_metrics(cmd: np.ndarray, seg: np.ndarray, lim_lo: np.ndarray, lim_hi: np
 
 def simulate(schedule: list[tuple[np.ndarray, float]], exp: str, ckpt: int, env_module: str = "khr_quad_env21") -> tuple[np.ndarray, list]:
     """学習環境（CPU・1 体・ノイズと個体差なし）で、walk_session と同じ観測の作り方・同じ可動域の制限で方策を動かす。"""
-    import copy
     import importlib
     import pickle
 
@@ -97,7 +95,8 @@ def simulate(schedule: list[tuple[np.ndarray, float]], exp: str, ckpt: int, env_
     env_cfg, obs_cfg, reward_cfg, command_cfg, train_cfg = pickle.load(open(REPO_ROOT / "logs" / exp / "cfgs.pkl", "rb"))
     reward_cfg["reward_scales"] = {}
     obs_cfg["add_noise"] = False
-    for k in ("randomize_friction", "randomize_base_mass", "randomize_com", "randomize_kp", "randomize_joint_offset"):
+    # 押しの外乱（Mode_push_vel）も切る。2026-10-14 まで切り忘れていて、3 秒ごとに最大 0.03 m/s の押しが入っていた
+    for k in ("randomize_friction", "randomize_base_mass", "randomize_com", "randomize_kp", "randomize_joint_offset", "Mode_push_vel"):
         env_cfg[k] = False
     env_cfg["episode_length_s"] = 1000.0
     env = getattr(importlib.import_module(env_module), "KHRQuadEnv")(1, env_cfg, obs_cfg, reward_cfg, command_cfg, show_viewer=False)
@@ -135,6 +134,13 @@ def simulate(schedule: list[tuple[np.ndarray, float]], exp: str, ckpt: int, env_
                     return np.array(rows), pos
                 t += 0.02
     return np.array(rows), pos
+
+
+def out_dir_of(npz: str) -> Path:
+    """記録の日付（walk_<YYYYMMDD>_<時刻>.npz）のフォルダ experiments/real/<日付>_walk。
+    2026-10-14 まで分析した日の日付を使っていて、翌日に分析すると別のフォルダに書いていた。"""
+    stamp = Path(npz).stem.split("_")[1]
+    return REPO_ROOT / "experiments" / "real" / f"{stamp}_walk"
 
 
 def schedule_of(run: np.ndarray) -> list[tuple[np.ndarray, float]]:
@@ -194,7 +200,7 @@ def main() -> int:
         "p50": round(float(np.median(dts) * 1000), 2), "p99": round(float(np.percentile(dts, 99) * 1000), 2),
         "max": round(float(dts.max() * 1000), 2)},
         "servo_error_frames": int(np.count_nonzero(M[:, 88] & 0xFF)), "rx_packets": int(len(M))}
-    out_dir = REPO_ROOT / "experiments" / "real" / f"{dt.date.today():%Y%m%d}_walk"
+    out_dir = out_dir_of(a.npz)
     out_dir.mkdir(parents=True, exist_ok=True)
     sim_cache: dict[str, tuple] = {}
     for i, run in enumerate(runs):
