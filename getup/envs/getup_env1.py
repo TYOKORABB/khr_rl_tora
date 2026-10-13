@@ -29,6 +29,7 @@ from collections import deque
 import genesis as gs
 import numpy as np
 import torch
+from genesis.utils.misc import qd_to_torch
 from tensordict import TensorDict
 
 from khr_common.action_post import ActionPost
@@ -171,6 +172,7 @@ class GetupEnv:
         self.ep_u0 = f(B)
         self.ep_hmax = f(B)
         self.rew_buf = f(B)
+        self.contacts_max = torch.zeros((), dtype=torch.long, device=self.device)   # 1 体の接触点の数の最大（§4.2-5 で記録）
         self.extras = {"episode": {}}
         self.reward_scales = {k: v * self.dt for k, v in reward_cfg["reward_scales"].items()}
         self.reward_functions = {k: getattr(self, "_reward_" + k) for k in self.reward_scales}
@@ -196,6 +198,8 @@ class GetupEnv:
         self.h_ends = links[:, self.end_idx, 2]
         self.torque = r.get_dofs_control_force(self.motors)
         self.floor_contact = self._floor_contacts()
+        n_c = qd_to_torch(self.scene.rigid_solver.collider._collider_state.n_contacts, copy=False)
+        self.contacts_max = torch.maximum(self.contacts_max, n_c.max().to(self.device).long())
 
     def _floor_contacts(self) -> torch.Tensor:
         """(B, リンク数) の床との接触（自己接触は含まない）。"""
@@ -328,6 +332,7 @@ class GetupEnv:
             ep["sim_error_resets"] = torch.tensor(float(self._sim_error_count) / self.num_envs)
             ep["u0_mean"] = self.ep_u0[ids].mean()
             ep["h_base_max_mean"] = self.ep_hmax[ids].mean()
+            ep["contacts_max"] = self.contacts_max.to(gs.tc_float)
             self._maybe_promote()
         bi, lv = self._sample_bank(k)
         b = self.bank

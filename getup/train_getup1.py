@@ -121,9 +121,20 @@ def main() -> int:
             performance_mode=not a.cpu)
     env = GetupEnv(a.num_envs, env_cfg, obs_cfg, reward_cfg, show_viewer=a.view)
     runner = OnPolicyRunner(env, train_cfg, str(log_dir), device=gs.device)
+    import time
+    t0 = time.time()
     runner.learn(num_learning_iterations=a.max_iterations, init_at_random_ep_len=True)
+    sec = time.time() - t0
     info["finished_at"] = dt.datetime.now().isoformat(timespec="seconds")
     info["final_level"] = env.env_cfg["curriculum"]["levels"][env.level]
+    # §4.2-5 の小試験で使う実測（反復と本数の計画をこれで決め直す）
+    info["learn_seconds"] = round(sec, 1)
+    info["iter_per_min"] = round(a.max_iterations / sec * 60, 2)
+    info["contacts_max_per_env"] = int(env.contacts_max)
+    info["max_contact_points_per_env"] = env_cfg["max_collision_pairs"] * 5   # Genesis: max_collision_pairs × n_contacts_per_pair（5）
+    if torch.cuda.is_available() and not a.cpu:
+        info["cuda_max_memory_allocated_mib"] = round(torch.cuda.max_memory_allocated() / 2 ** 20, 1)
+        info["cuda_max_memory_reserved_mib"] = round(torch.cuda.max_memory_reserved() / 2 ** 20, 1)
     (log_dir / "run_info.json").write_text(json.dumps(info, ensure_ascii=False, indent=2) + "\n")
     return 0
 
