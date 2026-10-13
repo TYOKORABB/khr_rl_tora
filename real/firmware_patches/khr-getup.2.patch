@@ -112,7 +112,7 @@
 +#endif // __KHR_CORE_H__
 --- a/Meridian_LITE_for_ESP32/src/khr_ext.h
 +++ b/Meridian_LITE_for_ESP32/src/khr_ext.h
-@@ -0,0 +1,115 @@
+@@ -0,0 +1,123 @@
 +#ifndef __KHR_EXT_H__
 +#define __KHR_EXT_H__
 +
@@ -126,11 +126,14 @@
 +///
 +///          状態語 Meridim[11] (unsigned short):
 +///            bit 0-1  通信監視の状態 (0:DISARMED 1:OK 2:HOLD 3:LIMP)
-+///            bit 2    このフレームの重力ベクトルが新しい(I2C の読み取りに成功した)
++///            bit 2    前のフレームから新しい重力ベクトルが届いた(IMU スレッドが1周読み終えた)
 +///            bit 3    通信監視が有効 (KHR_WDG_ENABLE)
 +///            bit 4-5  BNO055 の加速度センサのキャリブレーション状態 (0-3)
 +///            bit 6-7  BNO055 のシステム(融合)のキャリブレーション状態 (0-3)
 +///            bit 8-15 0x6B (改造ファームの印. 改造前は [11] が常に0)
++///
++///          診断用 (khr-getup.2 から): Meridim[84] 重力ベクトルの通し番号(下位16bit), [85] IMU スレッド1周の読み取り時間(us).
++///            [86..87] は使わない(PC が往復遅れの測定に使う. ESP32 は受信した値をそのまま返す).
 +
 +#include "config.h"
 +#include "main.h"
@@ -138,8 +141,8 @@
 +
 +KhrWatchdog khr_wdg(KHR_WDG_TIMEOUT_MS, KHR_WDG_HOLD_MS);
 +
-+float khr_gravity[3] = {0.0, 0.0, 0.0}; // 最後に読めた重力ベクトル(m/s^2, BNO055 の軸の付け替え後の座標)
-+bool khr_gravity_fresh = false;         // このフレームで読めたか
++bool khr_gravity_fresh = false; // 前のフレームから新しい重力ベクトルが届いたか
++uint32_t khr_grav_seq_sent = 0; // 前のフレームで送った重力ベクトルの通し番号
 +
 +/// @brief 受信した Meridim で, マウントされた全サーボの電源フラグが0か.
 +bool khr_all_power_off(const Meridim90Union &a_meridim, const ServoParam &a_sv) {
@@ -211,18 +214,23 @@
 +/// @details meriput90_ahrs() の直後に呼ぶ(あちらが [8..11] に0を書くので上書きする).
 +void khr_meriput90_ext(Meridim90Union &a_meridim) {
 +#if KHR_SEND_GRAVITY
-+  const float gx = (float)gravity_v.x();
-+  const float gy = (float)gravity_v.y();
-+  const float gz = (float)gravity_v.z();
-+  khr_gravity_fresh = (gx != 0.0 || gy != 0.0 || gz != 0.0); // I2C の読み取りに失敗すると全要素0になる
-+  if (khr_gravity_fresh) {                                   // 失敗時は前回の値を使う(加速度・Euler と同じ扱い)
-+    khr_gravity[0] = gx;
-+    khr_gravity[1] = gy;
-+    khr_gravity[2] = gz;
-+  }
-+  a_meridim.sval[MRD_MAG_X] = mrd.float2HfShort(khr_gravity[0]); // 100倍値(0.01 m/s^2 刻み)
-+  a_meridim.sval[MRD_MAG_Y] = mrd.float2HfShort(khr_gravity[1]);
-+  a_meridim.sval[MRD_MAG_Z] = mrd.float2HfShort(khr_gravity[2]);
++  float g[3];
++  uint32_t seq;
++  uint16_t read_us;
++  portENTER_CRITICAL(&khr_imu_mux); // IMU スレッドが読み終えた値だけを取る(mrd_wire0.h)
++  g[0] = khr_grav_shared[0];
++  g[1] = khr_grav_shared[1];
++  g[2] = khr_grav_shared[2];
++  seq = khr_grav_seq;
++  read_us = khr_imu_read_us;
++  portEXIT_CRITICAL(&khr_imu_mux);
++  khr_gravity_fresh = (seq != khr_grav_seq_sent); // 新しくなければ前回と同じ値を送る
++  khr_grav_seq_sent = seq;
++  a_meridim.sval[MRD_MAG_X] = mrd.float2HfShort(g[0]); // 100倍値(0.01 m/s^2 刻み)
++  a_meridim.sval[MRD_MAG_Y] = mrd.float2HfShort(g[1]);
++  a_meridim.sval[MRD_MAG_Z] = mrd.float2HfShort(g[2]);
++  a_meridim.usval[MRD_USERDATA_84] = (uint16_t)seq;   // 診断用: PC で更新の頻度・抜けを数える
++  a_meridim.usval[MRD_USERDATA_85] = read_us;         // 診断用: IMU スレッドの読み取り時間
 +#endif
 +  a_meridim.usval[MRD_TEMP] = khr_pack_status(khr_wdg.state, khr_gravity_fresh, KHR_WDG_ENABLE, khr_calib_stat);
 +}
@@ -235,7 +243,7 @@
  #define __MERIDIAN_LITE_MAIN__
  
 -#define VERSION "Meridian_LITE_v1.1.1_2025_08.22(kajita)" // バージョン表示
-+#define VERSION "Meridian_LITE_v1.1.1_2025_08.22(kajita)+khr-getup.1" // バージョン表示([khr] 改造版)
++#define VERSION "Meridian_LITE_v1.1.1_2025_08.22(kajita)+khr-getup.2" // バージョン表示([khr] 改造版)
  
  /// @file    Meridian_LITE_for_ESP32/src/main.cpp
  /// @brief   Meridian is a system that smartly realizes the digital twin of a robot.
@@ -298,26 +306,56 @@
      Serial.println("No BNO055 detected ... Check your wiring or I2C ADDR!");
      return false;
    } else {
-@@ -202,6 +202,8 @@
+@@ -202,6 +202,14 @@
  imu::Vector<3> accelerometer;
  imu::Vector<3> magnetometer;
  imu::Quaternion quat;
-+imu::Vector<3> gravity_v;            // [khr] 融合推定の重力ベクトル(m/s^2)
-+volatile uint8_t khr_calib_stat = 0; // [khr] BNO055 のキャリブレーション状態(sys<<6|gyro<<4|accel<<2|mag)
++// [khr] 重力ベクトルの受け渡し(IMU スレッド → メインループ). 読み終えた値だけを khr_imu_mux の中で書き換える.
++// グローバルの imu::Vector に getVector() を直接代入すると, 読み取り中に全要素0が見えることがある
++// (梶田版の Euler 角の「全要素0なら前回値を使う」と同じ現象. メインループは IMU の読み終わりを最大 3 ms しか待たない).
++portMUX_TYPE khr_imu_mux = portMUX_INITIALIZER_UNLOCKED;
++float khr_grav_shared[3] = {0.0, 0.0, 0.0}; // 最後に読み終えた重力ベクトル(m/s^2)
++uint32_t khr_grav_seq = 0;                  // 読み終えた重力ベクトルの通し番号(0: まだ無い)
++uint16_t khr_imu_read_us = 0;               // IMU スレッド1周の読み取り時間(us, 診断用)
++volatile uint8_t khr_calib_stat = 0;        // [khr] BNO055 のキャリブレーション状態(sys<<6|gyro<<4|accel<<2|mag)
  
  void read_bno055() {
    // ジャイロセンサ値の取得 - VECTOR_GYROSCOPE - rad/s
-@@ -368,6 +370,15 @@
+@@ -358,6 +366,9 @@
+     }
+ 
+     T_thread_time = millis(); // スレッドの同期確認用
++#if KHR_SEND_GRAVITY
++    const uint32_t khr_t0_us = micros(); // [khr] 読み取り時間の計測
++#endif
+ 
+     // ジャイロセンサ値の取得- VECTOR_GYROSCOPE - deg/s
+     gyroscope = ahrs.bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+@@ -368,6 +379,29 @@
      // 加速度センサ値の取得 - VECTOR_ACCELEROMETER - m/s^2
      accelerometer = ahrs.bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
  
 +#if KHR_SEND_GRAVITY
 +    // [khr] 融合推定の重力ベクトル - VECTOR_GRAVITY - m/s^2
 +    // Euler 角と違い特異点がないので, うつ伏せ・仰向け・四脚姿勢(ピッチ90°)でも姿勢が求まる.
-+    gravity_v = ahrs.bno.getVector(Adafruit_BNO055::VECTOR_GRAVITY);
-+    uint8_t cal_sys, cal_gyro, cal_accel, cal_mag;
-+    ahrs.bno.getCalibration(&cal_sys, &cal_gyro, &cal_accel, &cal_mag);
-+    khr_calib_stat = (cal_sys << 6) | (cal_gyro << 4) | (cal_accel << 2) | cal_mag;
++    const imu::Vector<3> g = ahrs.bno.getVector(Adafruit_BNO055::VECTOR_GRAVITY);
++    static uint8_t calib_div = 0;
++    if (++calib_div >= 32) { // キャリブレーション状態はゆっくりしか変わらないので 32 周に1回(スレッドを短くする)
++      calib_div = 0;
++      uint8_t cal_sys, cal_gyro, cal_accel, cal_mag;
++      ahrs.bno.getCalibration(&cal_sys, &cal_gyro, &cal_accel, &cal_mag);
++      khr_calib_stat = (cal_sys << 6) | (cal_gyro << 4) | (cal_accel << 2) | cal_mag;
++    }
++    const uint32_t read_us = micros() - khr_t0_us;
++    if (g.x() != 0.0 || g.y() != 0.0 || g.z() != 0.0) { // I2C の読み取りに失敗すると全要素0になる → 渡さない
++      portENTER_CRITICAL(&khr_imu_mux);
++      khr_grav_shared[0] = (float)g.x();
++      khr_grav_shared[1] = (float)g.y();
++      khr_grav_shared[2] = (float)g.z();
++      khr_grav_seq++;
++      khr_imu_read_us = (uint16_t)(read_us > 65535u ? 65535u : read_us);
++      portEXIT_CRITICAL(&khr_imu_mux);
++    }
 +#endif
 +
      // 読み取り完了フラグをセット（メインloopが確認）

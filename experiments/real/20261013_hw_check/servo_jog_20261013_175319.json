@@ -1,0 +1,29 @@
+{
+  "servo": "L0",
+  "amp_deg": 5.0,
+  "ramp_s": 1.5,
+  "esp_ip": "192.168.11.21",
+  "aborted": null,
+  "theta0_deg": -6.24,
+  "max_track_err_deg": 0.6400000000000006,
+  "lag_ms": 112,
+  "rms_after_lag_deg": 0.19304475654430897,
+  "measured_range_deg": [
+    -11.04,
+    -1.42
+  ],
+  "powered_frames": 850,
+  "after_limp_range_deg": [
+    -10.4,
+    38.0
+  ],
+  "echo_rtt_ms": {
+    "p50": 49.620092613622546,
+    "p90": 57.050080643966794,
+    "max": 82.44344685226679
+  },
+  "rx_packets": 1071,
+  "tx_packets": 1050,
+  "raw": "real/data/raw/servo_jog_20261013_175319.npz",
+  "note": "評価は ESP32 が電源を入れていたフレームだけ（初回の要約は脱力後の動きを含めて誤判定していたので、--reanalyze で出し直した）。脱力直後に頭ヨーが +38° まで動いた（胴体 IMU も振動を検出）。原因は未確認"
+}

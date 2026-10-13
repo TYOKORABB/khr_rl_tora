@@ -1,4 +1,4 @@
-"""改造ファーム（real/firmware_patches/khr-getup.1.patch）の実機確認ツール。
+"""改造ファーム（real/firmware_patches/khr-getup.N.patch）の実機確認ツール。
 
 コンソール（Meridian_consoleS*.py）を**閉じた状態で**、コンソールと同じ PC から使う
 （ESP32 は keys.h の WIFI_SEND_IP の PC の UDP 22222 番へ送ってくるので、同じポートを使う）。
@@ -51,11 +51,13 @@ def parse(data: bytes) -> np.ndarray | None:
     return m if checksum(m) == m[MRDM_LEN - 1] else None
 
 
-def limp_packet(seq: int) -> bytes:
-    """全サーボ脱力（電源フラグ 0）のパケット。このツールが送るのはこれだけ。"""
+def limp_packet(seq: int, echo: int = 0) -> bytes:
+    """全サーボ脱力（電源フラグ 0）のパケット。このツールが送るのはこれだけ。
+    echo は空きスロット [86] に入れる番号で、ESP32 がそのまま返してくる（そのパケットを処理した時刻が分かる）。"""
     m = np.zeros(MRDM_LEN, dtype=np.int16)
     m[0] = MRDM_LEN          # マスターコマンド: 通常（コンソールの既定値と同じ）
     m[1] = seq % 60000
+    m[gv.MRD_ECHO] = echo % 30000
     assert not m[list(L_CMD)].any() and not m[list(R_CMD)].any()  # 電源を入れる指令は絶対に送らない
     m[MRDM_LEN - 1] = checksum(m)
     return m.astype("<i2").tobytes()
@@ -92,6 +94,7 @@ class Link:
         self.n_bad = 0
         self.seq = 0
         self.t_last_send = 0.0
+        self.last_echo = 0
         self._stop = False
         self._th = threading.Thread(target=self._loop, daemon=True)
         self._th.start()
@@ -121,7 +124,8 @@ class Link:
 
     def send_limp(self):
         assert self.esp is not None
-        self.sock.sendto(limp_packet(self.seq), self.esp)
+        self.last_echo = self.seq % 29999 + 1     # 0 は使わない
+        self.sock.sendto(limp_packet(self.seq, self.last_echo), self.esp)
         self.t_last_send = time.monotonic()
         self.seq += 1
 
@@ -175,8 +179,14 @@ def cmd_listen(a) -> int:
     try:
         while a.seconds <= 0 or time.monotonic() - t0 < a.seconds:
             last = link.latest()
-            n = len(link.since(time.monotonic() - 1.0))
-            print(f"t={time.monotonic() - t0:6.1f}s  {n:3d} pkt/s  {describe(last[1], r_mount)}", flush=True)
+            win = link.since(time.monotonic() - 1.0)
+            n = len(win)
+            extra = ""
+            if gv.decode_status(last[1][gv.MRD_STATUS]).patched and any(m[gv.MRD_GRAV_SEQ] for _, m in win):
+                # khr-getup.2 から: 1 秒間に届いた新しい重力ベクトルの数と IMU スレッドの読み取り時間
+                n_new = len({int(m[gv.MRD_GRAV_SEQ]) for _, m in win}) - 1
+                extra = f"  grav {n_new:3d}/s imu {int(last[1][gv.MRD_IMU_US]) & 0xFFFF:5d} us"
+            print(f"t={time.monotonic() - t0:6.1f}s  {n:3d} pkt/s{extra}  {describe(last[1], r_mount)}", flush=True)
             time.sleep(0.25)
     except KeyboardInterrupt:
         pass
@@ -284,40 +294,57 @@ def cmd_wdg_test(a) -> int:
 
     send_for(a.phase_a)                       # A: 脱力パケットを流す → OK になるはず（LIMP も解ける）
     t_stop = link.t_last_send                 # 途絶の起点 = 最後に送った時刻
+    last_echo = link.last_echo
     state_a = gv.decode_status(link.latest()[1][gv.MRD_STATUS]).wdg_state
     time.sleep(a.phase_b)                     # B: 送るのを止める → HOLD → LIMP
-    rows_b = states(link.since(t_stop))
+    link_rows_b = link.since(t_stop)
+    rows_b = states(link_rows_b)
     t_resume = time.monotonic()
     send_for(a.phase_c)                       # C: 脱力パケットを再開 → LIMP が解けて OK
     state_c = gv.decode_status(link.latest()[1][gv.MRD_STATUS]).wdg_state
     link.close()
 
+    # 途絶の起点。ESP32 は受信バッファから 1 フレームに 1 パケットずつ読むので、溜まっている分だけ
+    # 最後に送ったパケットを処理するのが遅れる（2026-10-13 の実測で約 50 ms）。そこで最後のパケットの番号 [86] が
+    # 返ってきた時刻（= ESP32 がそれを処理した次のフレーム）を起点にする。返ってこなければ最後に送った時刻を使う。
+    echo_rows = [t for t, m in link_rows_b if int(m[gv.MRD_ECHO]) == last_echo]
+    t_ref = echo_rows[0] if echo_rows else t_stop
+    queue_ms = round((t_ref - t_stop) * 1000) if echo_rows else None
+
     def first_t(name):
-        ts = [t - t_stop for t, s in rows_b if s == name]
+        ts = [t - t_ref for t, s in rows_b if s == name]
         return round(ts[0] * 1000) if ts else None
 
     t_hold, t_limp = first_t("HOLD"), first_t("LIMP")
-    # ESP32 は「受けたフレームの時刻」から数えるので、最後に送った時刻から見て 200 ms より早くはならない
-    # （5 ms は PC 側の時計の揺らぎ）。遅い側は Wi-Fi の往復とフレーム周期の分だけ許す。
-    lat = a.latency_ms
+    if echo_rows:
+        # 起点も遷移も ESP32 が送ったパケットの受信時刻なので、差は ESP32 のフレーム数（10 ms 刻み）で決まる。
+        # 下側 15 ms・上側 1 フレーム + jitter_ms は Wi-Fi の揺らぎの分
+        lo, hi = -15, 10 + a.jitter_ms
+        basis = "最後のパケットを ESP32 が処理した時刻から"
+    else:
+        lo, hi = -5, a.latency_ms
+        basis = "最後に送った時刻から（番号が返ってこなかった）"
     checks = {
         "A: 脱力パケットで OK": state_a == "OK",
-        f"B: HOLD まで {t_hold} ms（期待 195〜{200 + lat}）": t_hold is not None and 195 <= t_hold <= 200 + lat,
-        f"B: LIMP まで {t_limp} ms（期待 1195〜{1200 + lat}）": t_limp is not None and 1195 <= t_limp <= 1200 + lat,
+        f"B: HOLD まで {t_hold} ms（期待 {200 + lo}〜{200 + hi}）": t_hold is not None and 200 + lo <= t_hold <= 200 + hi,
+        f"B: LIMP まで {t_limp} ms（期待 {1200 + lo}〜{1200 + hi}）": t_limp is not None and 1200 + lo <= t_limp <= 1200 + hi,
         "B: 最後は LIMP のまま": bool(rows_b) and rows_b[-1][1] == "LIMP",
         "C: 脱力パケットで LIMP が解けて OK": state_c == "OK",
     }
+    print(f"[info] 時間は{basis}測った値。最後のパケットが ESP32 で処理されるまでの遅れ: {queue_ms} ms")
     for k, v in checks.items():
         print(f"  [{'ok' if v else 'NG'}] {k}")
     ok = all(checks.values())
     out_dir = Path(a.out_dir) if a.out_dir else REPO_ROOT / "experiments" / "real" / f"{dt.date.today():%Y%m%d}_fw_check"
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "wdg_test.json").write_text(json.dumps({
-        "pass": ok, "checks": checks, "t_hold_ms": t_hold, "t_limp_ms": t_limp,
+    out = out_dir / f"wdg_test_{dt.datetime.now():%H%M%S}.json"   # 1 回ごとに残す
+    out.write_text(json.dumps({
+        "pass": ok, "checks": checks, "t_hold_ms": t_hold, "t_limp_ms": t_limp, "basis": basis,
+        "esp_queue_delay_ms": queue_ms,
         "start_state": st0.wdg_state, "phase_b_timeline": [(round((t - t_stop) * 1000), s) for t, s in rows_b],
         "time": dt.datetime.now().isoformat(timespec="seconds"),
     }, indent=1, ensure_ascii=False) + "\n")
-    print(f"[{'PASS' if ok else 'FAIL'}] → {out_dir / 'wdg_test.json'}")
+    print(f"[{'PASS' if ok else 'FAIL'}] → {out}")
     print("[next] サーボに電源を入れた状態での確認（脱力して崩れるか）は README の手順で、ハーネスつきで行う")
     return 0 if ok else 1
 
@@ -343,12 +370,10 @@ class FakeEsp:
         while not self._stop:
             now = time.monotonic() * 1000
             fresh = False
-            try:
-                while True:
-                    data = self.rx.recv(2048)
-                    m = parse(data)
-                    if m is not None:
-                        fresh, self.last_rx = True, m
+            try:   # 実機と同じく 1 フレームに 1 パケット（古い順）だけ読む
+                m = parse(self.rx.recv(2048))
+                if m is not None:
+                    fresh, self.last_rx = True, m
             except BlockingIOError:
                 pass
             if fresh:
@@ -363,6 +388,9 @@ class FakeEsp:
             out[0] = MRDM_LEN
             out[8:11] = np.round(g_up * 100).astype(np.int16)
             out[11] = (0x6B << 8) | self.state | 0x04 | 0x08 | (3 << 4) | (3 << 6)  # 0x6B.. は int16 で正
+            self.grav_seq = getattr(self, "grav_seq", 0) + 1
+            out[gv.MRD_GRAV_SEQ] = self.grav_seq % 30000
+            out[gv.MRD_ECHO] = self.last_rx[gv.MRD_ECHO]          # 受信した値をそのまま返す（r→s のコピー）
             out[MRDM_LEN - 1] = checksum(out)
             self.tx.sendto(out.astype("<i2").tobytes(), self.pc)
             time.sleep(0.01)
@@ -383,7 +411,7 @@ def cmd_selftest(a) -> int:
     fake.start()
     with tempfile.TemporaryDirectory() as tmp:   # selftest の結果は実験記録に残さない
         ns = argparse.Namespace(esp_ip="127.0.0.1", yes=True, recv_port=pc_port, send_port=esp_port,
-                                phase_a=1.0, phase_b=1.6, phase_c=0.5, latency_ms=60, out_dir=tmp)
+                                phase_a=1.0, phase_b=1.6, phase_c=0.5, latency_ms=60, jitter_ms=30, out_dir=tmp)
         rc = cmd_wdg_test(ns)
     fake.stop()
     assert parse(limp_packet(123)) is not None
@@ -409,7 +437,9 @@ def main(argv=None) -> int:
     s.add_argument("--phase-a", type=float, default=3.0)
     s.add_argument("--phase-b", type=float, default=2.5)
     s.add_argument("--phase-c", type=float, default=1.0)
-    s.add_argument("--latency-ms", type=int, default=60, help="Wi-Fi の往復遅れとして許す幅")
+    s.add_argument("--latency-ms", type=int, default=120,
+                   help="番号が返ってこないとき（最後に送った時刻から測るとき）に許す遅れ")
+    s.add_argument("--jitter-ms", type=int, default=30, help="ESP32 が処理した時刻から測るときに許す Wi-Fi の揺らぎ")
     s.add_argument("--out-dir", default=None, help="省略時は experiments/real/<日付>_fw_check/")
     sub.add_parser("selftest")
     a = p.parse_args(argv)

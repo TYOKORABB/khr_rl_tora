@@ -15,7 +15,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC_REPO="${MERIDIAN_LITE_REPO:-$(cd "$HERE/../../.." && pwd)/Meridian_LITE}"
 BASE_COMMIT="85a62d16c576414f6265fd2da5b316f24e607995"   # s-kajita/Meridian_LITE "IMU eular angle bug fixed" 2026-04-21
-PATCH="$HERE/khr-getup.1.patch"
+PATCH="$HERE/khr-getup.2.patch"
 PIO="${PIO:-$HOME/.platformio/penv/bin/pio}"
 WORK="$HERE/_work"
 

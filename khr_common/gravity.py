@@ -1,6 +1,6 @@
 """IMU 信号 → base 座標の重力ベクトル（全姿勢で使える）。Genesis に依存しない（numpy のみ）。
 
-改造ファーム（real/firmware_patches/khr-getup.1.patch）は、BNO055 の融合推定の重力ベクトルを
+改造ファーム（real/firmware_patches/khr-getup.N.patch）は、BNO055 の融合推定の重力ベクトルを
 Meridim[8..10]（100 倍値、m/s^2、BNO055 の軸の付け替え後の座標）に、状態語を [11] に入れて送る。
 改造前のファームはこの 4 スロットに常に 0 を送っていたので、状態語の上位 8 bit（0x6B）で見分けられる。
 
@@ -27,6 +27,9 @@ import numpy as np
 MRD_GRAVITY = slice(8, 11)   # Meridim[8..10] 重力ベクトル（100 倍値）
 MRD_STATUS = 11              # 状態語
 MRD_EULER = slice(12, 15)    # 改造前からある Euler 角（roll, pitch, yaw の 100 倍値）
+MRD_GRAV_SEQ = 84            # 重力ベクトルの通し番号（下位 16 bit。khr-getup.2 から）
+MRD_IMU_US = 85              # IMU スレッド 1 周の読み取り時間 [us]（khr-getup.2 から）
+MRD_ECHO = 86                # PC が入れた値を ESP32 がそのまま返す空きスロット（往復遅れの測定に使う）
 STATUS_MAGIC = 0x6B
 WDG_STATES = ("DISARMED", "OK", "HOLD", "LIMP")
 
@@ -46,7 +49,7 @@ KNOWN_POSES: dict[str, tuple[float, float, float]] = {
 class FwStatus:
     patched: bool          # 改造ファームか（上位 8 bit が 0x6B）
     wdg_state: str         # 通信監視の状態
-    gravity_fresh: bool    # このフレームで重力ベクトルを読めたか
+    gravity_fresh: bool    # 前のフレームから新しい重力ベクトルが届いたか（khr-getup.1 では「このフレームに 0 でない値を読めたか」）
     wdg_enabled: bool      # 通信監視が有効か
     accel_calib: int       # BNO055 の加速度センサのキャリブレーション状態（0〜3）
     sys_calib: int         # BNO055 の融合のキャリブレーション状態（0〜3）
