@@ -11,6 +11,8 @@
 | `tools/check_height_est.py` | h_est を初期状態バンクの落ち着いた状態で確かめる |
 | `tools/check_success.py` | 学習済みの方策で、成功判定のどの条件が満たされないかを調べる（決定的・探索のゆらぎつき・行動 0 の 3 通り、GPU） |
 | `tools/dr_factor_eval.py` | 個体差（摩擦・質量・重心・0 点のずれ・IMU）と観測ノイズを 1 つずつ入れて成功率を測る。エピソードを延ばし、8 秒以内と延ばした時間以内を同時に（GPU、1 方策 約 2.5 分） |
+| `tools/hold_analysis.py` | 立った後の揺れと移動（目標角の毎歩の変化・関節速度の周波数・胴体と手足の移動・接地の付け外し）。目標角を固定する条件と比べ、原因が方策か物理かを分ける（CPU 可、`--cpu`） |
+| `tools/hold_video.py` | 同じ状態・同じ個体差で「方策のまま」と「途中から目標角を固定」を並べた動画（後半は 1/5 の速さ）を `media/videos/getup/hold_compare_*.mp4` に（GPU） |
 | `tools/sat_breakdown.py` | トルクが 100 % に達した瞬間のずれを、制限の部分・観測ノイズ・遅れのあいだの関節の動きに分ける（GPU、約 1 分） |
 | `gen_init_states.py` | 初期状態バンク（`data/banks/*.pt` と `MANIFEST.json`、コミットする） |
 | `envs/getup_env1.py` | getup-v1 の環境。版ごとに複製し、学習に使った版は書き換えない |
@@ -40,6 +42,9 @@ getup/jobs/train_eval.sh getup1-s2 2 1500                              # 学習 
 getup/jobs/train_eval.sh --wait getup2-s1 1 1500 train_getup2          # v2 を、GPU が空くまで待ってから
 getup/jobs/run_queue.sh getup/jobs/queue_v1v2_seeds.txt                # キューを 1 本ずつ
 python -m getup.tools.dr_factor_eval -e getup2-s1 --level 2            # 個体差の要素ごとの成功率（GPU、方策ごとに 1 回）
+python -m getup.tools.dr_factor_eval -e getup2-s1 --cpu -n 256 --conds dr nominal --gap 0.03 --tag _gap0.03   # 制限の幅だけ変えて評価（CPU）
+python -m getup.tools.hold_analysis -e getup2-s1 --cpu -n 64          # 立った後の揺れと移動（CPU、約 2 分）
+python -m getup.tools.hold_video -e getup2-s1                         # 揺れの比較動画（GPU、約 1.5 分）
 python -m getup.tools.sat_breakdown -e getup2-s1 --level 2             # トルク 100 % の内訳（GPU）
 python -m getup.tools.check_success -e getup1-s1 --ckpt 1499           # 成功判定の内訳（GPU）
 ```
