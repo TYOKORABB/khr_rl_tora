@@ -7,7 +7,7 @@
 
 | 場所 | 中身 |
 |---|---|
-| [`docs/`](docs/) | 文書。**開発日誌 `DevelopmentDiary.md`（いちばんの記録）**、起き上がりの計画書 `GetUpSim2RealPlan.md`、研究方針 `ResearchPlan.md`、報酬の説明 `RewardReference.md`、実機の手順書 `RealRobotVerification.md` |
+| [`docs/`](docs/) | 文書。**開発日誌 `DevelopmentDiary_v2.md`（再構築版。まずこれ）** と旧版 `DevelopmentDiary.md`（当時の一次記録）、起き上がりの計画書 `GetUpSim2RealPlan.md`、研究方針 `ResearchPlan.md`、報酬の説明 `RewardReference.md`、実機の手順書 `RealRobotVerification.md` |
 | [`quad/`](quad/) | **四脚歩行（シミュ）**。v16〜v31 の環境・学習・録画・測定と、URDF の可動域バグを是正して測り直す道具。v1〜v15 は `quad/archive_v1_v15/`、自動実行のシェルは `quad/jobs/`。中の地図は `quad/README.md` |
 | [`real/`](real/) | **実機**（Meridian 経由）。ファームの改造、画面なしの歩行の実行 `walk_session.py`、IMU の確認。機体の現状は `real/ROBOT_STATUS.md` |
 | [`sysid/`](sysid/) | 実機の記録と学習環境の突き合わせ（ずれの原因探し・区間の再生） |
