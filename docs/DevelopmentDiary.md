@@ -2636,8 +2636,16 @@ HOLD 196〜207 ms・LIMP 1198〜1220 ms と設計どおりになった。
 実機側ファイル（`Meridian_consoleS_quad.py` / `khr_quad_env_no_gs.py`）は**まだバージョン管理外**。
 fork 元 `s-kajita/Meridian_consoleS` には push しないため、
 管理方針（`khr_rl_tora` 配下へ移す等）の決定が必要。
-（2026-10-14 追記: v31 は、本リポジトリの `real/walk_session.py`（コンソールを使わない画面なしの実行ツール）で実機に載せた。
-コンソール側の 2 ファイルは、梶田先生の了承を得るまでリポジトリに入れない方針のまま）
+（2026-10-14 追記: v31 は、本リポジトリの `real/walk_session.py`（コンソールを使わない画面なしの実行ツール）で実機に載せた。）
+
+**（2026-10-14 解決）** 教授から「フォークは自由にしてよい」と了承を得て、作業場の各リポジトリを自分の GitHub で管理するようにした。
+- コンソール: [TYOKORABB/Meridian_consoleS](https://github.com/TYOKORABB/Meridian_consoleS) のブランチ `khr-quad` に、
+  四脚用のデプロイヤ 3 本（`Meridian_consoleS_quad.py`・`_quad_v31.py`・`khr_quad_env_no_gs.py`）と `Meridian_consoleS.py` の 2 行の変更をコミットした。
+- Genesis: [TYOKORABB/Genesis](https://github.com/TYOKORABB/Genesis) のブランチ `khr-v0.4.6` に、全実験で使った `04cf3b44` を残した
+  （梶田先生のフォークの履歴が書き換わり、GitHub 上から消えていた。中身は公式 v0.4.6 + 例ファイル 1 本）。
+- ファーム: [TYOKORABB/Meridian_LITE](https://github.com/TYOKORABB/Meridian_LITE) のブランチ `khr-getup.4` = 実機に書き込んでいる版。
+- 作業場全体の設計図（使っている版の一覧、Python の環境の作り方、PC の構成）: [TYOKORABB/khr-workspace](https://github.com/TYOKORABB/khr-workspace)。
+- URDF とメッシュ（s-kajita/khr3hv、非公開）は扱わない。作業 PC のクローンでは s-kajita への push を無効にし、自分のフォークを `tora` として足した。
 
 ### 7.4 卒業論文に向けて
 
@@ -2694,8 +2702,9 @@ fork 元 `s-kajita/Meridian_consoleS` には push しないため、
 | `experiments/khr-quadruped*/` | 各版の research record（report.md / metrics.csv / videos.md）。地図は `experiments/README.md` |
 | `biped/` / `go2_reference/` | 先輩の二足歩行の土台（`khr_env.py`・`khr_train.py`・`pd_test.py`・Eureka）／Genesis の Go2 の例（参考） |
 | `media/` | トルクの図（`torque_plots/`）と歩行の動画（`videos/`・`記録mp4/`、動画は git 管理外） |
-| `Meridian_consoleS/Meridian_consoleS_quad.py` | 実機デプロイ（22 関節、**未コミット・要管理方針**。v31 は `real/walk_session.py` で動かした） |
-| `Meridian_consoleS/khr_quad_env_no_gs.py` | 実機用の Genesis 非依存アダプタ（**同上**） |
+| `Meridian_consoleS/Meridian_consoleS_quad.py` | 実機デプロイ（22 関節。TYOKORABB/Meridian_consoleS の `khr-quad` で管理、§7.3。v31 は `real/walk_session.py` で動かした） |
+| `Meridian_consoleS/khr_quad_env_no_gs.py` | 実機用の Genesis 非依存アダプタ（同上） |
+| 作業場の設計図 | [TYOKORABB/khr-workspace](https://github.com/TYOKORABB/khr-workspace)（使っているリポジトリと版、Python の環境の作り方、PC の構成） |
 | `khr_common/` | シミュと実機で共用する Genesis 非依存のコード（関節の対応 `joint_map.py`、重力 `gravity.py`、行動の後処理 `action_post.py`、胴体の高さ `height_est.py`、パス `paths.py`。`paths.py` を import すると `quad/` のモジュールを名前で読める） |
 | `real/firmware_patches/` | ESP32 ファームの改造パッチ（`khr-getup.2.patch`）・ビルド（`build_fw.sh`）・バックアップつき書き込み（`flash_with_backup.py`） |
 | `real/fw_check.py` | 改造ファームの確認（状態の表示・IMU の 6 姿勢・通信監視の試験）。脱力の指令しか送らない |

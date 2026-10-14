@@ -20,6 +20,8 @@
 | `logs/` | 学習の成果物（チェックポイント・TensorBoard。git 管理外） |
 | `CLAUDE.md` | Claude Code 向けの案内 |
 
+**作業場全体**（Genesis・Meridian のフォーク、Python の環境の作り方、PC の構成）は [TYOKORABB/khr-workspace](https://github.com/TYOKORABB/khr-workspace) にまとめてある。
+
 ## 実行のしかた
 
 **いつもリポジトリのルート（このディレクトリ）から実行する。** URDF を `../assets/...` と作業ディレクトリ基準で読むため。

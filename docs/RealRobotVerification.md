@@ -80,6 +80,7 @@
 
 > `exp_name` の変更は `Meridian_consoleS_quad.py:1623` の 1 行。ただしこのファイルは
 > 現在バージョン管理外（§9）。編集方針を決めてから触るのが安全。
+> （2026-10-14: TYOKORABB/Meridian_consoleS のブランチ `khr-quad` で管理するようにした。開発日誌 §7.3）
 
 ---
 
@@ -322,6 +323,7 @@ sim2real ギャップで劣化しうるが、傾向の目安になる。
    `khr_quad_env_no_gs.py` は fork 元 `s-kajita/Meridian_consoleS` のリポジトリ内にあり
    **未コミット**。s-kajita へは push しない方針のため、(a) `khr_rl_tora` 配下へ移す、
    (b) Meridian_consoleS を fork、(c) 現状維持、のいずれかを決める必要がある。
+   → **2026-10-14 に (b) で解決**（TYOKORABB/Meridian_consoleS のブランチ `khr-quad`。2 の 2 行の変更も同じコミットに入れた）。
 2. **元 `Meridian_consoleS.py` の未コミット編集**: 二足版の `log_dir`/`exp_name` が
    書き換わっている（四足は別ファイルなので実機動作には影響しないが、混乱回避のため
    元に戻すか判断する）。

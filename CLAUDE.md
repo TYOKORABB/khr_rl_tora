@@ -36,6 +36,13 @@ Always run from the repo root (`cd khr_rl_tora`): URDFs are read as `../assets/.
 so run scripts as `python quad/khr_train_quad31.py`, not from inside `quad/`. Importing `khr_common.paths` puts `quad/`
 (and the v1–v15 archive) on `sys.path`, which is how `real/`, `sysid/`, `getup/` load `khr_quad_env21` etc.
 
+## Sibling repos and push rules (2026-10-14)
+
+The workspace map (repos, exact versions, Python setup, PC specs) is `TYOKORABB/khr-workspace` (`../khr-workspace/`).
+`../Genesis`, `../Meridian_LITE`, `../Meridian_consoleS` are forked to TYOKORABB: their `origin` (s-kajita) push URL is disabled
+and the fork is the remote `tora` (branches `khr-v0.4.6`, `khr-getup.4`, `khr-quad`). Push only to TYOKORABB repos; never to s-kajita.
+`../assets` (s-kajita/khr3hv, private) is not uploaded anywhere.
+
 ## Environment & prerequisites
 
 - **Training needs a CUDA GPU machine.** The training scripts call `gs.init(backend=gs.gpu)`. The
