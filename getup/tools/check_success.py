@@ -35,11 +35,13 @@ def main() -> int:
     from rsl_rl.runners import OnPolicyRunner
 
     gs.init(backend=gs.gpu, precision="32", logging_level="warning", seed=a.seed, performance_mode=True)
-    from getup.envs.getup_env1 import GetupEnv
+    import importlib
+
     from khr_common.joint_map import JOINT_NAMES
 
     log = LOG_ROOT / a.exp_name
     env_cfg, obs_cfg, reward_cfg, train_cfg = pickle.load(open(log / "cfgs.pkl", "rb"))
+    GetupEnv = importlib.import_module(env_cfg.get("env_module", "getup.envs.getup_env1")).GetupEnv   # v2 から cfgs.pkl に入る
     B = a.num_envs
     env = GetupEnv(B, env_cfg, obs_cfg, reward_cfg, level=a.level)
     runner = OnPolicyRunner(env, train_cfg, None, device=gs.device)

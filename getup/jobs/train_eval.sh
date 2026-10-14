@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # 起き上がりの学習 → 検証（成功率・トルク・動画）を続けて行う。検証では毎回動画を撮る（2026-10-14 のユーザーの指示）。
 #
-#   getup/jobs/train_eval.sh <exp> [seed] [iter]          例: getup/jobs/train_eval.sh getup1-s1 1 1500
-#   getup/jobs/train_eval.sh --eval-only <exp> [ckpt]      検証（と動画）だけやり直す
+#   getup/jobs/train_eval.sh [--wait] <exp> [seed] [iter] [学習の版]   例: getup/jobs/train_eval.sh getup1-s1 1 1500
+#   getup/jobs/train_eval.sh --wait getup2-s1 1 1500 train_getup2        GPU が空くまで待ってから v2 を学習 → 検証
+#   getup/jobs/train_eval.sh --eval-only <exp> [ckpt]                    検証（と動画）だけやり直す
 #
-# - 学習: python -m getup.train_getup1（4096 体）。logs/<exp>/ に既にチェックポイントがあれば止まる（学習は logs/<exp>/ を消して作り直すため）。
+# - 学習: python -m getup.<学習の版>（既定 train_getup1、4096 体）。logs/<exp>/ に既にチェックポイントがあれば止まる（学習は logs/<exp>/ を消して作り直すため）。
 # - 検証: python -m getup.eval_getup（評価バンクの全状態・個体差あり＋公称・段階ごとに動画 6 エピソード）。
 #   結果 experiments/getup/eval/<exp>_<ckpt>.json、動画 media/videos/getup/<exp>_<ckpt>_<段階>.mp4。
 # - GPU: ユーザーの whisper 解析（asmr.one）が走っているとき、次の開始までに終わらないときは始めない。
+#   --wait をつけると、条件を満たすまで 2 分ごとに確かめて待つ（最大 24 時間）。
 # - ログ: logs/getup_jobs/<exp>.{train,eval}.log
 set -u
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"; cd "$REPO" || exit 1
@@ -30,12 +32,21 @@ minutes_until_busy() {
   done
   echo "$best"
 }
-gpu_check() {   # $1 = 必要な分数
+gpu_free() {   # $1 = 必要な分数。空いていれば 0、理由は $WHY
   local mub; mub=$(minutes_until_busy)
-  if (( mub < $1 )); then echo "[abort] GPU の空きが ${mub} 分（必要 $1 分）。whisper 解析: $HEAVY_SCHEDULE"; exit 1; fi
+  if (( mub < $1 )); then WHY="GPU の空きが ${mub} 分（必要 $1 分）。whisper 解析: $HEAVY_SCHEDULE"; return 1; fi
   if ps -eo cmd --no-headers | grep -E "python[0-9.]* +(-m +getup\.(train|eval)|(quad/)?(khr_train_quad|train_with_urdf_fix|eval_with_urdf_fix|khr_quad_eval))" | grep -qv grep; then
-    echo "[abort] 別の学習・測定が走っている"; exit 1
+    WHY="別の学習・測定が走っている"; return 1
   fi
+  return 0
+}
+gpu_check() {   # $1 = 必要な分数。WAIT=1 なら空くまで待つ
+  local until_t=$(( $(date +%s) + 24 * 3600 )) said=0
+  while ! gpu_free "$1"; do
+    if [ "${WAIT:-0}" != 1 ] || (( $(date +%s) > until_t )); then echo "[abort] $WHY"; exit 1; fi
+    (( said == 0 )) && { echo "[wait ] $(date '+%F %T') $WHY → 空くまで待つ"; said=1; }
+    sleep 120
+  done
 }
 run_eval() {   # $1 = exp, $2 = ckpt（省略で最後）
   local ck=(); [ -n "${2:-}" ] && ck=(--ckpt "$2")
@@ -47,18 +58,21 @@ run_eval() {   # $1 = exp, $2 = ckpt（省略で最後）
   return $rc
 }
 
+WAIT=0
+if [ "${1:-}" = "--wait" ]; then WAIT=1; shift; fi
 if [ "${1:-}" = "--eval-only" ]; then
   [ -n "${2:-}" ] || { echo "使い方: $0 --eval-only <exp> [ckpt]"; exit 2; }
   gpu_check 20; run_eval "$2" "${3:-}"; exit $?
 fi
-EXP="${1:?使い方: $0 <exp> [seed] [iter]}"; SEED="${2:-1}"; IT="${3:-1500}"
+EXP="${1:?使い方: $0 [--wait] <exp> [seed] [iter] [学習の版]}"; SEED="${2:-1}"; IT="${3:-1500}"; TRAIN="${4:-train_getup1}"
+[ -f "getup/$TRAIN.py" ] || { echo "[error] getup/$TRAIN.py が無い"; exit 2; }
 if ls "logs/$EXP"/model_*.pt >/dev/null 2>&1; then
   echo "[abort] logs/$EXP/ に既にチェックポイントがある（学習は消して作り直すので止めた）。別の名前にするか、手で退避してから"; exit 1
 fi
 # 必要な時間: 学習（L0 で 54.7 iter/分の実測。接触の多い L1・L2 で遅くなるとみて 40 iter/分）＋ 検証 20 分
 gpu_check $(( IT / 40 + 20 ))
-echo "[train] $(date '+%F %T') $EXP（seed $SEED、$IT iter）"
-"$PY" -m getup.train_getup1 -e "$EXP" -B 4096 -I "$IT" --seed "$SEED" >"$LOGDIR/$EXP.train.log" 2>&1 || {
+echo "[train] $(date '+%F %T') $EXP（$TRAIN、seed $SEED、$IT iter）"
+"$PY" -m "getup.$TRAIN" -e "$EXP" -B 4096 -I "$IT" --seed "$SEED" >"$LOGDIR/$EXP.train.log" 2>&1 || {
   echo "[error] 学習に失敗: $LOGDIR/$EXP.train.log"; tail -5 "$LOGDIR/$EXP.train.log"; exit 1; }
 grep "\[curriculum\]" "$LOGDIR/$EXP.train.log"
 echo "[train] $(date '+%F %T') 完了"

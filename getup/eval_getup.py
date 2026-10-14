@@ -83,7 +83,9 @@ def main() -> int:
     B = min(4096, max(sizes))
 
     gs.init(backend=gs.gpu, precision="32", logging_level="warning", seed=a.seed, performance_mode=True)
-    from getup.envs.getup_env1 import GetupEnv
+    import importlib
+    # 環境の版は cfgs.pkl の env_cfg["env_module"]（v2 から）。無ければ v1
+    GetupEnv = importlib.import_module(env_cfg.get("env_module", "getup.envs.getup_env1")).GetupEnv
     from khr_common.joint_map import JOINT_NAMES
 
     env = GetupEnv(B, env_cfg, obs_cfg, reward_cfg, eval_mode=True, level=levels[0], camera_res=tuple(a.res))
