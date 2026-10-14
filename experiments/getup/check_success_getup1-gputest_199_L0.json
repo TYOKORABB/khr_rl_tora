@@ -1,0 +1,78 @@
+{
+ "exp": "getup1-gputest",
+ "ckpt": 199,
+ "level": "L0",
+ "num_envs": 1024,
+ "seed": 0,
+ "action_std_mean": 0.2953,
+ "success_cfg": {
+  "u_min": 0.966,
+  "delta_rad": 0.3,
+  "omega_max": 0.5,
+  "h_thr": 0.175,
+  "hold_s": 1.0
+ },
+ "skip_s": 2.0,
+ "modes": {
+  "policy": {
+   "time_frac": {
+    "u": 0.797,
+    "pose": 0.797,
+    "omega": 0.821,
+    "h": 0.797,
+    "no_contact": 0.797,
+    "all": 0.675
+   },
+   "ep_success": 0.329,
+   "hold_max_median_steps": 23,
+   "hold_needed_steps": 50,
+   "joints_off_time_frac": {
+    "r_ankle_pitch": 0.117,
+    "r_elbow_pitch": 0.093,
+    "l_ankle_pitch": 0.087,
+    "c_chest_yaw": 0.047,
+    "r_elbow_yaw": 0.035
+   }
+  },
+  "stochastic": {
+   "time_frac": {
+    "u": 0.776,
+    "pose": 0.776,
+    "omega": 0.574,
+    "h": 0.776,
+    "no_contact": 0.782,
+    "all": 0.474
+   },
+   "ep_success": 0.0,
+   "hold_max_median_steps": 10,
+   "hold_needed_steps": 50,
+   "joints_off_time_frac": {
+    "c_chest_yaw": 0.202,
+    "r_elbow_yaw": 0.158,
+    "r_ankle_pitch": 0.155,
+    "r_shoulder_pitch": 0.127,
+    "r_knee_pitch": 0.093
+   }
+  },
+  "zero": {
+   "time_frac": {
+    "u": 0.793,
+    "pose": 0.999,
+    "omega": 1.0,
+    "h": 0.793,
+    "no_contact": 0.793,
+    "all": 0.792
+   },
+   "ep_success": 0.792,
+   "hold_max_median_steps": 389,
+   "hold_needed_steps": 50,
+   "joints_off_time_frac": {
+    "l_hip_yaw": 0.001,
+    "r_hip_yaw": 0.001,
+    "r_ankle_roll": 0.0,
+    "r_ankle_pitch": 0.0,
+    "c_head_yaw": 0.0
+   }
+  }
+ }
+}
