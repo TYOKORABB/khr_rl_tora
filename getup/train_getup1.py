@@ -3,6 +3,7 @@
   python -m getup.train_getup1 -e getup1-s1 -B 4096 -I 1500 --seed 1          # GPU（スクリーニング 1500 iter）
   python -m getup.train_getup1 -e getup1-smoke -B 32 -I 2 --cpu --bank getup/data/banks/bank_test.pt   # 動作確認（CPU）
 
+学習のあとの検証（成功率・トルク・動画）は getup.eval_getup。学習から検証までまとめて回すなら getup/jobs/train_eval.sh。
 成果物は logs/<exp>/（cfgs.pkl・model_*.pt・run_info.json・code_state/）。**同じ exp 名の logs/<exp>/ は消して作り直す**（歩行の学習と同じ）。
 GPU は四脚歩行の再学習キュー（cron の run_retrain_fixurdf.sh）と重ねない（キューは python -m getup... を自分のジョブと認識しない、計画書 §8.1）。
 """
@@ -36,8 +37,11 @@ def get_cfgs():
         "action": {"margin": 0.03, "s_max": 1.2, "delta": 0.06},  # §4.3.2（Δ = 3 rad/s）
         "simulate_action_latency": True,
         "bank": "getup/data/banks/bank_v1.pt",
+        # 昇格の合格は「最後の 1 秒、角速度以外の §3.2 の条件で立っている」（end_hold）。§3.2 の成功で数えると、学習中は
+        # 探索のゆらぎで角速度の条件を満たせず 0 のまま昇格しない（2026-10-14 の GPU の小試験、getup/DIARY.md）
         "curriculum": {"levels": ["L0", "L1", "L2"], "u0_min": {"L1": 0.9, "L2": 0.5}, "mix": (0.15, 0.15),
-                       "promote_rate": 0.75, "promote_window": 2000, "promote_min_iters": 200, "steps_per_iter": 24},
+                       "promote_rate": 0.75, "promote_window": 2000, "promote_min_iters": 200, "steps_per_iter": 24,
+                       "promote_on": "end_hold", "promote_hold_s": 1.0},
         "dr": {"friction_ratio": (0.6, 1.4), "mass_kg": (-0.08, 0.08), "com_m": (-0.01, 0.01), "trim_rad": (-0.02, 0.02),
                "imu_deg": 3.0},
         "success": {"u_min": 0.966, "delta_rad": 0.3, "omega_max": 0.5, "h_thr": 0.175, "hold_s": 1.0},   # §3.2
@@ -129,6 +133,7 @@ def main() -> int:
     sec = time.time() - t0
     info["finished_at"] = dt.datetime.now().isoformat(timespec="seconds")
     info["final_level"] = env.env_cfg["curriculum"]["levels"][env.level]
+    info["promotions"] = [{"iter": it, "level": name} for it, name in env.promotions]
     # §4.2-5 の小試験で使う実測（反復と本数の計画をこれで決め直す）
     info["learn_seconds"] = round(sec, 1)
     info["iter_per_min"] = round(a.max_iterations / sec * 60, 2)

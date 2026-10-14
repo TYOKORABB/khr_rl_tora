@@ -4,8 +4,12 @@
 
 v1 の中身（計画書 §4.8）:
   - 初期状態: 初期状態バンク（gen_init_states.py）から。カリキュラム L0（公称姿勢の近傍 N）→ L1（u0 ≥ 0.9）→ L2（u0 ≥ 0.5）。
-    リセットごとに 15 % L0 ＋ 15 % 合格済みの段階 ＋ 70 % 今の段階。今の段階の直近 2000 エピソードの成功率 ≥ 0.75 かつ
+    リセットごとに 15 % L0 ＋ 15 % 合格済みの段階 ＋ 70 % 今の段階。今の段階の直近 2000 エピソードの合格率 ≥ 0.75 かつ
     前の昇格から 200 iter 以上で昇格（降格なし）。
+    合格の数え方は curriculum.promote_on で選ぶ（2026-10-14、本番の前に修正。getup/DIARY.md）:
+      "success"（既定・旧）: §3.2 の成功。学習中は探索のゆらぎで角速度の条件を満たせず、ほぼ 0 のまま昇格しない。
+      "end_hold": エピソードの最後の promote_hold_s 秒、角速度以外の §3.2 の条件（u・関節角・胴体高・端以外の接地なし）を
+                  満たし続けて立っている。§3.2 の成功の定義（評価と実機）は変えない。
   - 行動 22 次元 → khr_common.action_post（公称姿勢まわりの非対称な写像＋変化の速さの制限 0.06 rad/step＋可動域）。
     1 ステップ（20 ms）遅れて PD 目標になる。リセット時は前回の目標角と遅れのバッファを実測の関節角で初期化。
   - 観測（actor、184 次元。実機で得られる量だけ）:
@@ -71,8 +75,9 @@ def axis_angle_mat(axis: torch.Tensor, ang: torch.Tensor) -> torch.Tensor:
                         torch.stack([z * x * C - y * s, z * y * C + x * s, c + z * z * C], -1)], -2)
 
 
-def build_scene(n_envs: int, env_cfg: dict, show_viewer: bool = False):
-    """起き上がり用のシーン（バンクの生成と環境で共用）。戻り値 (scene, robot, ground, motors_dof_idx)。"""
+def build_scene(n_envs: int, env_cfg: dict, show_viewer: bool = False, before_build=None):
+    """起き上がり用のシーン（バンクの生成と環境で共用）。戻り値 (scene, robot, ground, motors_dof_idx)。
+    before_build(scene) は build の直前に呼ぶ（録画用のカメラを足すため。学習では使わない）。"""
     scene = gs.Scene(
         sim_options=gs.options.SimOptions(dt=0.02, substeps=2),
         rigid_options=gs.options.RigidOptions(enable_collision=True, enable_neutral_collision=True, enable_joint_limit=True,
@@ -86,6 +91,8 @@ def build_scene(n_envs: int, env_cfg: dict, show_viewer: bool = False):
                                             quat=tuple(env_cfg["base_init_quat"])))
     ground.set_friction(0.01)                       # 摩擦は機体側で決める（F12）
     robot.set_friction(env_cfg.get("friction", 0.5))
+    if before_build is not None:
+        before_build(scene)
     scene.build(n_envs=n_envs)
     motors = torch.tensor([robot.get_joint(n).dof_start for n in JOINT_NAMES], dtype=gs.tc_int, device=gs.device)
     robot.set_dofs_armature([env_cfg["armature"]] * len(JOINT_NAMES), motors)   # 22 関節だけ（浮遊ベースには足さない、F14）
@@ -96,7 +103,7 @@ def build_scene(n_envs: int, env_cfg: dict, show_viewer: bool = False):
 
 class GetupEnv:
     def __init__(self, num_envs: int, env_cfg: dict, obs_cfg: dict, reward_cfg: dict, show_viewer: bool = False,
-                 eval_mode: bool = False, level: int | None = None):
+                 eval_mode: bool = False, level: int | None = None, camera_res: tuple | None = None):
         self.num_envs = num_envs
         self.cfg = self.env_cfg = env_cfg
         self.obs_cfg, self.reward_cfg = obs_cfg, reward_cfg
@@ -105,7 +112,12 @@ class GetupEnv:
         self.num_actions = len(JOINT_NAMES)
         self.max_episode_length = int(round(env_cfg["episode_length_s"] / self.dt))
         self.eval_mode = eval_mode
-        self.scene, self.robot, self.ground, self.motors = build_scene(num_envs, env_cfg, show_viewer)
+        self.cam = None   # 録画用（camera_res を渡したときだけ。描くのは体 0）
+
+        def add_camera(scene):
+            self.cam = scene.add_camera(res=tuple(camera_res), pos=(0.8, -0.8, 0.45), lookat=(0.0, 0.0, 0.1), fov=40, GUI=False)
+        self.scene, self.robot, self.ground, self.motors = build_scene(num_envs, env_cfg, show_viewer,
+                                                                       before_build=add_camera if camera_res else None)
         r, B, n = self.robot, num_envs, self.num_actions
         f = lambda *s: torch.zeros(*s, dtype=gs.tc_float, device=self.device)
 
@@ -149,6 +161,12 @@ class GetupEnv:
         self.level = len(self.levels) - 1 if level is None and eval_mode else (level or 0)
         self.fixed_level = eval_mode or level is not None
         self.recent = deque(maxlen=cur["promote_window"])
+        self.promote_on = cur.get("promote_on", "success")
+        if self.promote_on not in ("success", "end_hold"):
+            raise ValueError(f"curriculum.promote_on が不明: {self.promote_on}")
+        self.promote_hold_n = int(round(cur.get("promote_hold_s", 1.0) / self.dt))
+        self.promotions = []                              # [(iter, 段階の名前)]
+        self._forced = None                               # force_reset() が次のリセットに渡す指定
         self.last_promote_iter = 0
         self.common_step_counter = 0
 
@@ -167,6 +185,9 @@ class GetupEnv:
         self.episode_length_buf = torch.zeros(B, dtype=torch.long, device=self.device)
         self.reset_buf = torch.ones(B, dtype=torch.bool, device=self.device)
         self.succ_hold = torch.zeros(B, dtype=torch.long, device=self.device)
+        self.stand_hold = torch.zeros(B, dtype=torch.long, device=self.device)   # 角速度以外の条件を続けて満たした歩数
+        self._promo_ok = torch.zeros(B, dtype=torch.bool, device=self.device)
+        self.ep_yaw = f(B)
         self.ep_success = torch.zeros(B, dtype=torch.bool, device=self.device)
         self.ep_level = torch.zeros(B, dtype=torch.long, device=self.device)
         self.ep_u0 = f(B)
@@ -266,6 +287,8 @@ class GetupEnv:
         err = err | bad
         self._success_now = self._success_instant()
         self.succ_hold = torch.where(self._success_now, self.succ_hold + 1, torch.zeros_like(self.succ_hold))
+        self.stand_hold = torch.where(self._standing_now, self.stand_hold + 1, torch.zeros_like(self.stand_hold))
+        self._promo_ok = (self.stand_hold >= self.promote_hold_n) & ~err   # 終わるエピソードの「最後に立っている」
         self.ep_success |= self.succ_hold >= int(round(self.env_cfg["success"]["hold_s"] / self.dt))
         self.ep_hmax = torch.maximum(self.ep_hmax, torch.nan_to_num(self.h_base))
 
@@ -289,10 +312,12 @@ class GetupEnv:
         return self.get_observations(), self.rew_buf, self.reset_buf, self.extras
 
     def _success_instant(self) -> torch.Tensor:
+        """§3.2 の条件（その瞬間）。角速度を除いた条件は self._standing_now に残す（昇格の判定 end_hold 用）。"""
         s = self.env_cfg["success"]
         non_end = (self.floor_contact & self.non_end_mask).any(1)
-        return ((self.u > s["u_min"]) & ((self.q - self.q_nom).abs() < s["delta_rad"]).all(1) &
-                (self.base_ang_vel.norm(dim=1) < s["omega_max"]) & (self.h_base >= s["h_thr"]) & ~non_end)
+        self._standing_now = ((self.u > s["u_min"]) & ((self.q - self.q_nom).abs() < s["delta_rad"]).all(1) &
+                              (self.h_base >= s["h_thr"]) & ~non_end)
+        return self._standing_now & (self.base_ang_vel.norm(dim=1) < s["omega_max"])
 
     # ---- リセット -----------------------------------------------------------------------------------
     def _sample_bank(self, k: int) -> torch.Tensor:
@@ -318,26 +343,31 @@ class GetupEnv:
         k = len(ids)
         # 終わったエピソードの記録（昇格の判定と TensorBoard）
         if self.common_step_counter > 0:
-            done_lv, done_ok = self.ep_level[ids], self.ep_success[ids]
-            for L, ok in zip(done_lv.tolist(), done_ok.tolist()):
+            done_lv, done_ok, done_stand = self.ep_level[ids], self.ep_success[ids], self._promo_ok[ids]
+            promo = done_stand if self.promote_on == "end_hold" else done_ok
+            for L, ok in zip(done_lv.tolist(), promo.tolist()):
                 if L == self.level:
                     self.recent.append(ok)
             ep = self.extras["episode"]
             for name in self.episode_sums:
                 ep["rew_" + name] = self.episode_sums[name][ids].mean() / self.env_cfg["episode_length_s"]
             ep["success_rate"] = done_ok.float().mean()
+            ep["stand_end_rate"] = done_stand.float().mean()   # 最後の promote_hold_s 秒、立っていた（角速度は問わない）
             if (done_lv == self.level).any():   # NaN を入れると rsl-rl の平均が NaN になるので、あるときだけ
                 ep["success_rate_current_level"] = done_ok[done_lv == self.level].float().mean()
+                ep["stand_end_rate_current_level"] = done_stand[done_lv == self.level].float().mean()
             ep["level"] = torch.tensor(float(self.level))
             ep["sim_error_resets"] = torch.tensor(float(self._sim_error_count) / self.num_envs)
             ep["u0_mean"] = self.ep_u0[ids].mean()
             ep["h_base_max_mean"] = self.ep_hmax[ids].mean()
             ep["contacts_max"] = self.contacts_max.to(gs.tc_float)
             self._maybe_promote()
-        bi, lv = self._sample_bank(k)
+        fz, self._forced = self._forced, None
+        bi, lv = (fz["idx"], fz["level"]) if fz is not None else self._sample_bank(k)
         b = self.bank
         # ヨーはランダムに回す（床の上の向きは物理に関係ない）
-        yaw = torch.rand(k, device=self.device) * 2 * math.pi
+        yaw = fz["yaw"] if fz is not None and "yaw" in fz else torch.rand(k, device=self.device) * 2 * math.pi
+        self.ep_yaw[ids] = yaw
         qy = torch.stack([torch.cos(yaw / 2), torch.zeros_like(yaw), torch.zeros_like(yaw), torch.sin(yaw / 2)], -1)
         quat = quat_mul(qy, b["quat"][bi])
         pos = b["pos"][bi].clone()
@@ -349,19 +379,23 @@ class GetupEnv:
         r.set_dofs_velocity(torch.zeros(k, r.n_dofs, device=self.device, dtype=gs.tc_float), envs_idx=ids)
         self.ep_level[ids] = lv
         self.ep_u0[ids] = b["u0"][bi]
-        # 個体差
+        # 個体差（keep: 評価の再生（録画）で、測ったときと同じ個体差を使う。force_reset の dr_state）
         dr = self.env_cfg["dr"]
         rnd = lambda lo_hi, *s: torch.rand(*s, device=self.device, dtype=gs.tc_float) * (lo_hi[1] - lo_hi[0]) + lo_hi[0]
-        self.friction_ratio[ids] = rnd(dr["friction_ratio"], k, 1)
+        keep = fz.get("dr_state") if fz is not None else None
+        self.friction_ratio[ids] = keep["friction_ratio"] if keep is not None else rnd(dr["friction_ratio"], k, 1)
         r.set_friction_ratio(self.friction_ratio[ids].repeat(1, self.n_links), range(self.n_links), ids)
-        self.mass_shift[ids] = rnd(dr["mass_kg"], k, 1)
+        self.mass_shift[ids] = keep["mass_shift"] if keep is not None else rnd(dr["mass_kg"], k, 1)
         r.set_mass_shift(self.mass_shift[ids], [0], ids)
-        self.com_shift[ids] = rnd(dr["com_m"], k, 3)
+        self.com_shift[ids] = keep["com_shift"] if keep is not None else rnd(dr["com_m"], k, 3)
         r.set_COM_shift(self.com_shift[ids].unsqueeze(1), [0], ids)
-        self.trim[ids] = rnd(dr["trim_rad"], k, self.num_actions)
-        ax = torch.randn(k, 3, device=self.device, dtype=gs.tc_float)
-        ax = ax / ax.norm(dim=1, keepdim=True)
-        self.R_imu[ids] = axis_angle_mat(ax, rnd((0.0, math.radians(dr["imu_deg"])), k))
+        self.trim[ids] = keep["trim"] if keep is not None else rnd(dr["trim_rad"], k, self.num_actions)
+        if keep is not None:
+            self.R_imu[ids] = keep["R_imu"]
+        else:
+            ax = torch.randn(k, 3, device=self.device, dtype=gs.tc_float)
+            ax = ax / ax.norm(dim=1, keepdim=True)
+            self.R_imu[ids] = axis_angle_mat(ax, rnd((0.0, math.radians(dr["imu_deg"])), k))
         # 状態を読み直し、前回の目標角・遅れのバッファ・履歴を実測から作る（公称姿勢からの跳びを防ぐ）
         self._read_state()
         q_meas = (self.q - self.trim)[ids]
@@ -375,6 +409,8 @@ class GetupEnv:
         self.hist[ids] = frame.unsqueeze(1).repeat(1, self.obs_cfg["history"], 1)
         self.episode_length_buf[ids] = 0
         self.succ_hold[ids] = 0
+        self.stand_hold[ids] = 0
+        self._promo_ok[ids] = False
         self.ep_success[ids] = False
         self.ep_hmax[ids] = self.h_base[ids]
         for name in self.episode_sums:
@@ -390,7 +426,35 @@ class GetupEnv:
             self.level += 1
             self.last_promote_iter = it
             self.recent.clear()
+            self.promotions.append((it, cur["levels"][self.level]))
             print(f"[curriculum] iter {it}: 段階 {cur['levels'][self.level]} へ昇格", flush=True)
+
+    def force_reset(self, bank_idx: torch.Tensor, level: int | torch.Tensor, yaw: torch.Tensor | None = None,
+                    dr_state: dict | None = None):
+        """全体を指定の初期状態からやり直す（評価・録画用）。bank_idx は体の数と同じ長さ。
+        dr_state（dr_snapshot() の戻り値）を渡すと、個体差をその値にする（測ったときの再生）。"""
+        B = self.num_envs
+        if len(bank_idx) != B:
+            raise ValueError(f"bank_idx の長さ {len(bank_idx)} が体の数 {B} と違う")
+        lv = level if torch.is_tensor(level) else torch.full((B,), int(level), dtype=torch.long, device=self.device)
+        fz = {"idx": bank_idx.to(self.device), "level": lv.to(self.device)}
+        if yaw is not None:
+            fz["yaw"] = yaw.to(self.device)
+        if dr_state is not None:
+            fz["dr_state"] = {k: dr_state[k].to(self.device) for k in ("friction_ratio", "mass_shift", "com_shift", "trim", "R_imu")}
+        self._forced = fz
+        self.common_step_counter, saved = 0, self.common_step_counter   # 終わっていないエピソードを記録しない
+        self._reset_idx(torch.ones(B, dtype=torch.bool, device=self.device))
+        self.common_step_counter = saved
+        w, gv, q_obs = self._sensed()
+        self._build_obs(w, gv, q_obs)
+        return self.get_observations()
+
+    def dr_snapshot(self) -> dict:
+        """いまの個体差（体ごと）の写し。force_reset(dr_state=...) で再現できる。"""
+        return {"friction_ratio": self.friction_ratio.clone(), "mass_shift": self.mass_shift.clone(),
+                "com_shift": self.com_shift.clone(), "trim": self.trim.clone(), "R_imu": self.R_imu.clone(),
+                "yaw": self.ep_yaw.clone()}
 
     def reset(self):
         self.common_step_counter = 0
