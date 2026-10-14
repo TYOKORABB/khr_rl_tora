@@ -1,0 +1,5 @@
+# getup-v1 と v2 を 3 seed ずつにそろえる（2026-10-14。v1 s1 と v2 s1 は個別に実行）
+getup1-s2 2 1500 train_getup1
+getup1-s3 3 1500 train_getup1
+getup2-s2 2 1500 train_getup2
+getup2-s3 3 1500 train_getup2
