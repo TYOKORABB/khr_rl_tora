@@ -78,8 +78,9 @@ CLI flags: `biped/khr_train.py` → `-e/--exp_name -B/--num_envs -I/--max_iterat
 
 Note: the training scripts **delete and recreate** `logs/<exp_name>/` on every run — copy out any
 checkpoints you want to keep before re-training with the same `exp_name`.
-Known breakage (pre-dates the 2026-10-14 move): `quad/khr_quad_eval.py` imports the archived v1 env and fails;
-`quad/khr_train_quad16–19.py` import archived envs and only run via `quad/train_with_urdf_fix.py`.
+Viewer replay: `python quad/khr_quad_eval.py -e <exp> --ckpt <n> --env <env module>` (any version; `--headless --steps N` to check without a window).
+New training scripts (quad v32+) must call `save_code_state(log_dir)` (`quad/run_record.py` → `khr_common/run_record.py`) right after
+creating `logs/<exp>/`; `getup/train_getup1.py` already does. Policies that ran on the robot are frozen in `real/policies/` (model, cfgs, SHA-256).
 
 ## Architecture (bipedal baseline, `biped/`)
 

@@ -238,8 +238,8 @@ tensorboard --logdir logs
   作り直す。残したい結果は別 exp 名にするか事前に退避する。
 - **録画スクリプトの世代対応**: 録画スクリプトは環境ごとに複製してある（v31 は `khr_quad_record21.py` = `khr_quad_env21`）。
   v1〜v15 の環境・学習・録画は 2026-10-06 に退避した（今は `quad/archive_v1_v15/`）。
-- **（2026-10-14 時点）ビューア再生の `quad/khr_quad_eval.py` は動かない**: v1 の環境 `khr_quad_env` を import するが、
-  そのファイルを退避先へ移したため `ModuleNotFoundError` になる。v31 の確認は録画（`khr_quad_record21.py`）か測定で行う。
+- **ビューア再生**: `python quad/khr_quad_eval.py -e khr-quadruped31-s2 --ckpt 3999 --env khr_quad_env21`（版に合わせて `--env` を選ぶ、§8.3）。
+  2026-10-06 の退避から起動できなくなっていたのを 10/14 に直した（§4.37.9）。
 - **`export DISPLAY=:1` が必須**: シェルで `DISPLAY` 未設定でも `/tmp/.X11-unix/X1` が
   存在するため、これを指定しないと録画が "No display" で失敗する。
 
@@ -2306,6 +2306,24 @@ cron のようにセッションの外で動く仕組みは止まらないが、
 - 確かめたこと: 学習（v31・ablation）・録画・測定・URDF 是正の道具・v1〜v15 の読み込み・実機（walk_session・walk_analyze）・
   sysid・起き上がり・二足・Go2 が、すべて起動まで通る。ノイズ床と報酬リファレンスを作り直すと、移動前と同じ内容になる（日時だけ違う）。
 
+
+#### 4.37.9 研究の基盤の手入れ（2026-10-14 夕方）
+
+- **実行環境を自分の GitHub で管理**（§7.3）: Genesis・Meridian_LITE・Meridian_consoleS をフォークし、作業場の設計図
+  [TYOKORABB/khr-workspace](https://github.com/TYOKORABB/khr-workspace) を新規に作った。**全実験で使った Genesis のコミット `04cf3b44` は、
+  梶田先生のフォークの履歴が書き換わって GitHub 上から消えていた**ので、自分のフォークのブランチ `khr-v0.4.6` に残した。
+- **Google Drive へのバックアップ**: `logs/`（8.5 GB）・実機の生データ・動画を `研究/khr_backup/` へ（rclone、`khr-workspace/backup/backup_to_drive.sh`。
+  `rclone copy` なので Drive 側は消さない。何度実行してもよい）。assets とファームの書き込み前のバックアップ（Wi-Fi の情報を含む）は送らない。
+- **実機に載せた方策の凍結**: `real/policies/khr-quadruped31-s2_ckpt3999/`（モデル・設定・SHA-256・由来）。`walk_session` は `logs/` に無ければここを読み、
+  読んだ方策の出力は元と完全に一致した。
+- **学習時のコードの記録**: これまでの学習記録 177 本中 173 本が「未コミットの変更あり」で学習しており、どのコードで学習したかを厳密に再現できない。
+  rsl-rl の仕組み（`add_git_repo_to_log`）は呼んでおらず、`logs/<exp>/git/` は空だった。しかも追跡中のファイルの差分しか残さない。
+  `khr_common/run_record.py` を作り、学習開始時にコミット・差分・未追跡のコードを `logs/<exp>/code_state/` に残す。起き上がりの学習は対応済み、
+  四脚の v32 以降は `quad/run_record.py` から呼ぶ（版のファイルは書き換えないので、v31 までには入れない）。
+- **節目のタグ**: v28・v30（URDF の是正）・v31 の採用・v31 の実機歩行・全版の再学習の完了・ファイル整理の直前、に注釈つきのタグを付けた。
+- **壊れていた道具**: `quad/khr_quad_eval.py`（v1 の環境を決め打ち → `--env` で選ぶ）、`khr_train_quad16〜19.py`・`khr_quad_record13〜15.py`
+  （v16〜v19 用の env13〜15 が v1〜v15 の退避先に入っていた → `quad/` へ戻した）。どれも直接起動できることを確かめた。
+
 ---
 
 ## 5. 全バージョン横断の実測比較
@@ -2689,11 +2707,13 @@ fork 元 `s-kajita/Meridian_consoleS` には push しないため、
 | `docs/` | 文書（この日誌、`GetUpSim2RealPlan.md`、`ResearchPlan.md`、`RewardReference.md`、`RealRobotVerification.md`） |
 | `quad/khr_quad_env16.py` … `khr_quad_env21.py` | 四足環境（v20〜v31。番号が上がるほど機能追加。対応は §8.3） |
 | `quad/khr_train_quad16.py` … `khr_train_quad31.py` | 学習スクリプト（設定のハードコード＋冒頭に版間 changelog）。`*_abl_*` は ablation、`27_p080` が v27 |
-| `quad/archive_v1_v15/`（`envs/`・`train/`・`record/`） | v1〜v15 の環境・学習・録画スクリプト（2026-10-06 に退避。内容は無変更） |
+| `quad/archive_v1_v15/`（`envs/`・`train/`・`record/`） | v1〜v15 の環境・学習・録画スクリプト（2026-10-06 に退避。内容は無変更。v16〜v19 用の env13〜15 は 10/14 に `quad/` へ戻した） |
+| `quad/run_record.py` / `khr_common/run_record.py` | 学習開始時のコードの状態（コミット・差分・未追跡のコード）を `logs/<exp>/code_state/` に残す（§4.37.9） |
+| `real/policies/` | 実機に載せた方策の凍結コピー（モデル・設定・SHA-256。`walk_session` は `logs/` に無ければここを読む） |
 | `quad/khr_quad_record16.py` … `khr_quad_record21.py` / `khr_quad_record_seeds.py` | MP4 録画（番号は環境の番号。v31 は `record21`）／seed を並べた比較動画 |
 | `quad/khr_quad_report.py` | `experiments/<exp>/` に report.md + metrics.csv を自動生成 |
 | `quad/khr_quad_eval_metrics.py` / `khr_quad_eval_symmetry.py` / `khr_quad_compare.py` | 測定プロトコル固定の定量評価（凍結）／後脚の左右対称性と接地の質／ノイズ床に対する 2σ 判定の表 |
-| `quad/khr_quad_eval.py` / `khr_quad_plot_torque.py` | ビューア再生（2026-10-06 以降は動かない、§3）／トルクの図（出力 `media/torque_plots/`） |
+| `quad/khr_quad_eval.py` / `khr_quad_plot_torque.py` | ビューア再生（`--env` で版の環境を選ぶ）／トルクの図（出力 `media/torque_plots/`） |
 | `quad/fix_joint_limits.py` / `train_with_urdf_fix.py` / `eval_with_urdf_fix.py` / `sym_with_urdf_fix.py` / `quad_compat.py` | URDF の可動域バグを実行時に是正して、旧版を学習・測定し直すための道具（§4.34） |
 | `quad/prove_hip_limit_asymmetry.py` / `check_joint_saturation.py` | 可動域バグの証明を一次ソースから 1 コマンドで再現／各版の方策が股関節の可動域の端に張り付いていた時間 |
 | `quad/jobs/run_retrain_fixurdf.sh` / `quad/build_noise_floor.py` / `experiments/retrain_fixurdf/` | 是正後の全版再学習の自動実行（cron、2026-10-14 完了で停止）／ノイズ床の再構築／計画・知見（`findings.md`）・3 seed の集計（`summarize.py` → `tier_d_summary.md`） |
@@ -2721,7 +2741,7 @@ fork 元 `s-kajita/Meridian_consoleS` には push しないため、
 
 | 環境ファイル | 使う版 | 追加要素 |
 |---|---|---|
-| `khr_quad_env.py`  | v1〜v4 | 四足の基本（loco frame, 121 obs, トロット, DR/ノイズ/遅延）。**v1〜v15 の環境（env〜env12）は `quad/archive_v1_v15/envs/`、env16 以降は `quad/`** |
+| `khr_quad_env.py`  | v1〜v4 | 四足の基本（loco frame, 121 obs, トロット, DR/ノイズ/遅延）。**v1〜v15 の環境（env〜env12）は `quad/archive_v1_v15/envs/`、env13 以降（v16〜）は `quad/`** |
 | `khr_quad_env2.py` | v5 | `_push_robots()`（push 外乱） |
 | `khr_quad_env3.py` | v6 | push カリキュラム（`push_scale` 漸増） |
 | `khr_quad_env4.py` | v7 | `_reward_feet_orientation`（足裏水平） |

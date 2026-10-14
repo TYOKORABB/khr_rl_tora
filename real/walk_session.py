@@ -49,6 +49,18 @@ from real.pose_session import echo_rtt_ms, hold_packet, write_json
 
 RUN_DIR = REPO_ROOT / "real" / "data" / "raw" / "walk_session"
 LOG_ROOT = REPO_ROOT / "logs"
+POLICY_ROOT = REPO_ROOT / "real" / "policies"   # 実機に載せた方策の凍結コピー（logs/ が無い PC でも動かせるように）
+
+
+def policy_files(exp: str, ckpt: int):
+    """方策の (cfgs.pkl, model.pt)。logs/<exp>/ にあればそれを、無ければ real/policies/<exp>_ckpt<ckpt>/ の凍結コピーを使う。"""
+    log = LOG_ROOT / exp
+    if (log / f"model_{ckpt}.pt").exists():
+        return log / "cfgs.pkl", log / f"model_{ckpt}.pt"
+    frozen = POLICY_ROOT / f"{exp}_ckpt{ckpt}"
+    if (frozen / f"model_{ckpt}.pt").exists():
+        return frozen / "cfgs.pkl", frozen / f"model_{ckpt}.pt"
+    raise FileNotFoundError(f"方策が見つかりません: {log}/model_{ckpt}.pt も {frozen}/ も無い")
 # 学習時の関節名 → Meridim の電源フラグの位置（角度はその次）。コンソールの JOINT2MERIDIM（角度の位置）−1
 JOINT2SLOT = {
     "c_head_yaw": 20, "l_shoulder_pitch": 22, "l_shoulder_roll": 24, "l_elbow_yaw": 26, "l_elbow_pitch": 28,
@@ -83,11 +95,12 @@ class _PolicyStub:
 
 def load_policy(exp: str, ckpt: int):
     from rsl_rl.runners import OnPolicyRunner
-    env_cfg, obs_cfg, reward_cfg, command_cfg, train_cfg = pickle.load(open(LOG_ROOT / exp / "cfgs.pkl", "rb"))
+    cfgs_path, model_path = policy_files(exp, ckpt)
+    env_cfg, obs_cfg, reward_cfg, command_cfg, train_cfg = pickle.load(open(cfgs_path, "rb"))
     num_obs = obs_cfg["num_obs"]
     num_priv = 80 + (1 if num_obs >= 122 else 0)   # v25 以降は critic に heading_err が 1 つ増える
     runner = OnPolicyRunner(_PolicyStub(num_obs, num_priv, env_cfg["num_actions"], env_cfg), train_cfg, None, device="cpu")
-    runner.load(str(LOG_ROOT / exp / f"model_{ckpt}.pt"), map_location="cpu")
+    runner.load(str(model_path), map_location="cpu")
     return runner.get_inference_policy(device="cpu"), env_cfg, obs_cfg, reward_cfg
 
 
@@ -409,7 +422,8 @@ def cmd_replay_check(a) -> int:
     import genesis as gs
     gs.init(backend=gs.cpu, seed=0, logging_level="warning")
     from rsl_rl.runners import OnPolicyRunner
-    env_cfg, obs_cfg, reward_cfg, command_cfg, train_cfg = pickle.load(open(LOG_ROOT / a.exp / "cfgs.pkl", "rb"))
+    cfgs_path, model_path = policy_files(a.exp, a.ckpt)
+    env_cfg, obs_cfg, reward_cfg, command_cfg, train_cfg = pickle.load(open(cfgs_path, "rb"))
     reward_cfg["reward_scales"] = {}
     obs_cfg["add_noise"] = False
     for k in ("randomize_friction", "randomize_base_mass", "randomize_com", "randomize_kp", "randomize_joint_offset", "Mode_push_vel"):
@@ -419,7 +433,7 @@ def cmd_replay_check(a) -> int:
     zero = torch.zeros(3, dtype=gs.tc_float, device=gs.device)
     env.commands_limits = (zero, zero)
     runner = OnPolicyRunner(env, copy.deepcopy(train_cfg), None, device=gs.device)
-    runner.load(str(LOG_ROOT / a.exp / f"model_{a.ckpt}.pt"))
+    runner.load(str(model_path))
     pol_env = runner.get_inference_policy(device=gs.device)
     pol_me, _, _, _ = load_policy(a.exp, a.ckpt)
     ob = ObsBuilder(env_cfg, obs_cfg, reward_cfg)

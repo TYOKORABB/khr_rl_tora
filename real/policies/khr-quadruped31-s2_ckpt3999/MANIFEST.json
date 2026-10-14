@@ -1,0 +1,27 @@
+{
+ "exp": "khr-quadruped31-s2",
+ "ckpt": 3999,
+ "version": "v31（quad/khr_train_quad31.py + quad/khr_quad_env21.py、URDF khr3hv_symhip.urdf）",
+ "files": {
+  "model_3999.pt": {
+   "sha256": "a587c57762b4bb7ac796adaa495273f4f7de4b685cf966834a3656625006ab91",
+   "bytes": 780661
+  },
+  "cfgs.pkl": {
+   "sha256": "20d8c3aa27ac15a291d1dc944674c9ff28a5630b41645138f8d03f113f57193f",
+   "bytes": 3749
+  }
+ },
+ "source": "logs/khr-quadruped31-s2/（作業 PC）。学習 2026-10-06、学習時の git 61afece（未コミット変更あり、experiments/khr-quadruped31-s2/report.md）",
+ "deployed": [
+  {
+   "date": "2026-10-13",
+   "tool": "python -m real.walk_session run --exp khr-quadruped31-s2 --ckpt 3999",
+   "firmware": "khr-getup.4（TYOKORABB/Meridian_LITE の khr-getup.4）",
+   "record": "experiments/real/20261013_walk/"
+  }
+ ],
+ "genesis": "TYOKORABB/Genesis khr-v0.4.6（04cf3b44）",
+ "num_obs": 122,
+ "num_actions": 22
+}

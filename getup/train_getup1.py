@@ -3,7 +3,7 @@
   python -m getup.train_getup1 -e getup1-s1 -B 4096 -I 1500 --seed 1          # GPU（スクリーニング 1500 iter）
   python -m getup.train_getup1 -e getup1-smoke -B 32 -I 2 --cpu --bank getup/data/banks/bank_test.pt   # 動作確認（CPU）
 
-成果物は logs/<exp>/（cfgs.pkl・model_*.pt・run_info.json）。**同じ exp 名の logs/<exp>/ は消して作り直す**（歩行の学習と同じ）。
+成果物は logs/<exp>/（cfgs.pkl・model_*.pt・run_info.json・code_state/）。**同じ exp 名の logs/<exp>/ は消して作り直す**（歩行の学習と同じ）。
 GPU は四脚歩行の再学習キュー（cron の run_retrain_fixurdf.sh）と重ねない（キューは python -m getup... を自分のジョブと認識しない、計画書 §8.1）。
 """
 
@@ -21,6 +21,7 @@ from importlib import metadata
 
 from khr_common.joint_map import JOINT_NAMES, NOMINAL_QUAD
 from khr_common.paths import LOG_ROOT, REPO_ROOT, chdir_repo_root
+from khr_common.run_record import save_code_state
 
 
 def get_cfgs():
@@ -115,6 +116,7 @@ def main() -> int:
                                              cwd=REPO_ROOT.parent / "Genesis").stdout.strip() or None,
             "genesis_version": metadata.version("genesis-world"), "rsl_rl_version": metadata.version("rsl-rl-lib"),
             "torch_version": torch.__version__}
+    info["code_state"] = save_code_state(log_dir)   # 学習開始時のコード（差分と未追跡のコード）を logs/<exp>/code_state/ に
     (log_dir / "run_info.json").write_text(json.dumps(info, ensure_ascii=False, indent=2) + "\n")
 
     gs.init(backend=gs.cpu if a.cpu else gs.gpu, precision="32", logging_level="warning", seed=a.seed,

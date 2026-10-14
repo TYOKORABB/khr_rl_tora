@@ -26,3 +26,5 @@ PC 側の共通コードは `khr_common/`（`gravity.py`: IMU 信号 → base �
 - 四脚デプロイヤ（`Meridian_consoleS_quad.py`・`khr_quad_env_no_gs.py`）は研究室の手元にだけある版なので、
   梶田先生の了承を得るまでこのリポジトリには入れない（計画書 §4.1）。
 - Wi-Fi の設定（`keys.h`）・`board_ip.txt`・生ログ（`data/raw/`）・フラッシュのバックアップ（`firmware_patches/_work/`、Wi-Fi の設定を含む）はコミットしない（`.gitignore`）。
+
+実機に載せた方策（チェックポイントと設定）は `policies/` に凍結してある（`policies/README.md`）。`walk_session.py` は `logs/` に無ければそこから読む。
