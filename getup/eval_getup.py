@@ -3,11 +3,13 @@
   python -m getup.eval_getup -e getup1-s1                    # 最後のチェックポイント・全段階・個体差あり＋公称・動画つき
   python -m getup.eval_getup -e getup1-s1 --ckpt 999 --levels 1 2
 
-1. 成功率: 評価バンク（学習に使っていない状態）の各段階の**全状態**を、方策の平均（決定的）で 8 秒ずつ 1 回ずつ動かす。
+1. 成功率: 評価バンク（学習に使っていない状態）の各段階の**全状態**を、方策の平均（決定的）で学習と同じエピソードの長さ
+   （v1・v2 は 8 秒、v3 は 16 秒＝§3.2 の主評価の時間。16 秒のときは 8 秒以内の成功も併記）ずつ 1 回ずつ動かす。
    条件 dr = 学習と同じ個体差と観測ノイズ、nominal = 個体差・ノイズなし。§4.8 の判定（L1 ≥ 90 %・L2 ≥ 70 %）は dr で見る。
    指標: §3.2 の成功率（Wilson の 95 % 区間）、u0 の区間別、累積成功曲線（成功までの時間）、最後の 1 秒に立っている率、
          トルク |τ|/τ_max（関節・歩ごとの 99 % 点と 90 % 以上の時間の割合。歩行の測定と同じ定義。τ_max は URDF の effort）、
          エピソードごとのトルクの最大（中央値・90 % 点）、100 % に達した歩の割合、関節速度の 99 % 点、シミュレーションの破綻。
+         v3 以降でシミュのトルクの上限を仕様より下げた環境（tau_cap）では、上限に張り付いた時間とエピソードの割合も（割合の分母は仕様のまま）。
 2. 動画: 段階ごとに、評価と**同じ初期状態・同じ個体差**で 6 エピソード（成功 4 ＋ 失敗 2 を無作為に。足りなければ他方で埋める）を
    再生し、体 0 を追うカメラで撮って 1 本につなぐ。画面に段階・状態の番号・u0・評価の結果・再生の結果・経過時間を出す。
    観測ノイズは再生のたびに変わるので、再生の結果が評価と食い違うことがある（食い違いも JSON に残す）。
@@ -94,6 +96,8 @@ def main() -> int:
     pol = runner.get_inference_policy(device=gs.device)
     dev = gs.device
     T = env.max_episode_length - 1          # 最後の 1 歩で時間切れのリセットが入る前に止める
+    # v3 以降: シミュのトルクの上限を仕様より下げた環境（tau_cap）。割合の分母（tau_lim）は仕様のまま
+    cap_differs = hasattr(env, "tau_cap") and not torch.allclose(env.tau_cap, env.tau_lim)
     dt_s = env.dt
     hold_n = int(round(env_cfg["success"]["hold_s"] / dt_s))
     dr_train = dict(env_cfg["dr"])
@@ -121,6 +125,7 @@ def main() -> int:
         over90 = torch.zeros(B, device=dev)
         sat = torch.zeros(B, device=dev)
         sat_joint = torch.zeros(B, env.num_actions, dtype=torch.bool, device=dev)   # エピソード中に 100 % に達した関節
+        at_cap = torch.zeros(B, device=dev)          # v3 以降: シミュの上限（仕様 × torque_cap_scale）に張り付いた時間
         first_sat = torch.full((B,), -1, dtype=torch.long, device=dev)
         for t in range(T):
             with torch.no_grad():
@@ -133,6 +138,8 @@ def main() -> int:
             over90 += (ratio >= 0.90).float().mean(1)
             hit = ratio >= 0.999
             sat += hit.float().mean(1)
+            if cap_differs:
+                at_cap += ((env.torque.abs() / env.tau_cap).nan_to_num(0.0) >= 0.999).float().mean(1)
             sat_joint |= hit
             first_sat = torch.where(hit.any(1) & (first_sat < 0), torch.full_like(first_sat, t + 1), first_sat)
             m = valid_mask.unsqueeze(1).expand_as(ratio)
@@ -141,7 +148,7 @@ def main() -> int:
             if frame_cb is not None:
                 frame_cb(t)
         return {"first": first, "bad": bad, "stand_end": env._promo_ok.clone() & ~bad, "success": (first > 0) & ~bad,
-                "tau_ep_max": tau_ep_max, "over90": over90 / T, "sat": sat / T, "tau_h": tau_h, "vel_h": vel_h,
+                "tau_ep_max": tau_ep_max, "over90": over90 / T, "sat": sat / T, "at_cap": at_cap / T, "tau_h": tau_h, "vel_h": vel_h,
                 "sat_joint": sat_joint, "first_sat": first_sat,
                 "snap": snap, "hold_steps": hold_n}
 
@@ -171,7 +178,8 @@ def main() -> int:
                 mb = (u0v >= lo) & (u0v < hi)
                 if mb.any():
                     bins[f"[{lo:.1f},{min(hi, 1.0):.1f})"] = {"n": int(mb.sum()), "success": round(float(succ[mb].float().mean()), 4)}
-            curve = {f"{s}s": round(float(((first > 0) & (first <= round(s / dt_s))).float().mean()), 4) for s in range(1, 9)}
+            curve = {f"{s}s": round(float(((first > 0) & (first <= round(s / dt_s))).float().mean()), 4)
+                     for s in range(1, int(math.ceil(T * dt_s)) + 1)}
             ts = torch.where(first > 0, first.float() * dt_s, torch.full_like(first, 1e9, dtype=torch.float)).sort().values
             med = float(ts[n // 2]) if k > n // 2 else None
             res = {
@@ -184,6 +192,13 @@ def main() -> int:
                 "torque_p99_pct": round(hist_q(r["tau_h"], 0.99, 1.2) * 100, 1),
                 "torque_over90_pct_time": round(float(r["over90"][v].mean()) * 100, 4),
                 "torque_saturated_pct_time": round(float(r["sat"][v].mean()) * 100, 4),
+                **({} if not cap_differs else {
+                    "torque_cap_pct_of_spec": round(float((env.tau_cap / env.tau_lim).mean()) * 100, 1),
+                    "torque_at_cap_pct_time": round(float(r["at_cap"][v].mean()) * 100, 4),
+                    "torque_at_cap_episodes": round(float((r["at_cap"][v] > 0).float().mean()), 4)}),
+                # 8 秒より長いエピソード（v3 以降、§3.2 の主評価は 16 秒）では、旧来の 8 秒以内の成功も併記する
+                **({} if T * dt_s <= 8.0 else {
+                    "success_within_8s": round(float(((first > 0) & (first <= round(8.0 / dt_s))).float().mean()), 4)}),
                 "torque_ep_max_median_pct": round(float(r["tau_ep_max"][v].median()) * 100, 1),
                 "torque_ep_max_p90_pct": round(float(r["tau_ep_max"][v].quantile(0.9)) * 100, 1),
                 "dof_vel_p99": round(hist_q(r["vel_h"], 0.99, VEL_MAX), 2),
@@ -205,6 +220,10 @@ def main() -> int:
             print(f"[{name} {cond:7s}] 成功 {res['success']*100:5.1f} % {res['success_ci95']}  "
                   f"中央 {res['time_to_success_median_s']} 秒  最後に立つ {res['stand_end']*100:.1f} %  "
                   f"トルク 99%点 {res['torque_p99_pct']} %  90%超 {res['torque_over90_pct_time']} %  破綻 {res['sim_error_episodes']}"
+                  + ("" if "success_within_8s" not in res else f"  8 秒以内 {res['success_within_8s']*100:.1f} %")
+                  + ("" if "torque_at_cap_pct_time" not in res else
+                     f"  上限（仕様の {res['torque_cap_pct_of_spec']:g} %）に張り付く時間 {res['torque_at_cap_pct_time']} %"
+                     f"・エピソード {res['torque_at_cap_episodes']*100:.0f} %")
                   + ("" if g is None else f"  判定 {'合格' if g['pass'] else '不合格'}（≥ {g['need']*100:.0f} %）"), flush=True)
             if cond == "dr":
                 keep_dr = (r, idx.clone())

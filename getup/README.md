@@ -18,6 +18,7 @@
 | `envs/getup_env1.py` | getup-v1 の環境。版ごとに複製し、学習に使った版は書き換えない |
 | `train_getup1.py` | getup-v1 の学習。設定（`get_cfgs` / `get_train_cfg`）の唯一の出所 |
 | `envs/getup_env2.py`・`train_getup2.py` | getup-v2（v1 ＋ 送る目標角を観測した関節角 ± 0.05 rad に制限 ＋ 下の PPOBound）。cfgs.pkl の `env_module` で検証の道具が環境の版を選ぶ |
+| `envs/getup_env3.py`・`train_getup3.py` | getup-v3（v2 ＋ エピソード 16 秒・シミュのトルクの上限を仕様の 90 %・行動の変化と 2 階差分の罰・目標角の速さの制限 0.03 rad/歩・エントロピー 0）。検証の割合は仕様に対する値で、上限に張り付いた時間も記録する |
 | `ppo_bound.py` | `PPOBound`: rsl-rl 5.4.0 の PPO に、行動の平均が ±1 を超えた分の 2 乗の罰（bound loss）を足したもの（v2 から） |
 | `eval_getup.py` | 学習後の検証。評価用の全状態を決定的な方策で動かし、成功率・トルクなどを `experiments/getup/eval/` に、**毎回、段階ごとに 6 エピソードの動画**を `media/videos/getup/` に（GPU） |
 | `jobs/train_eval.sh` | 学習 → 検証（動画つき）を続けて行う。whisper の解析が走っているとき・次の開始までに終わらないときは始めない（`--wait` で空くまで待つ） |
@@ -41,6 +42,7 @@ python -m getup.eval_getup -e getup1-s1                                # 検証�
 getup/jobs/train_eval.sh getup1-s2 2 1500                              # 学習 → 検証（動画つき）をまとめて
 getup/jobs/train_eval.sh --wait getup2-s1 1 1500 train_getup2          # v2 を、GPU が空くまで待ってから
 getup/jobs/run_queue.sh getup/jobs/queue_v1v2_seeds.txt                # キューを 1 本ずつ
+getup/jobs/run_queue.sh getup/jobs/queue_v3.txt                        # v3（3000 iter、約 95 分の空きが要る）
 python -m getup.tools.dr_factor_eval -e getup2-s1 --level 2            # 個体差の要素ごとの成功率（GPU、方策ごとに 1 回）
 python -m getup.tools.dr_factor_eval -e getup2-s1 --cpu -n 256 --conds dr nominal --gap 0.03 --tag _gap0.03   # 制限の幅だけ変えて評価（CPU）
 python -m getup.tools.hold_analysis -e getup2-s1 --cpu -n 64          # 立った後の揺れと移動（CPU、約 2 分）

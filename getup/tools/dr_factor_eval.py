@@ -118,12 +118,21 @@ def main() -> int:
             stand_at_base = None
             sat8 = torch.zeros(B, device=dev)
             over90L = torch.zeros(B, device=dev)        # エピソード全体（延ばした時間）
+            stood = torch.full((B,), -1, dtype=torch.long, device=dev)   # 角速度以外の条件で 1 秒立ち終えた歩（姿勢ができた時刻 + 1 秒）
+            ang_reset = torch.zeros(B, device=dev)      # 成功までに、立っている（角速度以外）のに角速度で 1 秒の数え直しになった回数
+            ang_fail = torch.zeros(B, device=dev)       # 成功までに、立っているのに角速度だけ満たさなかった歩数
+            hold_n = int(round(env_cfg["success"]["hold_s"] / 0.02))
             ep_max = torch.zeros(B, device=dev)
             for t in range(T):
+                prev_sh = env.succ_hold.clone()
                 with torch.no_grad():
                     obs, _, done, _ = env.step(pol(obs))
                 bad |= done
                 first = torch.where(env.ep_success & (first < 0) & ~bad, torch.full_like(first, t + 1), first)
+                stood = torch.where((env.stand_hold >= hold_n) & (stood < 0) & ~bad, torch.full_like(stood, t + 1), stood)
+                pre = (first < 0) & ~bad
+                ang_fail += (env._standing_now & ~env._success_now & pre).float()
+                ang_reset += ((prev_sh > 0) & (env.succ_hold == 0) & env._standing_now & pre).float()
                 ratio = (env.torque.abs() / env.tau_lim).nan_to_num(0.0)
                 over90L += (ratio >= 0.90).float().mean(1)
                 ep_max = torch.maximum(ep_max, ratio.max(1).values)
@@ -136,7 +145,20 @@ def main() -> int:
             sL = ((first > 0) & ok)[valid]
             ts = first[valid][sL].float() * 0.02
             hi = u0 >= 0.9
-            res = {"success_8s": round(float(s8.float().mean()), 4), "success_long": round(float(sL.float().mean()), 4),
+            st = stood[valid]
+            st8 = (st > 0) & (st <= base_T - 1)
+            late = st8 & ~s8                                   # 8 秒以内に 1 秒立ち終えたのに、8 秒以内に成功しなかった
+            both = (st > 0) & (first[valid] > 0)
+            delay = (first[valid][both] - st[both]).float() * 0.02
+            res = {"stood_1s_8s": round(float(st8.float().mean()), 4),
+                   "time_to_stand_1s_median_s": None if not (st > 0).any() else round(float(st[st > 0].float().median()) * 0.02, 2),
+                   "stood_8s_but_no_success_8s": round(float(late.float().mean()), 4),
+                   "success_minus_stand_median_s": None if delay.numel() == 0 else round(float(delay.median()), 2),
+                   "success_minus_stand_p90_s": None if delay.numel() == 0 else round(float(delay.quantile(0.9)), 2),
+                   "ang_vel_resets_before_success_median": round(float(ang_reset[valid].median()), 1),
+                   "ang_vel_resets_before_success_mean": round(float(ang_reset[valid].mean()), 2),
+                   "standing_but_ang_vel_fail_s_before_success_median": round(float(ang_fail[valid].median()) * 0.02, 2),
+                   "success_8s": round(float(s8.float().mean()), 4), "success_long": round(float(sL.float().mean()), 4),
                    "success_8s_u0_ge_0.9": round(float(s8[hi].float().mean()), 4),
                    "success_long_u0_ge_0.9": round(float(sL[hi].float().mean()), 4),
                    "stand_end_8s": round(float(stand_at_base[valid].float().mean()), 4),
@@ -150,6 +172,10 @@ def main() -> int:
             out["conds"][cname] = res
             print(f"[{exp} {name} {cname:11s}] 8 秒 {res['success_8s']*100:5.1f} %（u0≥0.9 {res['success_8s_u0_ge_0.9']*100:5.1f} %）"
                   f"  {a.episode_s:g} 秒 {res['success_long']*100:5.1f} %  中央 {res['time_to_success_median_s']} 秒"
+                  f"  1 秒立ち終え（角速度以外）8 秒以内 {res['stood_1s_8s']*100:.1f} %・中央 {res['time_to_stand_1s_median_s']} 秒"
+                  f"  うち 8 秒で成功せず {res['stood_8s_but_no_success_8s']*100:.1f} %  成功 − 立ち終え 中央 {res['success_minus_stand_median_s']} 秒"
+                  f"（90%点 {res['success_minus_stand_p90_s']}）  角速度での数え直し 平均 {res['ang_vel_resets_before_success_mean']} 回"
+                  f"・立っているのに角速度だけ満たさない時間 中央 {res['standing_but_ang_vel_fail_s_before_success_median']} 秒"
                   f"  100 % の時間 {res['torque_saturated_pct_time_8s']} %  100 % に達したエピソード {res['torque_saturated_episodes_long']*100:.0f} %"
                   f"（最大の中央 {res['torque_ep_max_median_pct_long']} %）  90 % 以上の時間 {res['torque_over90_pct_time_long']} %"
                   f"  破綻 {res['sim_error_episodes']}", flush=True)

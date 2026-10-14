@@ -1,0 +1,538 @@
+"""getup-v3: getup-v2（getup_env2.py）に、学習のトルクの上限と行動の 2 階差分の罰を足した環境（2026-10-15）。
+
+版ごとに複製し、学習に使った版は書き換えない。設定は train_getup3.py の get_cfgs() が唯一の出所。
+
+v2 からの変更（getup/DIARY.md の getup-v3。ユーザーの決定: 案をまとめて入れ、効きは後から切り分ける。効かなければ v2 から再開）:
+  - トルクの上限: シミュの上限を仕様（URDF の effort）の env_cfg.torque_cap_scale 倍（0.9）にする。方策は仕様の 90 % を超えるトルクを
+    使えないので、その範囲で起き上がる動きを学ぶ。トルクの罰と検証の割合は仕様に対する値（self.tau_lim = 仕様、self.tau_cap = シミュの上限）。
+    実機のサーボは仕様いっぱいまで出せるので、実機で 100 % を防ぐのは送る目標角の制限（gap）と、この上限の中で学んだ動き。
+  - 報酬 action_smoothness2: 行動の 2 階差分の 2 乗（歩行 v10 以降の「カクつき」対策と同じ）。v2 の方策は立った後も目標角を毎歩ほぼ
+    制限いっぱいに行き来させていた（getup/tools/hold_analysis.py）。行動の変化の罰の強化・速さの制限 0.03 rad/歩・
+    エピソード 16 秒・エントロピーの係数 0 は設定側（train_getup3.py）。
+
+以下は v2 の説明（そのまま引き継ぐ）:
+
+getup-v2: getup-v1（getup_env1.py）に、目標角を測った関節角の近くに収める制限を足した環境（2026-10-14）。
+
+v1 からの変更（getup/DIARY.md の getup-v2）:
+  - 候補 2: 送る目標角を「観測した関節角 ± gap」に収める（env_cfg.action.gap、khr_common.action_post の gap）。
+    v1 は目標が 1 歩 0.06 rad で先に進み、床に押さえられた関節で目標とのずれが 0.055 rad を超えてトルクが上限に張り付いた
+    （行動 0 でも起きる。どのエピソードでも 100 % に達した）。gap 0.05 rad なら P の項は kp × 0.05 = 1.25 N·m（上限の 91 %）まで。
+    使う関節角は方策が観測したもの（ノイズ ±0.01 rad・0 点のずれを含む、実機ではサーボが返す角度）なので、ずれの最大は gap + ノイズ。
+  - 候補 1（行動の平均を ±1 に収める bound loss）は学習側（getup/ppo_bound.py、train_getup2.py）。環境は変えない。
+
+以下は v1 から引き継いだ中身（計画書 §4.8）:
+  - 初期状態: 初期状態バンク（gen_init_states.py）から。カリキュラム L0（公称姿勢の近傍 N）→ L1（u0 ≥ 0.9）→ L2（u0 ≥ 0.5）。
+    リセットごとに 15 % L0 ＋ 15 % 合格済みの段階 ＋ 70 % 今の段階。今の段階の直近 2000 エピソードの合格率 ≥ 0.75 かつ
+    前の昇格から 200 iter 以上で昇格（降格なし）。
+    合格の数え方は curriculum.promote_on で選ぶ（2026-10-14、本番の前に修正。getup/DIARY.md）:
+      "success"（既定・旧）: §3.2 の成功。学習中は探索のゆらぎで角速度の条件を満たせず、ほぼ 0 のまま昇格しない。
+      "end_hold": エピソードの最後の promote_hold_s 秒、角速度以外の §3.2 の条件（u・関節角・胴体高・端以外の接地なし）を
+                  満たし続けて立っている。§3.2 の成功の定義（評価と実機）は変えない。
+  - 行動 22 次元 → khr_common.action_post（公称姿勢まわりの非対称な写像＋変化の速さの制限 0.06 rad/step＋可動域）。
+    1 ステップ（20 ms）遅れて PD 目標になる。リセット時は前回の目標角と遅れのバッファを実測の関節角で初期化。
+  - 観測（actor、184 次元。実機で得られる量だけ）:
+      [0:3] 角速度 ×0.25（±5.72 rad/s で頭打ち）、[3:6] 重力（base 座標）、[6:28] 関節角 − 公称、
+      [28:50] 関節速度 ×0.05（観測した関節角の 20 ms の差分。実機と同じ計算）、[50:72] 前回送った目標角 − 公称、
+      [72:184] 過去 4 フレームの [角速度 ×0.25, 重力, 関節角 − 公称]（28 × 4、新しい順）
+    ノイズは体ごと・要素ごとに独立。IMU には体ごとに一定の取り付け誤差（0〜3°）。関節にはサーボの 0 点のずれ（±0.02 rad、
+    実際の角度 = 指令 + ずれ、サーボが返す角度 = 実際 − ずれ、つまり方策からは見えない）。
+  - 特権観測（critic）: ノイズなしの状態、胴体の速度・高さ、4 端の高さ、床との接触（12 部位、自己接触は除く）、個体差の値、段階。
+  - 報酬 9 項（§4.4）。早期終了はシミュレーションの破綻だけ（一度だけ −20）。エピソード 8 秒、時間切れはブートストラップ。
+  - 個体差（v1）: 摩擦（床 0.01 ＋ 機体 0.5 × [0.6, 1.4]。Genesis の摩擦は max(床, 機体) なので床を下げないと機体側が効かない、F12）、
+    胴体の質量 ±0.08 kg（±5 %）・重心 ±1 cm（歩行の −0.1〜+0.5 kg は 1.6 kg の機体で起き上がりに不可能な条件を作りうる、§4.6）、
+    0 点のずれ ±0.02 rad、IMU の取り付け誤差 0〜3°。押しの外乱なし。
+"""
+
+from __future__ import annotations
+
+import math
+from collections import deque
+
+import genesis as gs
+import numpy as np
+import torch
+from genesis.utils.misc import qd_to_torch
+from tensordict import TensorDict
+
+from khr_common.action_post import ActionPost
+from khr_common.joint_map import JOINT_NAMES, NOMINAL_QUAD
+from khr_common.paths import ASSET_DIR, REPO_ROOT
+
+URDF_GETUP = ASSET_DIR / "khr3hv" / "urdf" / "khr3hv_symhip_getup.urdf"
+NON_END_LINKS = ("base_link", "c_chest_c", "c_head_a", "l_shoulder", "r_shoulder", "l_upperarm", "r_upperarm",
+                 "l_hipjointupper", "r_hipjointupper", "l_hipjointlower", "r_hipjointlower", "l_upperleg", "r_upperleg")
+CONTACT_GROUPS = {  # 特権観測の床との接触（部位ごと）
+    "torso": ("base_link", "c_chest_c"), "head": ("c_head_a",),
+    "l_upperarm": ("l_shoulder", "l_upperarm"), "r_upperarm": ("r_shoulder", "r_upperarm"),
+    "l_thigh": ("l_hipjointupper", "l_hipjointlower", "l_upperleg"), "r_thigh": ("r_hipjointupper", "r_hipjointlower", "r_upperleg"),
+    "l_forearm": ("l_elbow", "l_lowerarm"), "r_forearm": ("r_elbow", "r_lowerarm"),
+    "l_shin": ("l_lowerleg", "l_ankle"), "r_shin": ("r_lowerleg", "r_ankle"), "l_foot": ("l_foot",), "r_foot": ("r_foot",)}
+END_LINKS = ("l_lowerarm", "r_lowerarm", "l_foot", "r_foot")
+
+
+def quat_mul(a: torch.Tensor, b: torch.Tensor) -> torch.Tensor:
+    w1, x1, y1, z1 = a.unbind(-1)
+    w2, x2, y2, z2 = b.unbind(-1)
+    return torch.stack([w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2, w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
+                        w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2, w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2], -1)
+
+
+def quat_rotate_inv(q: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
+    """q（w,x,y,z、base → 世界）の逆で v（世界）を base 座標へ。"""
+    w, u = q[..., :1], -q[..., 1:]
+    t = 2 * torch.cross(u, v, dim=-1)
+    return v + w * t + torch.cross(u, t, dim=-1)
+
+
+def axis_angle_mat(axis: torch.Tensor, ang: torch.Tensor) -> torch.Tensor:
+    x, y, z = axis.unbind(-1)
+    c, s = torch.cos(ang), torch.sin(ang)
+    C = 1 - c
+    return torch.stack([torch.stack([c + x * x * C, x * y * C - z * s, x * z * C + y * s], -1),
+                        torch.stack([y * x * C + z * s, c + y * y * C, y * z * C - x * s], -1),
+                        torch.stack([z * x * C - y * s, z * y * C + x * s, c + z * z * C], -1)], -2)
+
+
+def build_scene(n_envs: int, env_cfg: dict, show_viewer: bool = False, before_build=None):
+    """起き上がり用のシーン（バンクの生成と環境で共用）。戻り値 (scene, robot, ground, motors_dof_idx)。
+    before_build(scene) は build の直前に呼ぶ（録画用のカメラを足すため。学習では使わない）。"""
+    scene = gs.Scene(
+        sim_options=gs.options.SimOptions(dt=0.02, substeps=2),
+        rigid_options=gs.options.RigidOptions(enable_collision=True, enable_neutral_collision=True, enable_joint_limit=True,
+                                              tolerance=1e-5, max_collision_pairs=env_cfg.get("max_collision_pairs", 150)),
+        viewer_options=gs.options.ViewerOptions(camera_pos=(1.0, -1.0, 0.6), camera_lookat=(0.0, 0.0, 0.1), camera_fov=40, max_FPS=50),
+        vis_options=gs.options.VisOptions(rendered_envs_idx=[0]),
+        show_viewer=show_viewer,
+    )
+    ground = scene.add_entity(gs.morphs.URDF(file="urdf/plane/plane_light.urdf", fixed=True))
+    robot = scene.add_entity(gs.morphs.URDF(file=str(env_cfg.get("urdf", URDF_GETUP)), pos=(0.0, 0.0, 0.3),
+                                            quat=tuple(env_cfg["base_init_quat"])))
+    ground.set_friction(0.01)                       # 摩擦は機体側で決める（F12）
+    robot.set_friction(env_cfg.get("friction", 0.5))
+    if before_build is not None:
+        before_build(scene)
+    scene.build(n_envs=n_envs)
+    motors = torch.tensor([robot.get_joint(n).dof_start for n in JOINT_NAMES], dtype=gs.tc_int, device=gs.device)
+    robot.set_dofs_armature([env_cfg["armature"]] * len(JOINT_NAMES), motors)   # 22 関節だけ（浮遊ベースには足さない、F14）
+    robot.set_dofs_kp([env_cfg["kp"]] * len(JOINT_NAMES), motors)
+    robot.set_dofs_kv([env_cfg["kd"]] * len(JOINT_NAMES), motors)
+    return scene, robot, ground, motors
+
+
+class GetupEnv:
+    def __init__(self, num_envs: int, env_cfg: dict, obs_cfg: dict, reward_cfg: dict, show_viewer: bool = False,
+                 eval_mode: bool = False, level: int | None = None, camera_res: tuple | None = None):
+        self.num_envs = num_envs
+        self.cfg = self.env_cfg = env_cfg
+        self.obs_cfg, self.reward_cfg = obs_cfg, reward_cfg
+        self.device = gs.device
+        self.dt = 0.02
+        self.num_actions = len(JOINT_NAMES)
+        self.max_episode_length = int(round(env_cfg["episode_length_s"] / self.dt))
+        self.eval_mode = eval_mode
+        self.cam = None   # 録画用（camera_res を渡したときだけ。描くのは体 0）
+
+        def add_camera(scene):
+            self.cam = scene.add_camera(res=tuple(camera_res), pos=(0.8, -0.8, 0.45), lookat=(0.0, 0.0, 0.1), fov=40, GUI=False)
+        self.scene, self.robot, self.ground, self.motors = build_scene(num_envs, env_cfg, show_viewer,
+                                                                       before_build=add_camera if camera_res else None)
+        r, B, n = self.robot, num_envs, self.num_actions
+        f = lambda *s: torch.zeros(*s, dtype=gs.tc_float, device=self.device)
+
+        self.link_names = [l.name for l in r.links]
+        li = {nm: i for i, nm in enumerate(self.link_names)}
+        self.n_links = len(self.link_names)
+        self.chest_idx = li["c_chest_c"]
+        self.end_idx = torch.tensor([li[nm] for nm in END_LINKS], device=self.device)
+        self.non_end_mask = torch.zeros(self.n_links, dtype=torch.bool, device=self.device)
+        self.non_end_mask[[li[nm] for nm in NON_END_LINKS]] = True
+        self.group_mat = torch.zeros(self.n_links, len(CONTACT_GROUPS), dtype=gs.tc_float, device=self.device)
+        for g, (gname, members) in enumerate(CONTACT_GROUPS.items()):
+            for m in members:
+                self.group_mat[li[m], g] = 1.0
+
+        self.q_nom = torch.tensor([NOMINAL_QUAD[nm] for nm in JOINT_NAMES], dtype=gs.tc_float, device=self.device)
+        lo, hi = r.get_dofs_limit(self.motors)
+        self.q_lo, self.q_hi = lo.to(gs.tc_float), hi.to(gs.tc_float)
+        ac = env_cfg["action"]
+        self.post = ActionPost(self.q_nom.cpu().numpy(), self.q_lo.cpu().numpy(), self.q_hi.cpu().numpy(),
+                               margin=ac["margin"], s_max=ac["s_max"], delta=ac["delta"], gap=ac.get("gap"))
+        # トルク（v3）: tau_spec = 仕様（URDF の effort）、tau_cap = シミュの上限（仕様 × torque_cap_scale）。
+        # tau_lim は罰と検証の割合の分母で、v1・v2 と同じく仕様にする（検証の「100 %」は仕様の 100 %）
+        self.tau_spec = r.get_dofs_force_range(self.motors)[1].to(gs.tc_float).clone()
+        cap_scale = float(env_cfg.get("torque_cap_scale", 1.0))
+        self.tau_cap = self.tau_spec * cap_scale
+        if cap_scale != 1.0:
+            r.set_dofs_force_range(-self.tau_cap, self.tau_cap, self.motors)
+            got = r.get_dofs_force_range(self.motors)[1].to(gs.tc_float)
+            if not torch.allclose(got, self.tau_cap, rtol=1e-5, atol=1e-6):
+                raise RuntimeError(f"トルクの上限を設定できていない: {got} != {self.tau_cap}")
+        self.tau_lim = self.tau_spec
+
+        # 初期状態バンク
+        bank = torch.load(REPO_ROOT / env_cfg["bank"], map_location="cpu")
+        self.bank = {k: (v.to(self.device) if torch.is_tensor(v) else v) for k, v in bank.items()}
+        meta = self.bank["meta"]
+        self.h_star = torch.tensor([meta["h_star_base"], meta["h_star_chest"]], dtype=gs.tc_float, device=self.device)
+        self.h_prone = torch.tensor([meta["h_prone_base"], meta["h_prone_chest"]], dtype=gs.tc_float, device=self.device)
+        split = self.bank["eval"] if eval_mode else ~self.bank["eval"]
+        cur = env_cfg["curriculum"]
+        self.levels = []
+        for name in cur["levels"]:
+            if name == "L0":
+                m = (self.bank["kind"] == 1) & split
+            else:
+                m = (self.bank["kind"] == 0) & split & (self.bank["u0"] >= cur["u0_min"][name])
+            self.levels.append(torch.nonzero(m).flatten())
+            if len(self.levels[-1]) == 0:
+                raise ValueError(f"初期状態バンクに {name} の状態がない")
+        self.level = len(self.levels) - 1 if level is None and eval_mode else (level or 0)
+        self.fixed_level = eval_mode or level is not None
+        self.recent = deque(maxlen=cur["promote_window"])
+        self.promote_on = cur.get("promote_on", "success")
+        if self.promote_on not in ("success", "end_hold"):
+            raise ValueError(f"curriculum.promote_on が不明: {self.promote_on}")
+        self.promote_hold_n = int(round(cur.get("promote_hold_s", 1.0) / self.dt))
+        self.promotions = []                              # [(iter, 段階の名前)]
+        self._forced = None                               # force_reset() が次のリセットに渡す指定
+        self.last_promote_iter = 0
+        self.common_step_counter = 0
+
+        # バッファ
+        self.actions = f(B, n)
+        self.last_actions = f(B, n)
+        self.last_last_actions = f(B, n)                 # v3: 2 階差分の罰
+        self.q_tgt_prev = self.q_nom.repeat(B, 1)        # 前回送った目標角（サーボの角度）
+        self.q_delay = self.q_nom.repeat(B, 1)           # 1 ステップ遅れのバッファ
+        self.q_obs_prev = f(B, n)
+        self.hist = f(B, obs_cfg["history"], 28)
+        self.trim = f(B, n)
+        self.R_imu = torch.eye(3, device=self.device, dtype=gs.tc_float).repeat(B, 1, 1)
+        self.friction_ratio = torch.ones(B, 1, dtype=gs.tc_float, device=self.device)
+        self.mass_shift = f(B, 1)
+        self.com_shift = f(B, 3)
+        self.episode_length_buf = torch.zeros(B, dtype=torch.long, device=self.device)
+        self.reset_buf = torch.ones(B, dtype=torch.bool, device=self.device)
+        self.succ_hold = torch.zeros(B, dtype=torch.long, device=self.device)
+        self.stand_hold = torch.zeros(B, dtype=torch.long, device=self.device)   # 角速度以外の条件を続けて満たした歩数
+        self._promo_ok = torch.zeros(B, dtype=torch.bool, device=self.device)
+        self.ep_yaw = f(B)
+        self.ep_success = torch.zeros(B, dtype=torch.bool, device=self.device)
+        self.ep_level = torch.zeros(B, dtype=torch.long, device=self.device)
+        self.ep_u0 = f(B)
+        self.ep_hmax = f(B)
+        self.rew_buf = f(B)
+        self.contacts_max = torch.zeros((), dtype=torch.long, device=self.device)   # 1 体の接触点の数の最大（§4.2-5 で記録）
+        self.extras = {"episode": {}}
+        self.reward_scales = {k: v * self.dt for k, v in reward_cfg["reward_scales"].items()}
+        self.reward_functions = {k: getattr(self, "_reward_" + k) for k in self.reward_scales}
+        self.episode_sums = {k: f(B) for k in self.reward_scales}
+        self.num_obs = obs_cfg["num_obs"]
+        self.reset()
+
+    # ---- 状態の読み取り ------------------------------------------------------------------------------
+    def _read_state(self):
+        r = self.robot
+        self.base_pos = r.get_pos()
+        self.base_quat = r.get_quat()
+        self.base_lin_vel = quat_rotate_inv(self.base_quat, r.get_vel())
+        self.base_ang_vel = quat_rotate_inv(self.base_quat, r.get_ang())
+        g = torch.tensor([0.0, 0.0, -1.0], device=self.device, dtype=gs.tc_float).expand_as(self.base_pos)
+        self.gravity = quat_rotate_inv(self.base_quat, g)
+        self.u = self.gravity[:, 0]
+        self.q = r.get_dofs_position(self.motors)
+        self.dq = r.get_dofs_velocity(self.motors)
+        links = r.get_links_pos()
+        self.h_base = links[:, 0, 2]
+        self.h_chest = links[:, self.chest_idx, 2]
+        self.h_ends = links[:, self.end_idx, 2]
+        self.torque = r.get_dofs_control_force(self.motors)
+        self.floor_contact = self._floor_contacts()
+        n_c = qd_to_torch(self.scene.rigid_solver.collider._collider_state.n_contacts, copy=False)
+        self.contacts_max = torch.maximum(self.contacts_max, n_c.max().to(self.device).long())
+
+    def _floor_contacts(self) -> torch.Tensor:
+        """(B, リンク数) の床との接触（自己接触は含まない）。"""
+        c = self.robot.get_contacts(with_entity=self.ground)
+        la, lb, vm = c["link_a"], c["link_b"], c["valid_mask"]
+        out = torch.zeros(self.num_envs, self.n_links + 1, dtype=gs.tc_float, device=self.device)
+        if la.numel() == 0:
+            return out[:, :-1] > 0
+        ls, le = self.robot.link_start, self.robot.link_end
+        mine = torch.where((la >= ls) & (la < le), la, lb) - ls
+        idx = torch.where(vm, mine, torch.full_like(mine, self.n_links)).long().clamp(0, self.n_links)
+        out.scatter_(1, idx, 1.0)
+        return out[:, :-1] > 0
+
+    # ---- 観測 ---------------------------------------------------------------------------------------
+    def _noise(self, shape, amp):
+        return (torch.rand(shape, device=self.device, dtype=gs.tc_float) * 2 - 1) * amp if self.obs_cfg["add_noise"] else 0.0
+
+    def _sensed(self):
+        """実機で得られる形の値（ノイズ・IMU の取り付け誤差・0 点のずれ込み）。"""
+        nz = self.obs_cfg["noise"]
+        sc = self.obs_cfg["scales"]
+        w = torch.einsum("bij,bj->bi", self.R_imu, self.base_ang_vel).clamp(-self.obs_cfg["ang_vel_clip"], self.obs_cfg["ang_vel_clip"])
+        w = w * sc["ang_vel"] + self._noise(w.shape, nz["ang_vel"])
+        gv = torch.einsum("bij,bj->bi", self.R_imu, self.gravity) + self._noise(self.gravity.shape, nz["gravity"])
+        q = self.q - self.trim + self._noise(self.q.shape, nz["dof_pos"])
+        return w, gv, q
+
+    def _build_obs(self, w, gv, q_obs):
+        sc = self.obs_cfg["scales"]
+        dq_obs = (q_obs - self.q_obs_prev) / self.dt
+        frame = torch.cat([w, gv, q_obs - self.q_nom], dim=-1)
+        self.obs_buf = torch.cat([w, gv, q_obs - self.q_nom, dq_obs * sc["dof_vel"], self.q_tgt_prev - self.q_nom,
+                                  self.hist.reshape(self.num_envs, -1)], dim=-1)
+        self.hist = torch.cat([frame.unsqueeze(1), self.hist[:, :-1]], dim=1)
+        self.q_obs_prev = q_obs
+        flags = (self.floor_contact.to(gs.tc_float) @ self.group_mat) > 0
+        self.privileged_obs_buf = torch.cat([
+            self.base_ang_vel * sc["ang_vel"], self.gravity, self.q - self.q_nom, self.dq * sc["dof_vel"], self.base_lin_vel,
+            self.h_base.unsqueeze(1), self.h_chest.unsqueeze(1), self.h_ends, flags.to(gs.tc_float),
+            self.friction_ratio, self.mass_shift, self.com_shift / 0.01, self.trim / 0.02,
+            torch.full((self.num_envs, 1), self.level / max(1, len(self.levels) - 1), device=self.device, dtype=gs.tc_float)], dim=-1)
+        for buf in (self.obs_buf, self.privileged_obs_buf):
+            torch.nan_to_num_(buf, nan=0.0, posinf=0.0, neginf=0.0)
+
+    def get_observations(self):
+        return TensorDict({"policy": self.obs_buf, "privileged": self.privileged_obs_buf}, batch_size=[self.num_envs])
+
+    # ---- 1 ステップ ---------------------------------------------------------------------------------
+    def step(self, actions):
+        self.actions = actions.clamp(-1.0, 1.0)
+        # 今回送る目標角（サーボの角度）。gap があれば、直前に観測した関節角 ± gap に収める（v2）
+        q_cmd = self.post(self.actions, self.q_tgt_prev, self.q_obs_prev if self.post.gap is not None else None)
+        exec_t = self.q_delay if self.env_cfg["simulate_action_latency"] else q_cmd
+        self.q_delay = q_cmd
+        self.robot.control_dofs_position(exec_t + self.trim, self.motors)   # 実際の角度 = 指令 + 0 点のずれ
+        self.scene.step()
+        self.q_tgt_prev = q_cmd
+        self.episode_length_buf += 1
+        self.common_step_counter += 1
+        self._read_state()
+
+        err = self.scene.rigid_solver.get_error_envs_mask()
+        bad = ~torch.isfinite(self.q).all(1) | ~torch.isfinite(self.base_pos).all(1) | ~torch.isfinite(self.dq).all(1)
+        err = err | bad
+        self._success_now = self._success_instant()
+        self.succ_hold = torch.where(self._success_now, self.succ_hold + 1, torch.zeros_like(self.succ_hold))
+        self.stand_hold = torch.where(self._standing_now, self.stand_hold + 1, torch.zeros_like(self.stand_hold))
+        self._promo_ok = (self.stand_hold >= self.promote_hold_n) & ~err   # 終わるエピソードの「最後に立っている」
+        self.ep_success |= self.succ_hold >= int(round(self.env_cfg["success"]["hold_s"] / self.dt))
+        self.ep_hmax = torch.maximum(self.ep_hmax, torch.nan_to_num(self.h_base))
+
+        self.rew_buf.zero_()
+        for name, fn in self.reward_functions.items():
+            rew = torch.nan_to_num(fn(), nan=0.0, posinf=0.0, neginf=0.0) * self.reward_scales[name]
+            self.rew_buf += rew
+            self.episode_sums[name] += rew
+        self.rew_buf = torch.where(err, torch.full_like(self.rew_buf, self.env_cfg["sim_error_penalty"]), self.rew_buf)
+        self.last_last_actions = self.last_actions.clone()
+        self.last_actions = self.actions.clone()
+
+        time_out = self.episode_length_buf >= self.max_episode_length
+        self.reset_buf = time_out | err
+        self.extras["time_outs"] = (time_out & ~err).to(gs.tc_float)
+        self.extras["episode"] = {}
+        self._sim_error_count = int(err.sum())
+        if self.reset_buf.any():
+            self._reset_idx(self.reset_buf)
+        w, gv, q_obs = self._sensed()
+        self._build_obs(w, gv, q_obs)
+        return self.get_observations(), self.rew_buf, self.reset_buf, self.extras
+
+    def _success_instant(self) -> torch.Tensor:
+        """§3.2 の条件（その瞬間）。角速度を除いた条件は self._standing_now に残す（昇格の判定 end_hold 用）。"""
+        s = self.env_cfg["success"]
+        non_end = (self.floor_contact & self.non_end_mask).any(1)
+        self._standing_now = ((self.u > s["u_min"]) & ((self.q - self.q_nom).abs() < s["delta_rad"]).all(1) &
+                              (self.h_base >= s["h_thr"]) & ~non_end)
+        return self._standing_now & (self.base_ang_vel.norm(dim=1) < s["omega_max"])
+
+    # ---- リセット -----------------------------------------------------------------------------------
+    def _sample_bank(self, k: int) -> torch.Tensor:
+        """k 個の初期状態の番号と段階（カリキュラム）。"""
+        if self.fixed_level:
+            lv = torch.full((k,), self.level, device=self.device, dtype=torch.long)
+        else:
+            mix = self.env_cfg["curriculum"]["mix"]
+            u = torch.rand(k, device=self.device)
+            passed = torch.randint(0, max(1, self.level), (k,), device=self.device)
+            lv = torch.where(u < mix[0], torch.zeros_like(passed),
+                             torch.where(u < mix[0] + mix[1], passed, torch.full_like(passed, self.level)))
+        idx = torch.empty(k, dtype=torch.long, device=self.device)
+        for L in range(len(self.levels)):
+            m = lv == L
+            if m.any():
+                pool = self.levels[L]
+                idx[m] = pool[torch.randint(0, len(pool), (int(m.sum()),), device=self.device)]
+        return idx, lv
+
+    def _reset_idx(self, mask: torch.Tensor):
+        ids = torch.nonzero(mask).flatten()
+        k = len(ids)
+        # 終わったエピソードの記録（昇格の判定と TensorBoard）
+        if self.common_step_counter > 0:
+            done_lv, done_ok, done_stand = self.ep_level[ids], self.ep_success[ids], self._promo_ok[ids]
+            promo = done_stand if self.promote_on == "end_hold" else done_ok
+            for L, ok in zip(done_lv.tolist(), promo.tolist()):
+                if L == self.level:
+                    self.recent.append(ok)
+            ep = self.extras["episode"]
+            for name in self.episode_sums:
+                ep["rew_" + name] = self.episode_sums[name][ids].mean() / self.env_cfg["episode_length_s"]
+            ep["success_rate"] = done_ok.float().mean()
+            ep["stand_end_rate"] = done_stand.float().mean()   # 最後の promote_hold_s 秒、立っていた（角速度は問わない）
+            if (done_lv == self.level).any():   # NaN を入れると rsl-rl の平均が NaN になるので、あるときだけ
+                ep["success_rate_current_level"] = done_ok[done_lv == self.level].float().mean()
+                ep["stand_end_rate_current_level"] = done_stand[done_lv == self.level].float().mean()
+            ep["level"] = torch.tensor(float(self.level))
+            ep["sim_error_resets"] = torch.tensor(float(self._sim_error_count) / self.num_envs)
+            ep["u0_mean"] = self.ep_u0[ids].mean()
+            ep["h_base_max_mean"] = self.ep_hmax[ids].mean()
+            ep["contacts_max"] = self.contacts_max.to(gs.tc_float)
+            self._maybe_promote()
+        fz, self._forced = self._forced, None
+        bi, lv = (fz["idx"], fz["level"]) if fz is not None else self._sample_bank(k)
+        b = self.bank
+        # ヨーはランダムに回す（床の上の向きは物理に関係ない）
+        yaw = fz["yaw"] if fz is not None and "yaw" in fz else torch.rand(k, device=self.device) * 2 * math.pi
+        self.ep_yaw[ids] = yaw
+        qy = torch.stack([torch.cos(yaw / 2), torch.zeros_like(yaw), torch.zeros_like(yaw), torch.sin(yaw / 2)], -1)
+        quat = quat_mul(qy, b["quat"][bi])
+        pos = b["pos"][bi].clone()
+        pos[:, :2] = 0.0
+        r = self.robot
+        r.set_pos(pos, envs_idx=ids, zero_velocity=True)
+        r.set_quat(quat, envs_idx=ids, zero_velocity=True)
+        r.set_dofs_position(b["q"][bi], self.motors, envs_idx=ids, zero_velocity=True)
+        r.set_dofs_velocity(torch.zeros(k, r.n_dofs, device=self.device, dtype=gs.tc_float), envs_idx=ids)
+        self.ep_level[ids] = lv
+        self.ep_u0[ids] = b["u0"][bi]
+        # 個体差（keep: 評価の再生（録画）で、測ったときと同じ個体差を使う。force_reset の dr_state）
+        dr = self.env_cfg["dr"]
+        rnd = lambda lo_hi, *s: torch.rand(*s, device=self.device, dtype=gs.tc_float) * (lo_hi[1] - lo_hi[0]) + lo_hi[0]
+        keep = fz.get("dr_state") if fz is not None else None
+        self.friction_ratio[ids] = keep["friction_ratio"] if keep is not None else rnd(dr["friction_ratio"], k, 1)
+        r.set_friction_ratio(self.friction_ratio[ids].repeat(1, self.n_links), range(self.n_links), ids)
+        self.mass_shift[ids] = keep["mass_shift"] if keep is not None else rnd(dr["mass_kg"], k, 1)
+        r.set_mass_shift(self.mass_shift[ids], [0], ids)
+        self.com_shift[ids] = keep["com_shift"] if keep is not None else rnd(dr["com_m"], k, 3)
+        r.set_COM_shift(self.com_shift[ids].unsqueeze(1), [0], ids)
+        self.trim[ids] = keep["trim"] if keep is not None else rnd(dr["trim_rad"], k, self.num_actions)
+        if keep is not None:
+            self.R_imu[ids] = keep["R_imu"]
+        else:
+            ax = torch.randn(k, 3, device=self.device, dtype=gs.tc_float)
+            ax = ax / ax.norm(dim=1, keepdim=True)
+            self.R_imu[ids] = axis_angle_mat(ax, rnd((0.0, math.radians(dr["imu_deg"])), k))
+        # 状態を読み直し、前回の目標角・遅れのバッファ・履歴を実測から作る（公称姿勢からの跳びを防ぐ）
+        self._read_state()
+        q_meas = (self.q - self.trim)[ids]
+        self.q_tgt_prev[ids] = q_meas.clamp(self.q_lo + 0.03, self.q_hi - 0.03)
+        self.q_delay[ids] = self.q_tgt_prev[ids]
+        self.actions[ids] = 0.0
+        self.last_actions[ids] = 0.0
+        self.last_last_actions[ids] = 0.0
+        w, gv, q_obs = self._sensed()
+        self.q_obs_prev[ids] = q_obs[ids]
+        frame = torch.cat([w, gv, q_obs - self.q_nom], dim=-1)[ids]
+        self.hist[ids] = frame.unsqueeze(1).repeat(1, self.obs_cfg["history"], 1)
+        self.episode_length_buf[ids] = 0
+        self.succ_hold[ids] = 0
+        self.stand_hold[ids] = 0
+        self._promo_ok[ids] = False
+        self.ep_success[ids] = False
+        self.ep_hmax[ids] = self.h_base[ids]
+        for name in self.episode_sums:
+            self.episode_sums[name][ids] = 0.0
+
+    def _maybe_promote(self):
+        cur = self.env_cfg["curriculum"]
+        it = self.common_step_counter // cur["steps_per_iter"]
+        if (self.fixed_level or self.level >= len(self.levels) - 1 or len(self.recent) < self.recent.maxlen
+                or it - self.last_promote_iter < cur["promote_min_iters"]):
+            return
+        if sum(self.recent) / len(self.recent) >= cur["promote_rate"]:
+            self.level += 1
+            self.last_promote_iter = it
+            self.recent.clear()
+            self.promotions.append((it, cur["levels"][self.level]))
+            print(f"[curriculum] iter {it}: 段階 {cur['levels'][self.level]} へ昇格", flush=True)
+
+    def force_reset(self, bank_idx: torch.Tensor, level: int | torch.Tensor, yaw: torch.Tensor | None = None,
+                    dr_state: dict | None = None):
+        """全体を指定の初期状態からやり直す（評価・録画用）。bank_idx は体の数と同じ長さ。
+        dr_state（dr_snapshot() の戻り値）を渡すと、個体差をその値にする（測ったときの再生）。"""
+        B = self.num_envs
+        if len(bank_idx) != B:
+            raise ValueError(f"bank_idx の長さ {len(bank_idx)} が体の数 {B} と違う")
+        lv = level if torch.is_tensor(level) else torch.full((B,), int(level), dtype=torch.long, device=self.device)
+        fz = {"idx": bank_idx.to(self.device), "level": lv.to(self.device)}
+        if yaw is not None:
+            fz["yaw"] = yaw.to(self.device)
+        if dr_state is not None:
+            fz["dr_state"] = {k: dr_state[k].to(self.device) for k in ("friction_ratio", "mass_shift", "com_shift", "trim", "R_imu")}
+        self._forced = fz
+        self.common_step_counter, saved = 0, self.common_step_counter   # 終わっていないエピソードを記録しない
+        self._reset_idx(torch.ones(B, dtype=torch.bool, device=self.device))
+        self.common_step_counter = saved
+        w, gv, q_obs = self._sensed()
+        self._build_obs(w, gv, q_obs)
+        return self.get_observations()
+
+    def dr_snapshot(self) -> dict:
+        """いまの個体差（体ごと）の写し。force_reset(dr_state=...) で再現できる。"""
+        return {"friction_ratio": self.friction_ratio.clone(), "mass_shift": self.mass_shift.clone(),
+                "com_shift": self.com_shift.clone(), "trim": self.trim.clone(), "R_imu": self.R_imu.clone(),
+                "yaw": self.ep_yaw.clone()}
+
+    def reset(self):
+        self.common_step_counter = 0
+        self._reset_idx(torch.ones(self.num_envs, dtype=torch.bool, device=self.device))
+        w, gv, q_obs = self._sensed()
+        self._build_obs(w, gv, q_obs)
+        return self.get_observations()
+
+    # ---- 報酬（§4.4。重みは dt を掛ける前の値） ---------------------------------------------------------
+    def _hhat(self):
+        h = torch.stack([self.h_base, self.h_chest], -1)
+        return ((h - self.h_prone) / (self.h_star - self.h_prone)).clamp(0.0, 1.0)
+
+    def _reward_height(self):
+        return torch.sigmoid((self.u - 0.7) / 0.05) * self._hhat().mean(-1)
+
+    def _reward_upright(self):
+        return ((self.u + 1) / 2) ** 2
+
+    def _reward_pose(self):
+        rc = self.reward_cfg
+        p = torch.exp(-((self.q - self.q_nom) ** 2).mean(-1) / rc["pose_sigma"] ** 2)
+        return p * torch.sigmoid((self.u - 0.9) / 0.03) * ((self.h_base - 0.15) / 0.03).clamp(0.0, 1.0)
+
+    def _reward_success(self):
+        v = self.base_lin_vel.norm(dim=1) ** 2 + 0.1 * self.base_ang_vel.norm(dim=1) ** 2
+        return self._success_now.to(gs.tc_float) * torch.exp(-v / 0.05)
+
+    def _reward_body_ground_contact(self):
+        n = (self.floor_contact & self.non_end_mask).sum(1).to(gs.tc_float)
+        return n * (self.h_base > 0.12).to(gs.tc_float)
+
+    def _reward_torque_limits(self):
+        return ((self.torque.abs() / self.tau_lim - self.reward_cfg["torque_thr"]).clamp(min=0.0) ** 2).sum(1)
+
+    def _reward_dof_vel_limits(self):
+        return (self.dq.abs() - self.reward_cfg["dof_vel_thr"]).clamp(min=0.0).sum(1)
+
+    def _reward_dof_pos_limits(self):
+        m = self.reward_cfg["limit_margin"]
+        return ((self.q < self.q_lo + m) | (self.q > self.q_hi - m)).sum(1).to(gs.tc_float)
+
+    def _reward_action_rate(self):
+        return ((self.actions - self.last_actions) ** 2).sum(1)
+
+    def _reward_action_smoothness2(self):
+        # v3: 行動の 2 階差分（毎歩の向きの反転を強く罰する。歩行 v10 以降と同じ形）
+        return ((self.actions - 2 * self.last_actions + self.last_last_actions) ** 2).sum(1)

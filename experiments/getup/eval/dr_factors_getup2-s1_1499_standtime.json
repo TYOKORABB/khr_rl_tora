@@ -1,0 +1,85 @@
+{
+ "exp": "getup2-s1",
+ "ckpt": 1499,
+ "level": "L2",
+ "n_states": 256,
+ "episode_s": 16.0,
+ "train_episode_s": 8.0,
+ "date": "2026-10-15T03:18:52",
+ "seed": 0,
+ "dr_train": {
+  "friction_ratio": [
+   0.6,
+   1.4
+  ],
+  "mass_kg": [
+   -0.08,
+   0.08
+  ],
+  "com_m": [
+   -0.01,
+   0.01
+  ],
+  "trim_rad": [
+   -0.02,
+   0.02
+  ],
+  "imu_deg": 3.0
+ },
+ "noise_train": {
+  "ang_vel": 0.1,
+  "gravity": 0.05,
+  "dof_pos": 0.01
+ },
+ "noise_on_in_training": true,
+ "gap_train": 0.05,
+ "gap_eval": 0.05,
+ "backend": "cpu",
+ "conds": {
+  "dr": {
+   "stood_1s_8s": 0.9844,
+   "time_to_stand_1s_median_s": 3.42,
+   "stood_8s_but_no_success_8s": 0.1328,
+   "success_minus_stand_median_s": 0.72,
+   "success_minus_stand_p90_s": 3.55,
+   "ang_vel_resets_before_success_median": 5.0,
+   "ang_vel_resets_before_success_mean": 9.3,
+   "standing_but_ang_vel_fail_s_before_success_median": 0.16,
+   "success_8s": 0.8516,
+   "success_long": 0.9297,
+   "success_8s_u0_ge_0.9": 0.8788,
+   "success_long_u0_ge_0.9": 0.9545,
+   "stand_end_8s": 0.9727,
+   "stand_end_long": 0.9531,
+   "time_to_success_median_s": 4.18,
+   "torque_saturated_pct_time_8s": 0.1462,
+   "torque_over90_pct_time_long": 0.1986,
+   "torque_saturated_episodes_long": 0.9922,
+   "torque_ep_max_median_pct_long": 100.0,
+   "sim_error_episodes": 0
+  },
+  "nominal": {
+   "stood_1s_8s": 0.9883,
+   "time_to_stand_1s_median_s": 3.42,
+   "stood_8s_but_no_success_8s": 0.0234,
+   "success_minus_stand_median_s": 0.34,
+   "success_minus_stand_p90_s": 1.94,
+   "ang_vel_resets_before_success_median": 3.0,
+   "ang_vel_resets_before_success_mean": 3.93,
+   "standing_but_ang_vel_fail_s_before_success_median": 0.12,
+   "success_8s": 0.9648,
+   "success_long": 0.9883,
+   "success_8s_u0_ge_0.9": 0.9773,
+   "success_long_u0_ge_0.9": 0.9924,
+   "stand_end_8s": 0.9609,
+   "stand_end_long": 0.9727,
+   "time_to_success_median_s": 3.92,
+   "torque_saturated_pct_time_8s": 0.1186,
+   "torque_over90_pct_time_long": 0.1515,
+   "torque_saturated_episodes_long": 0.9688,
+   "torque_ep_max_median_pct_long": 100.0,
+   "sim_error_episodes": 0
+  }
+ },
+ "elapsed_s": 83.5
+}
