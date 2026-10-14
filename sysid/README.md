@@ -1,6 +1,6 @@
 # sysid/ — 実機の記録と学習環境を突き合わせる（同定の下準備）
 
-`GetUpSim2RealPlan.md` §4.1・§5.3。実行はリポジトリのルートから `python -m sysid.<名前>`（Genesis は CPU）。結果は `experiments/sysid/`。
+`docs/GetUpSim2RealPlan.md` §4.1・§5.3。実行はリポジトリのルートから `python -m sysid.<名前>`（Genesis は CPU）。結果は `experiments/sysid/`。
 
 | ファイル | 内容 |
 |---|---|

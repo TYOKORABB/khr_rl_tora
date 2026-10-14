@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-Reinforcement-learning code that trains a **bipedal walking policy for the Kondo KHR-3HV
-humanoid** (12-DOF, legs only) in the **Genesis** physics simulator using **PPO** from
-**rsl-rl-lib (>= 5.0.0)**. The `khr_*` scripts were adapted from the Genesis Unitree Go2
-locomotion example.
+Reinforcement-learning code for the Kondo KHR-3HV humanoid in the **Genesis** physics simulator using
+**PPO** from **rsl-rl-lib (>= 5.0.0)**. The thesis work is **quadruped walking** (all 22 joints, arms as
+front legs; `quad/`, current best v31) and its Sim2Real over Meridian (`real/`), plus a get-up task
+(`getup/`). The original **bipedal** baseline (12-DOF legs, from `khr_rl_sample`) is kept in `biped/`.
 
 This is a university graduation thesis. It builds on a senior lab member's prior work, which
 already implemented both the Genesis sim-RL pipeline and **real-robot walking on the physical
@@ -21,9 +21,24 @@ The git repository is **this directory (`khr_rl_tora/`)**, remote
 `github.com/TYOKORABB/khr_rl_tora.git`. Its parent (the Claude Code launch directory,
 `KajitaLab/`) is **not** version-controlled — make changes and run git inside `khr_rl_tora/`.
 
+## Where things are (reorganized 2026-10-14; `README.md` has the full map)
+
+| Path | Contents |
+|---|---|
+| `docs/` | `DevelopmentDiary.md` (main record), `GetUpSim2RealPlan.md`, `ResearchPlan.md`, `RewardReference.md`, `RealRobotVerification.md` |
+| `quad/` | Quadruped walking v16–v31: `khr_quad_env*.py`, `khr_train_quad*.py`, `khr_quad_record*.py`, measurement and URDF-fix tools. **Flat on purpose**: the files import each other by bare module name, so they must share one directory. `quad/jobs/` = cron-style shell jobs, `quad/archive_v1_v15/` = v1–v15 |
+| `biped/` | Original bipedal baseline (`khr_env.py`, `khr_train.py`, `khr_eval.py`, `pd_test.py`, Eureka experiment) |
+| `go2_reference/` | Upstream Genesis Go2 example (reference only, not imported) |
+| `khr_common/`, `real/`, `sysid/`, `getup/` | Shared Genesis-free code / real robot / sim-vs-real / get-up (run as `python -m <pkg>.<name>`) |
+| `experiments/` | Research records (git-tracked). `logs/` = checkpoints (gitignored). `media/` = plots and videos |
+
+Always run from the repo root (`cd khr_rl_tora`): URDFs are read as `../assets/...` relative to the working directory,
+so run scripts as `python quad/khr_train_quad31.py`, not from inside `quad/`. Importing `khr_common.paths` puts `quad/`
+(and the v1–v15 archive) on `sys.path`, which is how `real/`, `sysid/`, `getup/` load `khr_quad_env21` etc.
+
 ## Environment & prerequisites
 
-- **Training needs a CUDA GPU machine.** `khr_train.py` calls `gs.init(backend=gs.gpu)`. The
+- **Training needs a CUDA GPU machine.** The training scripts call `gs.init(backend=gs.gpu)`. The
   development Mac here (Apple Silicon, no CUDA) is for **editing and CPU eval only** — it
   cannot run training.
 - The robot assets `../assets/khr3hv/urdf/*.urdf` (e.g. `khr3hv_12dof.urdf`) are referenced
@@ -36,27 +51,30 @@ The git repository is **this directory (`khr_rl_tora/`)**, remote
 Run from inside `khr_rl_tora/` (use `python` / `python3` as appropriate for the GPU machine):
 
 ```bash
-# Train (headless, GPU). Writes checkpoints + TensorBoard to logs/<exp_name>/.
-python khr_train.py -e khr-walking -B 4096 -I 101 --seed 1
-python khr_train.py --view          # same, but opens the Genesis viewer to watch env 0
+# Quadruped (current work). Writes checkpoints + TensorBoard to logs/<exp_name>/.
+python quad/khr_train_quad31.py -e khr-quadruped31-s1 -B 4096 -I 4000 --seed 1
+python quad/khr_quad_eval_metrics.py -e khr-quadruped31-s1 --env khr_quad_env21 --ckpt 3999 -n 128
+DISPLAY=:1 python quad/khr_quad_record21.py -e khr-quadruped31-s1 --ckpt 3999 --vx 0.3 -o walk.mp4
 
-# Evaluate / play a checkpoint in the viewer (CPU). Loads logs/<exp>/model_<ckpt>.pt.
-python khr_eval.py -e khr-walking --ckpt 100
-
-# PD-control sanity check of the URDF (standalone; plots joint angle & torque).
-python pd_test.py
+# Bipedal baseline (biped/).
+python biped/khr_train.py -e khr-walking -B 4096 -I 101 --seed 1
+python biped/khr_train.py --view    # same, but opens the Genesis viewer to watch env 0
+python biped/khr_eval.py -e khr-walking --ckpt 100   # viewer (CPU)
+python biped/pd_test.py             # PD-control sanity check of the URDF
 
 # Watch training curves.
 tensorboard --logdir logs
 ```
 
-CLI flags: `khr_train.py` → `-e/--exp_name -B/--num_envs -I/--max_iterations --seed --view`;
-`khr_eval.py` → `-e/--exp_name --ckpt/-I`.
+CLI flags: `biped/khr_train.py` → `-e/--exp_name -B/--num_envs -I/--max_iterations --seed --view`;
+`biped/khr_eval.py` → `-e/--exp_name --ckpt/-I`.
 
-Note: `khr_train.py` **deletes and recreates** `logs/<exp_name>/` on every run — copy out any
+Note: the training scripts **delete and recreate** `logs/<exp_name>/` on every run — copy out any
 checkpoints you want to keep before re-training with the same `exp_name`.
+Known breakage (pre-dates the 2026-10-14 move): `quad/khr_quad_eval.py` imports the archived v1 env and fails;
+`quad/khr_train_quad16–19.py` import archived envs and only run via `quad/train_with_urdf_fix.py`.
 
-## Architecture
+## Architecture (bipedal baseline, `biped/`)
 
 - **`khr_env.py`** — `KHREnv`, the core Genesis environment. Builds the scene, loads the KHR
   URDF, runs **PD position control** (`kp=25, kd=0.5`, `action_scale=0.25`, control dt=0.02 /
@@ -93,7 +111,7 @@ training exactly. Change hyperparameters in `get_cfgs()` / `get_train_cfg()`, no
 - `logs/` and `*.mp4` are gitignored (see `.gitignore` bottom) — checkpoints and recordings
   are not tracked.
 
-## Get-up / Sim2Real work (2026-10, `GetUpSim2RealPlan.md`)
+## Get-up / Sim2Real work (2026-10, `docs/GetUpSim2RealPlan.md`)
 
 Run everything from the repo root as modules (`python -m <pkg>.<name>`); paths resolve via `khr_common/paths.py`.
 
@@ -104,7 +122,8 @@ Run everything from the repo root as modules (`python -m <pkg>.<name>`); paths r
 - `sysid/` — sim-vs-real comparison of recorded walks (closed-loop sweeps, segment replay E4a). Results in `experiments/sysid/`.
 - `getup/` — get-up task: `precheck/`, `tools/make_getup_urdf.py` (writes a derived URDF to `../assets`, not committed),
   `gen_init_states.py` (initial-state bank, committed under `getup/data/banks/`), `envs/getup_env1.py`, `train_getup1.py`.
-  Version history in `getup/DIARY.md`. Do not start GPU training while the cron retrain queue (`run_retrain_fixurdf.sh`) is running.
+  Version history in `getup/DIARY.md`. The quadruped retrain queue (`quad/jobs/run_retrain_fixurdf.sh`) finished on 2026-10-14 and its cron line is commented out;
+  if it is ever re-enabled, do not start other GPU training while it runs.
 
 ## GitHub workflow
 

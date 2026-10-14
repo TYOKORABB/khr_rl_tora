@@ -1,6 +1,6 @@
 # getup/ — 起き上がり（転倒状態 → 四脚の公称姿勢）のシミュ側
 
-計画書は `GetUpSim2RealPlan.md`。版ごとの「動機 → 変更 → 結果 → 分析」は `DIARY.md`。
+計画書は `docs/GetUpSim2RealPlan.md`。版ごとの「動機 → 変更 → 結果 → 分析」は `DIARY.md`。
 実行はすべてリポジトリのルートから `python -m getup.<名前>`（`khr_common/paths.py` がパスを解決する）。
 
 | パス | 内容 |
