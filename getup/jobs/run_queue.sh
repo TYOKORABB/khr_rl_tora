@@ -8,7 +8,9 @@
 set -u
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"; cd "$REPO" || exit 1
 Q="${1:?使い方: $0 <キューのファイル>}"
-while pgrep -f "getup/jobs/train_eval.sh" >/dev/null; do sleep 120; done
+# 実行中の train_eval.sh 本体だけを見る（コマンドの文字列に名前を含むだけのシェルに当たると永遠に待つ。2026-10-14 に実際に起きた）
+running_job() { pgrep -f "^(/usr)?(/bin/)?bash +[^ ]*getup/jobs/train_eval\.sh" >/dev/null; }
+while running_job; do sleep 120; done
 grep -v '^\s*#' "$Q" | sed 's/#.*//' | while read -r exp seed it train; do
   [ -n "${exp:-}" ] || continue
   if ls "logs/$exp"/model_*.pt >/dev/null 2>&1; then echo "[skip ] $exp（学習済み）"; continue; fi

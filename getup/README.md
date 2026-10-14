@@ -10,11 +10,16 @@
 | `tools/verify_getup_urdf.py` | 別名 URDF を元の URDF と比べる（質量・立ち姿・v31 の歩行・計算時間） |
 | `tools/check_height_est.py` | h_est を初期状態バンクの落ち着いた状態で確かめる |
 | `tools/check_success.py` | 学習済みの方策で、成功判定のどの条件が満たされないかを調べる（決定的・探索のゆらぎつき・行動 0 の 3 通り、GPU） |
+| `tools/dr_factor_eval.py` | 個体差（摩擦・質量・重心・0 点のずれ・IMU）と観測ノイズを 1 つずつ入れて成功率を測る。エピソードを延ばし、8 秒以内と延ばした時間以内を同時に（GPU、1 方策 約 2.5 分） |
+| `tools/sat_breakdown.py` | トルクが 100 % に達した瞬間のずれを、制限の部分・観測ノイズ・遅れのあいだの関節の動きに分ける（GPU、約 1 分） |
 | `gen_init_states.py` | 初期状態バンク（`data/banks/*.pt` と `MANIFEST.json`、コミットする） |
 | `envs/getup_env1.py` | getup-v1 の環境。版ごとに複製し、学習に使った版は書き換えない |
 | `train_getup1.py` | getup-v1 の学習。設定（`get_cfgs` / `get_train_cfg`）の唯一の出所 |
+| `envs/getup_env2.py`・`train_getup2.py` | getup-v2（v1 ＋ 送る目標角を観測した関節角 ± 0.05 rad に制限 ＋ 下の PPOBound）。cfgs.pkl の `env_module` で検証の道具が環境の版を選ぶ |
+| `ppo_bound.py` | `PPOBound`: rsl-rl 5.4.0 の PPO に、行動の平均が ±1 を超えた分の 2 乗の罰（bound loss）を足したもの（v2 から） |
 | `eval_getup.py` | 学習後の検証。評価用の全状態を決定的な方策で動かし、成功率・トルクなどを `experiments/getup/eval/` に、**毎回、段階ごとに 6 エピソードの動画**を `media/videos/getup/` に（GPU） |
-| `jobs/train_eval.sh` | 学習 → 検証（動画つき）を続けて行う。whisper の解析が走っているとき・次の開始までに終わらないときは始めない |
+| `jobs/train_eval.sh` | 学習 → 検証（動画つき）を続けて行う。whisper の解析が走っているとき・次の開始までに終わらないときは始めない（`--wait` で空くまで待つ） |
+| `jobs/run_queue.sh` | キューのファイル（例 `jobs/queue_v1v2_seeds.txt`）の行を 1 本ずつ `train_eval.sh --wait` で回す。学習済みの行は飛ばす |
 
 共有コード（学習環境と実機のデプロイヤの両方が使う）は `khr_common/`:
 `action_post.py`（行動 → 目標角の後処理）、`height_est.py`（順運動学による胴体の高さ h_est）、`joint_map.py`、`gravity.py`。
@@ -32,6 +37,10 @@ python -m getup.train_getup1 -e getup1-smoke -B 32 -I 3 --cpu     # 動作確認
 python -m getup.train_getup1 -e getup1-s1 -B 4096 -I 1500 --seed 1   # 学習（GPU、約 27 分。ユーザーの whisper 解析と重ねない）
 python -m getup.eval_getup -e getup1-s1                                # 検証（成功率・トルク・動画、GPU、約 7 分）
 getup/jobs/train_eval.sh getup1-s2 2 1500                              # 学習 → 検証（動画つき）をまとめて
+getup/jobs/train_eval.sh --wait getup2-s1 1 1500 train_getup2          # v2 を、GPU が空くまで待ってから
+getup/jobs/run_queue.sh getup/jobs/queue_v1v2_seeds.txt                # キューを 1 本ずつ
+python -m getup.tools.dr_factor_eval -e getup2-s1 --level 2            # 個体差の要素ごとの成功率（GPU、方策ごとに 1 回）
+python -m getup.tools.sat_breakdown -e getup2-s1 --level 2             # トルク 100 % の内訳（GPU）
 python -m getup.tools.check_success -e getup1-s1 --ckpt 1499           # 成功判定の内訳（GPU）
 ```
 

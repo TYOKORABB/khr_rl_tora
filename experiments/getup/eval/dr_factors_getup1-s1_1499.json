@@ -1,0 +1,181 @@
+{
+ "exp": "getup1-s1",
+ "ckpt": 1499,
+ "level": "L2",
+ "n_states": 1591,
+ "episode_s": 16.0,
+ "train_episode_s": 8.0,
+ "date": "2026-10-14T21:31:11",
+ "seed": 0,
+ "dr_train": {
+  "friction_ratio": [
+   0.6,
+   1.4
+  ],
+  "mass_kg": [
+   -0.08,
+   0.08
+  ],
+  "com_m": [
+   -0.01,
+   0.01
+  ],
+  "trim_rad": [
+   -0.02,
+   0.02
+  ],
+  "imu_deg": 3.0
+ },
+ "noise_train": {
+  "ang_vel": 0.1,
+  "gravity": 0.05,
+  "dof_pos": 0.01
+ },
+ "noise_on_in_training": true,
+ "conds": {
+  "nominal": {
+   "success_8s": 0.9051,
+   "success_long": 0.9309,
+   "success_8s_u0_ge_0.9": 0.8918,
+   "success_long_u0_ge_0.9": 0.9235,
+   "stand_end_8s": 0.9629,
+   "stand_end_long": 0.9635,
+   "time_to_success_median_s": 2.08,
+   "torque_saturated_pct_time_8s": 0.9238,
+   "sim_error_episodes": 0
+  },
+  "noise": {
+   "success_8s": 0.9177,
+   "success_long": 0.9378,
+   "success_8s_u0_ge_0.9": 0.9222,
+   "success_long_u0_ge_0.9": 0.9406,
+   "stand_end_8s": 0.9604,
+   "stand_end_long": 0.961,
+   "time_to_success_median_s": 2.1,
+   "torque_saturated_pct_time_8s": 0.9242,
+   "sim_error_episodes": 0
+  },
+  "noise_dof": {
+   "success_8s": 0.8994,
+   "success_long": 0.929,
+   "success_8s_u0_ge_0.9": 0.8865,
+   "success_long_u0_ge_0.9": 0.9182,
+   "stand_end_8s": 0.9604,
+   "stand_end_long": 0.961,
+   "time_to_success_median_s": 2.1,
+   "torque_saturated_pct_time_8s": 0.9059,
+   "sim_error_episodes": 0
+  },
+  "noise_imu": {
+   "success_8s": 0.9063,
+   "success_long": 0.9271,
+   "success_8s_u0_ge_0.9": 0.8958,
+   "success_long_u0_ge_0.9": 0.9182,
+   "stand_end_8s": 0.9541,
+   "stand_end_long": 0.9535,
+   "time_to_success_median_s": 2.08,
+   "torque_saturated_pct_time_8s": 0.9018,
+   "sim_error_episodes": 0
+  },
+  "friction": {
+   "success_8s": 0.8875,
+   "success_long": 0.9195,
+   "success_8s_u0_ge_0.9": 0.8826,
+   "success_long_u0_ge_0.9": 0.909,
+   "stand_end_8s": 0.9585,
+   "stand_end_long": 0.9598,
+   "time_to_success_median_s": 2.12,
+   "torque_saturated_pct_time_8s": 0.9133,
+   "sim_error_episodes": 0
+  },
+  "mass": {
+   "success_8s": 0.9177,
+   "success_long": 0.9334,
+   "success_8s_u0_ge_0.9": 0.9037,
+   "success_long_u0_ge_0.9": 0.9182,
+   "stand_end_8s": 0.9623,
+   "stand_end_long": 0.9617,
+   "time_to_success_median_s": 2.1,
+   "torque_saturated_pct_time_8s": 0.9154,
+   "sim_error_episodes": 0
+  },
+  "com": {
+   "success_8s": 0.912,
+   "success_long": 0.9302,
+   "success_8s_u0_ge_0.9": 0.909,
+   "success_long_u0_ge_0.9": 0.9235,
+   "stand_end_8s": 0.9585,
+   "stand_end_long": 0.9585,
+   "time_to_success_median_s": 2.08,
+   "torque_saturated_pct_time_8s": 0.9249,
+   "sim_error_episodes": 0
+  },
+  "trim": {
+   "success_8s": 0.9019,
+   "success_long": 0.9246,
+   "success_8s_u0_ge_0.9": 0.8879,
+   "success_long_u0_ge_0.9": 0.9129,
+   "stand_end_8s": 0.9591,
+   "stand_end_long": 0.9598,
+   "time_to_success_median_s": 2.12,
+   "torque_saturated_pct_time_8s": 0.9176,
+   "sim_error_episodes": 0
+  },
+  "imu": {
+   "success_8s": 0.9082,
+   "success_long": 0.9353,
+   "success_8s_u0_ge_0.9": 0.8945,
+   "success_long_u0_ge_0.9": 0.9301,
+   "stand_end_8s": 0.961,
+   "stand_end_long": 0.961,
+   "time_to_success_median_s": 2.1,
+   "torque_saturated_pct_time_8s": 0.9075,
+   "sim_error_episodes": 0
+  },
+  "dr_no_noise": {
+   "success_8s": 0.8774,
+   "success_long": 0.9158,
+   "success_8s_u0_ge_0.9": 0.8602,
+   "success_long_u0_ge_0.9": 0.8958,
+   "stand_end_8s": 0.9579,
+   "stand_end_long": 0.9573,
+   "time_to_success_median_s": 2.16,
+   "torque_saturated_pct_time_8s": 0.9201,
+   "sim_error_episodes": 0
+  },
+  "dr_noise_imu": {
+   "success_8s": 0.8806,
+   "success_long": 0.9183,
+   "success_8s_u0_ge_0.9": 0.8826,
+   "success_long_u0_ge_0.9": 0.9169,
+   "stand_end_8s": 0.9522,
+   "stand_end_long": 0.9541,
+   "time_to_success_median_s": 2.14,
+   "torque_saturated_pct_time_8s": 0.9272,
+   "sim_error_episodes": 0
+  },
+  "dr_noise_dof": {
+   "success_8s": 0.8768,
+   "success_long": 0.917,
+   "success_8s_u0_ge_0.9": 0.8602,
+   "success_long_u0_ge_0.9": 0.9063,
+   "stand_end_8s": 0.9591,
+   "stand_end_long": 0.9598,
+   "time_to_success_median_s": 2.18,
+   "torque_saturated_pct_time_8s": 0.9297,
+   "sim_error_episodes": 0
+  },
+  "dr": {
+   "success_8s": 0.8862,
+   "success_long": 0.9189,
+   "success_8s_u0_ge_0.9": 0.8826,
+   "success_long_u0_ge_0.9": 0.9129,
+   "stand_end_8s": 0.9617,
+   "stand_end_long": 0.9629,
+   "time_to_success_median_s": 2.14,
+   "torque_saturated_pct_time_8s": 0.9341,
+   "sim_error_episodes": 0
+  }
+ },
+ "elapsed_s": 147.3
+}
