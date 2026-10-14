@@ -2312,15 +2312,19 @@ cron のようにセッションの外で動く仕組みは止まらないが、
 - **実行環境を自分の GitHub で管理**（§7.3）: Genesis・Meridian_LITE・Meridian_consoleS をフォークし、作業場の設計図
   [TYOKORABB/khr-workspace](https://github.com/TYOKORABB/khr-workspace) を新規に作った。**全実験で使った Genesis のコミット `04cf3b44` は、
   梶田先生のフォークの履歴が書き換わって GitHub 上から消えていた**ので、自分のフォークのブランチ `khr-v0.4.6` に残した。
-- **Google Drive へのバックアップ**: `logs/`（8.5 GB）・実機の生データ・動画を `研究/khr_backup/` へ（rclone、`khr-workspace/backup/backup_to_drive.sh`。
-  `rclone copy` なので Drive 側は消さない。何度実行してもよい）。assets とファームの書き込み前のバックアップ（Wi-Fi の情報を含む）は送らない。
+- **Google Drive への完全なバックアップ（月 1 回）**: 作業場を丸ごと `研究/khr_backup/gsw4/` へ（rclone sync、各リポジトリの .git・`logs/` 8.5 GB・
+  動画を含む約 9.8 GB）。手元で消えた・変わったファイルは `gsw4_changed/<日付>/` に退避するので Drive からは失われない。
+  秘密の情報（ファームの書き込み前のバックアップ＝実機の元のファーム・サーボの向きと 0 点・Wi-Fi の設定、keys.h、board_ip.txt、.env）は
+  gpg（AES-256）で暗号化して `secrets/` へ（復号して全ファイルが元と一致することを確認）。外すのは仮想環境・assets（ユーザーの指示）・キャッシュだけ。
+  毎月 1 日 3:00 に cron。手順は `khr-workspace/backup/backup_to_drive.sh`。
 - **実機に載せた方策の凍結**: `real/policies/khr-quadruped31-s2_ckpt3999/`（モデル・設定・SHA-256・由来）。`walk_session` は `logs/` に無ければここを読み、
   読んだ方策の出力は元と完全に一致した。
 - **学習時のコードの記録**: これまでの学習記録 177 本中 173 本が「未コミットの変更あり」で学習しており、どのコードで学習したかを厳密に再現できない。
   rsl-rl の仕組み（`add_git_repo_to_log`）は呼んでおらず、`logs/<exp>/git/` は空だった。しかも追跡中のファイルの差分しか残さない。
   `khr_common/run_record.py` を作り、学習開始時にコミット・差分・未追跡のコードを `logs/<exp>/code_state/` に残す。起き上がりの学習は対応済み、
   四脚の v32 以降は `quad/run_record.py` から呼ぶ（版のファイルは書き換えないので、v31 までには入れない）。
-- **節目のタグ**: v28・v30（URDF の是正）・v31 の採用・v31 の実機歩行・全版の再学習の完了・ファイル整理の直前、に注釈つきのタグを付けた。
+- **節目のタグ**: 中間発表（9/18。その時点の最後のコミットは 8/23）・v28・v30（URDF の是正）・v31 の採用・v31 の実機歩行・全版の再学習の完了・
+  ファイル整理の直前、に注釈つきのタグを付けた（`git tag -n`）。
 - **壊れていた道具**: `quad/khr_quad_eval.py`（v1 の環境を決め打ち → `--env` で選ぶ）、`khr_train_quad16〜19.py`・`khr_quad_record13〜15.py`
   （v16〜v19 用の env13〜15 が v1〜v15 の退避先に入っていた → `quad/` へ戻した）。どれも直接起動できることを確かめた。
 
