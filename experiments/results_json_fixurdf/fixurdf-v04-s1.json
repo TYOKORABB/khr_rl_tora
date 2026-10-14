@@ -1,0 +1,354 @@
+{
+  "exp_name": "fixurdf-v04-s1",
+  "env_module": "khr_quad_env",
+  "ckpt": 3999,
+  "num_robots": 128,
+  "measure_seconds": 10.0,
+  "command": [
+    0.3,
+    0.0,
+    0.0
+  ],
+  "repeats": 3,
+  "push": false,
+  "no_offset": {
+    "lateral_pct": 0.18899544877635807,
+    "lateral_pct__sd": 0.0,
+    "lateral_pct__runs": [
+      0.18899544877635807,
+      0.18899544877635807,
+      0.18899544877635807
+    ],
+    "speed_mps": 0.2761009216308593,
+    "speed_mps__sd": 0.0,
+    "speed_mps__runs": [
+      0.2761009216308593,
+      0.2761009216308593,
+      0.2761009216308593
+    ],
+    "yaw_accum_deg": -1.2767393589019775,
+    "yaw_accum_deg__sd": 0.0,
+    "yaw_accum_deg__runs": [
+      -1.2767393589019775,
+      -1.2767393589019775,
+      -1.2767393589019775
+    ],
+    "yaw_accum_abs_deg": 1.2767393589019775,
+    "yaw_accum_abs_deg__sd": 0.0,
+    "yaw_accum_abs_deg__runs": [
+      1.2767393589019775,
+      1.2767393589019775,
+      1.2767393589019775
+    ],
+    "yaw_accum_spread_deg": 1.1920928955078125e-07,
+    "yaw_accum_spread_deg__sd": 0.0,
+    "yaw_accum_spread_deg__runs": [
+      1.1920928955078125e-07,
+      1.1920928955078125e-07,
+      1.1920928955078125e-07
+    ],
+    "vy_mps": -0.0024926599580794573,
+    "vy_mps__sd": 0.0,
+    "vy_mps__runs": [
+      -0.0024926599580794573,
+      -0.0024926599580794573,
+      -0.0024926599580794573
+    ],
+    "torque_mean_pct": 26.992765426635742,
+    "torque_mean_pct__sd": 0.0,
+    "torque_mean_pct__runs": [
+      26.992765426635742,
+      26.992765426635742,
+      26.992765426635742
+    ],
+    "torque_p99_pct": 100.0,
+    "torque_p99_pct__sd": 0.0,
+    "torque_p99_pct__runs": [
+      100.0,
+      100.0,
+      100.0
+    ],
+    "torque_peak_pct": 100.0,
+    "torque_peak_pct__sd": 0.0,
+    "torque_peak_pct__runs": [
+      100.0,
+      100.0,
+      100.0
+    ],
+    "torque_over90_pct_time": 9.090909090909092,
+    "torque_over90_pct_time__sd": 0.0,
+    "torque_over90_pct_time__runs": [
+      9.090909090909092,
+      9.090909090909092,
+      9.090909090909092
+    ],
+    "knee_rom_deg": 0.0463903546333313,
+    "knee_rom_deg__sd": 0.0,
+    "knee_rom_deg__runs": [
+      0.0463903546333313,
+      0.0463903546333313,
+      0.0463903546333313
+    ],
+    "duty_asym_pt": 2.0000038146972656,
+    "duty_asym_pt__sd": 0.0,
+    "duty_asym_pt__runs": [
+      2.0000038146972656,
+      2.0000038146972656,
+      2.0000038146972656
+    ],
+    "sole_tilt_deg": 17.284748077392578,
+    "sole_tilt_deg__sd": 0.0,
+    "sole_tilt_deg__runs": [
+      17.284748077392578,
+      17.284748077392578,
+      17.284748077392578
+    ],
+    "sole_tilt_touchdown_deg": 17.487197875976562,
+    "sole_tilt_touchdown_deg__sd": 0.0,
+    "sole_tilt_touchdown_deg__runs": [
+      17.487197875976562,
+      17.487197875976562,
+      17.487197875976562
+    ],
+    "sole_tilt_early_deg": 17.805294036865234,
+    "sole_tilt_early_deg__sd": 0.0,
+    "sole_tilt_early_deg__runs": [
+      17.805294036865234,
+      17.805294036865234,
+      17.805294036865234
+    ],
+    "sole_tilt_pushoff_deg": 16.293405532836914,
+    "sole_tilt_pushoff_deg__sd": 0.0,
+    "sole_tilt_pushoff_deg__runs": [
+      16.293405532836914,
+      16.293405532836914,
+      16.293405532836914
+    ],
+    "clearance_front_m": 0.009174252860248089,
+    "clearance_front_m__sd": 0.0,
+    "clearance_front_m__runs": [
+      0.009174252860248089,
+      0.009174252860248089,
+      0.009174252860248089
+    ],
+    "clearance_rear_m": 0.025455977767705917,
+    "clearance_rear_m__sd": 0.0,
+    "clearance_rear_m__runs": [
+      0.025455977767705917,
+      0.025455977767705917,
+      0.025455977767705917
+    ],
+    "falls": 0.0,
+    "falls__sd": 0.0,
+    "falls__runs": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "falls_warmup": 0.0,
+    "falls_warmup__sd": 0.0,
+    "falls_warmup__runs": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "fall_rate_per_robot_min": 0.0,
+    "fall_rate_per_robot_min__sd": 0.0,
+    "fall_rate_per_robot_min__runs": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gait_match_pct": 91.0,
+    "gait_match_pct__sd": 0.0,
+    "gait_match_pct__runs": [
+      91.0,
+      91.0,
+      91.0
+    ],
+    "gait_match_front_pct": 90.5999984741211,
+    "gait_match_front_pct__sd": 0.0,
+    "gait_match_front_pct__runs": [
+      90.5999984741211,
+      90.5999984741211,
+      90.5999984741211
+    ],
+    "gait_match_rear_pct": 91.39999389648438,
+    "gait_match_rear_pct__sd": 0.0,
+    "gait_match_rear_pct__runs": [
+      91.39999389648438,
+      91.39999389648438,
+      91.39999389648438
+    ]
+  },
+  "with_offset": {
+    "lateral_pct": 0.18899544877635807,
+    "lateral_pct__sd": 0.0,
+    "lateral_pct__runs": [
+      0.18899544877635807,
+      0.18899544877635807,
+      0.18899544877635807
+    ],
+    "speed_mps": 0.2761009216308593,
+    "speed_mps__sd": 0.0,
+    "speed_mps__runs": [
+      0.2761009216308593,
+      0.2761009216308593,
+      0.2761009216308593
+    ],
+    "yaw_accum_deg": -1.2767393589019775,
+    "yaw_accum_deg__sd": 0.0,
+    "yaw_accum_deg__runs": [
+      -1.2767393589019775,
+      -1.2767393589019775,
+      -1.2767393589019775
+    ],
+    "yaw_accum_abs_deg": 1.2767393589019775,
+    "yaw_accum_abs_deg__sd": 0.0,
+    "yaw_accum_abs_deg__runs": [
+      1.2767393589019775,
+      1.2767393589019775,
+      1.2767393589019775
+    ],
+    "yaw_accum_spread_deg": 1.1920928955078125e-07,
+    "yaw_accum_spread_deg__sd": 0.0,
+    "yaw_accum_spread_deg__runs": [
+      1.1920928955078125e-07,
+      1.1920928955078125e-07,
+      1.1920928955078125e-07
+    ],
+    "vy_mps": -0.0024926599580794573,
+    "vy_mps__sd": 0.0,
+    "vy_mps__runs": [
+      -0.0024926599580794573,
+      -0.0024926599580794573,
+      -0.0024926599580794573
+    ],
+    "torque_mean_pct": 26.992765426635742,
+    "torque_mean_pct__sd": 0.0,
+    "torque_mean_pct__runs": [
+      26.992765426635742,
+      26.992765426635742,
+      26.992765426635742
+    ],
+    "torque_p99_pct": 100.0,
+    "torque_p99_pct__sd": 0.0,
+    "torque_p99_pct__runs": [
+      100.0,
+      100.0,
+      100.0
+    ],
+    "torque_peak_pct": 100.0,
+    "torque_peak_pct__sd": 0.0,
+    "torque_peak_pct__runs": [
+      100.0,
+      100.0,
+      100.0
+    ],
+    "torque_over90_pct_time": 9.090909090909092,
+    "torque_over90_pct_time__sd": 0.0,
+    "torque_over90_pct_time__runs": [
+      9.090909090909092,
+      9.090909090909092,
+      9.090909090909092
+    ],
+    "knee_rom_deg": 0.0463903546333313,
+    "knee_rom_deg__sd": 0.0,
+    "knee_rom_deg__runs": [
+      0.0463903546333313,
+      0.0463903546333313,
+      0.0463903546333313
+    ],
+    "duty_asym_pt": 2.0000038146972656,
+    "duty_asym_pt__sd": 0.0,
+    "duty_asym_pt__runs": [
+      2.0000038146972656,
+      2.0000038146972656,
+      2.0000038146972656
+    ],
+    "sole_tilt_deg": 17.284748077392578,
+    "sole_tilt_deg__sd": 0.0,
+    "sole_tilt_deg__runs": [
+      17.284748077392578,
+      17.284748077392578,
+      17.284748077392578
+    ],
+    "sole_tilt_touchdown_deg": 17.487197875976562,
+    "sole_tilt_touchdown_deg__sd": 0.0,
+    "sole_tilt_touchdown_deg__runs": [
+      17.487197875976562,
+      17.487197875976562,
+      17.487197875976562
+    ],
+    "sole_tilt_early_deg": 17.805294036865234,
+    "sole_tilt_early_deg__sd": 0.0,
+    "sole_tilt_early_deg__runs": [
+      17.805294036865234,
+      17.805294036865234,
+      17.805294036865234
+    ],
+    "sole_tilt_pushoff_deg": 16.293405532836914,
+    "sole_tilt_pushoff_deg__sd": 0.0,
+    "sole_tilt_pushoff_deg__runs": [
+      16.293405532836914,
+      16.293405532836914,
+      16.293405532836914
+    ],
+    "clearance_front_m": 0.009174252860248089,
+    "clearance_front_m__sd": 0.0,
+    "clearance_front_m__runs": [
+      0.009174252860248089,
+      0.009174252860248089,
+      0.009174252860248089
+    ],
+    "clearance_rear_m": 0.025455977767705917,
+    "clearance_rear_m__sd": 0.0,
+    "clearance_rear_m__runs": [
+      0.025455977767705917,
+      0.025455977767705917,
+      0.025455977767705917
+    ],
+    "falls": 0.0,
+    "falls__sd": 0.0,
+    "falls__runs": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "falls_warmup": 0.0,
+    "falls_warmup__sd": 0.0,
+    "falls_warmup__runs": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "fall_rate_per_robot_min": 0.0,
+    "fall_rate_per_robot_min__sd": 0.0,
+    "fall_rate_per_robot_min__runs": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gait_match_pct": 91.0,
+    "gait_match_pct__sd": 0.0,
+    "gait_match_pct__runs": [
+      91.0,
+      91.0,
+      91.0
+    ],
+    "gait_match_front_pct": 90.5999984741211,
+    "gait_match_front_pct__sd": 0.0,
+    "gait_match_front_pct__runs": [
+      90.5999984741211,
+      90.5999984741211,
+      90.5999984741211
+    ],
+    "gait_match_rear_pct": 91.39999389648438,
+    "gait_match_rear_pct__sd": 0.0,
+    "gait_match_rear_pct__runs": [
+      91.39999389648438,
+      91.39999389648438,
+      91.39999389648438
+    ]
+  }
+}
