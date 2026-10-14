@@ -218,3 +218,7 @@ real/firmware_patches/_work/
 real/data/raw/
 keys.h
 board_ip.txt
+
+# 受け取った第三者の資料（公開の許可が出るまでリポジトリに入れない。計画書の付録 C）
+third_party_private/
+IsaacGymEnvs_khr-master.zip
