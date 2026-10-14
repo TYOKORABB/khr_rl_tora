@@ -84,6 +84,7 @@ def main() -> int:
 
     gs.init(backend=gs.gpu, precision="32", logging_level="warning", seed=a.seed, performance_mode=True)
     from getup.envs.getup_env1 import GetupEnv
+    from khr_common.joint_map import JOINT_NAMES
 
     env = GetupEnv(B, env_cfg, obs_cfg, reward_cfg, eval_mode=True, level=levels[0], camera_res=tuple(a.res))
     runner = OnPolicyRunner(env, train_cfg, None, device=gs.device)
@@ -117,6 +118,8 @@ def main() -> int:
         vel_h = torch.zeros(TAU_BINS, device=dev)
         over90 = torch.zeros(B, device=dev)
         sat = torch.zeros(B, device=dev)
+        sat_joint = torch.zeros(B, env.num_actions, dtype=torch.bool, device=dev)   # エピソード中に 100 % に達した関節
+        first_sat = torch.full((B,), -1, dtype=torch.long, device=dev)
         for t in range(T):
             with torch.no_grad():
                 obs, _, done, _ = env.step(pol(obs))
@@ -126,7 +129,10 @@ def main() -> int:
             ratio = (env.torque.abs() / env.tau_lim).nan_to_num(0.0)
             tau_ep_max = torch.maximum(tau_ep_max, ratio.max(1).values)
             over90 += (ratio >= 0.90).float().mean(1)
-            sat += (ratio >= 0.999).float().mean(1)
+            hit = ratio >= 0.999
+            sat += hit.float().mean(1)
+            sat_joint |= hit
+            first_sat = torch.where(hit.any(1) & (first_sat < 0), torch.full_like(first_sat, t + 1), first_sat)
             m = valid_mask.unsqueeze(1).expand_as(ratio)
             tau_h += torch.histc(ratio[m], bins=TAU_BINS, min=0.0, max=1.2)
             vel_h += torch.histc(env.dq.abs()[m].nan_to_num(0.0), bins=TAU_BINS, min=0.0, max=VEL_MAX)
@@ -134,6 +140,7 @@ def main() -> int:
                 frame_cb(t)
         return {"first": first, "bad": bad, "stand_end": env._promo_ok.clone() & ~bad, "success": (first > 0) & ~bad,
                 "tau_ep_max": tau_ep_max, "over90": over90 / T, "sat": sat / T, "tau_h": tau_h, "vel_h": vel_h,
+                "sat_joint": sat_joint, "first_sat": first_sat,
                 "snap": snap, "hold_steps": hold_n}
 
     out = {"exp": a.exp_name, "ckpt": ckpt, "seed": a.seed, "date": dt.datetime.now().isoformat(timespec="seconds"),
@@ -179,6 +186,16 @@ def main() -> int:
                 "torque_ep_max_p90_pct": round(float(r["tau_ep_max"][v].quantile(0.9)) * 100, 1),
                 "dof_vel_p99": round(hist_q(r["vel_h"], 0.99, VEL_MAX), 2),
             }
+            # 100 % に達したエピソード: どの関節が・いつ（実機ではトルクを 100 % にしない、が決まり）
+            sj, fs = r["sat_joint"][v], r["first_sat"][v]
+            any_sat = fs > 0
+            frac_j = sj.float().mean(0)
+            top = torch.argsort(frac_j, descending=True)[:5]
+            res["torque_saturated_episodes"] = round(float(any_sat.float().mean()), 4)
+            res["torque_saturated_joints_top5"] = {JOINT_NAMES[i]: round(float(frac_j[i]), 4) for i in top.tolist() if frac_j[i] > 0}
+            res["torque_first_saturation_s"] = (None if not any_sat.any() else
+                                                {"median": round(float(fs[any_sat].float().median()) * dt_s, 2),
+                                                 "within_0.5s": round(float((fs[any_sat] <= round(0.5 / dt_s)).float().mean()), 4)})
             out["levels"][name][cond] = res
             per_state.setdefault(name, {"bank_idx": pool.tolist()})[cond] = {
                 "success": succ.int().tolist(), "t_success_steps": first.tolist()}
@@ -199,7 +216,7 @@ def main() -> int:
         n_ng = min(len(ng), max(1, a.n_video // 3)) if len(ng) else 0
         n_ok = min(len(ok), a.n_video - n_ng)
         n_ng = min(len(ng), a.n_video - n_ok)
-        pick = torch.cat([ok[torch.randperm(len(ok), generator=g)[:n_ok]], ng[torch.randperm(len(ng), generator=g)[:n_ng]]]).tolist()
+        pick = torch.cat([ok[torch.randperm(len(ok), generator=g, device="cpu")[:n_ok]], ng[torch.randperm(len(ng), generator=g, device="cpu")[:n_ng]]]).tolist()
         mp4 = REPO_ROOT / "media" / "videos" / "getup" / f"{a.exp_name}_{ckpt}_{name}.mp4"
         mp4.parent.mkdir(parents=True, exist_ok=True)
         writer = imageio.get_writer(str(mp4), fps=int(round(1 / dt_s)), codec="libx264", quality=7, macro_block_size=8)
@@ -219,7 +236,7 @@ def main() -> int:
                 nonlocal target
                 p = env.base_pos[0].detach().cpu().numpy()
                 target = p.copy() if target is None else 0.9 * target + 0.1 * p
-                env.cam.set_pose(pos=(target[0] + 0.75, target[1] - 0.75, 0.45), lookat=(target[0], target[1], 0.09))
+                env.cam.set_pose(pos=(target[0] + 0.6, target[1] - 0.6, 0.36), lookat=(target[0], target[1], 0.08))
                 rgb = env.cam.render()[0]
                 if state["succ_t"] is None and bool(env.ep_success[0]):
                     state["succ_t"] = (t + 1) * dt_s
@@ -227,7 +244,7 @@ def main() -> int:
                 d = ImageDraw.Draw(img)
                 ev_txt = f"成功 {ev_t * dt_s:.2f} 秒" if ev_ok else "失敗"
                 lines = [(f"{a.exp_name}  ckpt {ckpt}  段階 {name}  {j + 1}/{len(pick)}", font),
-                         (f"状態 #{st_id}  u0 = {st_u0:+.2f}   評価の結果: {ev_txt}", font_s),
+                         (f"状態 #{st_id}  u0 = {st_u0:+.2f}   評価の結果: {ev_txt}（成功の時刻 = 条件を 1 秒続けて満たし終えた時刻）", font_s),
                          (f"t = {(t + 1) * dt_s:4.2f} 秒   " + (f"成功（{state['succ_t']:.2f} 秒）" if state["succ_t"] else
                           ("立っている（角速度以外）" if bool(env._standing_now[0]) else "")), font_s)]
                 y = 12
