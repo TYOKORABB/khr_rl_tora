@@ -130,7 +130,9 @@ Run everything from the repo root as modules (`python -m <pkg>.<name>`); paths r
 - `sysid/` — sim-vs-real comparison of recorded walks (closed-loop sweeps, segment replay E4a). Results in `experiments/sysid/`.
 - `getup/` — get-up task: `precheck/`, `tools/make_getup_urdf.py` (writes a derived URDF to `../assets`, not committed),
   `gen_init_states.py` (initial-state bank, committed under `getup/data/banks/`), `envs/getup_env1.py`, `train_getup1.py`.
-  Version history in `getup/DIARY.md`. The quadruped retrain queue (`quad/jobs/run_retrain_fixurdf.sh`) finished on 2026-10-14 and its cron line is commented out;
+  Version history in `getup/DIARY.md`. After training, verify with `python -m getup.eval_getup -e <exp>` (or `getup/jobs/train_eval.sh <exp> <seed> <iter>`
+  for train → verify): **the user wants a video of the motion every time a policy is verified** (eval_getup always records per-level MP4s to `media/videos/getup/`).
+  The quadruped retrain queue (`quad/jobs/run_retrain_fixurdf.sh`) finished on 2026-10-14 and its cron line is commented out;
   if it is ever re-enabled, do not start other GPU training while it runs.
 
 ## GitHub workflow
