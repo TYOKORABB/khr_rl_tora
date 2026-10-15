@@ -1,0 +1,68 @@
+{
+ "exp": "getup3-s1",
+ "ckpt": 2999,
+ "level": "L2",
+ "n_states": 1591,
+ "episode_s": 16.0,
+ "train_episode_s": 16.0,
+ "date": "2026-10-15T17:22:52",
+ "seed": 0,
+ "dr_train": {
+  "friction_ratio": [
+   0.6,
+   1.4
+  ],
+  "mass_kg": [
+   -0.08,
+   0.08
+  ],
+  "com_m": [
+   -0.01,
+   0.01
+  ],
+  "trim_rad": [
+   -0.02,
+   0.02
+  ],
+  "imu_deg": 3.0
+ },
+ "noise_train": {
+  "ang_vel": 0.1,
+  "gravity": 0.05,
+  "dof_pos": 0.01
+ },
+ "noise_on_in_training": true,
+ "gap_train": 0.05,
+ "gap_eval": 0.05,
+ "delta_train": 0.03,
+ "delta_eval": 0.06,
+ "torque_cap_scale_eval": 0.9,
+ "backend": "gpu",
+ "conds": {
+  "dr": {
+   "stood_1s_8s": 0.3545,
+   "time_to_stand_1s_median_s": 1.34,
+   "stood_8s_but_no_success_8s": 0.198,
+   "success_minus_stand_median_s": 3.3,
+   "success_minus_stand_p90_s": 10.04,
+   "ang_vel_resets_before_success_median": 0.0,
+   "ang_vel_resets_before_success_mean": 16.02,
+   "standing_but_ang_vel_fail_s_before_success_median": 0.0,
+   "success_8s": 0.1565,
+   "success_long": 0.2212,
+   "success_8s_u0_ge_0.9": 0.2902,
+   "success_long_u0_ge_0.9": 0.3879,
+   "stand_end_8s": 0.3545,
+   "stand_end_long": 0.3545,
+   "time_to_success_median_s": 5.52,
+   "torque_saturated_pct_time_8s": 0.0,
+   "torque_over90_pct_time_long": 2.9167,
+   "torque_saturated_episodes_long": 0.0,
+   "torque_ep_max_median_pct_long": 90.0,
+   "torque_at_cap_pct_time_long": 2.9352,
+   "torque_at_cap_episodes_long": 1.0,
+   "sim_error_episodes": 0
+  }
+ },
+ "elapsed_s": 13.5
+}

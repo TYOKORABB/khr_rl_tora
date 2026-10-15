@@ -4,6 +4,7 @@
 #   getup/jobs/train_eval.sh [--wait] <exp> [seed] [iter] [学習の版]   例: getup/jobs/train_eval.sh getup1-s1 1 1500
 #   getup/jobs/train_eval.sh --wait getup2-s1 1 1500 train_getup2        GPU が空くまで待ってから v2 を学習 → 検証
 #   getup/jobs/train_eval.sh --eval-only <exp> [ckpt]                    検証（と動画）だけやり直す
+#   getup/jobs/train_eval.sh --wait getup4-cap90-s1 1 1500 train_getup4 --add cap90   5 番目からは学習の版にそのまま渡す（v4 の切り分け）
 #
 # - 学習: python -m getup.<学習の版>（既定 train_getup1、4096 体）。logs/<exp>/ に既にチェックポイントがあれば止まる（学習は logs/<exp>/ を消して作り直すため）。
 # - 検証: python -m getup.eval_getup（評価バンクの全状態・個体差あり＋公称・段階ごとに動画 6 エピソード）。
@@ -64,15 +65,16 @@ if [ "${1:-}" = "--eval-only" ]; then
   [ -n "${2:-}" ] || { echo "使い方: $0 --eval-only <exp> [ckpt]"; exit 2; }
   gpu_check 20; run_eval "$2" "${3:-}"; exit $?
 fi
-EXP="${1:?使い方: $0 [--wait] <exp> [seed] [iter] [学習の版]}"; SEED="${2:-1}"; IT="${3:-1500}"; TRAIN="${4:-train_getup1}"
+EXP="${1:?使い方: $0 [--wait] <exp> [seed] [iter] [学習の版] [学習の版への引数...]}"; SEED="${2:-1}"; IT="${3:-1500}"; TRAIN="${4:-train_getup1}"
+EXTRA=("${@:5}")
 [ -f "getup/$TRAIN.py" ] || { echo "[error] getup/$TRAIN.py が無い"; exit 2; }
 if ls "logs/$EXP"/model_*.pt >/dev/null 2>&1; then
   echo "[abort] logs/$EXP/ に既にチェックポイントがある（学習は消して作り直すので止めた）。別の名前にするか、手で退避してから"; exit 1
 fi
 # 必要な時間: 学習（L0 で 54.7 iter/分の実測。接触の多い L1・L2 で遅くなるとみて 40 iter/分）＋ 検証 20 分
 gpu_check $(( IT / 40 + 20 ))
-echo "[train] $(date '+%F %T') $EXP（$TRAIN、seed $SEED、$IT iter）"
-"$PY" -m "getup.$TRAIN" -e "$EXP" -B 4096 -I "$IT" --seed "$SEED" >"$LOGDIR/$EXP.train.log" 2>&1 || {
+echo "[train] $(date '+%F %T') $EXP（$TRAIN ${EXTRA[*]}、seed $SEED、$IT iter）"
+"$PY" -m "getup.$TRAIN" -e "$EXP" -B 4096 -I "$IT" --seed "$SEED" "${EXTRA[@]}" >"$LOGDIR/$EXP.train.log" 2>&1 || {
   echo "[error] 学習に失敗: $LOGDIR/$EXP.train.log"; tail -5 "$LOGDIR/$EXP.train.log"; exit 1; }
 grep "\[curriculum\]" "$LOGDIR/$EXP.train.log"
 echo "[train] $(date '+%F %T') 完了"

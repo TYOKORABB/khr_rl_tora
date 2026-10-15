@@ -7,6 +7,9 @@ getup-v2（seed 1）は「個体差なし」で L2 95.5 % なのに「個体差�
 
   python -m getup.tools.dr_factor_eval -e getup2-s1 --level 2      # 方策ごとに 1 回ずつ（1 プロセスに 1 つの環境）
   → experiments/getup/eval/dr_factors_<exp>_<ckpt>.json
+  python -m getup.tools.dr_factor_eval -e getup3-s1 --conds dr --cap 1.0 --tag _cap100   # 学習し直さずにトルクの上限を変える（2026-10-15）
+
+「8 秒」の値は学習のエピソードの長さによらず 8 秒で測る（2026-10-15 に修正。それまでは学習の長さで、v1・v2 は 8 秒なので同じ値）。
 
 成功の判定・評価バンク・決定的な方策は getup/eval_getup.py と同じ。動画は撮らない（同じ方策の動画は eval_getup が撮っている）。
 """
@@ -57,6 +60,9 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--gap", type=float, default=None,
                     help="送る目標角の制限の幅（rad）を評価のときだけ上書きする（v2 以降の環境。学習し直さずにトルクと速さへの効きを見る）")
+    ap.add_argument("--cap", type=float, default=None,
+                    help="シミュのトルクの上限（仕様に対する倍率）を評価のときだけ上書きする。v2 以前の方策は v3 の環境（v2 と同じ中身＋上限）で動かす")
+    ap.add_argument("--delta", type=float, default=None, help="送る目標角の速さの制限（rad/歩）を評価のときだけ上書きする")
     ap.add_argument("-n", "--num_states", type=int, default=None, help="評価用の状態から決まった乱数で選ぶ数（既定は全部）")
     ap.add_argument("--cpu", action="store_true", help="CPU で回す（GPU が使えない時間用。遅いので -n と併用）")
     ap.add_argument("--tag", default="", help="出力の名前に足す")
@@ -73,8 +79,14 @@ def main() -> int:
         log = LOG_ROOT / exp
         ckpt = a.ckpt if a.ckpt is not None else latest_ckpt(log)
         env_cfg, obs_cfg, reward_cfg, train_cfg = pickle.load(open(log / "cfgs.pkl", "rb"))
-        base_T = int(round(env_cfg["episode_length_s"] / 0.02))
+        base_T = int(round(8.0 / 0.02))                  # 「8 秒」の値（学習の長さによらない）
+        train_ep_s = float(env_cfg["episode_length_s"])
         env_cfg = dict(env_cfg, episode_length_s=a.episode_s)
+        if a.cap is not None:
+            mod = env_cfg.get("env_module", "getup.envs.getup_env1")
+            if mod not in ("getup.envs.getup_env2", "getup.envs.getup_env3"):
+                raise SystemExit(f"{exp} の環境（{mod}）では --cap は使えない（v2・v3 の方策だけ）")
+            env_cfg = dict(env_cfg, env_module="getup.envs.getup_env3", torque_cap_scale=float(a.cap))
         name = env_cfg["curriculum"]["levels"][a.level]
         bank = torch.load(REPO_ROOT / env_cfg["bank"], map_location="cpu")
         n_pool = int(((bank["kind"] == 0) & bank["eval"] & (bank["u0"] >= env_cfg["curriculum"]["u0_min"][name])).sum())
@@ -90,6 +102,8 @@ def main() -> int:
             if "gap" not in env_cfg["action"]:
                 raise SystemExit(f"{exp} の環境は送る目標角の制限（gap）を使わない版なので --gap は使えない")
             env.post.gap = float(a.gap)
+        if a.delta is not None:
+            env.post.delta = float(a.delta)
         # 学習のときの値を先に写す（env.obs_cfg / env.env_cfg は渡した辞書そのものなので、条件を変えると元も変わる。
         # 最初の版はこれを怠り、「ノイズあり」の条件でもノイズが入っていなかった）
         dr_train = dict(env_cfg["dr"])
@@ -102,10 +116,12 @@ def main() -> int:
         idx = pool[torch.arange(B, device=dev) % n]
         valid = torch.arange(B, device=dev) < n
         u0 = env.bank["u0"][pool]
-        out = {"exp": exp, "ckpt": ckpt, "level": name, "n_states": n, "episode_s": a.episode_s, "train_episode_s": base_T * 0.02,
+        out = {"exp": exp, "ckpt": ckpt, "level": name, "n_states": n, "episode_s": a.episode_s, "train_episode_s": train_ep_s,
                "date": dt.datetime.now().isoformat(timespec="seconds"), "seed": a.seed, "dr_train": dr_train,
                "noise_train": noise_train, "noise_on_in_training": noise_on,
-               "gap_train": env_cfg["action"].get("gap"), "gap_eval": env.post.gap, "backend": "cpu" if a.cpu else "gpu", "conds": {}}
+               "gap_train": env_cfg["action"].get("gap"), "gap_eval": env.post.gap,
+               "delta_train": env_cfg["action"].get("delta"), "delta_eval": env.post.delta,
+               "torque_cap_scale_eval": float(env_cfg.get("torque_cap_scale", 1.0)), "backend": "cpu" if a.cpu else "gpu", "conds": {}}
         t0 = time.time()
         for cname in a.conds:
             keys, nkeys = CONDS[cname]
@@ -123,6 +139,8 @@ def main() -> int:
             ang_fail = torch.zeros(B, device=dev)       # 成功までに、立っているのに角速度だけ満たさなかった歩数
             hold_n = int(round(env_cfg["success"]["hold_s"] / 0.02))
             ep_max = torch.zeros(B, device=dev)
+            cap = float(env_cfg.get("torque_cap_scale", 1.0))
+            at_cap = torch.zeros(B, device=dev)         # シミュの上限に張り付いた時間（上限が仕様より低いとき）
             for t in range(T):
                 prev_sh = env.succ_hold.clone()
                 with torch.no_grad():
@@ -136,6 +154,7 @@ def main() -> int:
                 ratio = (env.torque.abs() / env.tau_lim).nan_to_num(0.0)
                 over90L += (ratio >= 0.90).float().mean(1)
                 ep_max = torch.maximum(ep_max, ratio.max(1).values)
+                at_cap += (ratio >= cap * 0.999).float().mean(1)
                 if t < base_T - 1:
                     sat8 += (ratio >= 0.999).float().mean(1)
                 if t == base_T - 2:            # eval_getup と同じ最後の歩（8 秒の評価は T = 399 歩）
@@ -168,6 +187,8 @@ def main() -> int:
                    "torque_over90_pct_time_long": round(float((over90L / T)[valid].mean()) * 100, 4),
                    "torque_saturated_episodes_long": round(float((ep_max >= 0.999)[valid].float().mean()), 4),
                    "torque_ep_max_median_pct_long": round(float(ep_max[valid].median()) * 100, 1),
+                   "torque_at_cap_pct_time_long": round(float((at_cap / T)[valid].mean()) * 100, 4),
+                   "torque_at_cap_episodes_long": round(float((ep_max >= cap * 0.999)[valid].float().mean()), 4),
                    "sim_error_episodes": int(bad[valid].sum())}
             out["conds"][cname] = res
             print(f"[{exp} {name} {cname:11s}] 8 秒 {res['success_8s']*100:5.1f} %（u0≥0.9 {res['success_8s_u0_ge_0.9']*100:5.1f} %）"
@@ -178,6 +199,7 @@ def main() -> int:
                   f"・立っているのに角速度だけ満たさない時間 中央 {res['standing_but_ang_vel_fail_s_before_success_median']} 秒"
                   f"  100 % の時間 {res['torque_saturated_pct_time_8s']} %  100 % に達したエピソード {res['torque_saturated_episodes_long']*100:.0f} %"
                   f"（最大の中央 {res['torque_ep_max_median_pct_long']} %）  90 % 以上の時間 {res['torque_over90_pct_time_long']} %"
+                  f"  上限（{cap * 100:g} %）に張り付く時間 {res['torque_at_cap_pct_time_long']} %・エピソード {res['torque_at_cap_episodes_long'] * 100:.0f} %"
                   f"  破綻 {res['sim_error_episodes']}", flush=True)
         env.env_cfg["dr"], env.obs_cfg["add_noise"], env.obs_cfg["noise"] = dr_train, noise_on, noise_train
         out["elapsed_s"] = round(time.time() - t0, 1)

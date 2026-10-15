@@ -6,7 +6,8 @@
   揺れ: 胴体の角速度（RMS・成功の条件 0.5 rad/s を超える時間）、関節速度の RMS、関節速度の周波数（50 Hz で記録、上限 25 Hz）
   方策の出力の揺れ: 送る目標角の 1 歩あたりの変化（RMS）、行動の 1 歩あたりの変化
   移動: 胴体の水平の移動と向き（ヨー）の変化、接地している手足（前腕・足）の水平の移動、接地の付け外しの回数
-  トルク: 窓の中の 99%点と 100 % の時間
+  トルク: 窓の中の 99%点と 100 % の時間、関節ごとの平均 |τ| と、シミュの上限（v3 以降は仕様の 90 %）に張り付く時間（2026-10-15 追加。
+        v3 は立っている間も左右の hip_yaw を上限に押し付けていた）
 
 条件:
   dr       学習と同じ個体差と観測ノイズ（動画と同じ）
@@ -170,6 +171,9 @@ def main() -> int:
         lifts = (R["econ"][1:] - R["econ"][:-1]).abs().sum(0)    # (m, 4) 付け外しの回数
         jr = dq.pow(2).mean(dim=(0, 1)).sqrt()
         tau = R["tau"]
+        cap = float(env_cfg.get("torque_cap_scale", 1.0))
+        tj = tau.mean(dim=(0, 1))                                 # 関節ごとの平均 |τ|/仕様
+        cj = (tau >= cap * 0.999).float().mean(dim=(0, 1))        # 関節ごとの上限に張り付く時間の割合
         q = lambda v, p: round(float(v.flatten().quantile(p)), 4)
         res = {
             "n_standing_all_window": m, "n_states": B,
@@ -195,13 +199,19 @@ def main() -> int:
             "end_always_in_contact_frac": round(float(econ_all.float().mean()), 4),
             "torque_p99_pct": round(q(tau, 0.99) * 100, 1),
             "torque_saturated_pct_time": round(float((tau >= 0.999).float().mean()) * 100, 4),
+            "torque_cap_pct_of_spec": round(cap * 100, 1),
+            "torque_at_cap_pct_time": round(float((tau >= cap * 0.999).float().mean()) * 100, 4),
+            "torque_mean_pct_top5": {JOINT_NAMES[i]: round(float(tj[i]) * 100, 1) for i in torch.argsort(tj, descending=True)[:5].tolist()},
+            "torque_at_cap_pct_time_top5": {JOINT_NAMES[i]: round(float(cj[i]) * 100, 2)
+                                            for i in torch.argsort(cj, descending=True)[:5].tolist() if cj[i] > 0},
         }
         out["conds"][cond] = res
         print(f"[{a.exp_name} {cond:8s}] 立ち続け {m}/{B}  角速度 RMS {res['ang_vel_rms']:.3f} rad/s（0.5 超 {res['ang_vel_over_0.5_frac']*100:.1f} %）"
               f"  関節速度 RMS {res['dof_vel_rms']:.3f}  周波数 {top_f} Hz  帯域 {res['dof_vel_power_frac']}"
               f"  目標の変化 {res['cmd_step_rms_rad']*1000:.2f} mrad/歩  胴体の移動 {res['base_xy_drift_mm_per_s']} mm/s"
               f"  ヨー {res['yaw_drift_deg_per_s']} °/s  手足の滑り {res['end_slide_mm_per_s_while_in_contact']} mm/s"
-              f"  付け外し {res['end_contact_changes_per_s']} 回/s  トルク 99%点 {res['torque_p99_pct']} %", flush=True)
+              f"  付け外し {res['end_contact_changes_per_s']} 回/s  トルク 99%点 {res['torque_p99_pct']} %"
+              f"  平均 |τ| の大きい関節 {res['torque_mean_pct_top5']} %  上限（{res['torque_cap_pct_of_spec']:g} %）に張り付く時間 {res['torque_at_cap_pct_time_top5']} %", flush=True)
     env.env_cfg["dr"], env.obs_cfg["add_noise"], env.obs_cfg["noise"] = dr_train, noise_on, noise_train
     p = REPO_ROOT / "experiments" / "getup" / "eval" / f"hold_{a.exp_name}_{ckpt}{a.tag}.json"
     p.write_text(json.dumps(out, ensure_ascii=False, indent=1))
