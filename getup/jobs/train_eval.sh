@@ -8,6 +8,7 @@
 #
 # - 学習: python -m getup.<学習の版>（既定 train_getup1、4096 体）。logs/<exp>/ に既にチェックポイントがあれば止まる（学習は logs/<exp>/ を消して作り直すため）。
 # - 検証: python -m getup.eval_getup（評価バンクの全状態・個体差あり＋公称・段階ごとに動画 6 エピソード）。
+# - 立った後: python -m getup.tools.hold_analysis（L2 の 256 状態、揺れ・移動・立っている間の関節ごとのトルク。2026-10-15 から）。
 #   結果 experiments/getup/eval/<exp>_<ckpt>.json、動画 media/videos/getup/<exp>_<ckpt>_<段階>.mp4。
 # - GPU: ユーザーの whisper 解析（asmr.one）が走っているとき、次の開始までに終わらないときは始めない。
 #   --wait をつけると、条件を満たすまで 2 分ごとに確かめて待つ（最大 24 時間）。
@@ -58,6 +59,11 @@ run_eval() {   # $1 = exp, $2 = ckpt（省略で最後）
   (( rc == 0 )) || echo "[warn ] 検証に失敗（rc=$rc）: $LOGDIR/$1.eval.log"
   return $rc
 }
+run_hold() {   # $1 = exp。立った後の揺れ・移動・トルク（v3 は立っている間も hip_yaw を上限に押し付けていた）
+  echo "[hold ] $(date '+%F %T') $1 の立った後の揺れとトルク（hold_analysis、L2 の 256 状態）"
+  "$PY" -m getup.tools.hold_analysis -e "$1" -n 256 --tag _n256 >"$LOGDIR/$1.hold.log" 2>&1 || echo "[warn ] hold_analysis に失敗: $LOGDIR/$1.hold.log"
+  grep -E "^\[[^]]* (dr|freeze) *\]|^\[記録" "$LOGDIR/$1.hold.log" | sed -E 's/  周波数.*  目標の変化/  目標の変化/'
+}
 
 WAIT=0
 if [ "${1:-}" = "--wait" ]; then WAIT=1; shift; fi
@@ -79,4 +85,5 @@ echo "[train] $(date '+%F %T') $EXP（$TRAIN ${EXTRA[*]}、seed $SEED、$IT iter
 grep "\[curriculum\]" "$LOGDIR/$EXP.train.log"
 echo "[train] $(date '+%F %T') 完了"
 run_eval "$EXP"
+run_hold "$EXP"
 echo "[done ] $(date '+%F %T')"
