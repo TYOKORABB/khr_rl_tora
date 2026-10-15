@@ -1,12 +1,13 @@
 # getup-v4: v2 から再開し、v3 の変更を 1 つずつ足して切り分ける（2026-10-15、ユーザーの決定「効かなければ v2 から再開」）
 # getup3-s1 は L1 から上がれず、行動の std が 0.5 → 0.02 に縮んだ。どの変更が成功率・トルク・立った後の震えに効くかを分ける。
-# 1500 iter は約 57 分の空き（学習 27 分 ＋ 16 秒の検証と動画 約 10 分）、3000 iter（t16）は約 95 分の空きが要る（train_eval.sh の見積り）。
+# 1500 iter は約 57 分の空きが要る（train_eval.sh の見積り。実際は学習 27〜34 分 ＋ 検証と動画 約 5 分）。
 # まず各要素の seed 1、その後 seed 2・3（1 seed で結論にしない）。
+# t16（16 秒）は外した（10/15 夕方、ユーザー:「起き上がる秒数にトルク１００％が関係ないなら、８秒に戻してもいい」。
+# 8 秒の制限は起き上がりを急がせていない: 姿勢ができるのは中央 0.8〜2.5 秒、100 % に初めて達するのは中央 0.08〜0.5 秒。getup/DIARY.md）
 getup4-cap90-s1   1 1500 train_getup4 --add cap90
 getup4-smooth-s1  1 1500 train_getup4 --add smooth
 getup4-ent0-s1    1 1500 train_getup4 --add ent0
 getup4-delta03-s1 1 1500 train_getup4 --add delta03
-getup4-t16-s1     1 3000 train_getup4 --add t16
 getup4-cap90-s2   2 1500 train_getup4 --add cap90
 getup4-smooth-s2  2 1500 train_getup4 --add smooth
 getup4-ent0-s2    2 1500 train_getup4 --add ent0
@@ -15,5 +16,3 @@ getup4-cap90-s3   3 1500 train_getup4 --add cap90
 getup4-smooth-s3  3 1500 train_getup4 --add smooth
 getup4-ent0-s3    3 1500 train_getup4 --add ent0
 getup4-delta03-s3 3 1500 train_getup4 --add delta03
-getup4-t16-s2     2 3000 train_getup4 --add t16
-getup4-t16-s3     3 3000 train_getup4 --add t16

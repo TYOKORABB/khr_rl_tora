@@ -18,10 +18,10 @@
 | `envs/getup_env1.py` | getup-v1 の環境。版ごとに複製し、学習に使った版は書き換えない |
 | `train_getup1.py` | getup-v1 の学習。設定（`get_cfgs` / `get_train_cfg`）の唯一の出所 |
 | `envs/getup_env2.py`・`train_getup2.py` | getup-v2（v1 ＋ 送る目標角を観測した関節角 ± 0.05 rad に制限 ＋ 下の PPOBound）。cfgs.pkl の `env_module` で検証の道具が環境の版を選ぶ |
-| `train_getup4.py` | getup-v4（v2 から再開し、v3 の変更を `--add cap90 / smooth / ent0 / delta03 / t16` で 1 つずつ足す切り分け）。環境は `getup_env3`（上限 1.0・2 階差分の罰なしなら v2 と同じ） |
+| `train_getup4.py` | getup-v4（v2 から再開し、v3 の変更を `--add cap90 / smooth / ent0 / delta03` で 1 つずつ足す切り分け。`t16` もあるが回さない）。環境は `getup_env3`（上限 1.0・2 階差分の罰なしなら v2 と同じ） |
 | `envs/getup_env3.py`・`train_getup3.py` | getup-v3（v2 ＋ エピソード 16 秒・シミュのトルクの上限を仕様の 90 %・行動の変化と 2 階差分の罰・目標角の速さの制限 0.03 rad/歩・エントロピー 0）。検証の割合は仕様に対する値で、上限に張り付いた時間も記録する |
 | `ppo_bound.py` | `PPOBound`: rsl-rl 5.4.0 の PPO に、行動の平均が ±1 を超えた分の 2 乗の罰（bound loss）を足したもの（v2 から） |
-| `eval_getup.py` | 学習後の検証。評価用の全状態を決定的な方策で動かし、成功率・トルクなどを `experiments/getup/eval/` に、**毎回、段階ごとに 6 エピソードの動画**を `media/videos/getup/` に（GPU）。エピソードは既定で学習の長さと 16 秒（§3.2 の主評価）の長いほう、`--tag` で記録の名前を分ける |
+| `eval_getup.py` | 学習後の検証。評価用の全状態を決定的な方策で動かし、成功率・トルクなどを `experiments/getup/eval/` に、**毎回、段階ごとに 6 エピソードの動画**を `media/videos/getup/` に（GPU）。エピソードは既定で学習と同じ長さ（`--episode_s` で変える）、`--tag` で記録の名前を分ける |
 | `jobs/train_eval.sh` | 学習 → 検証（動画つき）を続けて行う。whisper の解析が走っているとき・次の開始までに終わらないときは始めない（`--wait` で空くまで待つ） |
 | `jobs/run_queue.sh` | キューのファイル（例 `jobs/queue_v1v2_seeds.txt`）の行を 1 本ずつ `train_eval.sh --wait` で回す。学習済みの行は飛ばす |
 

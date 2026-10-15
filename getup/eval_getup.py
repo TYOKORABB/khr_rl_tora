@@ -4,8 +4,9 @@
   python -m getup.eval_getup -e getup1-s1 --ckpt 999 --levels 1 2
 
 1. 成功率: 評価バンク（学習に使っていない状態）の各段階の**全状態**を、方策の平均（決定的）で 1 回ずつ動かす。
-   エピソードの長さは既定で「学習の長さと 16 秒（§3.2 の主評価の時間、計画書 第 2.14 版）の長いほう」。8 秒より長いときは
-   8 秒以内の成功も併記する（2026-10-15 から。それまでは学習と同じ長さで、v1・v2 の記録は 8 秒）。観測に時刻は入っていない。
+   エピソードの長さは既定で学習と同じ（v1・v2・v4 は 8 秒＝§3.2 の主評価の時間、v3 は 16 秒）。`--episode_s` で変えられ、
+   8 秒より長いときは 8 秒以内の成功も併記する。観測に時刻は入っていない。
+   （10/15 の夕方に一時「既定 16 秒」にしたが、ユーザーの意図は 16 秒の評価ではなかったので、同じ日に学習と同じ長さへ戻した。計画書 第 2.16 版）
    条件 dr = 学習と同じ個体差と観測ノイズ、nominal = 個体差・ノイズなし。§4.8 の判定（L1 ≥ 90 %・L2 ≥ 70 %）は dr で見る。
    指標: §3.2 の成功率（Wilson の 95 % 区間）、u0 の区間別、累積成功曲線（成功までの時間）、最後の 1 秒に立っている率、
          トルク |τ|/τ_max（関節・歩ごとの 99 % 点と 90 % 以上の時間の割合。歩行の測定と同じ定義。τ_max は URDF の effort）、
@@ -17,7 +18,7 @@
 
 記録: experiments/getup/eval/<exp>_<ckpt><tag>.json（要約）・<exp>_<ckpt><tag>_per_state.json（状態ごとの結果。版の比較で対応をとる用）
 動画: media/videos/getup/<exp>_<ckpt><tag>_<段階>.mp4（*.mp4 は git に入れない）
-  python -m getup.eval_getup -e getup2-s1 --tag _16s       # 8 秒で記録済みの方策を 16 秒で測り直す（元の記録を上書きしない）
+  python -m getup.eval_getup -e getup2-s1 --episode_s 16 --tag _16s   # 長さを変えて測る（元の記録を上書きしない）
 """
 
 from __future__ import annotations
@@ -62,7 +63,7 @@ def main() -> int:
     ap.add_argument("--n_video", type=int, default=6, help="段階ごとの動画のエピソード数（1 以上。動画は必ず撮る）")
     ap.add_argument("--res", type=int, nargs=2, default=[1280, 720])
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--episode_s", type=float, default=None, help="エピソードの長さ（既定は学習の長さと 16 秒の長いほう）")
+    ap.add_argument("--episode_s", type=float, default=None, help="エピソードの長さ（既定は学習と同じ）")
     ap.add_argument("--tag", default="", help="記録と動画の名前に足す")
     a = ap.parse_args()
     if a.n_video < 1:
@@ -79,7 +80,7 @@ def main() -> int:
     ckpt = a.ckpt if a.ckpt is not None else latest_ckpt(log)
     env_cfg, obs_cfg, reward_cfg, train_cfg = pickle.load(open(log / "cfgs.pkl", "rb"))
     train_episode_s = float(env_cfg["episode_length_s"])
-    env_cfg = dict(env_cfg, episode_length_s=a.episode_s if a.episode_s is not None else max(train_episode_s, 16.0))
+    env_cfg = dict(env_cfg, episode_length_s=a.episode_s if a.episode_s is not None else train_episode_s)
     names = env_cfg["curriculum"]["levels"]
     levels = a.levels if a.levels is not None else list(range(len(names)))
 
