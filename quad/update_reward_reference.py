@@ -136,14 +136,17 @@ def render(nf, runs, rm):
              "（ピークは極値統計のため閾値判定に使えない。`measurement_caveats.md` §1）。")
     L.append("")
 
-    # --- 構成ごとの判定 ---
+    # --- 構成ごとの判定 ---（2026-10-16: 列が多く読みにくいので「外した報酬」と「判定」の 2 つの表に分けた）
     L.append("### 12.1 構成ごとの判定")
     L.append("")
-    L.append("| 構成 | 外した報酬 | seed | トルク99%点 | 2σ を超えた指標 | 判定 |")
-    L.append("|---|---|---|---|---|---|")
+    L.append("構成名の頭の `khr-quadruped` は省いた（例 `27-abl-g1smooth` = `khr-quadruped27-abl-g1smooth`）。")
+    L.append("")
+    T1 = ["| 構成 | 外した報酬 |", "|---|---|"]
+    T2 = ["| 構成 | seed | トルク99%点 | 2σ を超えた指標 | 判定 |", "|---|---|---|---|---|"]
     if base:
         w = st.mean([x[COND]["torque_p99_pct"] for x in base])
-        L.append(f"| **v27**（基準） | — | {len(base)} | {w:.1f} % | — | — |")
+        T1.append("| **v27**（基準） | — |")
+        T2.append(f"| **v27**（基準） | {len(base)} | {w:.1f} % | — | — |")
     name_map = {}
     for script, terms in rm.items():
         tag = re.sub(r"^khr_train_quad2\d+_(abl_)?", "", script)[:-3]
@@ -160,9 +163,12 @@ def render(nf, runs, rm):
                 break
         worst, safe, hits, final = verdict(xs, nf)
         hs = ", ".join(f"{n}{l}({s:.1f}σ)" for n, l, s in hits) or "—"
-        tl = "`" + "`, `".join(terms) + "`" if terms else "?"
+        tl = ", ".join(terms) if terms else "?"
         flag = " ⚠️" if not safe else ""
-        L.append(f"| `{exp}` | {tl} | {len(xs)} | {worst:.1f} %{flag} | {hs} | {final} |")
+        short = exp.replace("khr-quadruped", "", 1)
+        T1.append(f"| {short} | {tl} |")
+        T2.append(f"| {short} | {len(xs)} | {worst:.1f} %{flag} | {hs} | {final} |")
+    L += T1 + [""] + T2
     L.append("")
 
     # --- 主要指標の実測値 ---
@@ -183,8 +189,9 @@ def render(nf, runs, rm):
                 cells.append("—")
             else:
                 cells.append(f"{m:.4f}" if u in ("m", "m/s") else f"{m:.2f}")
-        L.append(f"| `{exp}` | " + " | ".join(cells) + " |")
+        L.append(f"| {exp.replace('khr-quadruped', '', 1)} | " + " | ".join(cells) + " |")
     L.append("")
+    L.append("")      # 表の直後に空行（無いと Obsidian で終わりの印の行まで表に入る）
     return "\n".join(L)
 
 

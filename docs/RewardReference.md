@@ -239,11 +239,11 @@ return torch.square(self.heading_err)
   漏れ積分なので古い誤差は忘れ、実機ではジャイロ積分で実現できる。
 - **実測（本研究で最も教科書的な結果）**:
 
-  | | 累積誤差を**罰する** | 累積誤差を**観測できる** | 横ずれ（個体差あり） |
-  |---|---|---|---|
-  | v23 | ✗ | ✗ | 8.08 % |
-  | v24 | ✓ | ✗ | **12.18 %**（改善しない） |
-  | v25 | ✓ | **✓** | **2.88 %** |
+| | 累積誤差を**罰する** | 累積誤差を**観測できる** | 横ずれ（個体差あり） |
+|---|---|---|---|
+| v23 | ✗ | ✗ | 8.08 % |
+| v24 | ✓ | ✗ | **12.18 %**（改善しない） |
+| v25 | ✓ | **✓** | **2.88 %** |
 
   罰するだけでは効かず、**方策が観測できて初めて効いた**。個体差が生む yaw バイアス ≈0.022 rad/s は
   観測ノイズ ±0.4 rad/s の **1/18** で、記憶を持たない MLP には検出できない。
@@ -333,11 +333,11 @@ return torch.sum(torch.clamp(torch.abs(self.torques) - soft, min=0.0) ** 2, dim=
   v9 で判明した「**hip_pitch が追従誤差 50〜66° のまま duty 100% で張り付く bang-bang 制御**」を潰す。
 - **実測（3 seed ablation）**: 外すと
 
-  | 指標 | v23 | `torque_limits` 除去 |
-  |---|---|---|
-  | 90%超の延べ時間 | 0.00 % | **11.17 %** |
-  | トルク 99%点 | 59.7 % | **100 %** |
-  | トルク平均 | 18 % | **32.3 %** |
+| 指標 | v23 | `torque_limits` 除去 |
+|---|---|---|
+| 90%超の延べ時間 | 0.00 % | **11.17 %** |
+| トルク 99%点 | 59.7 % | **100 %** |
+| トルク平均 | 18 % | **32.3 %** |
 
   **定格 1.373 Nm という厳しい制約下で実機を壊さずに歩かせる、本研究の中核報酬。**
 
@@ -419,10 +419,10 @@ return torch.sum(torch.exp(-self.feet_height_sharpness * error) * is_swing, dim=
   結果は **0〜14 mm の「すり足」**。→ **各足の接地時基準 `foot_ref_z` からの相対量**に変更。
 - **実測（3 seed ablation、形だけ絶対高さに戻す）**:
 
-  | 指標 | baseline（相対） | ablation（絶対） |
-  |---|---|---|
-  | **前脚の足上げ量** | 0.0191 ± 0.0009 m | **0.0149 ± 0.0009 m（4.8σ 低下）** |
-  | 後脚の足上げ量 | 0.0183 ± 0.0039 m | 0.0172 ± 0.0037 m（変化なし） |
+| 指標 | baseline（相対） | ablation（絶対） |
+|---|---|---|
+| **前脚の足上げ量** | 0.0191 ± 0.0009 m | **0.0149 ± 0.0009 m（4.8σ 低下）** |
+| 後脚の足上げ量 | 0.0183 ± 0.0039 m | 0.0172 ± 0.0037 m（変化なし） |
 
   **「前脚だけ」が下がったことが診断の正しさを裏づける**（相対化で単に強くなっただけなら前後とも下がる）。
   ablation の前脚 14.9 mm は v12 当時の実測「すり足 0〜14 mm」とも整合する。
@@ -553,43 +553,62 @@ v24（罰のみ）は効かず、v25（観測にも追加）で劇的に効い�
 ## 12. 【自動更新】ablation 測定結果一覧
 
 <!-- AUTO:ablation-results:start -->
-*このセクションは `update_reward_reference.py` が自動生成している。最終更新: 2026-10-06 12:00*
+*このセクションは `update_reward_reference.py` が自動生成している。最終更新: 2026-10-16 14:26*
 
 判定条件: 個体差あり・v23 の 4 seed ノイズ床に対する 2σ 検定。**安全要件は体数に依存しない トルク99%点 と 90%超の延べ時間**で判定する（ピークは極値統計のため閾値判定に使えない。`measurement_caveats.md` §1）。
 
 ### 12.1 構成ごとの判定
 
-| 構成 | 外した報酬 | seed | トルク99%点 | 2σ を超えた指標 | 判定 |
-|---|---|---|---|---|---|
-| `khr-quadruped27-abl-g1smooth` | `action_rate`, `action_smoothness2`, `dof_vel`, `joint_torques` | 2 | 59.5 % | トルク平均悪化(2.2σ), 横ずれ率改善(3.0σ) | ❌ 削除不可（トルク平均悪化2.2σ） |
-| `khr-quadruped27-abl-g2posture` | `orientation`, `ang_vel_xy`, `lin_vel_z`, `base_height` | 2 | 63.0 % ⚠️ | 横ずれ率改善(2.7σ), 前進速度改善(2.4σ) | ❌ 削除不可（トルク99%点 63.0%） |
-| `khr-quadruped27-abl-g3jointreg` | `similar_to_default`, `hip_pos`, `dof_pos_error` | 2 | 59.3 % | 横ずれ率改善(2.1σ) | ✅ 削除可 |
-| `khr-quadruped27-abl-g4gaittime` | `gait_swing`, `feet_air_time`, `contact_no_vel` | 2 | 60.9 % | — | ✅ 削除可 |
-| `khr-quadruped27-abl-g5heading` | `heading_drift`, `leg_load_balance` | 2 | 58.9 % | — | ✅ 削除可 |
-| `khr-quadruped27-abl-only-acceleration` | `acceleration` | 2 | 58.7 % | 横ずれ率改善(2.3σ), 前進速度改善(3.8σ) | ✅ 削除可 |
-| `khr-quadruped27-abl-only-alive` | `alive` | 2 | 55.8 % | トルク平均改善(3.3σ), 横ずれ率改善(2.5σ) | ✅ 削除可 |
-| `khr-quadruped27-abl-only-drift` | `drift` | 2 | 60.7 % | トルク平均悪化(2.2σ), 横ずれ率改善(3.2σ) | ❌ 削除不可（トルク平均悪化2.2σ） |
-| `khr-quadruped27-abl-only-feet_orientation` | `feet_orientation` | 2 | 53.8 % | トルク平均改善(2.7σ), 横ずれ率改善(2.7σ), 足裏傾き(着地)悪化(30.3σ) | ❌ 削除不可（足裏傾き(着地)悪化30.3σ） |
-| `khr-quadruped27-abl-only-gait_contact` | `gait_contact` | 2 | 56.8 % | トルク平均改善(2.2σ), 横ずれ率改善(2.6σ) | ✅ 削除可 |
-| `khr-quadruped27-abl-only-tracking_ang_vel` | `tracking_ang_vel` | 2 | 57.4 % | 横ずれ率改善(3.0σ) | ✅ 削除可 |
-| `khr-quadruped27-abl-only-tracking_lin_vel` | `tracking_lin_vel` | 2 | 56.8 % | トルク平均改善(13.0σ), 前進速度悪化(22.0σ), 足裏傾き(着地)改善(2.0σ) | ❌ 削除不可（前進速度悪化22.0σ） |
-| `khr-quadruped28-combo9` | `heading_drift`, `leg_load_balance`, `similar_to_default`, `hip_pos`, `dof_pos_error`, `gait_swing`, `feet_air_time`, `contact_no_vel`, `acceleration` | 3 | 58.5 % | 横ずれ率改善(2.9σ), 前進速度改善(2.9σ) | ✅ 削除可 |
+構成名の頭の `khr-quadruped` は省いた（例 `27-abl-g1smooth` = `khr-quadruped27-abl-g1smooth`）。
+
+| 構成 | 外した報酬 |
+|---|---|
+| 27-abl-g1smooth | action_rate, action_smoothness2, dof_vel, joint_torques |
+| 27-abl-g2posture | orientation, ang_vel_xy, lin_vel_z, base_height |
+| 27-abl-g3jointreg | similar_to_default, hip_pos, dof_pos_error |
+| 27-abl-g4gaittime | gait_swing, feet_air_time, contact_no_vel |
+| 27-abl-g5heading | heading_drift, leg_load_balance |
+| 27-abl-only-acceleration | acceleration |
+| 27-abl-only-alive | alive |
+| 27-abl-only-drift | drift |
+| 27-abl-only-feet_orientation | feet_orientation |
+| 27-abl-only-gait_contact | gait_contact |
+| 27-abl-only-tracking_ang_vel | tracking_ang_vel |
+| 27-abl-only-tracking_lin_vel | tracking_lin_vel |
+| 28-combo9 | heading_drift, leg_load_balance, similar_to_default, hip_pos, dof_pos_error, gait_swing, feet_air_time, contact_no_vel, acceleration |
+
+| 構成 | seed | トルク99%点 | 2σ を超えた指標 | 判定 |
+|---|---|---|---|---|
+| 27-abl-g1smooth | 2 | 59.5 % | トルク平均悪化(2.2σ), 横ずれ率改善(3.0σ) | ❌ 削除不可（トルク平均悪化2.2σ） |
+| 27-abl-g2posture | 2 | 63.0 % ⚠️ | 横ずれ率改善(2.7σ), 前進速度改善(2.4σ) | ❌ 削除不可（トルク99%点 63.0%） |
+| 27-abl-g3jointreg | 2 | 59.3 % | 横ずれ率改善(2.1σ) | ✅ 削除可 |
+| 27-abl-g4gaittime | 2 | 60.9 % | — | ✅ 削除可 |
+| 27-abl-g5heading | 2 | 58.9 % | — | ✅ 削除可 |
+| 27-abl-only-acceleration | 2 | 58.7 % | 横ずれ率改善(2.3σ), 前進速度改善(3.8σ) | ✅ 削除可 |
+| 27-abl-only-alive | 2 | 55.8 % | トルク平均改善(3.3σ), 横ずれ率改善(2.5σ) | ✅ 削除可 |
+| 27-abl-only-drift | 2 | 60.7 % | トルク平均悪化(2.2σ), 横ずれ率改善(3.2σ) | ❌ 削除不可（トルク平均悪化2.2σ） |
+| 27-abl-only-feet_orientation | 2 | 53.8 % | トルク平均改善(2.7σ), 横ずれ率改善(2.7σ), 足裏傾き(着地)悪化(30.3σ) | ❌ 削除不可（足裏傾き(着地)悪化30.3σ） |
+| 27-abl-only-gait_contact | 2 | 56.8 % | トルク平均改善(2.2σ), 横ずれ率改善(2.6σ) | ✅ 削除可 |
+| 27-abl-only-tracking_ang_vel | 2 | 57.4 % | 横ずれ率改善(3.0σ) | ✅ 削除可 |
+| 27-abl-only-tracking_lin_vel | 2 | 56.8 % | トルク平均改善(13.0σ), 前進速度悪化(22.0σ), 足裏傾き(着地)改善(2.0σ) | ❌ 削除不可（前進速度悪化22.0σ） |
+| 28-combo9 | 3 | 58.5 % | 横ずれ率改善(2.9σ), 前進速度改善(2.9σ) | ✅ 削除可 |
 
 ### 12.2 主要指標の実測値（個体差あり・平均）
 
 | 構成 | トルク平均 | 横ずれ率 | 前進速度 | 膝ROM | 足裏傾き(着地) | 接地率左右差 | 後脚足上げ | 歩容一致率 |
 |---|---|---|---|---|---|---|---|---|
-| `khr-quadruped27-abl-g1smooth` | 18.76 | 1.82 | 0.2346 | 33.95 | 3.99 | 4.97 | 0.0176 | — |
-| `khr-quadruped27-abl-g2posture` | 18.55 | 2.48 | 0.2373 | 42.51 | 5.86 | 7.07 | 0.0220 | — |
-| `khr-quadruped27-abl-g3jointreg` | 18.10 | 3.80 | 0.2307 | 31.35 | 5.19 | 7.22 | 0.0186 | — |
-| `khr-quadruped27-abl-g4gaittime` | 18.33 | 4.05 | 0.2330 | 35.29 | 5.07 | 4.02 | 0.0201 | — |
-| `khr-quadruped27-abl-g5heading` | 17.82 | 4.16 | 0.2262 | 33.90 | 3.18 | 5.66 | 0.0186 | — |
-| `khr-quadruped27-abl-only-acceleration` | 17.90 | 3.28 | 0.2458 | 31.45 | 4.75 | 4.54 | 0.0208 | — |
-| `khr-quadruped27-abl-only-alive` | 17.08 | 2.99 | 0.2122 | 25.21 | 4.74 | 7.02 | 0.0158 | — |
-| `khr-quadruped27-abl-only-drift` | 18.75 | 1.49 | 0.2308 | 36.50 | 3.32 | 4.75 | 0.0176 | — |
-| `khr-quadruped27-abl-only-feet_orientation` | 17.28 | 2.55 | 0.2210 | 24.08 | 34.33 | 5.84 | 0.0226 | — |
-| `khr-quadruped27-abl-only-gait_contact` | 17.41 | 2.64 | 0.2283 | 27.20 | 4.08 | 7.34 | 0.0193 | — |
-| `khr-quadruped27-abl-only-tracking_ang_vel` | 17.54 | 1.76 | 0.2274 | 29.45 | 4.64 | 4.21 | 0.0183 | — |
-| `khr-quadruped27-abl-only-tracking_lin_vel` | 14.15 | 4.97 | 0.0910 | 44.35 | 2.24 | 6.02 | 0.0169 | — |
-| `khr-quadruped28-combo9` | 18.36 | 2.03 | 0.2403 | 32.83 | 4.82 | 4.51 | 0.0209 | 86.46 |
+| 27-abl-g1smooth | 18.76 | 1.82 | 0.2346 | 33.95 | 3.99 | 4.97 | 0.0176 | — |
+| 27-abl-g2posture | 18.55 | 2.48 | 0.2373 | 42.51 | 5.86 | 7.07 | 0.0220 | — |
+| 27-abl-g3jointreg | 18.10 | 3.80 | 0.2307 | 31.35 | 5.19 | 7.22 | 0.0186 | — |
+| 27-abl-g4gaittime | 18.33 | 4.05 | 0.2330 | 35.29 | 5.07 | 4.02 | 0.0201 | — |
+| 27-abl-g5heading | 17.82 | 4.16 | 0.2262 | 33.90 | 3.18 | 5.66 | 0.0186 | — |
+| 27-abl-only-acceleration | 17.90 | 3.28 | 0.2458 | 31.45 | 4.75 | 4.54 | 0.0208 | — |
+| 27-abl-only-alive | 17.08 | 2.99 | 0.2122 | 25.21 | 4.74 | 7.02 | 0.0158 | — |
+| 27-abl-only-drift | 18.75 | 1.49 | 0.2308 | 36.50 | 3.32 | 4.75 | 0.0176 | — |
+| 27-abl-only-feet_orientation | 17.28 | 2.55 | 0.2210 | 24.08 | 34.33 | 5.84 | 0.0226 | — |
+| 27-abl-only-gait_contact | 17.41 | 2.64 | 0.2283 | 27.20 | 4.08 | 7.34 | 0.0193 | — |
+| 27-abl-only-tracking_ang_vel | 17.54 | 1.76 | 0.2274 | 29.45 | 4.64 | 4.21 | 0.0183 | — |
+| 27-abl-only-tracking_lin_vel | 14.15 | 4.97 | 0.0910 | 44.35 | 2.24 | 6.02 | 0.0169 | — |
+| 28-combo9 | 18.36 | 2.03 | 0.2403 | 32.83 | 4.82 | 4.51 | 0.0209 | 86.46 |
+
 <!-- AUTO:ablation-results:end -->
