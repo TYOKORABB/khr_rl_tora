@@ -20,36 +20,8 @@ export PATH="/home/tora/gsw4/bin:/usr/local/bin:/usr/bin:/bin"
 export HOME="${HOME:-/home/tora}"          # Genesis は $HOME が無いと落ちる
 export PYTHONUNBUFFERED=1
 LOGDIR="$REPO/logs/getup_jobs"; mkdir -p "$LOGDIR"
-# ユーザーの whisper 解析の開始時刻（quad/jobs/run_retrain_fixurdf.sh と同じ。crontab を変えたら両方直す）
-HEAVY_SCHEDULE="1:05 4:05 7:05 10:05 19:05 22:05"
-
-heavy_running() { ps -eo cmd --no-headers | grep -E "WHISPER_CPP_MODEL|main\.py +--scheduled" | grep -v grep || true; }
-minutes_until_busy() {
-  [ -n "$(heavy_running)" ] && { echo 0; return; }
-  local now best=100000 start next
-  now=$(( $(date +%-H) * 60 + $(date +%-M) ))
-  for hm in $HEAVY_SCHEDULE; do
-    start=$(( 10#${hm%%:*} * 60 + 10#${hm#*:} )); next=$(( start - now )); (( next <= 0 )) && next=$(( next + 1440 ))
-    (( next < best )) && best=$next
-  done
-  echo "$best"
-}
-gpu_free() {   # $1 = 必要な分数。空いていれば 0、理由は $WHY
-  local mub; mub=$(minutes_until_busy)
-  if (( mub < $1 )); then WHY="GPU の空きが ${mub} 分（必要 $1 分）。whisper 解析: $HEAVY_SCHEDULE"; return 1; fi
-  if ps -eo cmd --no-headers | grep -E "python[0-9.]* +(-m +getup\.(train|eval)|(quad/)?(khr_train_quad|train_with_urdf_fix|eval_with_urdf_fix|khr_quad_eval))" | grep -qv grep; then
-    WHY="別の学習・測定が走っている"; return 1
-  fi
-  return 0
-}
-gpu_check() {   # $1 = 必要な分数。WAIT=1 なら空くまで待つ
-  local until_t=$(( $(date +%s) + 24 * 3600 )) said=0
-  while ! gpu_free "$1"; do
-    if [ "${WAIT:-0}" != 1 ] || (( $(date +%s) > until_t )); then echo "[abort] $WHY"; exit 1; fi
-    (( said == 0 )) && { echo "[wait ] $(date '+%F %T') $WHY → 空くまで待つ"; said=1; }
-    sleep 120
-  done
-}
+# GPU の空きの判定（whisper の解析・ほかの学習を避ける）は gpu_gate.sh（2026-10-16 に切り出し。先輩の再現の学習も見る）
+source "$REPO/getup/jobs/gpu_gate.sh"
 run_eval() {   # $1 = exp, $2 = ckpt（省略で最後）
   local ck=(); [ -n "${2:-}" ] && ck=(--ckpt "$2")
   echo "[eval ] $(date '+%F %T') $1 の検証（成功率・トルク・動画）"

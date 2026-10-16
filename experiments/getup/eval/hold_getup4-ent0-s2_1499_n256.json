@@ -1,0 +1,243 @@
+{
+ "exp": "getup4-ent0-s2",
+ "ckpt": 1499,
+ "level": "L2",
+ "num_states": 256,
+ "episode_s": 12.0,
+ "window_s": [
+  8.0,
+  12.0
+ ],
+ "backend": "gpu",
+ "date": "2026-10-16T12:46:27",
+ "conds": {
+  "dr": {
+   "n_standing_all_window": 99,
+   "n_states": 256,
+   "ang_vel_rms": 0.2336,
+   "ang_vel_p95": 0.3602,
+   "ang_vel_over_0.5_frac": 0.0129,
+   "dof_vel_rms": 0.6111,
+   "dof_vel_rms_top5": {
+    "c_head_yaw": 0.7613,
+    "l_knee_pitch": 0.7515,
+    "r_knee_pitch": 0.7473,
+    "l_elbow_pitch": 0.7387,
+    "l_elbow_yaw": 0.667
+   },
+   "dof_vel_spectrum_top_hz": [
+    24.87,
+    24.62,
+    24.37
+   ],
+   "dof_vel_power_frac": {
+    "0-2Hz": 0.001,
+    "2-5Hz": 0.008,
+    "5-10Hz": 0.04,
+    "10-20Hz": 0.048,
+    "20-25Hz": 0.903
+   },
+   "cmd_step_rms_rad": 0.05928,
+   "cmd_step_p99_rad": 0.06,
+   "act_step_rms": 0.728,
+   "base_xy_drift_mm_per_s": {
+    "median": 2.49,
+    "p90": 5.43
+   },
+   "yaw_drift_deg_per_s": {
+    "median": 0.704,
+    "p90": 1.558
+   },
+   "end_slide_mm_per_s_while_in_contact": {
+    "median": 2.36,
+    "p90": 5.98,
+    "n_end_links": 124
+   },
+   "end_contact_changes_per_s": 6.686,
+   "end_always_in_contact_frac": 0.3131,
+   "torque_p99_pct": 52.8,
+   "torque_saturated_pct_time": 0.0,
+   "torque_cap_pct_of_spec": 100.0,
+   "torque_at_cap_pct_time": 0.0,
+   "torque_mean_pct_top5": {
+    "r_hip_pitch": 36.4,
+    "c_chest_yaw": 34.7,
+    "r_hip_yaw": 33.1,
+    "l_hip_pitch": 32.0,
+    "l_shoulder_pitch": 29.7
+   },
+   "torque_at_cap_pct_time_top5": {}
+  },
+  "no_noise": {
+   "n_standing_all_window": 100,
+   "n_states": 256,
+   "ang_vel_rms": 0.2395,
+   "ang_vel_p95": 0.3831,
+   "ang_vel_over_0.5_frac": 0.0235,
+   "dof_vel_rms": 0.6013,
+   "dof_vel_rms_top5": {
+    "r_knee_pitch": 0.7366,
+    "l_knee_pitch": 0.733,
+    "l_elbow_pitch": 0.7282,
+    "r_hip_roll": 0.6537,
+    "r_elbow_pitch": 0.6385
+   },
+   "dof_vel_spectrum_top_hz": [
+    24.87,
+    24.62,
+    24.37
+   ],
+   "dof_vel_power_frac": {
+    "0-2Hz": 0.0,
+    "2-5Hz": 0.001,
+    "5-10Hz": 0.003,
+    "10-20Hz": 0.028,
+    "20-25Hz": 0.968
+   },
+   "cmd_step_rms_rad": 0.05984,
+   "cmd_step_p99_rad": 0.06,
+   "act_step_rms": 0.725,
+   "base_xy_drift_mm_per_s": {
+    "median": 3.04,
+    "p90": 6.47
+   },
+   "yaw_drift_deg_per_s": {
+    "median": 0.528,
+    "p90": 2.161
+   },
+   "end_slide_mm_per_s_while_in_contact": {
+    "median": 2.77,
+    "p90": 8.71,
+    "n_end_links": 157
+   },
+   "end_contact_changes_per_s": 7.342,
+   "end_always_in_contact_frac": 0.3925,
+   "torque_p99_pct": 52.6,
+   "torque_saturated_pct_time": 0.0,
+   "torque_cap_pct_of_spec": 100.0,
+   "torque_at_cap_pct_time": 0.0,
+   "torque_mean_pct_top5": {
+    "r_hip_pitch": 35.8,
+    "c_chest_yaw": 34.6,
+    "r_hip_yaw": 32.6,
+    "l_hip_pitch": 32.2,
+    "l_shoulder_pitch": 29.1
+   },
+   "torque_at_cap_pct_time_top5": {}
+  },
+  "nominal": {
+   "n_standing_all_window": 100,
+   "n_states": 256,
+   "ang_vel_rms": 0.2269,
+   "ang_vel_p95": 0.3449,
+   "ang_vel_over_0.5_frac": 0.0053,
+   "dof_vel_rms": 0.6022,
+   "dof_vel_rms_top5": {
+    "r_knee_pitch": 0.7467,
+    "l_knee_pitch": 0.745,
+    "l_elbow_pitch": 0.7346,
+    "r_hip_roll": 0.6549,
+    "c_head_yaw": 0.6399
+   },
+   "dof_vel_spectrum_top_hz": [
+    24.87,
+    24.62,
+    24.37
+   ],
+   "dof_vel_power_frac": {
+    "0-2Hz": 0.0,
+    "2-5Hz": 0.001,
+    "5-10Hz": 0.003,
+    "10-20Hz": 0.035,
+    "20-25Hz": 0.961
+   },
+   "cmd_step_rms_rad": 0.05981,
+   "cmd_step_p99_rad": 0.06,
+   "act_step_rms": 0.7227,
+   "base_xy_drift_mm_per_s": {
+    "median": 2.93,
+    "p90": 6.1
+   },
+   "yaw_drift_deg_per_s": {
+    "median": 0.658,
+    "p90": 1.58
+   },
+   "end_slide_mm_per_s_while_in_contact": {
+    "median": 3.01,
+    "p90": 6.49,
+    "n_end_links": 177
+   },
+   "end_contact_changes_per_s": 6.77,
+   "end_always_in_contact_frac": 0.4425,
+   "torque_p99_pct": 51.3,
+   "torque_saturated_pct_time": 0.0,
+   "torque_cap_pct_of_spec": 100.0,
+   "torque_at_cap_pct_time": 0.0,
+   "torque_mean_pct_top5": {
+    "r_hip_pitch": 36.6,
+    "c_chest_yaw": 34.5,
+    "r_hip_yaw": 32.8,
+    "l_hip_pitch": 32.2,
+    "l_shoulder_pitch": 29.5
+   },
+   "torque_at_cap_pct_time_top5": {}
+  },
+  "freeze": {
+   "n_standing_all_window": 102,
+   "n_states": 256,
+   "ang_vel_rms": 0.0792,
+   "ang_vel_p95": 0.0863,
+   "ang_vel_over_0.5_frac": 0.0093,
+   "dof_vel_rms": 0.0852,
+   "dof_vel_rms_top5": {
+    "r_knee_pitch": 0.1007,
+    "l_elbow_pitch": 0.0982,
+    "l_knee_pitch": 0.0965,
+    "c_head_yaw": 0.0955,
+    "r_hip_roll": 0.0934
+   },
+   "dof_vel_spectrum_top_hz": [
+    4.77,
+    4.52,
+    5.03
+   ],
+   "dof_vel_power_frac": {
+    "0-2Hz": 0.154,
+    "2-5Hz": 0.342,
+    "5-10Hz": 0.415,
+    "10-20Hz": 0.083,
+    "20-25Hz": 0.006
+   },
+   "cmd_step_rms_rad": 0.0,
+   "cmd_step_p99_rad": 0.0,
+   "act_step_rms": 0.1248,
+   "base_xy_drift_mm_per_s": {
+    "median": 1.88,
+    "p90": 2.12
+   },
+   "yaw_drift_deg_per_s": {
+    "median": 0.177,
+    "p90": 0.266
+   },
+   "end_slide_mm_per_s_while_in_contact": {
+    "median": 0.63,
+    "p90": 0.91,
+    "n_end_links": 109
+   },
+   "end_contact_changes_per_s": 0.304,
+   "end_always_in_contact_frac": 0.2672,
+   "torque_p99_pct": 25.5,
+   "torque_saturated_pct_time": 0.0,
+   "torque_cap_pct_of_spec": 100.0,
+   "torque_at_cap_pct_time": 0.0,
+   "torque_mean_pct_top5": {
+    "r_knee_pitch": 21.2,
+    "r_ankle_pitch": 19.1,
+    "r_hip_pitch": 15.4,
+    "c_chest_yaw": 14.8,
+    "l_shoulder_pitch": 8.5
+   },
+   "torque_at_cap_pct_time_top5": {}
+  }
+ }
+}
