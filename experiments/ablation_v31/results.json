@@ -1,0 +1,2701 @@
+{
+ "generated": "2026-10-17T06:05:30",
+ "condition": "with_offset",
+ "baseline": {
+  "speed_fwd": {
+   "mean": 0.23280725298035476,
+   "sd": 0.003491290521541166,
+   "n": 3
+  },
+  "lateral": {
+   "mean": 2.4570795048858396,
+   "sd": 0.7654608278411439,
+   "n": 3
+  },
+  "yaw_abs": {
+   "mean": 3.1473158995310464,
+   "sd": 1.3831604951322094,
+   "n": 3
+  },
+  "tq_mean": {
+   "mean": 18.906350241767036,
+   "sd": 0.6465020332358316,
+   "n": 3
+  },
+  "tq_p99": {
+   "mean": 58.07016626993815,
+   "sd": 0.37452719553650154,
+   "n": 3
+  },
+  "tq_over90": {
+   "mean": 0.00013415404040404043,
+   "sd": 0.00019135662331095556,
+   "n": 3
+  },
+  "tq_peak": {
+   "mean": 89.83993784586589,
+   "sd": 2.180034153238639,
+   "n": 3
+  },
+  "knee": {
+   "mean": 29.339816411336262,
+   "sd": 4.3152503441834025,
+   "n": 3
+  },
+  "sole_td": {
+   "mean": 4.39955637190077,
+   "sd": 0.3108973567887472,
+   "n": 3
+  },
+  "clr_f": {
+   "mean": 0.019572973665263917,
+   "sd": 0.0019087288467340704,
+   "n": 3
+  },
+  "clr_r": {
+   "mean": 0.017824985914760165,
+   "sd": 0.0017131718800756648,
+   "n": 3
+  },
+  "duty": {
+   "mean": 4.103819396760729,
+   "sd": 0.22421027994704465,
+   "n": 3
+  },
+  "gait": {
+   "mean": 87.00065104166667,
+   "sd": 1.8580124156567204,
+   "n": 3
+  },
+  "act_rate": {
+   "mean": 0.11843240052001416,
+   "sd": 0.003023916981085891,
+   "n": 3
+  },
+  "act_jerk": {
+   "mean": 0.045723104325278055,
+   "sd": 0.0024701712455094736,
+   "n": 3
+  },
+  "dof_vel": {
+   "mean": 0.8725981044716057,
+   "sd": 0.02045116561331227,
+   "n": 3
+  },
+  "power": {
+   "mean": 5.490427354017894,
+   "sd": 0.24037514509346058,
+   "n": 3
+  },
+  "tilt": {
+   "mean": 9.07107690684555,
+   "sd": 0.7422674800448874,
+   "n": 3
+  },
+  "wxy": {
+   "mean": 0.5373666401532494,
+   "sd": 0.03561422382438742,
+   "n": 3
+  },
+  "vz": {
+   "mean": 0.07215139779722066,
+   "sd": 0.002648133199482231,
+   "n": 3
+  },
+  "dh": {
+   "mean": 14.681342763201512,
+   "sd": 2.248419134058577,
+   "n": 3
+  },
+  "falls_fwd": {
+   "mean": 0.0,
+   "sd": 0.0,
+   "n": 3
+  },
+  "back": {
+   "mean": 88.00051881483307,
+   "sd": 2.27565696158672,
+   "n": 3
+  },
+  "turnL": {
+   "mean": 101.17474327326332,
+   "sd": 0.6953330504236391,
+   "n": 3
+  },
+  "turnR": {
+   "mean": 100.22893404020675,
+   "sd": 0.7670012892519967,
+   "n": 3
+  },
+  "strafe": {
+   "mean": 70.21037130444138,
+   "sd": 2.801459537156626,
+   "n": 3
+  },
+  "falls_push": {
+   "mean": 0.0,
+   "sd": 0.0,
+   "n": 3
+  },
+  "hip_asym": {
+   "mean": 0.8018646240234375,
+   "sd": 0.4834798084715028,
+   "n": 3
+  },
+  "switches": {
+   "mean": 3.8752531828703702,
+   "sd": 0.06345386781701226,
+   "n": 3
+  }
+ },
+ "configs": {
+  "feet_orientation": {
+   "zero": [
+    "feet_orientation"
+   ],
+   "exps": [
+    "abl31-feet_orientation-s1",
+    "abl31-feet_orientation-s2",
+    "abl31-feet_orientation-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "torque_limits": {
+   "zero": [
+    "torque_limits"
+   ],
+   "exps": [
+    "abl31-torque_limits-s1",
+    "abl31-torque_limits-s2",
+    "abl31-torque_limits-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "knee_swing_flexion": {
+   "zero": [
+    "knee_swing_flexion"
+   ],
+   "exps": [
+    "abl31-knee_swing_flexion-s1",
+    "abl31-knee_swing_flexion-s2",
+    "abl31-knee_swing_flexion-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "feet_clearance": {
+   "zero": [
+    "feet_clearance"
+   ],
+   "exps": [
+    "abl31-feet_clearance-s1",
+    "abl31-feet_clearance-s2",
+    "abl31-feet_clearance-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "drift": {
+   "zero": [
+    "drift"
+   ],
+   "exps": [
+    "abl31-drift-s1",
+    "abl31-drift-s2",
+    "abl31-drift-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "heading_error": {
+   "zero": [
+    "heading_error"
+   ],
+   "exps": [
+    "abl31-heading_error-s1",
+    "abl31-heading_error-s2",
+    "abl31-heading_error-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "action_rate": {
+   "zero": [
+    "action_rate"
+   ],
+   "exps": [
+    "abl31-action_rate-s1",
+    "abl31-action_rate-s2",
+    "abl31-action_rate-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "action_smoothness2": {
+   "zero": [
+    "action_smoothness2"
+   ],
+   "exps": [
+    "abl31-action_smoothness2-s1",
+    "abl31-action_smoothness2-s2",
+    "abl31-action_smoothness2-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "dof_vel": {
+   "zero": [
+    "dof_vel"
+   ],
+   "exps": [
+    "abl31-dof_vel-s1",
+    "abl31-dof_vel-s2",
+    "abl31-dof_vel-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "joint_torques": {
+   "zero": [
+    "joint_torques"
+   ],
+   "exps": [
+    "abl31-joint_torques-s1",
+    "abl31-joint_torques-s2",
+    "abl31-joint_torques-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "orientation": {
+   "zero": [
+    "orientation"
+   ],
+   "exps": [
+    "abl31-orientation-s1",
+    "abl31-orientation-s2",
+    "abl31-orientation-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "ang_vel_xy": {
+   "zero": [
+    "ang_vel_xy"
+   ],
+   "exps": [
+    "abl31-ang_vel_xy-s1",
+    "abl31-ang_vel_xy-s2",
+    "abl31-ang_vel_xy-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "lin_vel_z": {
+   "zero": [
+    "lin_vel_z"
+   ],
+   "exps": [
+    "abl31-lin_vel_z-s1",
+    "abl31-lin_vel_z-s2",
+    "abl31-lin_vel_z-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "base_height": {
+   "zero": [
+    "base_height"
+   ],
+   "exps": [
+    "abl31-base_height-s1",
+    "abl31-base_height-s2",
+    "abl31-base_height-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "tracking_ang_vel": {
+   "zero": [
+    "tracking_ang_vel"
+   ],
+   "exps": [
+    "abl31-tracking_ang_vel-s1",
+    "abl31-tracking_ang_vel-s2",
+    "abl31-tracking_ang_vel-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "gait_contact": {
+   "zero": [
+    "gait_contact"
+   ],
+   "exps": [
+    "abl31-gait_contact-s1",
+    "abl31-gait_contact-s2",
+    "abl31-gait_contact-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "alive": {
+   "zero": [
+    "alive"
+   ],
+   "exps": [
+    "abl31-alive-s1",
+    "abl31-alive-s2",
+    "abl31-alive-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "combo3": {
+   "zero": [
+    "alive",
+    "gait_contact",
+    "tracking_ang_vel"
+   ],
+   "exps": [
+    "abl31-combo3-s1",
+    "abl31-combo3-s2",
+    "abl31-combo3-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  },
+  "tracking_lin_vel": {
+   "zero": [
+    "tracking_lin_vel"
+   ],
+   "exps": [
+    "abl31-tracking_lin_vel-s1",
+    "abl31-tracking_lin_vel-s2",
+    "abl31-tracking_lin_vel-s3"
+   ],
+   "metrics": {
+    "speed_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "lateral": {
+     "values": [],
+     "cmp": null
+    },
+    "yaw_abs": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_mean": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_p99": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_over90": {
+     "values": [],
+     "cmp": null
+    },
+    "tq_peak": {
+     "values": [],
+     "cmp": null
+    },
+    "knee": {
+     "values": [],
+     "cmp": null
+    },
+    "sole_td": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_f": {
+     "values": [],
+     "cmp": null
+    },
+    "clr_r": {
+     "values": [],
+     "cmp": null
+    },
+    "duty": {
+     "values": [],
+     "cmp": null
+    },
+    "gait": {
+     "values": [],
+     "cmp": null
+    },
+    "act_rate": {
+     "values": [],
+     "cmp": null
+    },
+    "act_jerk": {
+     "values": [],
+     "cmp": null
+    },
+    "dof_vel": {
+     "values": [],
+     "cmp": null
+    },
+    "power": {
+     "values": [],
+     "cmp": null
+    },
+    "tilt": {
+     "values": [],
+     "cmp": null
+    },
+    "wxy": {
+     "values": [],
+     "cmp": null
+    },
+    "vz": {
+     "values": [],
+     "cmp": null
+    },
+    "dh": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_fwd": {
+     "values": [],
+     "cmp": null
+    },
+    "back": {
+     "values": [],
+     "cmp": null
+    },
+    "turnL": {
+     "values": [],
+     "cmp": null
+    },
+    "turnR": {
+     "values": [],
+     "cmp": null
+    },
+    "strafe": {
+     "values": [],
+     "cmp": null
+    },
+    "falls_push": {
+     "values": [],
+     "cmp": null
+    },
+    "hip_asym": {
+     "values": [],
+     "cmp": null
+    },
+    "switches": {
+     "values": [],
+     "cmp": null
+    }
+   },
+   "n_seeds": 0,
+   "verdict": "測定待ち",
+   "worse_main": [],
+   "worse_ref": [],
+   "better": [],
+   "safety": []
+  }
+ }
+}
