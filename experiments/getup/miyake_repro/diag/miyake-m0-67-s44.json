@@ -1,0 +1,16 @@
+{
+ "exp": "miyake-m0-67-s44",
+ "ckpt": 1999,
+ "version": "67",
+ "num_envs": 64,
+ "seconds": 20.0,
+ "skip_s": 3.0,
+ "modes": {
+  "deterministic": {
+   "goal_frac_of_time": 0.0
+  },
+  "stochastic": {
+   "goal_frac_of_time": 0.0
+  }
+ }
+}

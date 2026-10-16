@@ -1,0 +1,143 @@
+{
+ "exp": "miyake-m0-73-s42",
+ "ckpt": 1999,
+ "version": "73",
+ "num_envs": 64,
+ "seconds": 20.0,
+ "skip_s": 3.0,
+ "modes": {
+  "deterministic": {
+   "goal_frac_of_time": 0.0
+  },
+  "stochastic": {
+   "goal_frac_of_time": 0.9313,
+   "within_goal_frac": {
+    "tilt": 0.0077,
+    "joints": 0.0,
+    "height": 0.9889,
+    "nonfoot": 1.0,
+    "omega": 0.4695,
+    "all": 0.0
+   },
+   "joint_over_0.3rad_frac": {
+    "l_hipjoint_pitch": 1.0,
+    "r_hipjoint_pitch": 1.0,
+    "r_elbow_yaw": 0.892,
+    "l_shoulder_pitch": 0.867,
+    "l_ankle_pitch": 0.727,
+    "l_elbow_yaw": 0.719,
+    "r_knee_pitch": 0.718,
+    "r_shoulder_pitch": 0.241,
+    "l_elbow_pitch": 0.07,
+    "r_elbow_pitch": 0.037,
+    "r_ankle_pitch": 0.025,
+    "c_chest_yaw": 0.024,
+    "l_knee_pitch": 0.015,
+    "l_shoulder_roll": 0.008,
+    "r_hipjoint_roll": 0.005,
+    "r_ankle_roll": 0.004,
+    "r_shoulder_roll": 0.002,
+    "l_hipjoint_roll": 0.0,
+    "l_ankle_roll": 0.0
+   },
+   "joint_abs_median_rad": {
+    "c_chest_yaw": 0.177,
+    "l_hipjoint_roll": 0.0,
+    "r_hipjoint_roll": 0.0,
+    "l_shoulder_pitch": 0.499,
+    "r_shoulder_pitch": 0.201,
+    "l_hipjoint_pitch": 0.598,
+    "r_hipjoint_pitch": 0.705,
+    "l_shoulder_roll": 0.0,
+    "r_shoulder_roll": 0.0,
+    "l_knee_pitch": 0.001,
+    "r_knee_pitch": 0.336,
+    "l_elbow_yaw": 0.438,
+    "r_elbow_yaw": 0.539,
+    "l_ankle_pitch": 0.328,
+    "r_ankle_pitch": 0.065,
+    "l_elbow_pitch": 0.139,
+    "r_elbow_pitch": 0.105,
+    "l_ankle_roll": 0.079,
+    "r_ankle_roll": 0.135
+   },
+   "target_abs_median_rad": {
+    "c_chest_yaw": 0.177,
+    "l_hipjoint_roll": 0.0,
+    "r_hipjoint_roll": 0.0,
+    "l_shoulder_pitch": 0.504,
+    "r_shoulder_pitch": 0.211,
+    "l_hipjoint_pitch": 0.593,
+    "r_hipjoint_pitch": 0.666,
+    "l_shoulder_roll": 0.0,
+    "r_shoulder_roll": 0.0,
+    "l_knee_pitch": 0.0,
+    "r_knee_pitch": 0.343,
+    "l_elbow_yaw": 0.44,
+    "r_elbow_yaw": 0.539,
+    "l_ankle_pitch": 0.336,
+    "r_ankle_pitch": 0.077,
+    "l_elbow_pitch": 0.143,
+    "r_elbow_pitch": 0.116,
+    "l_ankle_roll": 0.079,
+    "r_ankle_roll": 0.129
+   },
+   "target_minus_actual_median_rad": {
+    "c_chest_yaw": 0.05,
+    "l_hipjoint_roll": 0.0,
+    "r_hipjoint_roll": 0.0,
+    "l_shoulder_pitch": 0.189,
+    "r_shoulder_pitch": 0.162,
+    "l_hipjoint_pitch": 0.081,
+    "r_hipjoint_pitch": 0.091,
+    "l_shoulder_roll": 0.0,
+    "r_shoulder_roll": 0.0,
+    "l_knee_pitch": 0.001,
+    "r_knee_pitch": 0.065,
+    "l_elbow_yaw": 0.186,
+    "r_elbow_yaw": 0.19,
+    "l_ankle_pitch": 0.05,
+    "r_ankle_pitch": 0.061,
+    "l_elbow_pitch": 0.105,
+    "r_elbow_pitch": 0.098,
+    "l_ankle_roll": 0.014,
+    "r_ankle_roll": 0.018
+   },
+   "torque_at_limit_frac": {
+    "c_chest_yaw": 0.677,
+    "l_hipjoint_roll": 0.001,
+    "r_hipjoint_roll": 0.012,
+    "l_shoulder_pitch": 0.92,
+    "r_shoulder_pitch": 0.9,
+    "l_hipjoint_pitch": 0.781,
+    "r_hipjoint_pitch": 0.809,
+    "l_shoulder_roll": 0.022,
+    "r_shoulder_roll": 0.014,
+    "l_knee_pitch": 0.146,
+    "r_knee_pitch": 0.752,
+    "l_elbow_yaw": 0.92,
+    "r_elbow_yaw": 0.923,
+    "l_ankle_pitch": 0.679,
+    "r_ankle_pitch": 0.73,
+    "l_elbow_pitch": 0.853,
+    "r_elbow_pitch": 0.836,
+    "l_ankle_roll": 0.311,
+    "r_ankle_roll": 0.382
+   },
+   "height_m": {
+    "median": 0.2507,
+    "p10": 0.2482,
+    "p90": 0.253
+   },
+   "omega_rad_s": {
+    "median": 0.522,
+    "p10": 0.222,
+    "p90": 1.0
+   },
+   "tilt_deg": {
+    "median": 19.45
+   },
+   "nonfoot_contact_frac_by_link": {}
+  }
+ }
+}
