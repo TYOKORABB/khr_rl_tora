@@ -1,0 +1,11 @@
+# getup-v5: v4 の切り分け（3 seed）で効いた 2 つを組み合わせる（2026-10-17）。判定の基準は getup/DIARY.md の getup-v5（学習の前に固定）。
+# v4 の結果（L2・個体差あり、3 seed）: delta03 97.7 / 96.2 / 97.2 %（トルク 99%点 100 %）、cap90 85.7 / 91.3 / 84.0 %（上限 90 %）、
+#   smooth 59.7 / 34.6 / 25.0 %（害）、ent0 98.2 / 33.5 / 32.2 %（seed 次第）。v2 は 86.3 / 75.1 / 51.3 %。
+# dc     = v2 + delta03 + cap90（成功率の高い delta03 に、トルクを仕様の 90 % で止める上限を足す）
+# dcthr  = dc + thr60（トルクの罰のしきい値 0.85 → 0.60。cap90・delta03 では立った後に hip_yaw を仕様の 85〜90 % で押し続けていた）
+getup5-dc-s1     1 1500 train_getup4 --add cap90 delta03
+getup5-dcthr-s1  1 1500 train_getup4 --add cap90 delta03 thr60
+getup5-dc-s2     2 1500 train_getup4 --add cap90 delta03
+getup5-dcthr-s2  2 1500 train_getup4 --add cap90 delta03 thr60
+getup5-dc-s3     3 1500 train_getup4 --add cap90 delta03
+getup5-dcthr-s3  3 1500 train_getup4 --add cap90 delta03 thr60

@@ -1,0 +1,127 @@
+{
+ "exp": "miyake-m0-73-s42",
+ "version": "73",
+ "date": "2026-10-16T16:45:30",
+ "success_def": {
+  "cos_tilt": 0.9659258262890683,
+  "delta_rad": 0.3,
+  "h_thr": 0.232,
+  "omega_max": 0.5,
+  "hold_s": 1.0
+ },
+ "ckpts": {
+  "last": 1999,
+  "best_reward": 1999
+ },
+ "best_reward_value": 48460.5078125,
+ "R1": {
+  "available": true,
+  "first_iter_len_ge_2000": 1118,
+  "reached_by_1000": false,
+  "frac_iters_ge_2000_after_first": 0.759,
+  "mean_len_last_100": 2304.8,
+  "pass": false
+ },
+ "policies": {
+  "last": {
+   "ckpt": 1999,
+   "stochastic": {
+    "n": 256,
+    "success": 0.0,
+    "time_to_success_median_s": null,
+    "goal_gate_1s": 0.9492,
+    "terminated_frac": 0.0977,
+    "phase_first_time_median_s": {
+     "raise": 0.58,
+     "together": 0.56,
+     "crouch_gate": 0.66,
+     "stand_gate": 0.62,
+     "goal_gate": 0.8
+    },
+    "phase_reached_frac": {
+     "raise": 1.0,
+     "together": 1.0,
+     "crouch_gate": 0.996,
+     "stand_gate": 1.0,
+     "goal_gate": 0.992
+    },
+    "knee_max_deg_median": 164.4,
+    "torque_p99_pct": 100.0,
+    "torque_at_limit_pct_time": 56.612
+   },
+   "deterministic_full": {
+    "success_t_s": null,
+    "goal_gate_1s_t_s": 1.8,
+    "terminated": false
+   },
+   "video": {
+    "path": "media/videos/getup/miyake/miyake-m0-73-s42_1999_last.mp4",
+    "clips": [
+     {
+      "kind": "deterministic",
+      "success_t_s": null,
+      "phases_s": {
+       "raise": 0.58,
+       "together": 0.58,
+       "crouch_gate": 0.6,
+       "stand_gate": 0.8,
+       "goal_gate": 0.8
+      },
+      "knee_max_deg": 164.6
+     },
+     {
+      "kind": "stochastic_1",
+      "success_t_s": null,
+      "phases_s": {
+       "raise": 0.64,
+       "together": 0.64,
+       "crouch_gate": 0.64,
+       "stand_gate": 0.76,
+       "goal_gate": 0.76
+      },
+      "knee_max_deg": 160.0
+     },
+     {
+      "kind": "stochastic_2",
+      "success_t_s": null,
+      "phases_s": {
+       "raise": 0.66,
+       "together": 0.66,
+       "crouch_gate": 0.66,
+       "stand_gate": 0.66,
+       "goal_gate": 0.72
+      },
+      "knee_max_deg": 162.5
+     },
+     {
+      "kind": "stochastic_3",
+      "success_t_s": null,
+      "phases_s": {
+       "raise": 0.54,
+       "together": 0.54,
+       "crouch_gate": 0.66,
+       "stand_gate": 0.6,
+       "goal_gate": 0.8
+      },
+      "knee_max_deg": 158.5
+     }
+    ]
+   },
+   "deterministic_1env": {
+    "kind": "deterministic",
+    "success_t_s": null,
+    "phases_s": {
+     "raise": 0.58,
+     "together": 0.58,
+     "crouch_gate": 0.6,
+     "stand_gate": 0.8,
+     "goal_gate": 0.8
+    },
+    "knee_max_deg": 164.6
+   }
+  },
+  "best_reward": {
+   "same_as": "last"
+  }
+ }
+}

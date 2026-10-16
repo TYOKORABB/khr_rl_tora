@@ -1,0 +1,73 @@
+# v31 から報酬を外して学習し直すキュー（URDF 是正後の報酬の総点検、2026-10-17。計画は plan.md）
+# 形式: <exp> <seed> <0 にする報酬（カンマ区切り）| BASE（学習せず測定だけ）>
+# 順序: 途中で止まっても価値が最大になるよう、群ごとに seed 1・2 を先に、seed 3 を後に回す。
+
+# --- 基準: v31 の 3 seed（学習済み。同じ版の測定ツールで測り直す）---
+khr-quadruped31-s1 1 BASE
+khr-quadruped31-s2 2 BASE
+khr-quadruped31-s3 3 BASE
+
+# --- 第 1 群 論文で効きを主張している項目（6 構成 x 3 seed）---
+abl31-feet_orientation-s1 1 feet_orientation
+abl31-torque_limits-s1 1 torque_limits
+abl31-knee_swing_flexion-s1 1 knee_swing_flexion
+abl31-feet_clearance-s1 1 feet_clearance
+abl31-drift-s1 1 drift
+abl31-heading_error-s1 1 heading_error
+abl31-feet_orientation-s2 2 feet_orientation
+abl31-torque_limits-s2 2 torque_limits
+abl31-knee_swing_flexion-s2 2 knee_swing_flexion
+abl31-feet_clearance-s2 2 feet_clearance
+abl31-drift-s2 2 drift
+abl31-heading_error-s2 2 heading_error
+abl31-feet_orientation-s3 3 feet_orientation
+abl31-torque_limits-s3 3 torque_limits
+abl31-knee_swing_flexion-s3 3 knee_swing_flexion
+abl31-feet_clearance-s3 3 feet_clearance
+abl31-drift-s3 3 drift
+abl31-heading_error-s3 3 heading_error
+
+# --- 第 2 群 是正前は群でしか確かめていない項目（平滑化・姿勢）（8 構成 x 3 seed）---
+abl31-action_rate-s1 1 action_rate
+abl31-action_smoothness2-s1 1 action_smoothness2
+abl31-dof_vel-s1 1 dof_vel
+abl31-joint_torques-s1 1 joint_torques
+abl31-orientation-s1 1 orientation
+abl31-ang_vel_xy-s1 1 ang_vel_xy
+abl31-lin_vel_z-s1 1 lin_vel_z
+abl31-base_height-s1 1 base_height
+abl31-action_rate-s2 2 action_rate
+abl31-action_smoothness2-s2 2 action_smoothness2
+abl31-dof_vel-s2 2 dof_vel
+abl31-joint_torques-s2 2 joint_torques
+abl31-orientation-s2 2 orientation
+abl31-ang_vel_xy-s2 2 ang_vel_xy
+abl31-lin_vel_z-s2 2 lin_vel_z
+abl31-base_height-s2 2 base_height
+abl31-action_rate-s3 3 action_rate
+abl31-action_smoothness2-s3 3 action_smoothness2
+abl31-dof_vel-s3 3 dof_vel
+abl31-joint_torques-s3 3 joint_torques
+abl31-orientation-s3 3 orientation
+abl31-ang_vel_xy-s3 3 ang_vel_xy
+abl31-lin_vel_z-s3 3 lin_vel_z
+abl31-base_height-s3 3 base_height
+
+# --- 第 3 群 是正前に単独では削除可・判定不能だった項目と、その同時除去（5 構成 x 3 seed）---
+abl31-tracking_ang_vel-s1 1 tracking_ang_vel
+abl31-gait_contact-s1 1 gait_contact
+abl31-alive-s1 1 alive
+abl31-combo3-s1 1 alive,gait_contact,tracking_ang_vel
+abl31-tracking_lin_vel-s1 1 tracking_lin_vel
+abl31-tracking_ang_vel-s2 2 tracking_ang_vel
+abl31-gait_contact-s2 2 gait_contact
+abl31-alive-s2 2 alive
+abl31-combo3-s2 2 alive,gait_contact,tracking_ang_vel
+abl31-tracking_lin_vel-s2 2 tracking_lin_vel
+abl31-tracking_ang_vel-s3 3 tracking_ang_vel
+abl31-gait_contact-s3 3 gait_contact
+abl31-alive-s3 3 alive
+abl31-combo3-s3 3 alive,gait_contact,tracking_ang_vel
+abl31-tracking_lin_vel-s3 3 tracking_lin_vel
+
+# 学習 57 本

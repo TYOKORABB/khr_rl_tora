@@ -98,12 +98,27 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
     rear_set = set(int(i) for i in env.rear_feet_indices)
     front_cols = [c for c, i in enumerate(env.feet_indices) if int(i) not in rear_set]
     rear_cols = [c for c, i in enumerate(env.feet_indices) if int(i) in rear_set]
+    # [2026-10-17 追加] 平滑化・省エネの報酬（action_rate・action_smoothness2・dof_vel・joint_torques）が狙う量そのもの。
+    #   是正後の報酬の総点検（experiments/ablation_v31/）で、これらを外したときの効果を直接測るため。
+    #   上の注と同じ理由で、GPU 上のテンソルに足し込むだけにし、取り出しはループ後に 1 回。
+    #   姿勢の報酬（orientation・ang_vel_xy・lin_vel_z・base_height）が罰する量も同じ式で測る（環境の _reward_* と同じ状態量）。
+    sm = {k: torch.zeros((), dtype=torch.float64, device=gs.device)
+          for k in ("act_rate", "act_jerk", "dof_vel", "power", "grav_xy2", "wxy2", "vz2", "dh2")}
+    h_target = float(reward_cfg.get("base_height_target", 0.0))
+    has_grav_rel = hasattr(env, "projected_gravity_rel")
+    a_prev = a_prev2 = None
 
     with torch.no_grad():
         for i in range(n_steps):
             env.commands[:] = cmd_t
             obs, _, dones, _ = env.step(policy(obs))
             env.commands[:] = cmd_t   # step 内の resample を上書きして指令を固定
+            a_now = env.actions.clone()
+            if i >= n_warm and i >= 2:
+                sm["act_rate"] += ((a_now - a_prev) ** 2).mean()
+                sm["act_jerk"] += ((a_now - 2 * a_prev + a_prev2) ** 2).mean()
+                sm["dof_vel"] += (env.dof_vel ** 2).mean()
+            a_prev2, a_prev = (a_prev if a_prev is not None else a_now), a_now
             if i < n_warm:
                 falls_warm_t += dones.sum()
                 continue
@@ -111,7 +126,14 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
             # 歩容一致率: 4脚とも「stance 期(位相<0.55)に接地 / swing 期に離地」なら 1
             _ct_all = env.contact_forces[:, env.feet_indices, 2] > 1.0
             gait_match.append((~(_ct_all ^ (env.leg_phase < 0.55))).float().cpu().numpy())
-            tau.append(env.robot.get_dofs_control_force(env.motors_dof_idx).cpu().numpy())
+            tau_t = env.robot.get_dofs_control_force(env.motors_dof_idx)
+            sm["power"] += (tau_t * env.dof_vel).abs().sum(1).mean()   # 機械的な仕事率 [W]（1 体あたり、関節の和）
+            if has_grav_rel:   # 古い環境（v19 より前）には無い
+                sm["grav_xy2"] += (env.projected_gravity_rel[:, :2] ** 2).sum(1).mean()   # orientation が罰する量
+            sm["wxy2"] += (env.loco_ang_vel[:, :2] ** 2).sum(1).mean()                # ang_vel_xy
+            sm["vz2"] += (env.loco_lin_vel[:, 2] ** 2).mean()                         # lin_vel_z
+            sm["dh2"] += ((env.base_pos[:, 2] - h_target) ** 2).mean()                # base_height
+            tau.append(tau_t.cpu().numpy())
             xy.append(env.base_pos[:, :2].cpu().numpy())
             vy.append(env.loco_lin_vel[:, 1].cpu().numpy())   # loco 座標系（base ではない）
             wz.append(env.loco_ang_vel[:, 2].cpu().numpy())
@@ -128,6 +150,8 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
                 clear.append((env.feet_pos[:, :, 2] - env.foot_ref_z).cpu().numpy())
             phase.append(env.leg_phase[:, env.rear_leg_phase_idx].cpu().numpy())
 
+    n_meas = max(n_steps - max(n_warm, 2), 1)
+    sm = {k: float(v.item()) for k, v in sm.items()}
     tau = np.abs(np.array(tau)) / EFFORT_LIMIT
     xy, vy, wz = np.array(xy), np.array(vy), np.array(wz)
     contact, knee, tilt = np.array(contact), np.array(knee), np.array(tilt)
@@ -188,6 +212,16 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
         "gait_match_pct": float(gait_match.mean() * 100),
         "gait_match_front_pct": float(gait_match[:, :, front_cols].mean() * 100),
         "gait_match_rear_pct": float(gait_match[:, :, rear_cols].mean() * 100),
+        # [2026-10-17 追加] 平滑化・省エネ（行動は方策の出力の単位。関節角の目標の変化は × action_scale）
+        "action_rate_rms": (sm["act_rate"] / n_meas) ** 0.5,     # 1 歩ごとの行動の変化（action_rate が罰する量）
+        "action_jerk_rms": (sm["act_jerk"] / n_meas) ** 0.5,     # 行動の 2 階差分（action_smoothness2 が罰する量）
+        "dof_vel_rms": (sm["dof_vel"] / n_meas) ** 0.5,          # 関節速度 [rad/s]（dof_vel が罰する量）
+        "mech_power_w": sm["power"] / (n_steps - n_warm),        # Σ abs(τ·q̇) [W]（joint_torques・トルク系の副次指標）
+        "base_tilt_rms_deg": (float(np.degrees(np.arcsin(min(1.0, (sm["grav_xy2"] / (n_steps - n_warm)) ** 0.5))))
+                              if has_grav_rel else None),  # 公称姿勢からの傾き
+        "base_ang_vel_xy_rms": (sm["wxy2"] / (n_steps - n_warm)) ** 0.5,       # ロール・ピッチの角速度 [rad/s]
+        "base_vz_rms": (sm["vz2"] / (n_steps - n_warm)) ** 0.5,               # 胴体の上下の速さ [m/s]
+        "base_height_err_rms_mm": 1000 * (sm["dh2"] / (n_steps - n_warm)) ** 0.5,   # 目標の高さからのずれ [mm]
     }
 
 

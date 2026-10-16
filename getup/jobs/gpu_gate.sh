@@ -10,7 +10,8 @@
 # 使う側で HEAVY_SCHEDULE を変えたいときは source の前に設定する。
 
 : "${HEAVY_SCHEDULE:=1:05 4:05 7:05 10:05 19:05 22:05}"   # crontab の whisper の開始時刻（quad/jobs/run_retrain_fixurdf.sh と同じ。変えたら両方直す）
-GPU_JOB_PATTERN="python[0-9.]* +(-m +getup\.(train|eval|tools\.(hold_analysis|hold_video|dr_factor_eval|sat_breakdown))|(quad/)?(khr_train_quad|train_with_urdf_fix|eval_with_urdf_fix|khr_quad_eval)|third_party_private/miyake_port/(train|eval)_m)"
+GPU_JOB_PATTERN="python[0-9.]* +(-m +getup\.(train|eval|tools\.(hold_analysis|hold_video|dr_factor_eval|sat_breakdown))|(quad/)?(khr_train_quad|train_with_urdf_fix|eval_with_urdf_fix|khr_quad_eval|khr_quad_record)|third_party_private/miyake_port/(train|eval)_m)"
+ABL31_LOCK="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/logs/abl31/.lock"   # 四脚の総点検（quad/jobs/run_abl31.sh）が動いている印
 
 heavy_running() { ps -eo cmd --no-headers | grep -E "WHISPER_CPP_MODEL|main\.py +--scheduled" | grep -v grep || true; }
 minutes_until_busy() {
@@ -28,6 +29,10 @@ gpu_free() {   # $1 = 必要な分数。空いていれば 0、理由は $WHY
   if (( mub < $1 )); then WHY="GPU の空きが ${mub} 分（必要 $1 分）。whisper 解析: $HEAVY_SCHEDULE"; return 1; fi
   if ps -eo cmd --no-headers | grep -E "$GPU_JOB_PATTERN" | grep -qv grep; then
     WHY="別の学習・測定が走っている"; return 1
+  fi
+  # 総点検のキューは測定の合間（プロセスの切れ目）にも GPU を使い続けるので、ロックを持っている間は空いていないとみなす
+  if [ -f "$ABL31_LOCK/pid" ] && kill -0 "$(cat "$ABL31_LOCK/pid" 2>/dev/null)" 2>/dev/null; then
+    WHY="四脚の報酬の総点検（run_abl31.sh）が動いている"; return 1
   fi
   return 0
 }

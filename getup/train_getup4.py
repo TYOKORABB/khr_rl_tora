@@ -12,6 +12,8 @@ v3 の変更を 1 つずつ足して、どれが成功率・トルク・立っ�
     smooth   行動の変化の罰 −0.005 → −0.02、行動の 2 階差分の罰 −0.01（歩行 v31 と同じ）
     delta03  送る目標角の速さの制限 0.06 → 0.03 rad/歩
     ent0     エントロピーの係数 0.005 → 0
+    thr60    トルクの罰のしきい値 0.85 → 0.60（仕様に対する比。10/17 追加、getup-v5 用。v4 の cap90・delta03 で立った後に
+             hip_yaw を仕様の 85〜90 % で押し続けていた。0.85 のしきい値ではほとんど罰にならない量なので、歩行 v31 と同じ 0.60 に下げる）
   何も足さなければ v2 と同じ設定（環境は getup_env3 だが、上限 1.0・2 階差分の罰なしなら getup_env2 と同じ中身）。
 
   python -m getup.train_getup4 --add cap90 -e getup4-cap90-s1 -B 4096 -I 1500 --seed 1
@@ -38,7 +40,7 @@ from importlib import metadata
 from khr_common.paths import LOG_ROOT, REPO_ROOT, chdir_repo_root
 from khr_common.run_record import save_code_state
 
-FACTORS = ("t16", "cap90", "smooth", "delta03", "ent0")
+FACTORS = ("t16", "cap90", "smooth", "delta03", "ent0", "thr60")
 
 
 def get_cfgs(add=()):
@@ -56,6 +58,8 @@ def get_cfgs(add=()):
         reward_cfg["reward_scales"]["action_smoothness2"] = -0.01
     if "delta03" in add:
         env_cfg["action"]["delta"] = 0.03
+    if "thr60" in add:
+        reward_cfg["torque_thr"] = 0.60
     return env_cfg, obs_cfg, reward_cfg
 
 
