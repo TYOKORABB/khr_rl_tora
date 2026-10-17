@@ -49,7 +49,7 @@ exp_running() { ps -eo cmd --no-headers | grep -v grep | grep -qE -- "-e +$1( |\
 abl_training_count() { ps -eo cmd --no-headers | grep -cE "python[0-9.]* +quad/khr_train_quad31_abl" || true; }
 # 自分の学習（abl31）以外の GPU の学習・測定
 other_jobs() { ps -eo cmd --no-headers | grep -E "$GPU_JOB_PATTERN" | grep -v grep | grep -v "khr_train_quad31_abl" || true; }
-other_queue_waiting() { ps -eo cmd --no-headers | grep -E "getup/jobs/(run_queue|train_eval)\.sh|miyake_port/jobs/run_m0_queue\.sh" | grep -v grep || true; }
+other_queue_waiting() { ps -eo cmd --no-headers | grep -E "getup/jobs/(run_queue|train_eval)\.sh|miyake_port/jobs/run_m[0-9]_queue\.sh" | grep -v grep || true; }
 EVALS="fwd back turnL turnR strafeL push sym video"
 eval_done() {   # $1 = exp
   local k
