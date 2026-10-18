@@ -1,0 +1,32 @@
+{
+ "exp": "miyake-m1-s2",
+ "ckpt": 1499,
+ "level": "L2",
+ "n": 1591,
+ "episode_s": 8.0,
+ "skip_s": 3.0,
+ "modes": {
+  "deterministic": {
+   "biped_success": 0.0,
+   "miyake_terminated": 0.0515,
+   "sim_error": 0.0,
+   "goal_frac_of_live_time_after_skip": 0.0,
+   "last_1s_median": {
+    "tilt_deg": 74.625,
+    "base_h": 0.233,
+    "hip_pitch_mean_deg": -73.259
+   }
+  },
+  "stochastic": {
+   "biped_success": 0.0,
+   "miyake_terminated": 0.0566,
+   "sim_error": 0.0,
+   "goal_frac_of_live_time_after_skip": 0.0,
+   "last_1s_median": {
+    "tilt_deg": 75.071,
+    "base_h": 0.231,
+    "hip_pitch_mean_deg": -78.339
+   }
+  }
+ }
+}

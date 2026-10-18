@@ -1,0 +1,264 @@
+{
+ "exp": "getup5-dc-s1",
+ "ckpt": 1499,
+ "level": "L2",
+ "num_states": 256,
+ "episode_s": 12.0,
+ "window_s": [
+  8.0,
+  12.0
+ ],
+ "backend": "gpu",
+ "date": "2026-10-17T06:42:18",
+ "conds": {
+  "dr": {
+   "n_standing_all_window": 255,
+   "n_states": 256,
+   "ang_vel_rms": 0.1961,
+   "ang_vel_p95": 0.3516,
+   "ang_vel_over_0.5_frac": 0.011,
+   "dof_vel_rms": 0.7186,
+   "dof_vel_rms_top5": {
+    "r_elbow_pitch": 1.0372,
+    "r_knee_pitch": 1.0328,
+    "l_elbow_pitch": 0.9672,
+    "r_elbow_yaw": 0.9618,
+    "l_elbow_yaw": 0.9475
+   },
+   "dof_vel_spectrum_top_hz": [
+    9.3,
+    9.55,
+    9.05
+   ],
+   "dof_vel_power_frac": {
+    "0-2Hz": 0.004,
+    "2-5Hz": 0.017,
+    "5-10Hz": 0.873,
+    "10-20Hz": 0.074,
+    "20-25Hz": 0.032
+   },
+   "cmd_step_rms_rad": 0.02505,
+   "cmd_step_p99_rad": 0.03,
+   "act_step_rms": 0.9873,
+   "base_xy_drift_mm_per_s": {
+    "median": 2.35,
+    "p90": 3.59
+   },
+   "yaw_drift_deg_per_s": {
+    "median": 0.495,
+    "p90": 1.124
+   },
+   "end_slide_mm_per_s_while_in_contact": {
+    "median": 1.98,
+    "p90": 2.59,
+    "n_end_links": 146
+   },
+   "end_contact_changes_per_s": 3.707,
+   "end_always_in_contact_frac": 0.1431,
+   "torque_p99_pct": 90.0,
+   "torque_saturated_pct_time": 0.0,
+   "torque_cap_pct_of_spec": 90.0,
+   "torque_at_cap_pct_time": 5.0155,
+   "torque_mean_pct_top5": {
+    "r_hip_yaw": 85.9,
+    "l_hip_yaw": 85.9,
+    "l_hip_pitch": 42.1,
+    "l_ankle_pitch": 35.6,
+    "l_knee_pitch": 31.6
+   },
+   "torque_at_cap_pct_time_top5": {
+    "r_hip_yaw": 50.95,
+    "l_hip_yaw": 50.87,
+    "l_hip_pitch": 7.84,
+    "l_knee_pitch": 0.68,
+    "r_hip_pitch": 0.01
+   }
+  },
+  "no_noise": {
+   "n_standing_all_window": 255,
+   "n_states": 256,
+   "ang_vel_rms": 0.1801,
+   "ang_vel_p95": 0.343,
+   "ang_vel_over_0.5_frac": 0.0105,
+   "dof_vel_rms": 0.724,
+   "dof_vel_rms_top5": {
+    "r_elbow_pitch": 1.0535,
+    "r_knee_pitch": 1.0486,
+    "l_elbow_pitch": 0.9808,
+    "c_head_yaw": 0.9775,
+    "r_elbow_yaw": 0.9768
+   },
+   "dof_vel_spectrum_top_hz": [
+    9.3,
+    9.55,
+    24.87
+   ],
+   "dof_vel_power_frac": {
+    "0-2Hz": 0.001,
+    "2-5Hz": 0.011,
+    "5-10Hz": 0.917,
+    "10-20Hz": 0.037,
+    "20-25Hz": 0.034
+   },
+   "cmd_step_rms_rad": 0.02501,
+   "cmd_step_p99_rad": 0.03,
+   "act_step_rms": 0.9865,
+   "base_xy_drift_mm_per_s": {
+    "median": 2.11,
+    "p90": 3.02
+   },
+   "yaw_drift_deg_per_s": {
+    "median": 0.47,
+    "p90": 1.379
+   },
+   "end_slide_mm_per_s_while_in_contact": {
+    "median": 1.95,
+    "p90": 2.52,
+    "n_end_links": 185
+   },
+   "end_contact_changes_per_s": 3.458,
+   "end_always_in_contact_frac": 0.1814,
+   "torque_p99_pct": 90.0,
+   "torque_saturated_pct_time": 0.0,
+   "torque_cap_pct_of_spec": 90.0,
+   "torque_at_cap_pct_time": 5.5698,
+   "torque_mean_pct_top5": {
+    "r_hip_yaw": 88.1,
+    "l_hip_yaw": 88.0,
+    "l_hip_pitch": 41.1,
+    "l_ankle_pitch": 36.0,
+    "r_elbow_pitch": 32.0
+   },
+   "torque_at_cap_pct_time_top5": {
+    "r_hip_yaw": 58.31,
+    "l_hip_yaw": 56.13,
+    "l_hip_pitch": 7.82,
+    "l_knee_pitch": 0.28
+   }
+  },
+  "nominal": {
+   "n_standing_all_window": 255,
+   "n_states": 256,
+   "ang_vel_rms": 0.1547,
+   "ang_vel_p95": 0.2923,
+   "ang_vel_over_0.5_frac": 0.0031,
+   "dof_vel_rms": 0.7238,
+   "dof_vel_rms_top5": {
+    "r_elbow_pitch": 1.0595,
+    "r_knee_pitch": 1.0505,
+    "l_elbow_pitch": 0.9807,
+    "c_head_yaw": 0.9777,
+    "r_elbow_yaw": 0.977
+   },
+   "dof_vel_spectrum_top_hz": [
+    9.3,
+    24.87,
+    9.55
+   ],
+   "dof_vel_power_frac": {
+    "0-2Hz": 0.001,
+    "2-5Hz": 0.011,
+    "5-10Hz": 0.92,
+    "10-20Hz": 0.035,
+    "20-25Hz": 0.034
+   },
+   "cmd_step_rms_rad": 0.025,
+   "cmd_step_p99_rad": 0.03,
+   "act_step_rms": 0.9891,
+   "base_xy_drift_mm_per_s": {
+    "median": 2.09,
+    "p90": 2.7
+   },
+   "yaw_drift_deg_per_s": {
+    "median": 0.301,
+    "p90": 0.822
+   },
+   "end_slide_mm_per_s_while_in_contact": {
+    "median": 2.07,
+    "p90": 2.47,
+    "n_end_links": 246
+   },
+   "end_contact_changes_per_s": 2.102,
+   "end_always_in_contact_frac": 0.2412,
+   "torque_p99_pct": 90.0,
+   "torque_saturated_pct_time": 0.0,
+   "torque_cap_pct_of_spec": 90.0,
+   "torque_at_cap_pct_time": 5.6132,
+   "torque_mean_pct_top5": {
+    "r_hip_yaw": 88.3,
+    "l_hip_yaw": 88.2,
+    "l_hip_pitch": 42.5,
+    "l_ankle_pitch": 37.1,
+    "r_elbow_pitch": 32.4
+   },
+   "torque_at_cap_pct_time_top5": {
+    "r_hip_yaw": 57.57,
+    "l_hip_yaw": 56.2,
+    "l_hip_pitch": 9.39,
+    "l_knee_pitch": 0.32
+   }
+  },
+  "freeze": {
+   "n_standing_all_window": 255,
+   "n_states": 256,
+   "ang_vel_rms": 0.0481,
+   "ang_vel_p95": 0.0689,
+   "ang_vel_over_0.5_frac": 0.0005,
+   "dof_vel_rms": 0.0758,
+   "dof_vel_rms_top5": {
+    "r_elbow_pitch": 0.1093,
+    "r_knee_pitch": 0.1076,
+    "l_shoulder_pitch": 0.0997,
+    "l_elbow_pitch": 0.0988,
+    "r_elbow_yaw": 0.0983
+   },
+   "dof_vel_spectrum_top_hz": [
+    5.78,
+    6.03,
+    5.53
+   ],
+   "dof_vel_power_frac": {
+    "0-2Hz": 0.117,
+    "2-5Hz": 0.264,
+    "5-10Hz": 0.438,
+    "10-20Hz": 0.153,
+    "20-25Hz": 0.028
+   },
+   "cmd_step_rms_rad": 0.0,
+   "cmd_step_p99_rad": 0.0,
+   "act_step_rms": 0.3901,
+   "base_xy_drift_mm_per_s": {
+    "median": 0.86,
+    "p90": 1.7
+   },
+   "yaw_drift_deg_per_s": {
+    "median": 0.181,
+    "p90": 0.392
+   },
+   "end_slide_mm_per_s_while_in_contact": {
+    "median": 0.36,
+    "p90": 1.25,
+    "n_end_links": 411
+   },
+   "end_contact_changes_per_s": 0.216,
+   "end_always_in_contact_frac": 0.4029,
+   "torque_p99_pct": 90.0,
+   "torque_saturated_pct_time": 0.0,
+   "torque_cap_pct_of_spec": 90.0,
+   "torque_at_cap_pct_time": 3.2971,
+   "torque_mean_pct_top5": {
+    "r_hip_yaw": 86.7,
+    "l_hip_yaw": 84.2,
+    "l_hip_pitch": 36.6,
+    "l_ankle_pitch": 34.6,
+    "l_knee_pitch": 26.5
+   },
+   "torque_at_cap_pct_time_top5": {
+    "r_hip_yaw": 47.28,
+    "l_hip_yaw": 25.18,
+    "l_hip_pitch": 0.07,
+    "l_knee_pitch": 0.0
+   }
+  }
+ }
+}

@@ -1,0 +1,1820 @@
+{
+ "exp": "miyake-m0-73-s42",
+ "ckpt": 1999,
+ "mode": "deterministic",
+ "video": "media/videos/getup/miyake/miyake-m0-73-s42_1999_side.mp4",
+ "after_3s_median": {
+  "tilt_deg": 19.4,
+  "base_h": 0.251,
+  "hip_pitch_deg": [
+   -33.3,
+   -38.8
+  ],
+  "knee_deg": [
+   0.0,
+   17.5
+  ]
+ },
+ "every_0.1s": [
+  {
+   "t": 0.1,
+   "tilt_deg": 94.7,
+   "base_h": 0.059,
+   "hip_pitch_deg": [
+    -11.0,
+    -9.0
+   ],
+   "knee_deg": [
+    15.4,
+    0.3
+   ],
+   "max_abs_joint": "l_knee_pitch",
+   "max_abs_joint_deg": 15.4
+  },
+  {
+   "t": 0.2,
+   "tilt_deg": 101.5,
+   "base_h": 0.069,
+   "hip_pitch_deg": [
+    -38.4,
+    -39.1
+   ],
+   "knee_deg": [
+    61.0,
+    -0.0
+   ],
+   "max_abs_joint": "l_knee_pitch",
+   "max_abs_joint_deg": 61.0
+  },
+  {
+   "t": 0.3,
+   "tilt_deg": 105.9,
+   "base_h": 0.085,
+   "hip_pitch_deg": [
+    -87.3,
+    -83.0
+   ],
+   "knee_deg": [
+    133.0,
+    0.7
+   ],
+   "max_abs_joint": "l_knee_pitch",
+   "max_abs_joint_deg": 133.0
+  },
+  {
+   "t": 0.4,
+   "tilt_deg": 104.0,
+   "base_h": 0.094,
+   "hip_pitch_deg": [
+    -109.8,
+    -110.4
+   ],
+   "knee_deg": [
+    157.6,
+    1.0
+   ],
+   "max_abs_joint": "r_shoulder_roll",
+   "max_abs_joint_deg": 181.6
+  },
+  {
+   "t": 0.5,
+   "tilt_deg": 88.0,
+   "base_h": 0.139,
+   "hip_pitch_deg": [
+    -110.0,
+    -109.6
+   ],
+   "knee_deg": [
+    158.1,
+    21.9
+   ],
+   "max_abs_joint": "r_shoulder_roll",
+   "max_abs_joint_deg": 174.5
+  },
+  {
+   "t": 0.6,
+   "tilt_deg": 52.6,
+   "base_h": 0.16,
+   "hip_pitch_deg": [
+    -110.0,
+    -109.6
+   ],
+   "knee_deg": [
+    158.0,
+    73.4
+   ],
+   "max_abs_joint": "l_knee_pitch",
+   "max_abs_joint_deg": 158.0
+  },
+  {
+   "t": 0.7,
+   "tilt_deg": 21.1,
+   "base_h": 0.157,
+   "hip_pitch_deg": [
+    -109.3,
+    -98.1
+   ],
+   "knee_deg": [
+    157.3,
+    151.2
+   ],
+   "max_abs_joint": "l_knee_pitch",
+   "max_abs_joint_deg": 157.3
+  },
+  {
+   "t": 0.8,
+   "tilt_deg": 12.7,
+   "base_h": 0.164,
+   "hip_pitch_deg": [
+    -110.0,
+    -72.1
+   ],
+   "knee_deg": [
+    143.4,
+    150.4
+   ],
+   "max_abs_joint": "l_shoulder_roll",
+   "max_abs_joint_deg": 179.9
+  },
+  {
+   "t": 0.9,
+   "tilt_deg": 12.1,
+   "base_h": 0.178,
+   "hip_pitch_deg": [
+    -108.1,
+    -68.2
+   ],
+   "knee_deg": [
+    119.7,
+    137.6
+   ],
+   "max_abs_joint": "l_shoulder_roll",
+   "max_abs_joint_deg": 154.8
+  },
+  {
+   "t": 1.0,
+   "tilt_deg": 15.7,
+   "base_h": 0.191,
+   "hip_pitch_deg": [
+    -98.5,
+    -80.7
+   ],
+   "knee_deg": [
+    105.1,
+    125.6
+   ],
+   "max_abs_joint": "r_knee_pitch",
+   "max_abs_joint_deg": 125.6
+  },
+  {
+   "t": 1.1,
+   "tilt_deg": 17.5,
+   "base_h": 0.195,
+   "hip_pitch_deg": [
+    -86.8,
+    -85.2
+   ],
+   "knee_deg": [
+    107.4,
+    117.3
+   ],
+   "max_abs_joint": "r_knee_pitch",
+   "max_abs_joint_deg": 117.3
+  },
+  {
+   "t": 1.2,
+   "tilt_deg": 16.8,
+   "base_h": 0.209,
+   "hip_pitch_deg": [
+    -72.7,
+    -79.2
+   ],
+   "knee_deg": [
+    95.5,
+    95.7
+   ],
+   "max_abs_joint": "r_knee_pitch",
+   "max_abs_joint_deg": 95.7
+  },
+  {
+   "t": 1.3,
+   "tilt_deg": 17.9,
+   "base_h": 0.233,
+   "hip_pitch_deg": [
+    -58.6,
+    -65.8
+   ],
+   "knee_deg": [
+    65.3,
+    69.5
+   ],
+   "max_abs_joint": "r_knee_pitch",
+   "max_abs_joint_deg": 69.5
+  },
+  {
+   "t": 1.4,
+   "tilt_deg": 17.5,
+   "base_h": 0.249,
+   "hip_pitch_deg": [
+    -43.9,
+    -48.9
+   ],
+   "knee_deg": [
+    27.1,
+    38.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 48.9
+  },
+  {
+   "t": 1.5,
+   "tilt_deg": 18.2,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -35.5,
+    -43.2
+   ],
+   "knee_deg": [
+    -0.5,
+    19.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 43.2
+  },
+  {
+   "t": 1.6,
+   "tilt_deg": 18.5,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.3,
+    -40.4
+   ],
+   "knee_deg": [
+    0.0,
+    17.4
+   ],
+   "max_abs_joint": "r_elbow_yaw",
+   "max_abs_joint_deg": 41.1
+  },
+  {
+   "t": 1.7,
+   "tilt_deg": 19.7,
+   "base_h": 0.253,
+   "hip_pitch_deg": [
+    -33.2,
+    -36.6
+   ],
+   "knee_deg": [
+    -0.0,
+    17.9
+   ],
+   "max_abs_joint": "l_shoulder_pitch",
+   "max_abs_joint_deg": 37.8
+  },
+  {
+   "t": 1.8,
+   "tilt_deg": 19.1,
+   "base_h": 0.254,
+   "hip_pitch_deg": [
+    -31.1,
+    -36.2
+   ],
+   "knee_deg": [
+    -0.0,
+    20.5
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.2
+  },
+  {
+   "t": 1.9,
+   "tilt_deg": 19.3,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -34.6,
+    -40.3
+   ],
+   "knee_deg": [
+    -0.0,
+    17.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.3
+  },
+  {
+   "t": 2.0,
+   "tilt_deg": 18.6,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -35.0,
+    -40.5
+   ],
+   "knee_deg": [
+    0.0,
+    16.5
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.5
+  },
+  {
+   "t": 2.1,
+   "tilt_deg": 19.4,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.5,
+    -38.1
+   ],
+   "knee_deg": [
+    -0.0,
+    18.0
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.1
+  },
+  {
+   "t": 2.2,
+   "tilt_deg": 18.8,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.5,
+    -37.4
+   ],
+   "knee_deg": [
+    0.0,
+    18.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.4
+  },
+  {
+   "t": 2.3,
+   "tilt_deg": 19.1,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.0,
+    -38.6
+   ],
+   "knee_deg": [
+    -0.0,
+    16.4
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.6
+  },
+  {
+   "t": 2.4,
+   "tilt_deg": 19.7,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.1,
+    -39.5
+   ],
+   "knee_deg": [
+    0.0,
+    18.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.5
+  },
+  {
+   "t": 2.5,
+   "tilt_deg": 19.6,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.7,
+    -37.5
+   ],
+   "knee_deg": [
+    -0.0,
+    17.0
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.5
+  },
+  {
+   "t": 2.6,
+   "tilt_deg": 19.2,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -33.9,
+    -40.2
+   ],
+   "knee_deg": [
+    0.0,
+    19.7
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.2
+  },
+  {
+   "t": 2.7,
+   "tilt_deg": 18.9,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.1,
+    -37.5
+   ],
+   "knee_deg": [
+    0.0,
+    16.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.5
+  },
+  {
+   "t": 2.8,
+   "tilt_deg": 19.2,
+   "base_h": 0.253,
+   "hip_pitch_deg": [
+    -32.6,
+    -35.7
+   ],
+   "knee_deg": [
+    -0.0,
+    14.4
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 35.7
+  },
+  {
+   "t": 2.9,
+   "tilt_deg": 19.6,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.2,
+    -39.0
+   ],
+   "knee_deg": [
+    -0.0,
+    19.0
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.0
+  },
+  {
+   "t": 3.0,
+   "tilt_deg": 19.5,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.0,
+    -38.8
+   ],
+   "knee_deg": [
+    0.0,
+    17.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.8
+  },
+  {
+   "t": 3.1,
+   "tilt_deg": 18.9,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.5,
+    -39.3
+   ],
+   "knee_deg": [
+    -0.0,
+    17.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.3
+  },
+  {
+   "t": 3.2,
+   "tilt_deg": 19.0,
+   "base_h": 0.249,
+   "hip_pitch_deg": [
+    -34.1,
+    -42.3
+   ],
+   "knee_deg": [
+    -0.0,
+    19.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 42.3
+  },
+  {
+   "t": 3.3,
+   "tilt_deg": 18.7,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.1,
+    -39.2
+   ],
+   "knee_deg": [
+    0.1,
+    17.4
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.2
+  },
+  {
+   "t": 3.4,
+   "tilt_deg": 19.4,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.5,
+    -36.6
+   ],
+   "knee_deg": [
+    -0.0,
+    17.4
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.6
+  },
+  {
+   "t": 3.5,
+   "tilt_deg": 19.7,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.5,
+    -39.4
+   ],
+   "knee_deg": [
+    -0.0,
+    18.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.4
+  },
+  {
+   "t": 3.6,
+   "tilt_deg": 18.9,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.0,
+    -38.5
+   ],
+   "knee_deg": [
+    -0.0,
+    18.0
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.5
+  },
+  {
+   "t": 3.7,
+   "tilt_deg": 19.5,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -34.9,
+    -39.6
+   ],
+   "knee_deg": [
+    -0.0,
+    19.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.6
+  },
+  {
+   "t": 3.8,
+   "tilt_deg": 19.2,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -31.9,
+    -36.7
+   ],
+   "knee_deg": [
+    -0.0,
+    16.8
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.7
+  },
+  {
+   "t": 3.9,
+   "tilt_deg": 19.7,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.2,
+    -38.4
+   ],
+   "knee_deg": [
+    -0.0,
+    18.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.4
+  },
+  {
+   "t": 4.0,
+   "tilt_deg": 19.1,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.2,
+    -38.0
+   ],
+   "knee_deg": [
+    -0.0,
+    18.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.0
+  },
+  {
+   "t": 4.1,
+   "tilt_deg": 19.4,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -34.0,
+    -40.4
+   ],
+   "knee_deg": [
+    0.0,
+    19.4
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.4
+  },
+  {
+   "t": 4.2,
+   "tilt_deg": 19.3,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.4,
+    -37.4
+   ],
+   "knee_deg": [
+    -0.1,
+    15.7
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.4
+  },
+  {
+   "t": 4.3,
+   "tilt_deg": 19.2,
+   "base_h": 0.253,
+   "hip_pitch_deg": [
+    -31.5,
+    -35.2
+   ],
+   "knee_deg": [
+    -0.0,
+    15.7
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 35.2
+  },
+  {
+   "t": 4.4,
+   "tilt_deg": 19.9,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.3,
+    -36.8
+   ],
+   "knee_deg": [
+    -0.0,
+    18.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.8
+  },
+  {
+   "t": 4.5,
+   "tilt_deg": 19.6,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.3,
+    -38.5
+   ],
+   "knee_deg": [
+    -0.0,
+    18.5
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.5
+  },
+  {
+   "t": 4.6,
+   "tilt_deg": 19.6,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.0,
+    -40.7
+   ],
+   "knee_deg": [
+    -0.0,
+    18.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.7
+  },
+  {
+   "t": 4.7,
+   "tilt_deg": 18.7,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -34.0,
+    -41.2
+   ],
+   "knee_deg": [
+    0.0,
+    18.3
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 41.2
+  },
+  {
+   "t": 4.8,
+   "tilt_deg": 19.0,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -34.9,
+    -42.1
+   ],
+   "knee_deg": [
+    0.0,
+    17.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 42.1
+  },
+  {
+   "t": 4.9,
+   "tilt_deg": 19.0,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.1,
+    -39.1
+   ],
+   "knee_deg": [
+    -0.0,
+    18.4
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.1
+  },
+  {
+   "t": 5.0,
+   "tilt_deg": 19.8,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.0,
+    -37.3
+   ],
+   "knee_deg": [
+    -0.0,
+    17.9
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.3
+  },
+  {
+   "t": 5.1,
+   "tilt_deg": 19.0,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -32.2,
+    -38.2
+   ],
+   "knee_deg": [
+    -0.0,
+    19.3
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.2
+  },
+  {
+   "t": 5.2,
+   "tilt_deg": 19.2,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -34.3,
+    -40.9
+   ],
+   "knee_deg": [
+    0.0,
+    20.9
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.9
+  },
+  {
+   "t": 5.3,
+   "tilt_deg": 19.2,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.4,
+    -36.7
+   ],
+   "knee_deg": [
+    -0.0,
+    14.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.7
+  },
+  {
+   "t": 5.4,
+   "tilt_deg": 19.4,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.2,
+    -37.8
+   ],
+   "knee_deg": [
+    -0.0,
+    15.0
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.8
+  },
+  {
+   "t": 5.5,
+   "tilt_deg": 19.8,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -34.3,
+    -41.0
+   ],
+   "knee_deg": [
+    -0.0,
+    18.5
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 41.0
+  },
+  {
+   "t": 5.6,
+   "tilt_deg": 19.0,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -32.6,
+    -38.6
+   ],
+   "knee_deg": [
+    0.0,
+    18.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.6
+  },
+  {
+   "t": 5.7,
+   "tilt_deg": 19.5,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.8,
+    -38.0
+   ],
+   "knee_deg": [
+    0.0,
+    17.8
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.0
+  },
+  {
+   "t": 5.8,
+   "tilt_deg": 19.8,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.0,
+    -39.2
+   ],
+   "knee_deg": [
+    -0.0,
+    17.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.2
+  },
+  {
+   "t": 5.9,
+   "tilt_deg": 19.7,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.7,
+    -39.3
+   ],
+   "knee_deg": [
+    -0.0,
+    16.8
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.3
+  },
+  {
+   "t": 6.0,
+   "tilt_deg": 18.6,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.4,
+    -36.7
+   ],
+   "knee_deg": [
+    0.0,
+    16.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.7
+  },
+  {
+   "t": 6.1,
+   "tilt_deg": 19.2,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.5,
+    -37.0
+   ],
+   "knee_deg": [
+    -0.0,
+    17.5
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.0
+  },
+  {
+   "t": 6.2,
+   "tilt_deg": 19.5,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.1,
+    -38.8
+   ],
+   "knee_deg": [
+    -0.0,
+    17.7
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.8
+  },
+  {
+   "t": 6.3,
+   "tilt_deg": 19.0,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.5,
+    -39.2
+   ],
+   "knee_deg": [
+    0.0,
+    17.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.2
+  },
+  {
+   "t": 6.4,
+   "tilt_deg": 19.6,
+   "base_h": 0.253,
+   "hip_pitch_deg": [
+    -32.4,
+    -37.3
+   ],
+   "knee_deg": [
+    -0.0,
+    17.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.3
+  },
+  {
+   "t": 6.5,
+   "tilt_deg": 19.6,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -32.9,
+    -38.6
+   ],
+   "knee_deg": [
+    -0.0,
+    19.9
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.6
+  },
+  {
+   "t": 6.6,
+   "tilt_deg": 19.3,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.0,
+    -38.9
+   ],
+   "knee_deg": [
+    0.0,
+    18.8
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.9
+  },
+  {
+   "t": 6.7,
+   "tilt_deg": 18.9,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.4,
+    -35.8
+   ],
+   "knee_deg": [
+    -0.0,
+    12.8
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 35.8
+  },
+  {
+   "t": 6.8,
+   "tilt_deg": 19.6,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -34.4,
+    -40.9
+   ],
+   "knee_deg": [
+    -0.0,
+    17.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.9
+  },
+  {
+   "t": 6.9,
+   "tilt_deg": 19.5,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.8,
+    -40.3
+   ],
+   "knee_deg": [
+    -0.0,
+    17.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.3
+  },
+  {
+   "t": 7.0,
+   "tilt_deg": 19.3,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.3,
+    -36.3
+   ],
+   "knee_deg": [
+    0.0,
+    16.4
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.3
+  },
+  {
+   "t": 7.1,
+   "tilt_deg": 19.6,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -31.9,
+    -36.3
+   ],
+   "knee_deg": [
+    -0.0,
+    18.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.3
+  },
+  {
+   "t": 7.2,
+   "tilt_deg": 19.5,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -33.9,
+    -41.0
+   ],
+   "knee_deg": [
+    -0.0,
+    19.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 41.0
+  },
+  {
+   "t": 7.3,
+   "tilt_deg": 18.7,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -35.1,
+    -40.6
+   ],
+   "knee_deg": [
+    0.0,
+    17.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.6
+  },
+  {
+   "t": 7.4,
+   "tilt_deg": 19.6,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.3,
+    -38.9
+   ],
+   "knee_deg": [
+    -0.1,
+    15.7
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.9
+  },
+  {
+   "t": 7.5,
+   "tilt_deg": 19.3,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -32.9,
+    -39.3
+   ],
+   "knee_deg": [
+    -0.0,
+    18.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.3
+  },
+  {
+   "t": 7.6,
+   "tilt_deg": 19.5,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -34.7,
+    -41.5
+   ],
+   "knee_deg": [
+    0.0,
+    19.8
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 41.5
+  },
+  {
+   "t": 7.7,
+   "tilt_deg": 19.9,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.6,
+    -39.6
+   ],
+   "knee_deg": [
+    0.0,
+    16.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.6
+  },
+  {
+   "t": 7.8,
+   "tilt_deg": 18.9,
+   "base_h": 0.254,
+   "hip_pitch_deg": [
+    -31.1,
+    -36.0
+   ],
+   "knee_deg": [
+    0.0,
+    18.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.0
+  },
+  {
+   "t": 7.9,
+   "tilt_deg": 19.8,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.8,
+    -38.5
+   ],
+   "knee_deg": [
+    -0.0,
+    16.8
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.5
+  },
+  {
+   "t": 8.0,
+   "tilt_deg": 19.8,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.3,
+    -39.3
+   ],
+   "knee_deg": [
+    -0.1,
+    16.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.3
+  },
+  {
+   "t": 8.1,
+   "tilt_deg": 19.0,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.9,
+    -40.0
+   ],
+   "knee_deg": [
+    0.0,
+    17.9
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.0
+  },
+  {
+   "t": 8.2,
+   "tilt_deg": 19.4,
+   "base_h": 0.25,
+   "hip_pitch_deg": [
+    -33.4,
+    -40.6
+   ],
+   "knee_deg": [
+    -0.2,
+    17.7
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.6
+  },
+  {
+   "t": 8.3,
+   "tilt_deg": 19.5,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.0,
+    -41.6
+   ],
+   "knee_deg": [
+    -0.0,
+    19.7
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 41.6
+  },
+  {
+   "t": 8.4,
+   "tilt_deg": 19.0,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.8,
+    -38.1
+   ],
+   "knee_deg": [
+    0.0,
+    16.3
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.1
+  },
+  {
+   "t": 8.5,
+   "tilt_deg": 19.0,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.2,
+    -38.3
+   ],
+   "knee_deg": [
+    0.0,
+    17.5
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.3
+  },
+  {
+   "t": 8.6,
+   "tilt_deg": 19.9,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.9,
+    -39.7
+   ],
+   "knee_deg": [
+    -0.0,
+    18.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.7
+  },
+  {
+   "t": 8.7,
+   "tilt_deg": 19.4,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.1,
+    -39.0
+   ],
+   "knee_deg": [
+    -0.0,
+    17.8
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.0
+  },
+  {
+   "t": 8.8,
+   "tilt_deg": 19.2,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.9,
+    -38.2
+   ],
+   "knee_deg": [
+    -0.0,
+    16.9
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.2
+  },
+  {
+   "t": 8.9,
+   "tilt_deg": 19.7,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.7,
+    -39.9
+   ],
+   "knee_deg": [
+    -0.0,
+    17.4
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.9
+  },
+  {
+   "t": 9.0,
+   "tilt_deg": 19.1,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.6,
+    -39.1
+   ],
+   "knee_deg": [
+    0.0,
+    16.5
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.1
+  },
+  {
+   "t": 9.1,
+   "tilt_deg": 19.6,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.2,
+    -39.6
+   ],
+   "knee_deg": [
+    0.0,
+    18.0
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.6
+  },
+  {
+   "t": 9.2,
+   "tilt_deg": 19.3,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.7,
+    -36.5
+   ],
+   "knee_deg": [
+    -0.0,
+    15.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.5
+  },
+  {
+   "t": 9.3,
+   "tilt_deg": 19.5,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.7,
+    -37.1
+   ],
+   "knee_deg": [
+    -0.0,
+    17.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.1
+  },
+  {
+   "t": 9.4,
+   "tilt_deg": 19.6,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.3,
+    -39.0
+   ],
+   "knee_deg": [
+    -0.0,
+    18.4
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.0
+  },
+  {
+   "t": 9.5,
+   "tilt_deg": 19.2,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.3,
+    -39.9
+   ],
+   "knee_deg": [
+    0.0,
+    17.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.9
+  },
+  {
+   "t": 9.6,
+   "tilt_deg": 19.5,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.3,
+    -38.9
+   ],
+   "knee_deg": [
+    -0.0,
+    16.3
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.9
+  },
+  {
+   "t": 9.7,
+   "tilt_deg": 19.0,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.6,
+    -37.4
+   ],
+   "knee_deg": [
+    -0.0,
+    17.4
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.4
+  },
+  {
+   "t": 9.8,
+   "tilt_deg": 19.6,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.4,
+    -38.1
+   ],
+   "knee_deg": [
+    -0.0,
+    17.3
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.1
+  },
+  {
+   "t": 9.9,
+   "tilt_deg": 19.0,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -34.0,
+    -37.2
+   ],
+   "knee_deg": [
+    0.0,
+    16.7
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.2
+  },
+  {
+   "t": 10.0,
+   "tilt_deg": 19.3,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.6,
+    -37.4
+   ],
+   "knee_deg": [
+    0.0,
+    17.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.4
+  },
+  {
+   "t": 10.1,
+   "tilt_deg": 19.1,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -32.6,
+    -39.2
+   ],
+   "knee_deg": [
+    -0.0,
+    19.0
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.2
+  },
+  {
+   "t": 10.2,
+   "tilt_deg": 19.3,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.3,
+    -40.8
+   ],
+   "knee_deg": [
+    0.0,
+    17.0
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.8
+  },
+  {
+   "t": 10.3,
+   "tilt_deg": 19.3,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.3,
+    -39.5
+   ],
+   "knee_deg": [
+    -0.0,
+    15.4
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.5
+  },
+  {
+   "t": 10.4,
+   "tilt_deg": 19.2,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.4,
+    -38.5
+   ],
+   "knee_deg": [
+    0.0,
+    17.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.5
+  },
+  {
+   "t": 10.5,
+   "tilt_deg": 19.5,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.4,
+    -37.9
+   ],
+   "knee_deg": [
+    -0.0,
+    17.2
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.9
+  },
+  {
+   "t": 10.6,
+   "tilt_deg": 19.5,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.5,
+    -37.6
+   ],
+   "knee_deg": [
+    -0.0,
+    17.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.6
+  },
+  {
+   "t": 10.7,
+   "tilt_deg": 19.4,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.1,
+    -37.3
+   ],
+   "knee_deg": [
+    -0.0,
+    17.9
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.3
+  },
+  {
+   "t": 10.8,
+   "tilt_deg": 19.8,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.5,
+    -38.4
+   ],
+   "knee_deg": [
+    -0.0,
+    18.1
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.4
+  },
+  {
+   "t": 10.9,
+   "tilt_deg": 19.4,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -32.9,
+    -36.9
+   ],
+   "knee_deg": [
+    -0.0,
+    16.5
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.9
+  },
+  {
+   "t": 11.0,
+   "tilt_deg": 19.3,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.4,
+    -37.2
+   ],
+   "knee_deg": [
+    -0.0,
+    17.0
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.2
+  },
+  {
+   "t": 11.1,
+   "tilt_deg": 19.2,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.3,
+    -37.9
+   ],
+   "knee_deg": [
+    0.0,
+    17.3
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.9
+  },
+  {
+   "t": 11.2,
+   "tilt_deg": 19.6,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -33.6,
+    -37.2
+   ],
+   "knee_deg": [
+    0.0,
+    16.3
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 37.2
+  },
+  {
+   "t": 11.3,
+   "tilt_deg": 19.3,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.1,
+    -39.7
+   ],
+   "knee_deg": [
+    -0.0,
+    18.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.7
+  },
+  {
+   "t": 11.4,
+   "tilt_deg": 18.9,
+   "base_h": 0.249,
+   "hip_pitch_deg": [
+    -34.1,
+    -42.2
+   ],
+   "knee_deg": [
+    0.0,
+    20.5
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 42.2
+  },
+  {
+   "t": 11.5,
+   "tilt_deg": 19.4,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.0,
+    -39.8
+   ],
+   "knee_deg": [
+    0.0,
+    16.0
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.8
+  },
+  {
+   "t": 11.6,
+   "tilt_deg": 19.9,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -33.2,
+    -38.5
+   ],
+   "knee_deg": [
+    -0.0,
+    17.0
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.5
+  },
+  {
+   "t": 11.7,
+   "tilt_deg": 19.5,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -32.4,
+    -38.4
+   ],
+   "knee_deg": [
+    -0.0,
+    19.7
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 38.4
+  },
+  {
+   "t": 11.8,
+   "tilt_deg": 19.8,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.1,
+    -40.8
+   ],
+   "knee_deg": [
+    -0.0,
+    20.5
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 40.8
+  },
+  {
+   "t": 11.9,
+   "tilt_deg": 19.7,
+   "base_h": 0.251,
+   "hip_pitch_deg": [
+    -34.5,
+    -39.6
+   ],
+   "knee_deg": [
+    -0.0,
+    16.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 39.6
+  },
+  {
+   "t": 12.0,
+   "tilt_deg": 19.4,
+   "base_h": 0.252,
+   "hip_pitch_deg": [
+    -32.7,
+    -36.9
+   ],
+   "knee_deg": [
+    -0.0,
+    14.6
+   ],
+   "max_abs_joint": "r_hipjoint_pitch",
+   "max_abs_joint_deg": 36.9
+  }
+ ]
+}
