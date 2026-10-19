@@ -23,7 +23,7 @@
 | `retrain_fixurdf/` | URDF 是正後の全版の再学習: 計画（README）・知見（`findings.md`）・3 seed の集計（`tier_d_summary.md`） |
 | `results_json_fixurdf/`・`noise_floor_fixurdf.json` | その測定結果と、是正後のノイズ床（v23 × 4 seed） |
 | `ablation/` | 報酬の総点検（ablation）の計画・結果・測定の注意 |
-| `quad_progress/` | v31 の学習の経過（3 seed × 41 個のチェックポイントの測定と、経過の動画の作り方） |
+| `quad_progress/` | v31 の学習の経過（3 seed × 41 個のチェックポイントの測定と、経過の動画の作り方）。3 seed の違いは `seed_comparison.md` |
 | `results_json/`・`noise_floor.json` | URDF 是正前の測定結果とノイズ床 |
 | `urdf_hip_pitch_bug.md`・`REPORT_urdf_bug_to_author.md` | URDF の可動域バグの調査記録と、アセット作者への報告 |
 | `real/` | 実機の記録（2026-10-13 の接続確認・ファーム・IMU・v31 の歩行、P0-3） |
