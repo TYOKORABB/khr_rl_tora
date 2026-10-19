@@ -370,7 +370,10 @@ def cmd_serve(a) -> int:
                 else:
                     state["_err_since"] = None
             if now - last_status > 0.5:
-                status(tilt_deg=round(tilt, 1), cmd=None if state["phase"] != "walking" else cmd.tolist(),
+                # 傾きの向き（10/19 追加。四脚姿勢で胴体に当てた水準器と比べる）: 左が下 = 重力の base の y 成分、頭が下 = z 成分
+                status(tilt_deg=round(tilt, 1), left_down_deg=round(math.degrees(math.asin(max(-1.0, min(1.0, float(down[1]))))), 2),
+                       head_down_deg=round(math.degrees(math.asin(max(-1.0, min(1.0, float(down[2]))))), 2),
+                       cmd=None if state["phase"] != "walking" else cmd.tolist(),
                        heading=round(ob.heading, 3), wdg=gv.decode_status(int(m[gv.MRD_STATUS])).wdg_state)
                 last_status = now
             nxt = tick(nxt)

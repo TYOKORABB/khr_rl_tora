@@ -10,6 +10,7 @@
   python -m real.fw_check wdg-test                 # 通信監視の状態遷移（OK→HOLD→LIMP→解除）を確かめる
   python -m real.fw_check imu-ab                   # IMU の読み取り方（一括 / 梶田版と同じ個別）を切り替えて比べる（khr-getup.3 から）
   python -m real.fw_check latency                  # 往復遅れ（PC → ESP32 → PC）を 2 通りの送り方で測る
+  python -m real.fw_check latency --seconds 300    # E5-lite（実験場所で 10 分）。ESP32 → PC の欠落も数える
   python -m real.fw_check selftest                 # 偽の ESP32 を相手にこのツール自体を試す（実機不要）
 
 姿勢名: upright（直立）/ head_down（逆さ）/ prone（うつ伏せ）/ supine（仰向け）/ left_down / right_down
@@ -497,14 +498,25 @@ def cmd_latency(a) -> int:
         keys = sorted(first)[len(first) // 10:]          # 最初の 1 割（立ち上がり）は捨てる
         rtt = np.array([first[e] - sent[e] for e in keys]) * 1000
         skip = np.mean([(int(m[88]) >> 10) & 1 for _, m in rows]) if rows else None
-        res[mode] = {"sent": len(sent), "echoed": len(first),
+        # ESP32 → PC の欠落（E5-lite、10/19 追加）: ESP32 は送るたびに [1] を 1 ずつ増やす（0〜59999 で一巡）。
+        # 番号の飛びの合計 = 届かなかったフレームの数。番号がすべて同じなら（偽の ESP32 など）数えない
+        sq = np.array([int(m.view(np.uint16)[1]) for _, m in rows], dtype=np.int64)
+        d = np.diff(sq) % 60000 if len(sq) > 1 else np.zeros(0, np.int64)
+        esp_seq = None if len(d) == 0 or not d.any() else {
+            "frames": int(len(sq)), "missing": int((d[(d > 1) & (d < 1000)] - 1).sum()), "gaps": int(((d > 1) & (d < 1000)).sum()),
+            "repeated": int((d == 0).sum()), "jumps_over_1000": int((d >= 1000).sum()),
+            "loss_pct": round(float((d[(d > 1) & (d < 1000)] - 1).sum() / max(1, d[(d >= 1) & (d < 1000)].sum()) * 100), 3)}
+        span = rows[-1][0] - rows[0][0] if len(rows) > 1 else 0.0
+        res[mode] = {"sent": len(sent), "echoed": len(first), "rx_frames": len(rows),
+                     "rx_rate_hz": round(len(rows) / span, 2) if span > 0 else None, "esp_seq": esp_seq,
                      "rtt_ms": {"min": round(float(rtt.min()), 1), "p50": round(float(np.median(rtt)), 1),
                                 "p90": round(float(np.percentile(rtt, 90)), 1), "p99": round(float(np.percentile(rtt, 99)), 1),
                                 "max": round(float(rtt.max()), 1)},
                      "esp_skip_flag_frames": None if skip is None else round(float(skip), 3)}
         r = res[mode]["rtt_ms"]
         print(f"[{mode:8s}] 往復 最小 {r['min']} / 中央値 {r['p50']} / p90 {r['p90']} / p99 {r['p99']} / 最大 {r['max']} ms  "
-              f"（返ってきた {res[mode]['echoed']}/{res[mode]['sent']}、ESP32 のスキップ検出 {res[mode]['esp_skip_flag_frames']}）")
+              f"（返ってきた {res[mode]['echoed']}/{res[mode]['sent']}、ESP32 のスキップ検出 {res[mode]['esp_skip_flag_frames']}、"
+              f"受信 {res[mode]['rx_rate_hz']} Hz、ESP32 → PC の欠落 {esp_seq['loss_pct'] if esp_seq else '—'} %）")
         time.sleep(0.5)
     link.close()
     out_dir = Path(a.out_dir) if a.out_dir else REPO_ROOT / "experiments" / "real" / f"{dt.date.today():%Y%m%d}_fw_check"
