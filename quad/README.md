@@ -28,6 +28,7 @@ DISPLAY=:1 python quad/khr_quad_record21.py -e khr-quadruped31-s1 --ckpt 3999 --
 | `khr_train_quad23_abl_*.py`・`khr_train_quad27_abl_*.py`・`khr_train_quad28_combo9.py` | 報酬の ablation（外して効くか）の学習。`27_p075`・`27_p080` は v27 の候補（v27 = p080） |
 | `khr_quad_env<M>.py` | 環境。番号は版の番号と一致しない（v16 = env13、v17 = env14、v18・v19 = env15、v20 = env16、v25〜v29 = env19、v30・v31 = env21）。`env17_abl_clearance` は ablation 用 |
 | `khr_quad_record<M>.py` | 録画（MP4）。番号は環境の番号（`record21` = env21 = v31）。`record_seeds` は seed を並べた比較動画 |
+| `khr_quad_progress.py` | 学習の経過: 保存したチェックポイントを同じ条件で測り（`measure`、`--push` で押しへの強さ）、選んだ時点を見出しつきで 1 本の動画にする（`record`）。CPU。結果は `experiments/quad_progress/` |
 | `khr_quad_eval_metrics.py` | **測定**（測定のやり方を固定した版。**凍結。中身を変えない**） |
 | `khr_quad_eval_symmetry.py` | 後脚の左右対称性と接地の質の測定 |
 | `khr_quad_compare.py` | 測定結果をノイズ床に対して 2σ で判定する表 |
