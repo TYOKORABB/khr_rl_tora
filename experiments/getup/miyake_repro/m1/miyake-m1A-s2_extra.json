@@ -1,0 +1,40 @@
+{
+ "exp": "miyake-m1A-s2",
+ "ckpt": 1499,
+ "start": "L2",
+ "level": "L2",
+ "n": 1591,
+ "episode_s": 8.0,
+ "skip_s": 3.0,
+ "revert": [
+  "A"
+ ],
+ "modes": {
+  "deterministic": {
+   "biped_success": 0.0,
+   "miyake_terminated": 0.1075,
+   "sim_error": 0.0,
+   "goal_frac_of_live_time_after_skip": 0.9993,
+   "m0_goal_gate_1s": 0.8919,
+   "m0_goal_time_frac_3_20s": 0.8919,
+   "last_1s_median": {
+    "tilt_deg": 7.888,
+    "base_h": 0.255,
+    "hip_pitch_mean_deg": 4.202
+   }
+  },
+  "stochastic": {
+   "biped_success": 0.0,
+   "miyake_terminated": 0.1069,
+   "sim_error": 0.0,
+   "goal_frac_of_live_time_after_skip": 0.9999,
+   "m0_goal_gate_1s": 0.8938,
+   "m0_goal_time_frac_3_20s": 0.8932,
+   "last_1s_median": {
+    "tilt_deg": 8.373,
+    "base_h": 0.255,
+    "hip_pitch_mean_deg": 5.278
+   }
+  }
+ }
+}
