@@ -17,3 +17,14 @@ abl31-feet_clearance-s3
 abl31-drift-s3
 abl31-heading_error-s3
 abl31-action_rate-s1
+abl31-action_smoothness2-s1
+abl31-dof_vel-s1
+abl31-joint_torques-s1
+abl31-orientation-s1
+abl31-ang_vel_xy-s1
+abl31-lin_vel_z-s1
+abl31-base_height-s1
+abl31-action_rate-s2
+abl31-action_smoothness2-s2
+abl31-dof_vel-s2
+abl31-joint_torques-s2
