@@ -1,0 +1,26 @@
+{
+ "env21|khr-quadruped30-s1": {
+  "torque_mean_pct": 19.10411262512207,
+  "torque_p99_pct": 59.7608757019043,
+  "speed_mps": 0.23232836043462157,
+  "lateral_pct": 4.184774655202274
+ },
+ "env21|fixurdf-v28-s1": {
+  "torque_mean_pct": 18.268461227416992,
+  "torque_p99_pct": 62.106300354003906,
+  "speed_mps": 0.2427352350205183,
+  "lateral_pct": 2.4701775056083486
+ },
+ "env19fix|khr-quadruped30-s1": {
+  "torque_mean_pct": 19.10411262512207,
+  "torque_p99_pct": 59.7608757019043,
+  "speed_mps": 0.23232836043462157,
+  "lateral_pct": 4.184774655202274
+ },
+ "env19fix|fixurdf-v28-s1": {
+  "torque_mean_pct": 18.268461227416992,
+  "torque_p99_pct": 62.106300354003906,
+  "speed_mps": 0.2427352350205183,
+  "lateral_pct": 2.4701775056083486
+ }
+}
