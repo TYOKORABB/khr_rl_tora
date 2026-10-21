@@ -10,7 +10,9 @@
 #       まとめ experiments/ablation_v31/results.md（quad/summarize_abl31.py が毎回作り直す）。
 #
 # GPU の決まり（quad/jobs/run_retrain_fixurdf.sh と同じ考え方。判定の関数は getup/jobs/gpu_gate.sh を共有する）:
-# - ユーザーの whisper 解析が走っている間と、次の開始までに終わらないときは始めない（学習と、その後の測定の時間を含めて見積もる）。
+# - ユーザーの whisper 解析が走っている間と、次の開始までに終わらないときは、2 本並列は始めない（学習と、その後の測定の時間を含めて見積もる）。
+#   1 本だけなら whisper と重ねて学習してよい（2026-10-21 のユーザーの決定。10/17 の試験で、学習 1 本と重ねたときの whisper の速さは
+#   ふだんの 69 %、学習は 57 → 109 分。メモリは学習 1 本 約 1.8 GB ＋ whisper 約 2.5 GB で 8 GB に収まる）。ABL_OVERLAP=0 で元の決まりに戻る。
 # - 学習は 2 本まで並列（単独では GPU の使用率が 65 % で余るため。2 本で約 1.25 倍）、測定は単独（接触の計算が競合で動きうるため）。
 # - 起き上がり・先輩の再現など別の学習・測定が走っている間は始めない。それらのキュー（run_queue.sh・run_m0_queue.sh）が
 #   空きを待っているときも新しい学習を始めない（こちらは 20 分ごとにしか起動しないので、譲らないと向こうが待ち続ける）。
@@ -33,7 +35,8 @@ NUM_ENVS=4096
 PARALLEL="${ABL_PARALLEL:-2}"
 # 実測（run_retrain_fixurdf.sh）: 単独 57 分/本、2 本並列 91 分。測定は 1 本あたり約 10 分（7 種類＋動画、要実測）。
 BATCH_MIN="${ABL_BATCH_MIN:-97}"          # 2 本並列の学習＋余裕（測定は次の空きに回してよい）
-SOLO_MIN="${ABL_SOLO_MIN:-62}"            # 1 本の学習＋余裕
+SOLO_MIN="${ABL_SOLO_MIN:-62}"            # 1 本の学習＋余裕（これより短い空きでは、OVERLAP=1 なら whisper と重ねて 1 本）
+OVERLAP="${ABL_OVERLAP:-1}"               # 1 = whisper と重ねて学習を 1 本まで走らせる（測定は重ねない）
 EVAL_MIN="${ABL_EVAL_MIN:-12}"            # 測定 1 本ぶん（7 種類＋動画、要実測）
 source "$REPO/getup/jobs/gpu_gate.sh"     # heavy_running / minutes_until_busy / GPU_JOB_PATTERN
 
@@ -80,6 +83,7 @@ if [ "$MODE" = status ] || [ "$MODE" = dry ]; then
   echo "=== v31 の報酬の総点検 $(date '+%F %T') ==="
   echo "  学習 ${nd} / ${nt} 本   未測定 $(pending_eval | wc -l) 本（基準の v31 を含む）"
   echo "  次に GPU が埋まるまで $(minutes_until_busy) 分（whisper: $HEAVY_SCHEDULE）  走っている学習 $(abl_training_count) 本"
+  (( OVERLAP )) && echo "  whisper と重ねる: 学習 1 本まで（測定は重ねない）"
   [ -n "$(other_jobs)" ] && echo "  ほかの学習・測定が走っている: $(other_jobs | head -2 | cut -c1-120)"
   [ -n "$(other_queue_waiting)" ] && echo "  ほかのキューが空きを待っている（譲る）"
   echo "  次の学習:"; pending_train | head -"$PARALLEL" | sed 's/^/    /'
@@ -99,13 +103,13 @@ fi
 trap 'rm -rf "$LOCK"' EXIT
 
 EVAL_DEFERRED=0
-run_evals() {   # 測定は単独。1 本ずつ、空きを確かめてから。空きが無くて後回しにしたときだけ EVAL_DEFERRED=1（失敗は学習を止めない）
+run_evals() {   # 測定は単独。1 本ずつ、空きを確かめてから。後回しにしたときは EVAL_DEFERRED=1、whisper のせいだけなら 2（失敗は学習を止めない）
   local exp n=0 k out cmd
   EVAL_DEFERRED=0
   for exp in $(pending_eval); do
     (( $(abl_training_count) > 0 )) && { echo "[eval ] 学習が走っているので測定は後回し"; EVAL_DEFERRED=1; break; }
     [ -n "$(other_jobs)" ] && { echo "[eval ] ほかの学習・測定が走っているので後回し"; EVAL_DEFERRED=1; break; }
-    (( $(minutes_until_busy) < EVAL_MIN )) && { echo "[eval ] whisper の前に終わらないので後回し"; EVAL_DEFERRED=1; break; }
+    (( $(minutes_until_busy) < EVAL_MIN )) && { echo "[eval ] whisper の最中か、whisper の前に終わらないので後回し"; EVAL_DEFERRED=2; break; }
     echo "[eval ] $(date +%H:%M) $exp"
     for k in fwd back turnL turnR strafeL push; do
       out="$RES/${exp}_$k.json"; [ -f "$out" ] && continue
@@ -134,13 +138,17 @@ while :; do
   if [ "${#batch[@]}" -eq 0 ]; then
     [ -z "$(pending_eval)" ] && echo "=== すべて完了 $(date '+%F %T') ==="; break
   fi
-  (( EVAL_DEFERRED )) && { echo "[stop ] 測定を後回しにしたので学習も始めない（次回）"; break; }
+  # whisper のせいで測定を後回しにしたときは、重ねてよい 1 本の学習だけ進める（測定は whisper が終わって学習が切れたときに回る）
+  if (( EVAL_DEFERRED == 1 )) || { (( EVAL_DEFERRED == 2 )) && ! (( OVERLAP )); }; then
+    echo "[stop ] 測定を後回しにしたので学習も始めない（次回）"; break
+  fi
   [ -n "$(other_queue_waiting)" ] && { echo "[yield] 起き上がり・先輩の再現のキューが空きを待っているので譲る"; break; }
   [ -n "$(other_jobs)" ] && { echo "[stop ] ほかの学習・測定が走っている"; break; }
   mub=$(minutes_until_busy)
   running=$(abl_training_count)
   if (( mub >= BATCH_MIN )); then want=$PARALLEL
   elif (( mub >= SOLO_MIN )); then want=1
+  elif (( OVERLAP )); then want=1; (( running == 0 )) && echo "[note ] 空き ${mub} 分なので whisper と重ねて 1 本"
   else echo "[stop ] 次に GPU が埋まるまで ${mub} 分（1 本に ${SOLO_MIN} 分必要）"; break; fi
   slots=$(( want - running ))
   (( slots <= 0 )) && break
