@@ -173,4 +173,4 @@
 | legged_gym の `_reward_torque_limits` | github.com/leggedrobotics/legged_gym（`legged_gym/envs/base/legged_robot.py`） |
 | KRS-2552R2HV ICS の仕様（最大トルク 14.0 kgf·cm、11.1 V 時） | kondo-robot.com/product/03197 |
 | KHR-3HV Ver.3（身長 401.05 mm、約 1500 g、標準 17 軸・拡張で 22 軸） | kondo-robot.com/product/03210 |
-| iCub の這い歩きを前提にした設計 | Tsagarakis ら（RobotCub の資料） |
+| iCub の這い歩きを前提にした設計 | **未確認**。検索結果の要約で見ただけで、原文（RobotCub の PDF）は取得できなかった。論文に使うなら原文で確かめる |
