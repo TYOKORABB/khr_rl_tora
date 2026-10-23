@@ -30,3 +30,15 @@ abl31-dof_vel-s2
 abl31-joint_torques-s2
 abl31-orientation-s2
 abl31-ang_vel_xy-s2
+abl31-lin_vel_z-s2
+abl31-base_height-s2
+abl31-action_rate-s3
+abl31-action_smoothness2-s3
+abl31-dof_vel-s3
+abl31-joint_torques-s3
+abl31-orientation-s3
+abl31-ang_vel_xy-s3
+abl31-lin_vel_z-s3
+abl31-base_height-s3
+abl31-tracking_ang_vel-s1
+abl31-gait_contact-s1
