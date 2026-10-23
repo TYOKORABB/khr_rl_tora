@@ -42,3 +42,12 @@ abl31-lin_vel_z-s3
 abl31-base_height-s3
 abl31-tracking_ang_vel-s1
 abl31-gait_contact-s1
+abl31-alive-s1
+abl31-combo3-s1
+abl31-tracking_lin_vel-s1
+abl31-tracking_ang_vel-s2
+abl31-gait_contact-s2
+abl31-alive-s2
+abl31-combo3-s2
+abl31-tracking_lin_vel-s2
+abl31-tracking_ang_vel-s3

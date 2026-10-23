@@ -10,7 +10,7 @@
 - 方法: Genesis（シミュレータ）＋ rsl-rl の PPO で学習し、Meridian（ESP32 ＋ UDP）経由で実機に載せる
 - 範囲: 四脚歩行 v1〜v31（2026-07-21〜10-07）、URDF 是正後の全版の再学習（10-06〜10-14）、
   実機（7 月下旬・8/10・10/13）、追加課題の起き上がり（10-12〜）、研究の基盤
-- 最終更新: 2026-10-21（§0・§8.9・§8.10）
+- 最終更新: 2026-10-23（§0・§2.3）
 
 ## 読む前に: 数値には 3 つの世代がある
 
@@ -50,7 +50,7 @@
 | 全版の再学習 | ✅ 完了 | URDF のバグを直した条件で 29 版 × 3 seed（88 本）を学習し直した。どの結論が残り、どれが覆ったかは §6 |
 | 実機 | 🟡 歩けた・差の分析中 | **v31 で 108 秒・転倒 0・全方向**（10/13）。差の主因は IMU の取り付け誤差くらいの一定の傾き（2°前後）と、遅れ約 +20 ms。符号は 22 関節中 19 関節を確認（§7） |
 | 起き上がり | 🟡 採用版は決定、先輩の方法との比較は B1 の次の手の判断待ち | **getup-v5 dcthr を採用**（L2・個体差あり・8 秒で 87.4 / 90.6 / 96.4 %、立っている間の押し付けなし、§8.9）。先輩の方法の再現は、M0 で基準に届かず、M1（本研究の条件）で大きく落ちた。切り分けで関節の動かし方が原因と分かり、本研究の写像では二足の直立に届かないことも分かった。A の中身の切り分け（18 本、10/22 に完了）: 遅れ・制限・写像のどれか 1 つを先輩の側に戻すと立つ（PD と上限は 1 つでは立たない）。B1（3 本、10/22 に完了）: 3 seed とも二足の成功 0 %、M1 + A3a も 0 % で差は分からない。B1 の次の手はユーザーの判断待ち（getup/DIARY.md） |
-| 報酬の総点検（v31 基準） | 🟡 実行中 | 18 項目と 3 項目の同時を 3 seed ずつ外す 57 本のうち 44 本（10/23 昼、2 本が学習中）。10/21 から学習 1 本までを whisper と重ねる（ユーザーの決定、`experiments/ablation_v31/plan.md` の変更の記録）。10/22 18:20 に再開し、10/24 の未明〜朝に終わる見込み。3 seed がそろった 14 項目: feet_orientation・drift・heading_error・action_rate・action_smoothness2・dof_vel・orientation・ang_vel_xy・lin_vel_z・base_height の 10 項目は削除可、torque_limits・knee_swing_flexion・feet_clearance・joint_torques の 4 項目は必須（joint_torques は seed 3 でトルクが 100 % に達した）。残りは tracking_ang_vel・gait_contact・alive・3 項目の同時・tracking_lin_vel（`experiments/ablation_v31/results.md`） |
+| 報酬の総点検（v31 基準） | 🟡 実行中 | 18 項目と 3 項目の同時を 3 seed ずつ外す 57 本のうち 44 本（10/23 昼、2 本が学習中）。10/21 から学習 1 本までを whisper と重ねる（ユーザーの決定、`experiments/ablation_v31/plan.md` の変更の記録）。10/22 18:20 に再開し、10/24 の未明〜朝に終わる見込み。3 seed がそろった 14 項目: feet_orientation・drift・heading_error・action_rate・action_smoothness2・dof_vel・orientation・ang_vel_xy・lin_vel_z・base_height の 10 項目は削除可、torque_limits・knee_swing_flexion・feet_clearance・joint_torques の 4 項目は必須（joint_torques は seed 3 でトルクが 100 % に達した）。残りは tracking_ang_vel・gait_contact・alive・3 項目の同時・tracking_lin_vel（`experiments/ablation_v31/results.md`）。10/23 21 時に学習は 53 本済み。**読み方の注意（10/23）**: feet_orientation は着地の足裏が seed 1・2 で 41.3°・31.3° に崩れ、seed 3 は 5.6°（基準 4.4°）、orientation は胴体の傾きが 3 seed とも 11.3〜18.8°（基準 9.1°）。基準は外した構成の seed 間のばらつきも σ に入れるので、seed で割れると「削除可」になる。判定は変えず、seed ごとの値を並べて書く（`experiments/ablation_v31/findings.md`） |
 | 基盤 | ✅ | ファイル整理、作業場の各リポジトリを自分の GitHub で管理、Drive に月 1 回の完全バックアップ、節目のタグ、学習時のコードの記録（§9） |
 
 **判断待ち**
@@ -137,6 +137,7 @@
 | **[121]** | **累積ヘディング誤差 × 5**（v25 で追加、§4.7） | 1 |
 
 観測のノイズ（スケールを掛けた後の値に一様乱数で足す）: 角速度 0.1（実の角速度で ±0.4 rad/s）・重力 0.05・関節角 0.05・関節速度 0.1・ヘディング 0.25（±0.05 rad）。行動にはノイズなし。
+実装では、ノイズの乱数は観測の次元ぶん（122 個）を 1 ステップに 1 回だけ引き、**同じステップの全環境に同じ値を足している**（`gs_rand_float(-1, 1, (num_obs,))`。二足のサンプル `khr_env.py` から受け継いだ書き方、10/23 に卒論の確かめで気づいた）。環境ごとには独立でない。結果を変えないため直していない。
 critic には、ノイズなしの同じ量（並進速度を含む）に、ランダム化の値（追加質量・摩擦・重心のずれ）とヘディング誤差を足した 81 次元を渡す（非対称 actor-critic）。
 
 ### 2.4 制御

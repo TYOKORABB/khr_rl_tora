@@ -25,7 +25,7 @@ The git repository is **this directory (`khr_rl_tora/`)**, remote
 
 | Path | Contents |
 |---|---|
-| `docs/` | `DevelopmentDiary_v2.md` (rebuilt main record, 2026-10-14; read first), `DevelopmentDiary.md` (original log 07-24..10-14), `GetUpSim2RealPlan.md`, `ResearchPlan.md`, `ThesisOutline.md` (thesis chapter skeleton, 2026-10-21), `RewardReference.md`, `RealRobotVerification.md` |
+| `docs/` | `DevelopmentDiary_v2.md` (rebuilt main record, 2026-10-14; read first), `DevelopmentDiary.md` (original log 07-24..10-14), `GetUpSim2RealPlan.md`, `ResearchPlan.md`, `ThesisOutline.md` (thesis chapter skeleton, 2026-10-21), `ThesisClaims.md` (claim options A/B/C with post-fix evidence, 2026-10-23), `RewardReference.md`, `RealRobotVerification.md` |
 | `quad/` | Quadruped walking v16–v31: `khr_quad_env*.py`, `khr_train_quad*.py`, `khr_quad_record*.py`, measurement and URDF-fix tools. **Flat on purpose**: the files import each other by bare module name, so they must share one directory. `quad/jobs/` = cron-style shell jobs, `quad/archive_v1_v15/` = v1–v15 |
 | `biped/` | Original bipedal baseline (`khr_env.py`, `khr_train.py`, `khr_eval.py`, `pd_test.py`, Eureka experiment) |
 | `go2_reference/` | Upstream Genesis Go2 example (reference only, not imported) |
