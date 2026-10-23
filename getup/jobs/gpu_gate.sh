@@ -10,7 +10,7 @@
 # 使う側で HEAVY_SCHEDULE を変えたいときは source の前に設定する。
 
 : "${HEAVY_SCHEDULE:=1:05 4:05 7:05 10:05 19:05 22:05}"   # crontab の whisper の開始時刻（quad/jobs/run_retrain_fixurdf.sh と同じ。変えたら両方直す）
-GPU_JOB_PATTERN="python[0-9.]* +(-m +getup\.(train|eval|tools\.(hold_analysis|hold_video|dr_factor_eval|sat_breakdown))|(quad/)?(khr_train_quad|train_with_urdf_fix|eval_with_urdf_fix|khr_quad_eval|khr_quad_record)|third_party_private/miyake_port/(train|eval)_(m|b))"
+GPU_JOB_PATTERN="python[0-9.]* +(-m +getup\.(train|eval|tools\.(hold_analysis|hold_video|dr_factor_eval|sat_breakdown))|(quad/)?(khr_train_quad|train_with_urdf_fix|train_fixurdf_abl|eval_with_urdf_fix|sym_with_urdf_fix|record_with_urdf_fix|khr_quad_eval|khr_quad_record)|third_party_private/miyake_port/(train|eval)_(m|b))"
 ABL31_LOCK="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/logs/abl31/.lock"   # 四脚の総点検（quad/jobs/run_abl31.sh）が動いている印
 
 heavy_running() { ps -eo cmd --no-headers | grep -E "WHISPER_CPP_MODEL|main\.py +--scheduled" | grep -v grep || true; }

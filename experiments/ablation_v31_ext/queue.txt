@@ -1,0 +1,23 @@
+# 報酬の総点検の追加と、主張 C の是正後の測り直しのキュー（2026-10-23。計画と判定の基準は plan.md）
+# 形式:
+#   <exp> <seed> ABL31 <0 にする報酬（カンマ区切り）| none>                       … v31（khr_train_quad31_abl.py）。測定は元の総点検と同じ
+#   <exp> <seed> FIX <学習モジュール> <環境モジュール> <録画モジュール> <0 にする報酬 | none>   … 旧版を是正後の機体で（train_fixurdf_abl.py）。測定は全版の再学習と同じ
+# 順序: 途中で止まっても価値が最大になるよう、各部のシードを 1 本ずつ交互に回す。
+
+khr-quadruped31-s4 4 ABL31 none
+abl31-feet_orientation-s4 4 ABL31 feet_orientation
+abl31-orientation-s4 4 ABL31 orientation
+fixurdf-abl-clearance-s1 1 FIX khr_train_quad23_abl_clearance khr_quad_env17_abl_clearance khr_quad_record17 none
+fixurdf-v25-obsonly-s1 1 FIX khr_train_quad25 khr_quad_env19 khr_quad_record19 heading_error
+
+khr-quadruped31-s5 5 ABL31 none
+abl31-feet_orientation-s5 5 ABL31 feet_orientation
+abl31-orientation-s5 5 ABL31 orientation
+fixurdf-abl-clearance-s2 2 FIX khr_train_quad23_abl_clearance khr_quad_env17_abl_clearance khr_quad_record17 none
+fixurdf-v25-obsonly-s2 2 FIX khr_train_quad25 khr_quad_env19 khr_quad_record19 heading_error
+
+khr-quadruped31-s6 6 ABL31 none
+abl31-feet_orientation-s6 6 ABL31 feet_orientation
+abl31-orientation-s6 6 ABL31 orientation
+fixurdf-abl-clearance-s3 3 FIX khr_train_quad23_abl_clearance khr_quad_env17_abl_clearance khr_quad_record17 none
+fixurdf-v25-obsonly-s3 3 FIX khr_train_quad25 khr_quad_env19 khr_quad_record19 heading_error

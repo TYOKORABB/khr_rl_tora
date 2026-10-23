@@ -2,8 +2,10 @@
 
     python quad/khr_train_quad31_abl.py --zero feet_orientation -e abl31-feet_orientation-s1 -B 4096 -I 4000 --seed 1
     python quad/khr_train_quad31_abl.py --zero alive,gait_contact,tracking_ang_vel -e abl31-combo3-s1 -B 4096 -I 4000 --seed 1
+    python quad/khr_train_quad31_abl.py --zero none -e khr-quadruped31-s4 -B 4096 -I 4000 --seed 4   # v31 そのもの（記録だけ足す）
 
 khr_train_quad31 の get_cfgs() を包み、--zero で指定した報酬の scale を 0.0 にする。ほかは v31 と同一。
+--zero none は何も外さない（v31 のシードを足すとき。コードの状態と ablation.json を残すために、このスクリプトを通す。2026-10-23）。
 項目は消さずに 0.0 にする（v28 と同じ理由: 項目を消すと GPU の演算順が変わり、外していない項目の効きまで動きうる）。
 外した項目は cfgs.pkl（報酬の scale）と logs/<exp>/ablation.json に残る。コードの状態は logs/<exp>/code_state/ に残す。
 計画と判定の基準は experiments/ablation_v31/plan.md、自動実行は quad/jobs/run_abl31.sh。
@@ -20,11 +22,11 @@ from run_record import save_code_state
 
 def main():
     ap = argparse.ArgumentParser(add_help=False)
-    ap.add_argument("--zero", required=True, help="0 にする報酬（カンマ区切り）")
+    ap.add_argument("--zero", required=True, help="0 にする報酬（カンマ区切り）。外さないときは none")
     a, rest = ap.parse_known_args()
-    zero = [k for k in a.zero.split(",") if k]
-    if not zero:
-        sys.exit("--zero が空")
+    zero = [] if a.zero == "none" else [k for k in a.zero.split(",") if k]
+    if not zero and a.zero != "none":
+        sys.exit("--zero が空（外さないときは none）")
 
     v31_get_cfgs = base.get_cfgs
     active = {k for k, v in v31_get_cfgs()[2]["reward_scales"].items() if v != 0.0}

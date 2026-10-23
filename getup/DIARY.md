@@ -1118,3 +1118,8 @@ v2 の設定（`train_getup2.py` の `get_cfgs()` / `get_train_cfg()` をその�
   四脚で 0.12 → 0.15 m（3.0 cm）、二足で 0.139 → 0.188 m（4.9 cm）。
 - トルクは B1 のほうが小さい（99 % 点 55〜56 %、本研究のトルクの罰のしきい値 0.60 の下）。
 - 動画: `media/videos/getup/miyake-b1A3a-s{1,2,3}_*_L{1,2}.mp4`（git 管理外）。数字: `experiments/getup/eval/miyake-b1A3a-*`、`experiments/getup/miyake_repro/m1/miyake-b1A3a-*`。
+
+## 保留（10/23、ユーザーの決定）
+
+「起き上がりに関してはいったん保留で、まずは卒論の骨組みを完成させよう」。B1 の次の手（B1 + A など）は決めないまま止める。
+起き上がりの自動実行の cron は入っていない（10/23 に確認）。論文に入れるかの判断（12/11）は予定のまま。
