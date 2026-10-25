@@ -11,9 +11,10 @@
 | allver | 全版の比較（是正後、3 シード）: トルクの 99 % 点・膝の可動範囲・横ずれ率・着地の足裏の傾き | experiments/results_json_fixurdf/fixurdf-v*-s*.json、results_json/v{30,31}_s*_n128.json |
 | progress | v31 の学習の経過（3 シード）: 前進・後退・左への横移動・左旋回の追従率 | experiments/quad_progress/v31_progress_s*.json |
 | push | v31 の学習の経過（3 シード）: 全強度の押しで転んだ回数（3 回の合計） | experiments/quad_progress/v31_progress_push{,_r1,_r2}_s*.json |
-| ablation | 報酬項目のアブレーション（主な 4 項目）: v31 と、外した構成のシードごとの値 | experiments/ablation_v31/results/、experiments/ablation_v31_ext/results/ |
+| ablation | 報酬項目のアブレーション（主な 5 項目）: v31 と、外した構成のシードごとの値（シード 4〜6 は追加の総点検） | experiments/ablation_v31/results/、experiments/ablation_v31_ext/results/ |
 
 色は 3 シードの区別だけに使う（dataviz の既定の分類色の 1〜3 番、色覚の検査を通した）。印刷が白黒でも分かるように、マーカーの形も変える。
+アブレーションの図はシードを区別せず 1 色にし、元の総点検のシード 1〜3 を塗りつぶし、追加のシード 4〜6 を白抜きにする。
 """
 
 from __future__ import annotations
@@ -195,27 +196,29 @@ def fig_ablation(out: Path):
         ("knee_swing_flexion", "knee_rom_deg", "遊脚の膝の曲げ\n膝の可動範囲 [°]", 1.0),
         ("feet_clearance", "clearance_rear_m", "足上げ\n後脚の足上げ [mm]", 1000.0),
         ("feet_orientation", "sole_tilt_touchdown_deg", "足裏の水平\n着地の足裏の傾き [°]", 1.0),
+        ("orientation", "base_tilt_rms_deg", "胴体の傾き\n胴体の水平からの傾き [°]", 1.0),
     ]
-    fig, axes = plt.subplots(1, 4, figsize=(160 * MM, 55 * MM))
+    fig, axes = plt.subplots(1, len(items), figsize=(160 * MM, 55 * MM))
     for ax, (cfg, key, title, scale) in zip(axes, items):
         for x, base in ((0, True), (1, False)):
             vals = abl_values(cfg, key, base)
             for s, v in vals.items():
-                c = SEED_COLORS.get(s, INK2)
-                mk = SEED_MARKERS.get(s, "D")
-                ax.scatter(x + (s - 3.5) * 0.06, v * scale, s=16, color=c, marker=mk, linewidths=0, zorder=3)
+                face = SEED_COLORS[1] if s <= 3 else "white"      # シード 4〜6（追加）は白抜き
+                ax.scatter(x + (s - 3.5) * 0.06, v * scale, s=16, facecolors=face, edgecolors=SEED_COLORS[1],
+                           linewidths=0.8, zorder=3)
             if vals:
                 m = st.mean(vals.values()) * scale
                 ax.hlines(m, x - 0.25, x + 0.25, color=INK, linewidth=1.0, zorder=2)
-        ax.set_xticks([0, 1], ["v31", "外した構成"])
+        ax.set_xticks([0, 1], ["v31", "外した\n構成"])
         ax.set_xlim(-0.6, 1.6)
         ax.set_ylim(bottom=0)
         ax.set_title(title, loc="left", color=INK, fontsize=8)
         ax.grid(axis="x", visible=False)
-    handles = [plt.Line2D([], [], color=SEED_COLORS[s], marker=SEED_MARKERS[s], linestyle="", markersize=4, label=f"シード {s}")
-               for s in (1, 2, 3)]
+    handles = [plt.Line2D([], [], marker="o", linestyle="", markersize=4, markerfacecolor=face, markeredgecolor=SEED_COLORS[1],
+                          label=label)
+               for face, label in ((SEED_COLORS[1], "シード 1〜3"), ("white", "シード 4〜6（追加）"))]
     handles.append(plt.Line2D([], [], color=INK, linewidth=1.0, label="平均"))
-    fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False, bbox_to_anchor=(0.5, -0.04))
+    fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False, bbox_to_anchor=(0.5, -0.04))
     fig.tight_layout(rect=(0, 0.06, 1, 1), w_pad=1.0)
     save(fig, out, "ablation")
 
