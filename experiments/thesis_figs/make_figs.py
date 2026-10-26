@@ -514,9 +514,95 @@ def fig_simreal(out: Path):
     save(fig, out, "simreal")
 
 
+# ---------------- v5 で追加（2026-10-26） ----------------
+
+TORQUECMP = EXP / "thesis_figs" / "data" / "torquecmp"
+CMP_COLORS = {"v31": SEED_COLORS[1], "abl": SEED_COLORS[2]}
+
+
+def load_torquecmp(tag: str):
+    """data/torquecmp/ の 3 シード（record_gait.py）。tag は "v31" か "abl31-torque_limits"。"""
+    return [json.loads((TORQUECMP / f"gait_{tag}-s{s}.json").read_text()) for s in (1, 2, 3)]
+
+
+def pinned_counts(gs, names):
+    """関節ごとに、可動域の端に押し当てたまま動かなかったシードの数（振れ幅 1° 未満で、平均の角度が可動域の端から 1° 以内）。"""
+    import sys
+
+    import numpy as np
+    sys.path.insert(0, str(ROOT))
+    from real.walk_session import LIMIT_MARGIN, joint_limits
+    lo, hi = joint_limits(names)
+    lo, hi = np.degrees(lo - LIMIT_MARGIN), np.degrees(hi + LIMIT_MARGIN)     # 余裕を引く前の可動域
+    cnt = np.zeros(len(names), dtype=int)
+    for g in gs:
+        qm = np.mean([r["per_joint_q_mean_deg"] for r in g["runs"]], axis=0)
+        rg = np.mean([r["per_joint_range_deg"] for r in g["runs"]], axis=0)
+        cnt += (rg < 1.0) & ((np.abs(qm - lo) < 1.0) | (np.abs(qm - hi) < 1.0))
+    return cnt
+
+
+def fig_torquecmp(out: Path):
+    """トルクの上限の罰の有無（v31 とアブレーション abl31-torque_limits、各 3 シード）の関節ごとの比較。"""
+    import numpy as np
+    G = {"v31": load_torquecmp("v31"), "abl": load_torquecmp("abl31-torque_limits")}
+    names = G["v31"][0]["runs"][0]["joint_names"]
+    lab = {"v31": "v31（罰あり）", "abl": "トルクの上限の罰を外した構成"}
+    y = np.arange(len(names))[::-1]
+    fig, axes = plt.subplots(1, 2, figsize=(160 * MM, 112 * MM), sharey=True)
+    top = {}
+    for ax, key, title, xlim in ((axes[0], "per_joint_mean_pct", "(a) トルクの平均 [%]", (0, 105)),
+                                 (axes[1], "per_joint_range_deg", "(b) 関節角の振れ幅 [°]", (0, 36))):
+        for i, (tag, gs) in enumerate(G.items()):
+            per = np.array([np.mean([r[key] for r in g["runs"]], axis=0) for g in gs])   # (3 シード, 22)
+            top[key] = np.maximum(top.get(key, 0), per.max(axis=0))
+            yy = y + (0.19 if i == 0 else -0.19)
+            ax.barh(yy, per.mean(axis=0), height=0.36, color=CMP_COLORS[tag], edgecolor="none", zorder=2, label=lab[tag])
+            for s in range(3):
+                ax.scatter(per[s], yy, s=3, color=INK, zorder=3, linewidths=0)
+        ax.set_xlim(*xlim)
+        ax.set_title(title, loc="left", color=INK)
+        ax.grid(axis="y", visible=False)
+        for b in (7.5, 19.5):                                 # 前脚 8・後脚 12・胴体 2 の区切り
+            ax.axhline(len(names) - 1 - b, color=INK2, linewidth=0.5)
+    cnt = pinned_counts(G["abl"], names)
+    for j in np.flatnonzero(cnt):                             # 両方の棒とシードの点より右に書く
+        axes[1].text(top["per_joint_range_deg"][j] + 0.8, y[j], f"可動域の端 {cnt[j]}/3", fontsize=6.5, color=INK, va="center")
+    axes[0].set_yticks(y, [joint_ja(n) for n in names])
+    axes[0].legend(loc="lower center", bbox_to_anchor=(1.0, 1.06), frameon=False, ncol=2)
+    fig.tight_layout(w_pad=1.0)
+    save(fig, out, "torquecmp")
+
+
+def fig_jointerr(out: Path):
+    """関節ごとの追従のずれ（前進 0.3 m/s の区間）。実機の歩行 3〜5 と、同じ指令の列のシミュレーション（record_jointerr.py）。"""
+    import numpy as np
+    j = json.loads((EXP / "thesis_figs" / "data" / "jointerr_v31_real_sim.json").read_text())
+    names = load_gait(GAIT_SEED)["runs"][0]["joint_names"]          # 図の関節の並びはトルクの図と同じ
+    idx = [j["joint_names"].index(n) for n in names]
+    real = np.array(j["forward_real"])[:, idx]
+    sim = np.array(j["forward_sim"])[idx]
+    y = np.arange(len(names))[::-1]
+    fig, ax = plt.subplots(figsize=(160 * MM, 105 * MM))
+    ax.barh(y + 0.19, real.mean(axis=0), height=0.36, color=SEED_COLORS[1], edgecolor="none", zorder=2, label="実機（歩行 3〜5 の平均）")
+    for r in range(real.shape[0]):
+        ax.scatter(real[r], y + 0.19, s=3, color=INK, zorder=3, linewidths=0)
+    ax.barh(y - 0.19, sim, height=0.36, color=SEED_COLORS[2], edgecolor="none", zorder=2, label="シミュレーション")
+    ax.set_yticks(y, [joint_ja(n) for n in names])
+    ax.set_xlim(0, 5.5)
+    ax.set_xlabel("目標関節角と関節角の差の平均 [°]")
+    ax.grid(axis="y", visible=False)
+    for b in (7.5, 19.5):
+        ax.axhline(len(names) - 1 - b, color=INK2, linewidth=0.5)
+    ax.legend(loc="lower right", frameon=False)
+    fig.tight_layout()
+    save(fig, out, "jointerr")
+
+
 FIGS = {"allver": fig_allver, "progress": fig_progress, "push": fig_push, "ablation": fig_ablation,
         "learncurve": fig_learncurve, "jointtrack": fig_jointtrack, "gait": fig_gait, "basestate": fig_basestate,
-        "torquejoint": fig_torquejoint, "clearance": fig_clearance, "heading": fig_heading, "simreal": fig_simreal}
+        "torquejoint": fig_torquejoint, "clearance": fig_clearance, "heading": fig_heading, "simreal": fig_simreal,
+        "torquecmp": fig_torquecmp, "jointerr": fig_jointerr}
 
 
 def main():
