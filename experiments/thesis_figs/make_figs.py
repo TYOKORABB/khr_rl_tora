@@ -106,10 +106,10 @@ def fig_allver(out: Path):
     data = load_allver()
     vers = sorted(data)
     panels = [
-        ("torque_p99_pct", "(a) トルクの 99 % 点 [%]", {9: ("v9: トルクの上限の罰", (10, 12))}, set()),
+        ("torque_p99_pct", "(a) トルクの 99 % 点 [%]", {9: ("v9: トルクの上限のペナルティ", (10, 12))}, set()),
         ("knee_rom_deg", "(b) 膝の可動範囲 [°]", {17: ("v17: 膝の差分の報酬", (-95, 22))}, set()),
         ("lateral_pct", "(c) 横ずれ率 [%]", {25: ("v25: 向きのずれを観測に", (-40, 45))}, {1, 11}),   # v1・v11 は前進しないので除く
-        ("sole_tilt_touchdown_deg", "(d) 着地の足裏の傾き [°]", {18: ("v18: 足裏の水平の罰", (12, 22))}, set()),
+        ("sole_tilt_touchdown_deg", "(d) 着地の足裏の傾き [°]", {18: ("v18: 足裏の水平のペナルティ", (-20, 55))}, set()),
     ]
     fig, axes = plt.subplots(2, 2, figsize=(160 * MM, 100 * MM), sharex=True)
     for ax, (key, title, notes, skip) in zip(axes.flat, panels):
@@ -148,7 +148,7 @@ def fig_progress(out: Path):
         ax.set_ylim(-5, 115)
         ax.axhline(100, color=INK2, linewidth=0.6, linestyle=(0, (3, 2)), zorder=1)
     for ax in axes[1]:
-        ax.set_xlabel("反復の回数")
+        ax.set_xlabel("イテレーション数")
     for ax in axes[:, 0]:
         ax.set_ylabel("追従率 [%]")
     axes[0, 0].legend(loc="lower right", frameon=False)
@@ -167,7 +167,7 @@ def fig_push(out: Path):
         its = sorted(tot)
         ax.plot(its, [tot[i] for i in its], color=SEED_COLORS[s], linewidth=1.0, marker=SEED_MARKERS[s],
                 markersize=2.2, markevery=4, label=f"シード {s}")
-    ax.set_xlabel("反復の回数")
+    ax.set_xlabel("イテレーション数")
     ax.set_ylabel("転んだ回数（3 回の合計）")
     ax.set_ylim(bottom=0)
     ax.legend(frameon=False)
@@ -266,7 +266,7 @@ def fig_learncurve(out: Path):
                 ax.set_yscale("log")
     axes[0, 1].axhline(20.0, color=INK2, linewidth=0.6, linestyle=(0, (3, 2)), zorder=1)
     for ax in axes[1]:
-        ax.set_xlabel("反復の回数")
+        ax.set_xlabel("イテレーション数")
     axes[0, 0].legend(loc="lower right", frameon=False)
     fig.tight_layout(h_pad=1.2, w_pad=1.5)
     save(fig, out, "learncurve")
@@ -405,7 +405,7 @@ def fig_torquejoint(out: Path):
     for s in (1, 2, 3):
         ax.scatter(per_seed[s], y, s=10, color=SEED_COLORS[s], marker=SEED_MARKERS[s], zorder=3, label=f"シード {s}")
     ax.axvline(60, color=INK2, linewidth=0.7, linestyle=(0, (3, 2)))
-    ax.text(60.8, y[0] + 0.3, "罰が掛かり始める 60 %", fontsize=7, color=INK2, va="bottom")
+    ax.text(60.8, y[0] + 0.3, "ペナルティが掛かり始める 60 %", fontsize=7, color=INK2, va="bottom")
     ax.set_yticks(y, [joint_ja(n) for n in names])
     ax.set_xlim(0, 100)
     ax.set_xlabel("トルクの 99 % 点（最大トルクに対する割合）[%]")
@@ -457,10 +457,10 @@ def fig_clearance(out: Path):
 
 def fig_heading(out: Path):
     nf = json.loads((EXP / "noise_floor_fixurdf.json").read_text())[COND]
-    groups = [("v23\n罰なし・観測なし", fixurdf_values(23, "lateral_pct")),
-              ("v24\n罰だけ", fixurdf_values(24, "lateral_pct")),
+    groups = [("v23\nペナルティなし\n観測なし", fixurdf_values(23, "lateral_pct")),
+              ("v24\nペナルティだけ", fixurdf_values(24, "lateral_pct")),
               ("観測だけ", ext_values("fixurdf-v25-obsonly", "lateral_pct")),
-              ("v25\n罰と観測", fixurdf_values(25, "lateral_pct"))]
+              ("v25\nペナルティと観測", fixurdf_values(25, "lateral_pct"))]
     fig, ax = plt.subplots(figsize=(120 * MM, 60 * MM))
     dot_panel(ax, groups, nf["lateral_pct"]["sd"], "横ずれ率 [%]")
     ax.set_ylim(bottom=0)
@@ -547,7 +547,7 @@ def fig_torquecmp(out: Path):
     import numpy as np
     G = {"v31": load_torquecmp("v31"), "abl": load_torquecmp("abl31-torque_limits")}
     names = G["v31"][0]["runs"][0]["joint_names"]
-    lab = {"v31": "v31（罰あり）", "abl": "トルクの上限の罰を外した構成"}
+    lab = {"v31": "v31（ペナルティあり）", "abl": "トルクの上限のペナルティを外した構成"}
     y = np.arange(len(names))[::-1]
     fig, axes = plt.subplots(1, 2, figsize=(160 * MM, 112 * MM), sharey=True)
     top = {}
