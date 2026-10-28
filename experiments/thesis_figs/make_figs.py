@@ -106,9 +106,9 @@ def fig_allver(out: Path):
     data = load_allver()
     vers = sorted(data)
     panels = [
-        ("torque_p99_pct", "(a) トルクの 99 % 点 [%]", {9: ("v9: トルクの上限のペナルティ", (10, 12))}, set()),
+        ("torque_p99_pct", "(a) トルクの 99 % 点 [%]", {9: ("v9: トルク上限のペナルティ", (10, 12))}, set()),
         ("knee_rom_deg", "(b) 膝の可動範囲 [°]", {17: ("v17: 膝の差分の報酬", (-95, 22))}, set()),
-        ("lateral_pct", "(c) 横ずれ率 [%]", {25: ("v25: 向きのずれを観測に", (-40, 45))}, {1, 11}),   # v1・v11 は前進しないので除く
+        ("lateral_pct", "(c) 横方向ドリフト率 [%]", {25: ("v25: 累積ヨー角誤差を観測に", (-40, 45))}, {1, 11}),   # v1・v11 は前進しないので除く
         ("sole_tilt_touchdown_deg", "(d) 着地の足裏の傾き [°]", {18: ("v18: 足裏の水平のペナルティ", (-20, 55))}, set()),
     ]
     fig, axes = plt.subplots(2, 2, figsize=(160 * MM, 100 * MM), sharex=True)
@@ -192,7 +192,7 @@ def abl_values(cfg: str, key: str, base: bool = False):
 
 def fig_ablation(out: Path):
     items = [
-        ("torque_limits", "torque_p99_pct", "トルクの上限\nトルクの 99 % 点 [%]", 1.0),
+        ("torque_limits", "torque_p99_pct", "トルク上限\nトルクの 99 % 点 [%]", 1.0),
         ("knee_swing_flexion", "knee_rom_deg", "遊脚の膝の曲げ\n膝の可動範囲 [°]", 1.0),
         ("feet_clearance", "clearance_rear_m", "足上げ\n後脚の足上げ [mm]", 1000.0),
         ("feet_orientation", "sole_tilt_touchdown_deg", "足裏の水平\n着地の足裏の傾き [°]", 1.0),
@@ -253,7 +253,7 @@ def fig_learncurve(out: Path):
         export_learncurve(path)
     data = json.loads(path.read_text())["seeds"]
     panels = [("reward", "(a) 1 エピソードの報酬の合計（平均）", 1.0, False),
-              ("ep_len", "(b) エピソードの長さ（平均）[s]", 0.02, False),
+              ("ep_len", "(b) エピソード長（平均）[s]", 0.02, False),
               ("std", "(c) 行動の分布の標準偏差（22 関節の平均）", 1.0, False),
               ("lr", "(d) 学習率", 1.0, True)]
     fig, axes = plt.subplots(2, 2, figsize=(160 * MM, 95 * MM), sharex=True)
@@ -358,7 +358,7 @@ def fig_gait(out: Path):
     a2.grid(axis="y", visible=False)
     a2.set_xlim(GAIT_T0, GAIT_T1)
     a2.set_xlabel("時刻 [s]")
-    a2.set_title("(b) 接地（濃い帯: 実際の接地，薄い帯: 決めた位相の立脚）", loc="left", color=INK)
+    a2.set_title("(b) 接地（濃い帯: 実際の接地，薄い帯: 規定の位相の立脚）", loc="left", color=INK)
     fig.tight_layout(h_pad=1.0)
     save(fig, out, "gait")
 
@@ -375,12 +375,12 @@ def fig_basestate(out: Path):
     axes[0].axhline(0.3, color=INK2, linewidth=0.6, linestyle=(0, (3, 2)))
     axes[0].set_ylabel("[m/s]")
     axes[0].set_ylim(-0.15, 0.45)
-    axes[0].set_title("(a) 胴体の速さ（破線は前進の指令 0.3 m/s）", loc="left", color=INK)
+    axes[0].set_title("(a) 胴体の速度（破線は前進の指令 0.3 m/s）", loc="left", color=INK)
     axes[0].legend(loc="upper right", frameon=False, ncol=2)
     axes[1].plot(t, w[:, 2], color=SEED_COLORS[1], linewidth=0.9)
     axes[1].set_ylabel("[°/s]")
-    axes[1].set_title("(b) 旋回の速さ", loc="left", color=INK)
-    axes[2].plot(t, np.degrees(np.arcsin(np.clip(gr[:, 0], -1, 1))), color=SEED_COLORS[1], linewidth=0.9, label="前後（正: 前が下がる）")
+    axes[1].set_title("(b) ヨー角速度", loc="left", color=INK)
+    axes[2].plot(t, np.degrees(np.arcsin(np.clip(gr[:, 0], -1, 1))), color=SEED_COLORS[1], linewidth=0.9, label="前後（正: 頭が下がる向き）")
     axes[2].plot(t, np.degrees(np.arcsin(np.clip(gr[:, 1], -1, 1))), color=SEED_COLORS[2], linewidth=0.9, label="左右（正: 左が下がる）")
     axes[2].set_ylabel("[°]")
     axes[2].set_ylim(-15, 12)
@@ -462,7 +462,7 @@ def fig_heading(out: Path):
               ("観測だけ", ext_values("fixurdf-v25-obsonly", "lateral_pct")),
               ("v25\nペナルティと観測", fixurdf_values(25, "lateral_pct"))]
     fig, ax = plt.subplots(figsize=(120 * MM, 60 * MM))
-    dot_panel(ax, groups, nf["lateral_pct"]["sd"], "横ずれ率 [%]")
+    dot_panel(ax, groups, nf["lateral_pct"]["sd"], "横方向ドリフト率 [%]")
     ax.set_ylim(bottom=0)
     fig.tight_layout()
     save(fig, out, "heading")
@@ -495,7 +495,7 @@ def fig_simreal(out: Path):
         w = (t >= 4.0) & (t <= 6.0)
         axes[2].plot(t[w], np.degrees(run[w, C_Q + k]), color=c, linestyle=ls, linewidth=1.0, label=lab)
     axes[0].plot(real[:, C_T], np.degrees(real[:, C_CMD + 2]), color=INK2, linewidth=0.7, linestyle=":", label="旋回の指令")
-    axes[0].set_title("(a) 旋回の速さ [°/s]（0.5 s の移動平均）", loc="left", color=INK)
+    axes[0].set_title("(a) ヨー角速度 [°/s]（0.5 s の移動平均）", loc="left", color=INK)
     axes[0].set_ylim(-45, 55)
     axes[1].set_title("(b) 胴体の前後の傾き [°]（負は頭が上がる向き）", loc="left", color=INK)
     axes[2].set_title("(c) 左の膝の角度 [°]（前進 0.3 m/s の区間の 2 s）", loc="left", color=INK)
@@ -547,7 +547,7 @@ def fig_torquecmp(out: Path):
     import numpy as np
     G = {"v31": load_torquecmp("v31"), "abl": load_torquecmp("abl31-torque_limits")}
     names = G["v31"][0]["runs"][0]["joint_names"]
-    lab = {"v31": "v31（ペナルティあり）", "abl": "トルクの上限のペナルティを外した構成"}
+    lab = {"v31": "v31（ペナルティあり）", "abl": "トルク上限のペナルティを外した構成"}
     y = np.arange(len(names))[::-1]
     fig, axes = plt.subplots(1, 2, figsize=(160 * MM, 112 * MM), sharey=True)
     top = {}

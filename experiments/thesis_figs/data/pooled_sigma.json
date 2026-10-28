@@ -1,0 +1,228 @@
+{
+ "note": "シード間のばらつき σ の取り方による判定の感度（卒論 v7 の 6.3・6.4・8.6 節、他の AI の改善案 B3、2026-10-28）。",
+ "versions": "v12-v29",
+ "sigma": {
+  "torque_mean_pct": {
+   "pooled_sd": 0.5255035299662126,
+   "df": 37,
+   "v23_sd": 0.2728,
+   "ratio": 1.9263325878526858
+  },
+  "torque_p99_pct": {
+   "pooled_sd": 2.001570348959501,
+   "df": 37,
+   "v23_sd": 0.8546,
+   "ratio": 2.342113677696584
+  },
+  "speed_mps": {
+   "pooled_sd": 0.009388451110001377,
+   "df": 37,
+   "v23_sd": 0.0047,
+   "ratio": 1.997542789361995
+  },
+  "lateral_pct": {
+   "pooled_sd": 2.953429158372747,
+   "df": 37,
+   "v23_sd": 2.2155,
+   "ratio": 1.3330756751851713
+  },
+  "knee_rom_deg": {
+   "pooled_sd": 7.185566065982824,
+   "df": 37,
+   "v23_sd": 5.7394,
+   "ratio": 1.2519716461621118
+  },
+  "sole_tilt_touchdown_deg": {
+   "pooled_sd": 1.9540434154834252,
+   "df": 37,
+   "v23_sd": 0.4972,
+   "ratio": 3.930095365010912
+  },
+  "duty_asym_pt": {
+   "pooled_sd": 2.8720497803702316,
+   "df": 37,
+   "v23_sd": 0.5595,
+   "ratio": 5.133243575281916
+  },
+  "gait_match_pct": {
+   "pooled_sd": 1.3528227437738012,
+   "df": 37,
+   "v23_sd": 1.0654,
+   "ratio": 1.2697791850702096
+  },
+  "clearance_front_m": {
+   "pooled_sd": 0.001646735926968148,
+   "df": 37,
+   "v23_sd": 0.001,
+   "ratio": 1.6467359269681479
+  },
+  "clearance_rear_m": {
+   "pooled_sd": 0.002314135101053939,
+   "df": 37,
+   "v23_sd": 0.0016,
+   "ratio": 1.4463344381587118
+  }
+ },
+ "control": {
+  "clearance_front": {
+   "values": [
+    0.01367533610512813,
+    0.01470982035001119,
+    0.014741940113405386
+   ],
+   "base_values": [
+    0.0171,
+    0.0164,
+    0.0192,
+    0.0172
+   ],
+   "delta": -0.0030993011438184316,
+   "z_v23": -3.0993011438184315,
+   "z_pooled": -1.8820875242119983,
+   "all_same_side": true
+  },
+  "clearance_rear": {
+   "values": [
+    0.012208474179108938,
+    0.013308934246500334,
+    0.013653417738775412
+   ],
+   "base_values": [
+    0.0156,
+    0.0143,
+    0.0186,
+    0.0158
+   ],
+   "delta": -0.0030180579452051045,
+   "z_v23": -1.88628621575319,
+   "z_pooled": -1.304183988147699,
+   "all_same_side": true
+  },
+  "heading_obsonly_vs_v23": {
+   "values": [
+    3.456892113490144,
+    2.0580515848507606,
+    2.4266474180858784
+   ],
+   "base_values": [
+    9.6072,
+    6.6313,
+    7.5013,
+    12.3782
+   ],
+   "delta": -6.382302961191073,
+   "z_v23": -2.8807506031103918,
+   "z_pooled": -2.1609805480174558,
+   "all_same_side": true
+  },
+  "heading_v24_vs_v23": {
+   "values": [
+    13.847301086385542,
+    11.219397259677658,
+    7.6999680425296795
+   ],
+   "delta": 1.8927221295309593,
+   "z_v23": 0.8543092437512793,
+   "z_pooled": 0.6408557740974541
+  },
+  "heading_v25_vs_v23": {
+   "values": [
+    2.248546045136982,
+    2.835939419391963,
+    1.6212645589161372
+   ],
+   "delta": -6.794249992184973,
+   "z_v23": -3.066689231408248,
+   "z_pooled": -2.3004614730384816
+  }
+ },
+ "ablation_essential": {
+  "torque_limits": {
+   "worse_main": {
+    "tq_p99": {
+     "z_original": 49.063694980180024,
+     "z_with_pooled": 20.948468662047635,
+     "still_over_2sigma": true
+    },
+    "tq_over90": {
+     "z_original": 57.40216140755448,
+     "z_with_pooled": 57.40216140755448,
+     "still_over_2sigma": true
+    }
+   },
+   "safety": [
+    "abl31-torque_limits-s1",
+    "abl31-torque_limits-s2",
+    "abl31-torque_limits-s3"
+   ]
+  },
+  "knee_swing_flexion": {
+   "worse_main": {
+    "knee": {
+     "z_original": -4.098132658118674,
+     "z_with_pooled": -3.2733430271215798,
+     "still_over_2sigma": true
+    }
+   },
+   "safety": [
+    "abl31-knee_swing_flexion-s3"
+   ]
+  },
+  "feet_clearance": {
+   "worse_main": {
+    "clr_f": {
+     "z_original": -2.439949495348532,
+     "z_with_pooled": -2.439949495348532,
+     "still_over_2sigma": true
+    },
+    "clr_r": {
+     "z_original": -3.011374375751543,
+     "z_with_pooled": -2.2293434374546073,
+     "still_over_2sigma": true
+    }
+   },
+   "safety": []
+  },
+  "joint_torques": {
+   "worse_main": {},
+   "safety": [
+    "abl31-joint_torques-s3"
+   ]
+  },
+  "tracking_lin_vel": {
+   "worse_main": {
+    "speed_fwd": {
+     "z_original": -7.6527383244963385,
+     "z_with_pooled": -7.6527383244963385,
+     "still_over_2sigma": true
+    },
+    "back": {
+     "z_original": -16.063128504099762,
+     "z_with_pooled": -16.063128504099762,
+     "still_over_2sigma": true
+    },
+    "strafe": {
+     "z_original": -16.892766074639024,
+     "z_with_pooled": -16.892766074639024,
+     "still_over_2sigma": true
+    }
+   },
+   "safety": []
+  }
+ },
+ "seed1_vs_mean": {
+  "p_per_metric": 0.01430587843542952,
+  "expected": {
+   "8": {
+    "p_per_version": 0.10887765805837357,
+    "expected_of_18": 1.9597978450507243
+   },
+   "9": {
+    "p_per_version": 0.12162594595328569,
+    "expected_of_18": 2.1892670271591426
+   }
+  },
+  "observed_versions": 13,
+  "of": 18
+ }
+}
