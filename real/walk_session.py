@@ -20,7 +20,8 @@
 安全:
   - 四脚の向きから 45° 以上傾いた状態が 0.3 s 続いたら（転倒）、すぐ全サーボ脱力して終える。
   - どれかの関節の指令と実測の差が 30° を 0.5 s 超えたら（引っかかり・負け）、全サーボ脱力して終える。
-  - ESP32 からの受信が 0.3 s 途絶えたら脱力して終える。指令の列は合計 40 秒まで。--max-minutes で必ず終える。
+  - ESP32 からの受信が 0.3 s 途絶えたら脱力して終える。指令の列は合計 40 秒まで（go --long のときだけ 120 秒まで。2026-10-28、
+    60 秒以上の連続歩行の試験のため）。--max-minutes で必ず終える。
   - 指令の列が終わったら 1 秒かけて初期姿勢に戻して保持する（stop で脱力）。
   - このプロセスが落ちても、改造ファームは 0.2 s で保持・1.2 s で全サーボ脱力に入る。
 記録: real/data/raw/walk_<時刻>.npz（方策の周期ごとの関節角・目標・IMU・指令・行動）、要約 experiments/real/<日付>_walk/walk_<時刻>.json。
@@ -77,6 +78,7 @@ LIMIT_MARGIN = 0.03        # rad（計画書の可動域の余裕と同じ）
 FALL_DEG, FALL_HOLD_S = 45.0, 0.3
 ERR_DEG, ERR_HOLD_S = 30.0, 0.5
 MAX_SCHEDULE_S = 40.0
+LONG_SCHEDULE_S = 120.0    # go --long のときの上限（連続歩行の試験、2026-10-28）
 NOMINAL_DOWN = np.array([1.0, 0.0, 0.0])   # 四脚の公称姿勢で base 座標に見える重力
 
 
@@ -181,7 +183,7 @@ def run_policy(policy, obs: np.ndarray) -> np.ndarray:
         return policy(td).numpy()[0].astype(np.float64)
 
 
-def parse_schedule(text: str) -> list[tuple[np.ndarray, float]]:
+def parse_schedule(text: str, max_s: float = MAX_SCHEDULE_S) -> list[tuple[np.ndarray, float]]:
     out = []
     for item in text.split(","):
         cmd, sec = item.split(":")
@@ -190,8 +192,8 @@ def parse_schedule(text: str) -> list[tuple[np.ndarray, float]]:
         if any(abs(v[i]) > CMD_LIMITS[i] + 1e-9 for i in range(3)):
             raise SystemExit(f"[error] 指令 {v.tolist()} が学習時の範囲 ±{CMD_LIMITS} を超えています")
         out.append((v, float(sec)))
-    if sum(s for _, s in out) > MAX_SCHEDULE_S:
-        raise SystemExit(f"[error] 指令の列は合計 {MAX_SCHEDULE_S} 秒まで")
+    if sum(s for _, s in out) > min(max_s, LONG_SCHEDULE_S):
+        raise SystemExit(f"[error] 指令の列は合計 {min(max_s, LONG_SCHEDULE_S)} 秒まで（40 秒を超えるときは go --long）")
     return out
 
 
@@ -309,7 +311,7 @@ def cmd_serve(a) -> int:
                 if state["phase"] == "stance" and rq.exists():
                     req = json.loads(rq.read_text())
                     rq.unlink()
-                    sched = parse_schedule(req["schedule"])
+                    sched = parse_schedule(req["schedule"], float(req.get("max_s", MAX_SCHEDULE_S)))
                     ob.reset(q)
                     t_go = now
                     last_k = None
@@ -515,12 +517,13 @@ def server_status() -> dict | None:
 
 
 def cmd_go(a) -> int:
-    sched = parse_schedule(a.schedule)
+    max_s = LONG_SCHEDULE_S if a.long else MAX_SCHEDULE_S
+    sched = parse_schedule(a.schedule, max_s)
     s = server_status()
     if not s or s["phase"] != "stance":
         sys.exit(f"[error] serve が初期姿勢で保持中ではありません（{None if not s else s['phase']}）")
     rid = dt.datetime.now().strftime("%H%M%S%f")
-    write_json(RUN_DIR / "request.json", {"id": rid, "schedule": a.schedule})
+    write_json(RUN_DIR / "request.json", {"id": rid, "schedule": a.schedule, "max_s": max_s})
     total = sum(sec for _, sec in sched)
     t_end = time.monotonic() + total + 5
     while time.monotonic() < t_end:
@@ -570,6 +573,7 @@ def main(argv=None) -> int:
     s.add_argument("--send-port", type=int, default=SEND_PORT, help=argparse.SUPPRESS)
     s = sub.add_parser("go")
     s.add_argument("--schedule", required=True)
+    s.add_argument("--long", action="store_true", help="指令の列を 120 秒まで許す（連続歩行の試験）")
     sub.add_parser("status")
     sub.add_parser("stop")
     s = sub.add_parser("replay-check")
