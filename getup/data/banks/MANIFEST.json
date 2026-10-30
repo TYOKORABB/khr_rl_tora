@@ -104,5 +104,93 @@
    "self_pen_max_m": 0.005
   },
   "note": "generator_commit は書き終えた時点（05:01）の HEAD。生成を始めた 04:20 の時点のコードは 063166f と同じで、063166f → d062057 の差分（getup_env1 の接触数の記録、train_getup1 の run_info）はバンクの生成（build_scene・get_cfgs）に影響しない。generator_dirty は再学習キューの未コミットのデータによるもの。"
+ },
+ "bank_v2.pt": {
+  "created": "2026-10-30T23:16:58",
+  "generator": "getup/tools/make_bank_v2.py",
+  "generator_commit": "4fe78c1",
+  "generator_dirty": true,
+  "seed": 0,
+  "sha256": "7d61c5d17c51f25c95cd2ecc3dab088d2c6961f0c09bfcd186288c2c52a5c6fb",
+  "base": "getup/data/banks/bank_v1.pt",
+  "base_sha256": "cefbd2db870536edef6bcc63e2f4d1b9cf04504c9df05a7351562217c0525903",
+  "count": {
+   "base": 24000,
+   "falls": 1146,
+   "falls_train": 917,
+   "falls_eval": 229
+  },
+  "u0_falls": {
+   "ge_0.9": 0,
+   "ge_0.5": 6,
+   "ge_0": 19,
+   "lt_0": 1127
+  },
+  "falls_sources": [
+   {
+    "file": "getup/data/banks/falls_khr-quadruped31-s1.pt",
+    "sha256": "ce0b492c14d32e21ca8919b8ad4f8c1e9f2ebf0a293c5f710047e37b72069370",
+    "count": 312,
+    "meta": {
+     "exp": "khr-quadruped31-s1",
+     "ckpt": 3999,
+     "push": [
+      0.5,
+      2.0
+     ],
+     "push_every_s": 3.0,
+     "cmd_every_s": 4.0,
+     "seed": 0,
+     "backend": "cpu",
+     "urdf": "/home/tora/gsw4/assets/khr3hv/urdf/khr3hv_symhip_getup.urdf",
+     "date": "2026-10-30T23:14:18",
+     "commit": "5f932e8",
+     "dirty": true
+    }
+   },
+   {
+    "file": "getup/data/banks/falls_khr-quadruped31-s2.pt",
+    "sha256": "8df4f6115bec0478b65e10f112dcaf1a3b28a0fdf0ea59771a0fc295ed00c64e",
+    "count": 422,
+    "meta": {
+     "exp": "khr-quadruped31-s2",
+     "ckpt": 3999,
+     "push": [
+      0.5,
+      2.0
+     ],
+     "push_every_s": 3.0,
+     "cmd_every_s": 4.0,
+     "seed": 0,
+     "backend": "cpu",
+     "urdf": "/home/tora/gsw4/assets/khr3hv/urdf/khr3hv_symhip_getup.urdf",
+     "date": "2026-10-30T23:08:45",
+     "commit": "5f932e8",
+     "dirty": true
+    }
+   },
+   {
+    "file": "getup/data/banks/falls_khr-quadruped31-s3.pt",
+    "sha256": "2d60d8f46ab987721b0b1aa567eda646d3bccc5dbcf335c7d5f70bd07a4fd7a5",
+    "count": 412,
+    "meta": {
+     "exp": "khr-quadruped31-s3",
+     "ckpt": 3999,
+     "push": [
+      0.5,
+      2.0
+     ],
+     "push_every_s": 3.0,
+     "cmd_every_s": 4.0,
+     "seed": 0,
+     "backend": "cpu",
+     "urdf": "/home/tora/gsw4/assets/khr3hv/urdf/khr3hv_symhip_getup.urdf",
+     "date": "2026-10-30T23:15:05",
+     "commit": "5f932e8",
+     "dirty": true
+    }
+   }
+  ],
+  "note": "番号 0〜23,999 は bank_v1 と同じ（学習用・評価用の分け方も同じ）。その後ろが歩行中の転倒 F（kind 2）。"
  }
 }
