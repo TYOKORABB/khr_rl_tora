@@ -1,0 +1,10 @@
+# v28 と v30 のシード追加のキュー（2026-10-30。計画と判定の基準は plan.md）
+# 形式: <exp> <組（v28 / v30）> <seed>
+# 順序: 途中で止まっても両方の組をそろえて比べられるよう、v28 と v30 を 1 本ずつ組にする。
+
+fixurdf-v28-s4 v28 4
+khr-quadruped30-s4 v30 4
+fixurdf-v28-s5 v28 5
+khr-quadruped30-s5 v30 5
+fixurdf-v28-s6 v28 6
+khr-quadruped30-s6 v30 6
