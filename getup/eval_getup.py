@@ -86,9 +86,8 @@ def main() -> int:
 
     # 評価バンクの各段階の大きさ（体の数を一度で全部入る数にする）
     bank = torch.load(REPO_ROOT / env_cfg["bank"], map_location="cpu")
-    ev, kind, u0 = bank["eval"], bank["kind"], bank["u0"]
-    sizes = [int(((kind == 1) & ev).sum()) if names[L] == "L0" else
-             int(((kind == 0) & ev & (u0 >= env_cfg["curriculum"]["u0_min"][names[L]])).sum()) for L in levels]
+    from getup.levels import level_mask
+    sizes = [int(level_mask(bank, env_cfg["curriculum"], names[L], True).sum()) for L in levels]
     B = min(4096, max(sizes))
 
     gs.init(backend=gs.gpu, precision="32", logging_level="warning", seed=a.seed, performance_mode=True)
@@ -185,6 +184,10 @@ def main() -> int:
                 mb = (u0v >= lo) & (u0v < hi)
                 if mb.any():
                     bins[f"[{lo:.1f},{min(hi, 1.0):.1f})"] = {"n": int(mb.sum()), "success": round(float(succ[mb].float().mean()), 4)}
+            # 状態の種類ごと（getup-v6 の L3 は主のバンクの横向き kind 0 と歩行中の転倒 F kind 2 が混ざる）
+            kv = env.bank["kind"][pool]
+            by_kind = {str(kd): {"n": int((kv == kd).sum()), "success": round(float(succ[kv == kd].float().mean()), 4)}
+                       for kd in torch.unique(kv).tolist()} if len(torch.unique(kv)) > 1 else None
             curve = {f"{s}s": round(float(((first > 0) & (first <= round(s / dt_s))).float().mean()), 4)
                      for s in range(1, int(math.ceil(T * dt_s)) + 1)}
             ts = torch.where(first > 0, first.float() * dt_s, torch.full_like(first, 1e9, dtype=torch.float)).sort().values
@@ -192,7 +195,7 @@ def main() -> int:
             res = {
                 "success": round(k / n, 4), "success_ci95": wilson(k, n), "n_success": k,
                 "gate": (None if name not in GATE else {"need": GATE[name], "pass": k / n >= GATE[name]}),
-                "by_u0": bins, "cum_success_by_time": curve,
+                "by_u0": bins, **({} if by_kind is None else {"by_kind": by_kind}), "cum_success_by_time": curve,
                 "time_to_success_median_s": None if med is None else round(med, 2),
                 "stand_end": round(float(r["stand_end"][v].float().mean()), 4),
                 "sim_error_episodes": int(r["bad"][v].sum()),
@@ -291,6 +294,28 @@ def main() -> int:
                               "episodes": clips})
         same = sum(c["eval_success"] == c["replay_success"] for c in clips)
         print(f"[{name} 動画] {mp4.relative_to(REPO_ROOT)}（{len(pick)} エピソード、評価と結果が同じ {same}/{len(pick)}）", flush=True)
+
+    # ---- 歩行中の転倒 F（kind 2）すべて（getup-v6、2026-10-30）: 段階は u0 で切るので、仰向けの F は L3 に入らない。
+    #      実際の転び方にどこまで効くかを見るため、評価用の F を u0 によらず全部、いちばん上の段階として動かす（動画なし）
+    f_pool = torch.nonzero((env.bank["kind"] == 2) & env.bank["eval"]).flatten()
+    if len(f_pool) and len(f_pool) <= B:
+        L_top = len(names) - 1
+        set_cond("dr")
+        nF = len(f_pool)
+        r = run_episode(f_pool[torch.arange(B, device=dev) % nF], L_top)
+        succ, first = r["success"][:nF], r["first"][:nF]
+        u0v = env.bank["u0"][f_pool]
+        bins = {}
+        for lo, hi in U0_BINS:
+            mb = (u0v >= lo) & (u0v < hi)
+            if mb.any():
+                bins[f"[{lo:.1f},{min(hi, 1.0):.1f})"] = {"n": int(mb.sum()), "success": round(float(succ[mb].float().mean()), 4)}
+        k = int(succ.sum())
+        out["falls_all"] = {"n_states": nF, "obs_level": names[L_top], "cond": "dr", "success": round(k / nF, 4),
+                            "success_ci95": wilson(k, nF), "by_u0": bins, "stand_end": round(float(r["stand_end"][:nF].float().mean()), 4),
+                            "sim_error_episodes": int(r["bad"][:nF].sum())}
+        per_state["falls_all"] = {"bank_idx": f_pool.tolist(), "dr": {"success": succ.int().tolist(), "t_success_steps": first.tolist()}}
+        print(f"[F 全部 dr] 成功 {k / nF * 100:5.1f} % {wilson(k, nF)}（{nF} 状態、u0 の区間別 {bins}）", flush=True)
 
     out["elapsed_s"] = round(time.time() - t0, 1)
     d = EXPERIMENT_ROOT / "getup" / "eval"

@@ -176,14 +176,11 @@ class GetupEnv:
         meta = self.bank["meta"]
         self.h_star = torch.tensor([meta["h_star_base"], meta["h_star_chest"]], dtype=gs.tc_float, device=self.device)
         self.h_prone = torch.tensor([meta["h_prone_base"], meta["h_prone_chest"]], dtype=gs.tc_float, device=self.device)
-        split = self.bank["eval"] if eval_mode else ~self.bank["eval"]
         cur = env_cfg["curriculum"]
         self.levels = []
+        from getup.levels import level_mask   # curriculum["extra"]（L3 の歩行中の転倒、10/30）が無ければ前と同じ
         for name in cur["levels"]:
-            if name == "L0":
-                m = (self.bank["kind"] == 1) & split
-            else:
-                m = (self.bank["kind"] == 0) & split & (self.bank["u0"] >= cur["u0_min"][name])
+            m = level_mask(self.bank, cur, name, eval_mode)
             self.levels.append(torch.nonzero(m).flatten())
             if len(self.levels[-1]) == 0:
                 raise ValueError(f"初期状態バンクに {name} の状態がない")

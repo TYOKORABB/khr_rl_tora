@@ -95,7 +95,8 @@ def main() -> int:
             env_cfg = dict(env_cfg, action_latency_steps=int(a.latency_steps))
         name = env_cfg["curriculum"]["levels"][a.level]
         bank = torch.load(REPO_ROOT / env_cfg["bank"], map_location="cpu")
-        n_pool = int(((bank["kind"] == 0) & bank["eval"] & (bank["u0"] >= env_cfg["curriculum"]["u0_min"][name])).sum())
+        from getup.levels import level_mask
+        n_pool = int(level_mask(bank, env_cfg["curriculum"], name, True).sum())
         B = min(4096, n_pool if a.num_states is None else min(a.num_states, n_pool))
         GetupEnv = importlib.import_module(env_cfg.get("env_module", "getup.envs.getup_env1")).GetupEnv
         env = GetupEnv(B, env_cfg, obs_cfg, reward_cfg, eval_mode=True, level=a.level)

@@ -1,0 +1,5 @@
+# getup-v6: 採用版 v5 dcthr に段階 L3（横向き ＋ 歩行中の転倒のうち u0 ≥ 0）を足す（2026-10-30）。
+# 計画と判定の基準は experiments/getup/v6_plan.md（学習の前に固定）。初期状態バンクは bank_v2（getup/tools/make_bank_v2.py）。
+getup6-L3-s1  1 3000 train_getup6
+getup6-L3-s2  2 3000 train_getup6
+getup6-L3-s3  3 3000 train_getup6

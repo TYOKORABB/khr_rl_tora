@@ -44,7 +44,8 @@ def main() -> int:
     env_cfg, obs_cfg, reward_cfg, train_cfg = pickle.load(open(log / "cfgs.pkl", "rb"))
     name = env_cfg["curriculum"]["levels"][a.level]
     bank = torch.load(REPO_ROOT / env_cfg["bank"], map_location="cpu")
-    n_pool = int(((bank["kind"] == 0) & bank["eval"] & (bank["u0"] >= env_cfg["curriculum"]["u0_min"][name])).sum())
+    from getup.levels import level_mask
+    n_pool = int(level_mask(bank, env_cfg["curriculum"], name, True).sum())
     B = min(4096, n_pool)
     gs.init(backend=gs.gpu, precision="32", logging_level="warning", seed=a.seed, performance_mode=True)
     GetupEnv = importlib.import_module(env_cfg.get("env_module", "getup.envs.getup_env1")).GetupEnv
