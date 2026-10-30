@@ -205,6 +205,9 @@ class GetupEnv:
         self.last_last_actions = f(B, n)                 # v3: 2 階差分の罰
         self.q_tgt_prev = self.q_nom.repeat(B, 1)        # 前回送った目標角（サーボの角度）
         self.q_delay = self.q_nom.repeat(B, 1)           # 1 ステップ遅れのバッファ
+        # 評価用（2026-10-30、実機で可能かの確かめ）: 遅れを N 周期にする。既定 1 は今までと同じ（学習の動きは変わらない）
+        self.lat_n = int(env_cfg.get("action_latency_steps", 1))
+        self.q_delay_more = [self.q_nom.repeat(B, 1) for _ in range(self.lat_n - 1)]   # q_delay より古い目標角（古い順）
         self.q_obs_prev = f(B, n)
         self.hist = f(B, obs_cfg["history"], 28)
         self.trim = f(B, n)
@@ -304,7 +307,11 @@ class GetupEnv:
         self.actions = actions.clamp(-1.0, 1.0)
         # 今回送る目標角（サーボの角度）。gap があれば、直前に観測した関節角 ± gap に収める（v2）
         q_cmd = self.post(self.actions, self.q_tgt_prev, self.q_obs_prev if self.post.gap is not None else None)
-        exec_t = self.q_delay if self.env_cfg["simulate_action_latency"] else q_cmd
+        if self.lat_n > 1 and self.env_cfg["simulate_action_latency"]:
+            exec_t = self.q_delay_more[0]
+            self.q_delay_more = self.q_delay_more[1:] + [self.q_delay]
+        else:
+            exec_t = self.q_delay if self.env_cfg["simulate_action_latency"] else q_cmd
         self.q_delay = q_cmd
         self.robot.control_dofs_position(exec_t + self.trim, self.motors)   # 実際の角度 = 指令 + 0 点のずれ
         self.scene.step()
@@ -433,6 +440,8 @@ class GetupEnv:
         q_meas = (self.q - self.trim)[ids]
         self.q_tgt_prev[ids] = q_meas.clamp(self.q_lo + 0.03, self.q_hi - 0.03)
         self.q_delay[ids] = self.q_tgt_prev[ids]
+        for buf in self.q_delay_more:
+            buf[ids] = self.q_tgt_prev[ids]
         self.actions[ids] = 0.0
         self.last_actions[ids] = 0.0
         self.last_last_actions[ids] = 0.0

@@ -63,6 +63,8 @@ def main() -> int:
     ap.add_argument("--cap", type=float, default=None,
                     help="シミュのトルクの上限（仕様に対する倍率）を評価のときだけ上書きする。v2 以前の方策は v3 の環境（v2 と同じ中身＋上限）で動かす")
     ap.add_argument("--delta", type=float, default=None, help="送る目標角の速さの制限（rad/歩）を評価のときだけ上書きする")
+    ap.add_argument("--latency_steps", type=int, default=None,
+                    help="送った目標角が PD に届くまでの周期数を評価のときだけ変える（学習は 1。getup_env3 の版だけ、2026-10-30）")
     ap.add_argument("-n", "--num_states", type=int, default=None, help="評価用の状態から決まった乱数で選ぶ数（既定は全部）")
     ap.add_argument("--cpu", action="store_true", help="CPU で回す（GPU が使えない時間用。遅いので -n と併用）")
     ap.add_argument("--tag", default="", help="出力の名前に足す")
@@ -87,6 +89,10 @@ def main() -> int:
             if mod not in ("getup.envs.getup_env2", "getup.envs.getup_env3"):
                 raise SystemExit(f"{exp} の環境（{mod}）では --cap は使えない（v2・v3 の方策だけ）")
             env_cfg = dict(env_cfg, env_module="getup.envs.getup_env3", torque_cap_scale=float(a.cap))
+        if a.latency_steps is not None:
+            if env_cfg.get("env_module") != "getup.envs.getup_env3":
+                raise SystemExit(f"{exp} の環境では --latency_steps は使えない（getup_env3 の版だけ）")
+            env_cfg = dict(env_cfg, action_latency_steps=int(a.latency_steps))
         name = env_cfg["curriculum"]["levels"][a.level]
         bank = torch.load(REPO_ROOT / env_cfg["bank"], map_location="cpu")
         n_pool = int(((bank["kind"] == 0) & bank["eval"] & (bank["u0"] >= env_cfg["curriculum"]["u0_min"][name])).sum())
@@ -121,7 +127,8 @@ def main() -> int:
                "noise_train": noise_train, "noise_on_in_training": noise_on,
                "gap_train": env_cfg["action"].get("gap"), "gap_eval": env.post.gap,
                "delta_train": env_cfg["action"].get("delta"), "delta_eval": env.post.delta,
-               "torque_cap_scale_eval": float(env_cfg.get("torque_cap_scale", 1.0)), "backend": "cpu" if a.cpu else "gpu", "conds": {}}
+               "torque_cap_scale_eval": float(env_cfg.get("torque_cap_scale", 1.0)),
+               "action_latency_steps_eval": int(env_cfg.get("action_latency_steps", 1)), "backend": "cpu" if a.cpu else "gpu", "conds": {}}
         t0 = time.time()
         for cname in a.conds:
             keys, nkeys = CONDS[cname]
