@@ -184,6 +184,18 @@ class GetupEnv:
             self.levels.append(torch.nonzero(m).flatten())
             if len(self.levels[-1]) == 0:
                 raise ValueError(f"初期状態バンクに {name} の状態がない")
+        # 苦手な状態を多く選ぶ（getup-v7、11/2）: curriculum["hard"][段階] = {"share", "u0_min", "u0_max"}。学習のときだけ。無ければ前と同じ
+        self.hard_pools = {}
+        if not eval_mode:
+            for L, name in enumerate(cur["levels"]):
+                spec = cur.get("hard", {}).get(name)
+                if spec is None:
+                    continue
+                m = (level_mask(self.bank, cur, name, False) & self.bank["limp"]
+                     & (self.bank["u0"] >= spec["u0_min"]) & (self.bank["u0"] < spec["u0_max"]))
+                if not m.any():
+                    raise ValueError(f"{name} の苦手な状態がない")
+                self.hard_pools[L] = (torch.nonzero(m).flatten(), float(spec["share"]))
         self.level = len(self.levels) - 1 if level is None and eval_mode else (level or 0)
         self.fixed_level = eval_mode or level is not None
         self.recent = deque(maxlen=cur["promote_window"])
@@ -372,6 +384,10 @@ class GetupEnv:
             if m.any():
                 pool = self.levels[L]
                 idx[m] = pool[torch.randint(0, len(pool), (int(m.sum()),), device=self.device)]
+                if L in self.hard_pools:
+                    hp, share = self.hard_pools[L]
+                    pick = m & (torch.rand(k, device=self.device) < share)
+                    idx[pick] = hp[torch.randint(0, len(hp), (int(pick.sum()),), device=self.device)]
         return idx, lv
 
     def _reset_idx(self, mask: torch.Tensor):
@@ -527,7 +543,11 @@ class GetupEnv:
         return n * (self.h_base > 0.12).to(gs.tc_float)
 
     def _reward_torque_limits(self):
-        return ((self.torque.abs() / self.tau_lim - self.reward_cfg["torque_thr"]).clamp(min=0.0) ** 2).sum(1)
+        thr = self.reward_cfg["torque_thr"]
+        flip = self.reward_cfg.get("torque_thr_flip")   # getup-v7（11/2）: 胸が床を向くまで（u < flip_u）だけ閾値を緩める。無ければ前と同じ
+        if flip is not None:
+            thr = torch.where(self.u < self.reward_cfg["torque_thr_flip_u"], flip, thr).unsqueeze(1)
+        return ((self.torque.abs() / self.tau_lim - thr).clamp(min=0.0) ** 2).sum(1)
 
     def _reward_dof_vel_limits(self):
         return (self.dq.abs() - self.reward_cfg["dof_vel_thr"]).clamp(min=0.0).sum(1)

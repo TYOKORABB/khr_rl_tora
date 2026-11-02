@@ -65,6 +65,7 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--episode_s", type=float, default=None, help="エピソードの長さ（既定は学習と同じ）")
     ap.add_argument("--tag", default="", help="記録と動画の名前に足す")
+    ap.add_argument("--video_limp_side", action="store_true", help="動画に使う状態を、脱力の横倒しの範囲（0 ≤ u0 < 0.5）に限る（getup-v7、--tag と一緒に使う）")
     a = ap.parse_args()
     if a.n_video < 1:
         ap.error("--n_video は 1 以上（検証では毎回動画を撮る）")
@@ -244,6 +245,9 @@ def main() -> int:
         g = torch.Generator().manual_seed(1000 + L)
         ok = torch.nonzero(r["success"][:n].cpu()).flatten()
         ng = torch.nonzero(~r["success"][:n].cpu()).flatten()
+        if a.video_limp_side:
+            vm = (env.bank["limp"][pool] & (env.bank["u0"][pool] >= 0.0) & (env.bank["u0"][pool] < 0.5)).cpu()
+            ok, ng = ok[vm[ok]], ng[vm[ng]]
         n_ng = min(len(ng), max(1, a.n_video // 3)) if len(ng) else 0
         n_ok = min(len(ok), a.n_video - n_ng)
         n_ng = min(len(ng), a.n_video - n_ok)
