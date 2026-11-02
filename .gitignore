@@ -222,3 +222,6 @@ board_ip.txt
 # 受け取った第三者の資料（公開の許可が出るまでリポジトリに入れない。計画書の付録 C）
 third_party_private/
 IsaacGymEnvs_khr-master.zip
+
+# 起き上がりの棒の図のデータ（リンクの位置から機体の寸法が分かるので公開のリポジトリに入れない。record_getup_seq.py で作り直せる）
+experiments/thesis_figs/data/getup_seq.json

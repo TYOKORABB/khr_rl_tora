@@ -599,10 +599,102 @@ def fig_jointerr(out: Path):
     save(fig, out, "jointerr")
 
 
+# ---------------- 起き上がり（ゼミのドラフト、2026-11-02） ----------------
+GETUP_SEQ_S = (0.0, 0.6, 1.2, 1.8, 2.8, 3.8)      # 連続図のこまの時刻 [s]。最後は成功の時刻（条件を 1 秒続けて満たし終えた時刻）
+
+
+def fig_getup_seq(out: Path):
+    """横倒しから起き上がる 1 体の例を棒の図で（record_getup_seq.py のリンクの位置。メッシュの画面は使わない）。"""
+    import numpy as np
+    d = json.loads((Path(__file__).resolve().parent / "data" / "getup_seq.json").read_text())
+    pos = np.array(d["pos"])                        # (こま, リンク, 3)
+    names, parents = d["link_names"], d["parents"]
+    head, base = names.index("c_head_a"), names.index("base_link")
+    # 最後のこまで頭が向く方向を +x に回してから、横から 30 度ずらして見る
+    v = pos[-1, head, :2] - pos[-1, base, :2]
+    yaw = np.arctan2(v[1], v[0]) - np.radians(30.0)
+    c, s_ = np.cos(-yaw), np.sin(-yaw)
+    screen_x = c * pos[..., 0] - s_ * pos[..., 1]
+    z = pos[..., 2]
+    frames = [min(int(round(t / d["dt_s"])), len(pos) - 1) for t in GETUP_SEQ_S]
+    fig, axes = plt.subplots(1, len(frames), figsize=(170 * MM, 36 * MM), sharey=True)
+    for ax, k, t in zip(axes, frames, GETUP_SEQ_S):
+        cx = screen_x[k, base]
+        ax.axhline(0.0, color=INK2, linewidth=0.8, zorder=1)
+        for i, par in enumerate(parents):
+            if par < 0:
+                continue
+            nm = names[i]
+            col = SEED_COLORS[1] if nm.startswith("l_") else (SEED_COLORS[2] if nm.startswith("r_") else INK)
+            lw = 1.6 if col != INK else 2.6
+            ax.plot([screen_x[k, par] - cx, screen_x[k, i] - cx], [z[k, par], z[k, i]], color=col, linewidth=lw,
+                    solid_capstyle="round", zorder=2 if col != INK else 3)
+        ax.scatter([screen_x[k, head] - cx], [z[k, head]], s=26, color=INK, zorder=4)
+        ax.set_xlim(-0.24, 0.24)
+        ax.set_ylim(-0.01, 0.34)
+        ax.set_aspect("equal")
+        ax.set_title(f"{t:.1f} s" + ("（成功）" if t == GETUP_SEQ_S[-1] else ""), fontsize=8.5)
+        ax.axis("off")
+    handles = [plt.Line2D([], [], color=INK, linewidth=2.6, label="胴体・頭（黒丸）"), plt.Line2D([], [], color=SEED_COLORS[1], linewidth=1.6, label="左の手足"),
+               plt.Line2D([], [], color=SEED_COLORS[2], linewidth=1.6, label="右の手足")]
+    fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False, bbox_to_anchor=(0.5, -0.1))
+    save(fig, out, "getup_seq")
+
+
+U0_BINS = (("0.9 以上\nうつ伏せ", 0.9, 1.01, "[0.9,1.0)"), ("0.7〜0.9", 0.7, 0.9, "[0.7,0.9)"), ("0.5〜0.7", 0.5, 0.7, "[0.5,0.7)"),
+           ("0〜0.5\n横倒し", 0.0, 0.5, "[0.0,0.5)"), ("0 未満\n仰向け寄り", -1.01, 0.0, "[-1.0,0.0)"))
+
+
+def fig_getup_gap(out: Path):
+    """(a) 歩行中に転んで止まった向き（fall_survey）と (b) その向きからの起き上がりの成功率（getup-v6、eval_getup）を同じ横軸で。"""
+    import numpy as np
+    fig, axes = plt.subplots(2, 1, figsize=(120 * MM, 82 * MM), sharex=True, gridspec_kw={"hspace": 0.28})
+    xs = np.arange(len(U0_BINS))
+    shares = {}
+    for sd in (1, 2, 3):
+        h = json.loads((EXP / "getup" / "falls" / f"survey_khr-quadruped31-s{sd}.json").read_text())["u0_hist"]
+        tot = sum(h.values())
+        vals = []
+        for _, lo, hi, _k in U0_BINS:
+            n = sum(v for k, v in h.items() if lo <= float(k.split("..")[0]) + 0.05 < hi)
+            vals.append(100.0 * n / tot)
+        shares[sd] = vals
+    mean = np.mean([shares[s] for s in shares], axis=0)
+    ax = axes[0]
+    ax.bar(xs, mean, width=0.5, color=SEED_COLORS[1], zorder=2)
+    for x, m in zip(xs, mean):
+        ax.text(x, m + 3, f"{m:.1f}", ha="center", va="bottom", fontsize=7.5, color=INK)
+    ax.set_ylim(0, 118)
+    ax.set_yticks([0, 50, 100])
+    ax.set_title("(a) 歩行中に転んで止まった向きの割合 [%]（v31 の 3 シードの平均）", loc="left")
+    ax.grid(axis="x", visible=False)
+    ax = axes[1]
+    succ = {}
+    for sd in (1, 2, 3):
+        r = json.loads((EXP / "getup" / "eval" / f"getup6-L3-s{sd}_2999.json").read_text())
+        by = r["levels"]["L3"]["dr"]["by_u0"]
+        succ[sd] = [100.0 * by[k]["success"] for _, _, _, k in U0_BINS[:-1]] + [100.0 * r["falls_all"]["by_u0"]["[-1.0,0.0)"]["success"]]
+        ax.scatter(xs + (sd - 2) * 0.09, succ[sd], s=16, color=SEED_COLORS[sd], marker=SEED_MARKERS[sd], zorder=3, label=f"シード {sd}")
+    mean = np.mean([succ[s] for s in succ], axis=0)
+    for x, m in zip(xs, mean):
+        ax.plot([x - 0.22, x + 0.22], [m, m], color=INK, linewidth=1.0, zorder=2)
+        ax.text(x + 0.27, m, f"{m:.0f}", ha="left", va="center", fontsize=7.5, color=INK)
+    ax.set_ylim(-4, 104)
+    ax.set_yticks([0, 50, 100])
+    ax.set_title("(b) その向きからの起き上がりの成功率 [%]（L3 の方策、ドメインランダム化あり、8 秒）", loc="left")
+    ax.set_xticks(xs)
+    ax.set_xticklabels([b[0] for b in U0_BINS])
+    ax.set_xlabel("最初の胴体の向き u0（+1 = 胸が真下、−1 = 胸が真上）")
+    ax.set_xlim(-0.5, len(U0_BINS) - 0.3)
+    ax.grid(axis="x", visible=False)
+    ax.legend(loc="lower left", frameon=False, ncol=3)
+    save(fig, out, "getup_gap")
+
+
 FIGS = {"allver": fig_allver, "progress": fig_progress, "push": fig_push, "ablation": fig_ablation,
         "learncurve": fig_learncurve, "jointtrack": fig_jointtrack, "gait": fig_gait, "basestate": fig_basestate,
         "torquejoint": fig_torquejoint, "clearance": fig_clearance, "heading": fig_heading, "simreal": fig_simreal,
-        "torquecmp": fig_torquecmp, "jointerr": fig_jointerr}
+        "torquecmp": fig_torquecmp, "jointerr": fig_jointerr, "getup_seq": fig_getup_seq, "getup_gap": fig_getup_gap}
 
 
 def main():
