@@ -1,0 +1,4 @@
+# getup-v8: v7 の B に段階 L4 を足す（2026-11-04）。計画と判定の基準は experiments/getup/v8_plan.md（学習の前に固定）。
+getup8-L4-s1  1 4000 train_getup8
+getup8-L4-s2  2 4000 train_getup8
+getup8-L4-s3  3 4000 train_getup8

@@ -55,8 +55,15 @@ def summarize(path: str) -> int:
               ("脱力・頭が上（gz < −0.2）", side & limp & (gz < -0.2)), ("脱力・それ以外", side & limp & (gz >= -0.2)),
               ("脱力・腕が閉じている（肩のロール < 0.5 rad）", side & limp & (roll < 0.5)), ("脱力・腕が開いている（肩のロール ≥ 0.5 rad）", side & limp & (roll >= 0.5)),
               ("保持・腕が閉じている", side & ~limp & (roll < 0.5)), ("保持・腕が開いている", side & ~limp & (roll >= 0.5))]
+    chest = u0 < 0
+    if chest.any():      # getup-v8（L4）: 胸が上の範囲と、歩行中に転んだ状態
+        kind = b["kind"][idx].numpy()
+        groups += [("u0 < 0（胸が上の範囲）", chest), ("胸が上・u0 < −0.7", u0 < -0.7), ("胸が上・−0.7 ≤ u0 < −0.3", (u0 >= -0.7) & (u0 < -0.3)), ("胸が上・−0.3 ≤ u0 < 0", (u0 >= -0.3) & chest),
+                   ("胸が上・脱力", chest & limp), ("胸が上・関節を保持", chest & ~limp),
+                   ("胸が上・脱力・腕が閉じている", chest & limp & (roll < 0.5)), ("胸が上・脱力・腕が開いている", chest & limp & (roll >= 0.5)),
+                   ("歩行中に転んだ状態（F）", kind == 2)]
     L = [f"# 起き上がりの成功と失敗の違い（`getup/tools/failure_modes.py`、{', '.join(exps)}）", "",
-         "ドメインランダム化あり、8 秒、評価用の L3 の全状態。値は 3 シードの平均 [%]。", "",
+         f"ドメインランダム化あり、8 秒、評価用の {cfg['curriculum']['levels'][-1]} の全状態。値は 3 シードの平均 [%]。", "",
          "| 最初の状態 | 状態の数 | 成功 | 胸を向けられない | 姿勢の条件に入らない | 立つが静止しない |", "|---|---|---|---|---|---|"]
     for nm, m in groups:
         f = lambda c: 100 * np.mean([(cls[i][m] == c).mean() for i in range(len(exps))])
@@ -69,7 +76,7 @@ def summarize(path: str) -> int:
         share = "—" if c == "ok" else f"{100 * m.sum() / fail.sum():.1f}"
         L.append(f"| {nm} | {share} | {A['u_end'][m].mean():+.2f} | {A['h_end'][m].mean():.3f} | {A['dq_last'][m].mean():.2f} | {100 * A['tq_last'][m].mean():.1f} |")
     L += ["", "## シードによらず同じ状態が失敗するか（状態の割合 %）", "", "| 範囲 | 全シードで成功 | 一部のシードだけ失敗 | 全シードで失敗 |", "|---|---|---|---|"]
-    for nm, m in (("u0 ≥ 0.5", high), ("横倒しの範囲", side)):
+    for nm, m in (("u0 ≥ 0.5", high), ("横倒しの範囲", side)) + ((("胸が上の範囲", chest),) if chest.any() else ()):
         n = len(exps)
         L.append(f"| {nm} | {100 * (k[m] == n).mean():.1f} | {100 * ((k[m] > 0) & (k[m] < n)).mean():.1f} | {100 * (k[m] == 0).mean():.1f} |")
     out = str(path).replace(".json", ".md")
@@ -85,6 +92,7 @@ def main() -> int:
     ap.add_argument("--summary", default=None, help="記録の JSON を集計して .md に書くだけ")
     ap.add_argument("--ckpt", type=int, default=None)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--cpu", action="store_true", help="CPU で動かす（動作確認用）")
     a = ap.parse_args()
     chdir_repo_root()
     if a.summary:
@@ -93,7 +101,7 @@ def main() -> int:
     import torch
     from rsl_rl.runners import OnPolicyRunner
     from getup.eval_getup import latest_ckpt
-    gs.init(backend=gs.gpu, precision="32", logging_level="warning", seed=a.seed, performance_mode=True)
+    gs.init(backend=gs.cpu if a.cpu else gs.gpu, precision="32", logging_level="warning", seed=a.seed, performance_mode=not a.cpu)
     env = None
     out = {"exps": a.exps, "seed": a.seed, "runs": {}}
     for exp in a.exps:

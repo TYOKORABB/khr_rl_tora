@@ -93,7 +93,7 @@ def main() -> int:
             return subprocess.check_output(["git", *args], text=True, cwd=REPO_ROOT, stderr=subprocess.DEVNULL).strip()
         except Exception:
             return None
-    info = {"exp_name": exp, "version": "getup-v6", "add": list(BASE_ADD), "getup6": env_cfg["getup6"],
+    info = {"exp_name": exp, "version": env_cfg.get("run_version", "getup-v6"), "add": list(BASE_ADD), "getup6": env_cfg["getup6"],
             "levels": env_cfg["curriculum"]["levels"], "num_envs": a.num_envs, "max_iterations": iters, "seed": a.seed,
             "backend": "cpu" if a.cpu else "gpu", "started_at": dt.datetime.now().isoformat(timespec="seconds"),
             "git_sha": git("rev-parse", "--short", "HEAD"), "git_dirty": bool(git("status", "--porcelain")),

@@ -70,6 +70,7 @@ def main() -> int:
     ap.add_argument("--states", choices=("falls", "chest_up"), default=None,
                     help="段階の代わりに、評価用の状態をこの集まりにして、いちばん上の段階の観測で動かす（getup-v7 の確かめ）。"
                          "falls = 歩行中に転んだ状態の全部、chest_up = 主のバンクで胸が上を向いた状態（u0 < 0）。記録は _<名前> を付け、元の記録を上書きしない")
+    ap.add_argument("--cpu", action="store_true", help="CPU で動かす（動作確認用）")
     a = ap.parse_args()
     if a.states:
         a.tag = a.tag or f"_{a.states}"
@@ -101,9 +102,9 @@ def main() -> int:
     if a.states:
         states_mask = bank["eval"] & ((bank["kind"] == 2) if a.states == "falls" else ((bank["kind"] == 0) & (bank["u0"] < 0)))
         sizes = [int(states_mask.sum())]
-    B = min(4096, max(sizes))
+    B = max(sizes)          # L4（getup-v8）は 4,204 状態。4096 で切ると全状態を一度に動かせない。L3 までは 4096 未満なので前と同じ
 
-    gs.init(backend=gs.gpu, precision="32", logging_level="warning", seed=a.seed, performance_mode=True)
+    gs.init(backend=gs.cpu if a.cpu else gs.gpu, precision="32", logging_level="warning", seed=a.seed, performance_mode=not a.cpu)
     import importlib
     # 環境の版は cfgs.pkl の env_cfg["env_module"]（v2 から）。無ければ v1
     GetupEnv = importlib.import_module(env_cfg.get("env_module", "getup.envs.getup_env1")).GetupEnv

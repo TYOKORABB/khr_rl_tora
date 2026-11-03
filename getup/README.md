@@ -20,6 +20,10 @@
 | `envs/getup_env2.py`・`train_getup2.py` | getup-v2（v1 ＋ 送る目標角を観測した関節角 ± 0.05 rad に制限 ＋ 下の PPOBound）。cfgs.pkl の `env_module` で検証の道具が環境の版を選ぶ |
 | `train_getup4.py` | getup-v4（v2 から再開し、v3 の変更を `--add cap90 / smooth / ent0 / delta03` で 1 つずつ足す切り分け。`t16` もあるが回さない）。環境は `getup_env3`（上限 1.0・2 階差分の罰なしなら v2 と同じ） |
 | `envs/getup_env3.py`・`train_getup3.py` | getup-v3（v2 ＋ エピソード 16 秒・シミュのトルクの上限を仕様の 90 %・行動の変化と 2 階差分の罰・目標角の速さの制限 0.03 rad/歩・エントロピー 0）。検証の割合は仕様に対する値で、上限に張り付いた時間も記録する |
+| `train_getup6.py`・`train_getup7.py`・`train_getup8.py` | getup-v6（段階 L3、`bank_v2`）、v7（`--add hard flipthr`、L3 の弱点の改善）、v8（v7 の B ＋ 段階 L4）。v7・v8 は v6 の main に設定だけを差し替える。環境は `getup_env3` |
+| `tools/failure_modes.py` | 評価用の状態を動かし直して、失敗を型（胸を向けられない・姿勢の条件に入らない・立つが静止しない）に分ける（GPU） |
+| `tools/summarize_v7.py`・`tools/summarize_v8.py` | 版の結果の表と、学習の前に固定した基準での判定を `experiments/getup/v{7,8}_results.md` に書く |
+| `jobs/run_v7.sh`・`jobs/run_v8.sh` | 学習 → 検証 → 追加の動画 → 失敗の型 → まとめ を自動で回す |
 | `ppo_bound.py` | `PPOBound`: rsl-rl 5.4.0 の PPO に、行動の平均が ±1 を超えた分の 2 乗の罰（bound loss）を足したもの（v2 から） |
 | `eval_getup.py` | 学習後の検証。評価用の全状態を決定的な方策で動かし、成功率・トルクなどを `experiments/getup/eval/` に、**毎回、段階ごとに 6 エピソードの動画**を `media/videos/getup/` に（GPU）。エピソードは既定で学習と同じ長さ（`--episode_s` で変える）、`--tag` で記録の名前を分ける |
 | `jobs/train_eval.sh` | 学習 → 検証（動画つき）→ 立った後の揺れとトルク（`hold_analysis`）を続けて行う。5 番目から先の引数は学習の版へ渡す。whisper の解析が走っているとき・次の開始までに終わらないときは始めない（`--wait` で空くまで待つ） |
