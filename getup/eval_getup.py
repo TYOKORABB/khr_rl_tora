@@ -19,6 +19,7 @@
 記録: experiments/getup/eval/<exp>_<ckpt><tag>.json（要約）・<exp>_<ckpt><tag>_per_state.json（状態ごとの結果。版の比較で対応をとる用）
 動画: media/videos/getup/<exp>_<ckpt><tag>_<段階>.mp4（*.mp4 は git に入れない）
   python -m getup.eval_getup -e getup2-s1 --episode_s 16 --tag _16s   # 長さを変えて測る（元の記録を上書きしない）
+  python -m getup.eval_getup -e getup7-hardflip-s3 --states falls      # 段階の代わりに、歩行中に転んだ状態の全部で測る（chest_up = 主のバンクの u0 < 0）
 """
 
 from __future__ import annotations
@@ -66,7 +67,12 @@ def main() -> int:
     ap.add_argument("--episode_s", type=float, default=None, help="エピソードの長さ（既定は学習と同じ）")
     ap.add_argument("--tag", default="", help="記録と動画の名前に足す")
     ap.add_argument("--video_limp_side", action="store_true", help="動画に使う状態を、脱力の横倒しの範囲（0 ≤ u0 < 0.5）に限る（getup-v7、--tag と一緒に使う）")
+    ap.add_argument("--states", choices=("falls", "chest_up"), default=None,
+                    help="段階の代わりに、評価用の状態をこの集まりにして、いちばん上の段階の観測で動かす（getup-v7 の確かめ）。"
+                         "falls = 歩行中に転んだ状態の全部、chest_up = 主のバンクで胸が上を向いた状態（u0 < 0）。記録は _<名前> を付け、元の記録を上書きしない")
     a = ap.parse_args()
+    if a.states:
+        a.tag = a.tag or f"_{a.states}"
     if a.n_video < 1:
         ap.error("--n_video は 1 以上（検証では毎回動画を撮る）")
     chdir_repo_root()
@@ -84,11 +90,17 @@ def main() -> int:
     env_cfg = dict(env_cfg, episode_length_s=a.episode_s if a.episode_s is not None else train_episode_s)
     names = env_cfg["curriculum"]["levels"]
     levels = a.levels if a.levels is not None else list(range(len(names)))
+    if a.states:
+        levels = [len(names) - 1]
 
     # 評価バンクの各段階の大きさ（体の数を一度で全部入る数にする）
     bank = torch.load(REPO_ROOT / env_cfg["bank"], map_location="cpu")
     from getup.levels import level_mask
     sizes = [int(level_mask(bank, env_cfg["curriculum"], names[L], True).sum()) for L in levels]
+    states_mask = None
+    if a.states:
+        states_mask = bank["eval"] & ((bank["kind"] == 2) if a.states == "falls" else ((bank["kind"] == 0) & (bank["u0"] < 0)))
+        sizes = [int(states_mask.sum())]
     B = min(4096, max(sizes))
 
     gs.init(backend=gs.gpu, precision="32", logging_level="warning", seed=a.seed, performance_mode=True)
@@ -165,8 +177,8 @@ def main() -> int:
     per_state = {}
     t0 = time.time()
     for L in levels:
-        name = names[L]
-        pool = env.levels[L]
+        name = a.states or names[L]
+        pool = env.levels[L] if not a.states else torch.nonzero(states_mask).flatten().to(dev)
         n = len(pool)
         if n > B:
             raise RuntimeError(f"{name} の評価状態 {n} が体の数 {B} より多い")
@@ -252,7 +264,7 @@ def main() -> int:
         n_ok = min(len(ok), a.n_video - n_ng)
         n_ng = min(len(ng), a.n_video - n_ok)
         pick = torch.cat([ok[torch.randperm(len(ok), generator=g, device="cpu")[:n_ok]], ng[torch.randperm(len(ng), generator=g, device="cpu")[:n_ng]]]).tolist()
-        mp4 = REPO_ROOT / "media" / "videos" / "getup" / f"{a.exp_name}_{ckpt}{a.tag}_{name}.mp4"
+        mp4 = REPO_ROOT / "media" / "videos" / "getup" / (f"{a.exp_name}_{ckpt}_{name}.mp4" if a.states else f"{a.exp_name}_{ckpt}{a.tag}_{name}.mp4")
         mp4.parent.mkdir(parents=True, exist_ok=True)
         writer = imageio.get_writer(str(mp4), fps=int(round(1 / dt_s)), codec="libx264", quality=7, macro_block_size=8)
         font = ImageFont.truetype(FONT, 26, index=0)
@@ -302,7 +314,7 @@ def main() -> int:
     # ---- 歩行中の転倒 F（kind 2）すべて（getup-v6、2026-10-30）: 段階は u0 で切るので、仰向けの F は L3 に入らない。
     #      実際の転び方にどこまで効くかを見るため、評価用の F を u0 によらず全部、いちばん上の段階として動かす（動画なし）
     f_pool = torch.nonzero((env.bank["kind"] == 2) & env.bank["eval"]).flatten()
-    if len(f_pool) and len(f_pool) <= B:
+    if not a.states and len(f_pool) and len(f_pool) <= B:
         L_top = len(names) - 1
         set_cond("dr")
         nF = len(f_pool)

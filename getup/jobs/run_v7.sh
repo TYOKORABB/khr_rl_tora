@@ -25,6 +25,7 @@ for cfg in hard hardflip; do
   gpu_check 15
   echo "[fail ] $(date '+%F %T') getup7-$cfg の失敗の型"
   "$PY" -m getup.tools.failure_modes -e "getup7-$cfg-s1" "getup7-$cfg-s2" "getup7-$cfg-s3" >"$LOGDIR/getup7-$cfg.failure.log" 2>&1 || echo "[warn ] failure_modes に失敗: $cfg"
+  "$PY" -m getup.tools.failure_modes --summary "experiments/getup/eval/failure_modes_getup7-$cfg-s1.json" >>"$LOGDIR/getup7-$cfg.failure.log" 2>&1 || echo "[warn ] 失敗の型の集計に失敗: $cfg"
 done
 "$PY" -m getup.tools.summarize_v7 || echo "[warn ] まとめに失敗"
 echo "[v7   ] $(date '+%F %T') すべて完了"

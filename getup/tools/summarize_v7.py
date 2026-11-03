@@ -43,6 +43,40 @@ def seed_metrics(exp: str, b) -> dict | None:
             "stand_all": json.loads(hold.read_text())["conds"]["dr"]["n_standing_all_window"] if hold.exists() else None}
 
 
+def beyond_rows(b) -> list:
+    """段階に入れていない向き（u0 < 0）からの成功（eval_getup --states、参考で判定には使わない）。行 = 状態の集まり、列 = 構成。
+    段階 L3 は u0 ≥ 0 だが、段階 L0 には関節を保持した u0 < 0 の状態が混ざるので、学習で全く見ていないわけではない（L3 の段階のリセットの約 3 %）。"""
+    groups = [("L0 の中の胸が上の状態（関節を保持）", "L0", lambda u0, limp: u0 < 0),
+              ("歩行中に転んだ状態の全部", "falls", lambda u0, limp: np.ones_like(u0, dtype=bool)),
+              ("主のバンクの胸が上の状態（u0 < 0）", "chest_up", lambda u0, limp: np.ones_like(u0, dtype=bool)),
+              ("　そのうち −1 ≤ u0 < −0.7", "chest_up", lambda u0, limp: u0 < -0.7),
+              ("　そのうち −0.7 ≤ u0 < −0.3", "chest_up", lambda u0, limp: (u0 >= -0.7) & (u0 < -0.3)),
+              ("　そのうち −0.3 ≤ u0 < 0", "chest_up", lambda u0, limp: u0 >= -0.3),
+              ("　そのうち脱力", "chest_up", lambda u0, limp: limp),
+              ("　そのうち関節を保持", "chest_up", lambda u0, limp: ~limp)]
+    rows, raw = [], {}
+    for name, st, f in groups:
+        cells = []
+        for arm, pat in ARMS.items():
+            vals = []
+            for sd in (1, 2, 3):
+                q = E / f"{pat.format(sd)}_{CKPT}{'' if st == 'L0' else '_' + st}_per_state.json"
+                if q.exists():
+                    r = json.loads(q.read_text())[st]
+                    idx = np.array(r["bank_idx"])
+                    m = f(b["u0"][idx], b["limp"][idx])
+                    vals.append(float(np.array(r["dr"]["success"])[m].mean()) * 100)
+                    n = int(m.sum())
+            raw.setdefault(name, {})[arm] = vals
+            cells.append("/".join(f"{v:.1f}" for v in vals) + f"（平均 {st_mean(vals):.1f}）" if vals else "—")
+        rows.append(f"| {name} | {n if vals else '—'} | " + " | ".join(cells) + " |")
+    return rows, raw
+
+
+def st_mean(v):
+    return sum(v) / len(v)
+
+
 def main() -> int:
     import torch
     b = {k: v.numpy() for k, v in torch.load(REPO_ROOT / "getup/data/banks/bank_v2.pt", map_location="cpu").items() if torch.is_tensor(v)}
@@ -83,8 +117,13 @@ def main() -> int:
         else:
             pick = "A hard" if a["pass"] else ("B hard + flipthr" if c["pass"] else None)
         L.append(f"**採る構成（plan §3 のとおり）: {pick or 'なし'}**")
+    rows_b, raw_b = beyond_rows(b)
+    L += ["", "## 段階に入れていない向き（u0 < 0）からの成功（参考、判定には使わない）", "",
+          "結果を見てから足した測定（`eval_getup --states`、ドメインランダム化あり、8 秒、いちばん上の段階の観測）。成功率は % で、シード 1・2・3 の順。",
+          "段階 L3 は u0 ≥ 0 だが、段階 L0 に関節を保持した u0 < 0 の状態が混ざるので、L3 の段階のリセットの約 3 % は u0 < 0 である（L0 が 20 %、その 14.8 %）。脱力の u0 < 0 は学習に入っていない。", "",
+          "| 最初の状態 | 状態の数 | " + " | ".join(ARMS) + " |", "|---|---|" + "---|" * len(ARMS)] + rows_b
     (EXPERIMENT_ROOT / "getup" / "v7_results.md").write_text("\n".join(L) + "\n", encoding="utf-8")
-    (EXPERIMENT_ROOT / "getup" / "v7_results.json").write_text(json.dumps({"data": data, "verdict": verdict}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    (EXPERIMENT_ROOT / "getup" / "v7_results.json").write_text(json.dumps({"data": data, "verdict": verdict, "beyond": raw_b}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print("\n".join(L))
     return 0
 
