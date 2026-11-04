@@ -16,6 +16,8 @@ ABL31_LOCK="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/logs/abl31/.lock
 heavy_running() { ps -eo cmd --no-headers | grep -E "WHISPER_CPP_MODEL|main\.py +--scheduled" | grep -v grep || true; }
 minutes_until_busy() {
   [ -n "$(heavy_running)" ] && { echo 0; return; }
+  # 本人の許可で whisper の cron を止めているあいだは、予定の時刻を見ない（logs/getup_jobs/whisper_pause/restore.sh が印を消す。2026-11-04）
+  [ -f "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/logs/getup_jobs/whisper_pause/PAUSED" ] && { echo 100000; return; }
   local now best=100000 start next
   now=$(( $(date +%-H) * 60 + $(date +%-M) ))
   for hm in $HEAVY_SCHEDULE; do
