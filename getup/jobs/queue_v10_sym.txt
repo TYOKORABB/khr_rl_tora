@@ -1,0 +1,10 @@
+# getup-v10 の追加: sym（対称性のデータ拡張）に C1・C2 を足す（2026-11-05 にユーザーが追加）。計画と判定の基準は experiments/getup/v10_plan.md §8（学習の前に固定）。
+getup10-symfliplim-s1  1 3000 train_getup10 --base sym --add fliplim
+getup10-symfliplim-s2  2 3000 train_getup10 --base sym --add fliplim
+getup10-symfliplim-s3  3 3000 train_getup10 --base sym --add fliplim
+getup10-symreplay-s1   1 3000 train_getup10 --base sym --add replay
+getup10-symreplay-s2   2 3000 train_getup10 --base sym --add replay
+getup10-symreplay-s3   3 3000 train_getup10 --base sym --add replay
+getup10-symboth-s1     1 3000 train_getup10 --base sym --add fliplim replay
+getup10-symboth-s2     2 3000 train_getup10 --base sym --add fliplim replay
+getup10-symboth-s3     3 3000 train_getup10 --base sym --add fliplim replay
