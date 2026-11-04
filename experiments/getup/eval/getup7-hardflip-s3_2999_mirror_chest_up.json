@@ -1,0 +1,167 @@
+{
+ "exp": "getup7-hardflip-s3",
+ "ckpt": 2999,
+ "seed": 0,
+ "date": "2026-11-04T15:51:28",
+ "bank": "getup/data/banks/bank_v2.pt",
+ "num_envs": 1823,
+ "episode_s": 7.98,
+ "train_episode_s": 8.0,
+ "success_cfg": {
+  "u_min": 0.966,
+  "delta_rad": 0.3,
+  "omega_max": 0.5,
+  "h_thr": 0.175,
+  "hold_s": 1.0
+ },
+ "torque_denominator": "URDF の effort（get_dofs_force_range の上限）",
+ "levels": {
+  "chest_up": {
+   "n_states": 1823,
+   "dr": {
+    "success": 0.9863,
+    "success_ci95": [
+     0.9798,
+     0.9907
+    ],
+    "n_success": 1798,
+    "gate": null,
+    "by_u0": {
+     "[-1.0,0.0)": {
+      "n": 1823,
+      "success": 0.9863
+     }
+    },
+    "cum_success_by_time": {
+     "1s": 0.0,
+     "2s": 0.0,
+     "3s": 0.1925,
+     "4s": 0.588,
+     "5s": 0.8409,
+     "6s": 0.9589,
+     "7s": 0.9781,
+     "8s": 0.9863
+    },
+    "time_to_success_median_s": 3.72,
+    "stand_end": 0.9951,
+    "sim_error_episodes": 0,
+    "torque_p99_pct": 54.3,
+    "torque_over90_pct_time": 0.111,
+    "torque_saturated_pct_time": 0.0,
+    "torque_cap_pct_of_spec": 90.0,
+    "torque_at_cap_pct_time": 0.1114,
+    "torque_at_cap_episodes": 0.9857,
+    "torque_ep_max_median_pct": 90.0,
+    "torque_ep_max_p90_pct": 90.0,
+    "dof_vel_p99": 1.38,
+    "torque_saturated_episodes": 0.0,
+    "torque_saturated_joints_top5": {},
+    "torque_first_saturation_s": null
+   },
+   "nominal": {
+    "success": 0.9885,
+    "success_ci95": [
+     0.9825,
+     0.9925
+    ],
+    "n_success": 1802,
+    "gate": null,
+    "by_u0": {
+     "[-1.0,0.0)": {
+      "n": 1823,
+      "success": 0.9885
+     }
+    },
+    "cum_success_by_time": {
+     "1s": 0.0,
+     "2s": 0.0,
+     "3s": 0.2348,
+     "4s": 0.6456,
+     "5s": 0.8985,
+     "6s": 0.9803,
+     "7s": 0.9868,
+     "8s": 0.9885
+    },
+    "time_to_success_median_s": 3.62,
+    "stand_end": 0.9896,
+    "sim_error_episodes": 0,
+    "torque_p99_pct": 53.0,
+    "torque_over90_pct_time": 0.0974,
+    "torque_saturated_pct_time": 0.0,
+    "torque_cap_pct_of_spec": 90.0,
+    "torque_at_cap_pct_time": 0.0977,
+    "torque_at_cap_episodes": 0.9841,
+    "torque_ep_max_median_pct": 90.0,
+    "torque_ep_max_p90_pct": 90.0,
+    "dof_vel_p99": 1.37,
+    "torque_saturated_episodes": 0.0,
+    "torque_saturated_joints_top5": {},
+    "torque_first_saturation_s": null
+   }
+  }
+ },
+ "videos": [
+  {
+   "level": "chest_up",
+   "path": "media/videos/getup/getup7-hardflip-s3_2999_mirror_chest_up.mp4",
+   "seconds": 47.9,
+   "episodes": [
+    {
+     "order": 1,
+     "bank_idx": 17775,
+     "u0": -0.786,
+     "eval_success": true,
+     "eval_t_s": 4.0,
+     "replay_success": true,
+     "replay_t_s": 3.88
+    },
+    {
+     "order": 2,
+     "bank_idx": 1099,
+     "u0": -0.258,
+     "eval_success": true,
+     "eval_t_s": 2.76,
+     "replay_success": true,
+     "replay_t_s": 2.74
+    },
+    {
+     "order": 3,
+     "bank_idx": 3644,
+     "u0": -0.697,
+     "eval_success": true,
+     "eval_t_s": 3.46,
+     "replay_success": true,
+     "replay_t_s": 3.48
+    },
+    {
+     "order": 4,
+     "bank_idx": 16366,
+     "u0": -0.853,
+     "eval_success": true,
+     "eval_t_s": 5.8,
+     "replay_success": true,
+     "replay_t_s": 5.3
+    },
+    {
+     "order": 5,
+     "bank_idx": 2767,
+     "u0": -0.204,
+     "eval_success": false,
+     "eval_t_s": null,
+     "replay_success": true,
+     "replay_t_s": 4.46
+    },
+    {
+     "order": 6,
+     "bank_idx": 1295,
+     "u0": -0.862,
+     "eval_success": false,
+     "eval_t_s": null,
+     "replay_success": true,
+     "replay_t_s": 5.96
+    }
+   ]
+  }
+ ],
+ "elapsed_s": 116.1
+}

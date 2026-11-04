@@ -34,6 +34,8 @@ def seed_metrics(pat: str, s: int, ck: int, tag: str, b) -> dict | None:
     side = (u0 >= 0) & (u0 < 0.5)
     L3 = r["levels"]["L3"]["dr"]
     hold = E / f"hold_{exp}_{ck}_n256.json"
+    if tag:
+        hold = E / "（反転ありの立った後の揺れは測っていない）"
     info = LOG_ROOT / exp / "run_info.json"
     promo = {x["level"]: x["iter"] for x in json.loads(info.read_text()).get("promotions", [])} if info.exists() else {}
     out = {"F": r["falls_all"]["success"], "L0": r["levels"]["L0"]["dr"]["success"], "L1": r["levels"]["L1"]["dr"]["success"], "L2": r["levels"]["L2"]["dr"]["success"], "L3": L3["success"],

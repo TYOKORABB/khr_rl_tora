@@ -42,12 +42,12 @@ def summarize(path: str) -> int:
     cls[~s & stood] = "still"
     q = b["quat"][idx]
     w, u = q[:, :1], -q[:, 1:]
-    v = torch.tensor([0.0, 0.0, -1.0]).expand(len(q), 3)
+    v = torch.tensor([0.0, 0.0, -1.0], device=q.device).expand(len(q), 3)   # gs.init のあとは既定の置き場所が GPU になる
     t = 2 * torch.cross(u, v, dim=-1)
-    g = (v + w * t + torch.cross(u, t, dim=-1)).numpy()
-    u0, gz = b["u0"][idx].numpy(), g[:, 2]
-    limp = b["limp"][idx].numpy()
-    Q = b["q"][idx].numpy()
+    g = (v + w * t + torch.cross(u, t, dim=-1)).cpu().numpy()
+    u0, gz = b["u0"][idx].cpu().numpy(), g[:, 2]
+    limp = b["limp"][idx].cpu().numpy()
+    Q = b["q"][idx].cpu().numpy()
     roll = (np.abs(Q[:, JOINT_NAMES.index("l_shoulder_roll")]) + np.abs(Q[:, JOINT_NAMES.index("r_shoulder_roll")])) / 2
     side, high = (u0 >= 0) & (u0 < 0.5), u0 >= 0.5
     groups = [("全部", np.ones_like(u0, dtype=bool)), ("u0 ≥ 0.5", high), ("0 ≤ u0 < 0.5（横倒しの範囲）", side),
@@ -57,7 +57,7 @@ def summarize(path: str) -> int:
               ("保持・腕が閉じている", side & ~limp & (roll < 0.5)), ("保持・腕が開いている", side & ~limp & (roll >= 0.5))]
     chest = u0 < 0
     if chest.any():      # getup-v8（L4）: 胸が上の範囲と、歩行中に転んだ状態
-        kind = b["kind"][idx].numpy()
+        kind = b["kind"][idx].cpu().numpy()
         groups += [("u0 < 0（胸が上の範囲）", chest), ("胸が上・u0 < −0.7", u0 < -0.7), ("胸が上・−0.7 ≤ u0 < −0.3", (u0 >= -0.7) & (u0 < -0.3)), ("胸が上・−0.3 ≤ u0 < 0", (u0 >= -0.3) & chest),
                    ("胸が上・脱力", chest & limp), ("胸が上・関節を保持", chest & ~limp),
                    ("胸が上・脱力・腕が閉じている", chest & limp & (roll < 0.5)), ("胸が上・脱力・腕が開いている", chest & limp & (roll >= 0.5)),
