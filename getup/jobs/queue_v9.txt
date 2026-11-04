@@ -1,0 +1,8 @@
+# getup-v9: v7 の B に左右対称を入れる（2026-11-04）。計画と判定の基準は experiments/getup/v9_plan.md（学習の前に固定）。
+# 途中で止まっても両方の構成を比べられるよう、canon と sym を交互に回す。
+getup9-canon-s1  1 3000 train_getup9 --add canon
+getup9-sym-s1    1 3000 train_getup9 --add sym
+getup9-canon-s2  2 3000 train_getup9 --add canon
+getup9-sym-s2    2 3000 train_getup9 --add sym
+getup9-canon-s3  3 3000 train_getup9 --add canon
+getup9-sym-s3    3 3000 train_getup9 --add sym

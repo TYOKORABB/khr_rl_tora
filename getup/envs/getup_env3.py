@@ -196,6 +196,15 @@ class GetupEnv:
                 if not m.any():
                     raise ValueError(f"{name} の苦手な状態がない")
                 self.hard_pools[L] = (torch.nonzero(m).flatten(), float(spec["share"]))
+        # 左右反転のスイッチ（getup-v9、11/4）: 左の体側が下のあいだ、観測と行動を左右反転する。env_cfg["mirror_switch"] が無ければ前と同じ
+        self.mir = None
+        if env_cfg.get("mirror_switch"):
+            from khr_common.mirror import CONTACT_GROUP_NAMES, END_LINKS as M_END_LINKS, Mirror
+            if tuple(CONTACT_GROUPS) != CONTACT_GROUP_NAMES or END_LINKS != M_END_LINKS:
+                raise ValueError("khr_common/mirror.py の特権観測の並びが環境と合わない")
+            self.mir = Mirror(self.device)
+            self.m_on = torch.zeros(B, dtype=torch.bool, device=self.device)
+            self.m_frozen = torch.zeros(B, dtype=torch.bool, device=self.device)
         self.level = len(self.levels) - 1 if level is None and eval_mode else (level or 0)
         self.fixed_level = eval_mode or level is not None
         self.recent = deque(maxlen=cur["promote_window"])
@@ -307,6 +316,18 @@ class GetupEnv:
             torch.full((self.num_envs, 1), self.level / max(1, len(self.levels) - 1), device=self.device, dtype=gs.tc_float)], dim=-1)
         for buf in (self.obs_buf, self.privileged_obs_buf):
             torch.nan_to_num_(buf, nan=0.0, posinf=0.0, neginf=0.0)
+        if self.mir is not None:
+            self._mirror_update()
+
+    def _mirror_update(self):
+        """|gy| > 0.5 かつ u < 0.7 のあいだ「左が下なら反転」を更新し、u ≥ 0.7 に達したら固定する（観測の値で決めるので実機でも同じ。getup/tools/diag_mirror.py）。"""
+        o, p = self.obs_buf, self.privileged_obs_buf
+        u, gy = o[:, 3], o[:, 4]
+        self.m_frozen |= u >= 0.7
+        self.m_on = torch.where(~self.m_frozen & (gy.abs() > 0.5), gy > 0, self.m_on)
+        mm = self.m_on.unsqueeze(1)
+        self.obs_buf = torch.where(mm, self.mir.policy_obs(o), o)
+        self.privileged_obs_buf = torch.where(mm, self.mir.privileged_obs(p), p)
 
     def get_observations(self):
         return TensorDict({"policy": self.obs_buf, "privileged": self.privileged_obs_buf}, batch_size=[self.num_envs])
@@ -314,6 +335,8 @@ class GetupEnv:
     # ---- 1 ステップ ---------------------------------------------------------------------------------
     def step(self, actions):
         self.actions = actions.clamp(-1.0, 1.0)
+        if self.mir is not None:      # 方策は反転した世界で考えているので、行動を実際の左右に戻す
+            self.actions = torch.where(self.m_on.unsqueeze(1), self.mir.action(self.actions), self.actions)
         # 今回送る目標角（サーボの角度）。gap があれば、直前に観測した関節角 ± gap に収める（v2）
         q_cmd = self.post(self.actions, self.q_tgt_prev, self.q_obs_prev if self.post.gap is not None else None)
         if self.lat_n > 1 and self.env_cfg["simulate_action_latency"]:
@@ -409,6 +432,8 @@ class GetupEnv:
                 ep["success_rate_current_level"] = done_ok[done_lv == self.level].float().mean()
                 ep["stand_end_rate_current_level"] = done_stand[done_lv == self.level].float().mean()
             ep["level"] = torch.tensor(float(self.level))
+            if self.mir is not None:
+                ep["mirror_on"] = self.m_on[ids].float().mean()
             ep["sim_error_resets"] = torch.tensor(float(self._sim_error_count) / self.num_envs)
             ep["u0_mean"] = self.ep_u0[ids].mean()
             ep["h_base_max_mean"] = self.ep_hmax[ids].mean()
@@ -462,6 +487,9 @@ class GetupEnv:
         self.q_obs_prev[ids] = q_obs[ids]
         frame = torch.cat([w, gv, q_obs - self.q_nom], dim=-1)[ids]
         self.hist[ids] = frame.unsqueeze(1).repeat(1, self.obs_cfg["history"], 1)
+        if self.mir is not None:
+            self.m_on[ids] = False
+            self.m_frozen[ids] = False
         self.episode_length_buf[ids] = 0
         self.succ_hold[ids] = 0
         self.stand_hold[ids] = 0

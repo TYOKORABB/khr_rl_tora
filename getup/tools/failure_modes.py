@@ -93,6 +93,7 @@ def main() -> int:
     ap.add_argument("--ckpt", type=int, default=None)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--cpu", action="store_true", help="CPU で動かす（動作確認用）")
+    ap.add_argument("--mirror", action="store_true", help="左右反転のスイッチを入れて動かす（getup-v9）。記録の名前に _mirror を足す")
     a = ap.parse_args()
     chdir_repo_root()
     if a.summary:
@@ -109,6 +110,8 @@ def main() -> int:
         ckpt = a.ckpt if a.ckpt is not None else latest_ckpt(log)
         env_cfg, obs_cfg, reward_cfg, train_cfg = pickle.load(open(log / "cfgs.pkl", "rb"))
         top = len(env_cfg["curriculum"]["levels"]) - 1
+        if a.mirror:
+            env_cfg = dict(env_cfg, mirror_switch=True)
         if env is None:
             GetupEnv = importlib.import_module(env_cfg["env_module"]).GetupEnv
             from getup.levels import level_mask
@@ -157,7 +160,7 @@ def main() -> int:
                             "dq_last": np.round(c(dq_last), 3).tolist(), "tq_last": np.round(c(tq_last), 4).tolist(),
                             "w_last": np.round(c(w_last), 3).tolist(), "sim_error": int(bad.sum())}
         print(f"[{exp}] 成功 {float(((first > 0) & ~bad).float().mean()) * 100:.1f} %（{B} 状態）", flush=True)
-    p = EXPERIMENT_ROOT / "getup" / "eval" / f"failure_modes_{a.exps[0]}.json"
+    p = EXPERIMENT_ROOT / "getup" / "eval" / f"failure_modes_{a.exps[0]}{'_mirror' if a.mirror else ''}.json"
     p.write_text(json.dumps(out) + "\n")
     print(f"-> {p}")
     return summarize(str(p))

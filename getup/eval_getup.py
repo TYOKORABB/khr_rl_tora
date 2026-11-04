@@ -71,9 +71,12 @@ def main() -> int:
                     help="段階の代わりに、評価用の状態をこの集まりにして、いちばん上の段階の観測で動かす（getup-v7 の確かめ）。"
                          "falls = 歩行中に転んだ状態の全部、chest_up = 主のバンクで胸が上を向いた状態（u0 < 0）。記録は _<名前> を付け、元の記録を上書きしない")
     ap.add_argument("--cpu", action="store_true", help="CPU で動かす（動作確認用）")
+    ap.add_argument("--mirror", action="store_true", help="左右反転のスイッチを入れて動かす（学習し直さない。getup-v9。記録と動画の名前に _mirror を足す）")
     a = ap.parse_args()
     if a.states:
         a.tag = a.tag or f"_{a.states}"
+    if a.mirror:
+        a.tag = "_mirror" + a.tag
     if a.n_video < 1:
         ap.error("--n_video は 1 以上（検証では毎回動画を撮る）")
     chdir_repo_root()
@@ -89,6 +92,8 @@ def main() -> int:
     env_cfg, obs_cfg, reward_cfg, train_cfg = pickle.load(open(log / "cfgs.pkl", "rb"))
     train_episode_s = float(env_cfg["episode_length_s"])
     env_cfg = dict(env_cfg, episode_length_s=a.episode_s if a.episode_s is not None else train_episode_s)
+    if a.mirror:
+        env_cfg = dict(env_cfg, mirror_switch=True)
     names = env_cfg["curriculum"]["levels"]
     levels = a.levels if a.levels is not None else list(range(len(names)))
     if a.states:
@@ -265,7 +270,7 @@ def main() -> int:
         n_ok = min(len(ok), a.n_video - n_ng)
         n_ng = min(len(ng), a.n_video - n_ok)
         pick = torch.cat([ok[torch.randperm(len(ok), generator=g, device="cpu")[:n_ok]], ng[torch.randperm(len(ng), generator=g, device="cpu")[:n_ng]]]).tolist()
-        mp4 = REPO_ROOT / "media" / "videos" / "getup" / (f"{a.exp_name}_{ckpt}_{name}.mp4" if a.states else f"{a.exp_name}_{ckpt}{a.tag}_{name}.mp4")
+        mp4 = REPO_ROOT / "media" / "videos" / "getup" / (f"{a.exp_name}_{ckpt}{a.tag}.mp4" if a.states else f"{a.exp_name}_{ckpt}{a.tag}_{name}.mp4")
         mp4.parent.mkdir(parents=True, exist_ok=True)
         writer = imageio.get_writer(str(mp4), fps=int(round(1 / dt_s)), codec="libx264", quality=7, macro_block_size=8)
         font = ImageFont.truetype(FONT, 26, index=0)
@@ -294,7 +299,8 @@ def main() -> int:
                 lines = [(f"{a.exp_name}  ckpt {ckpt}  段階 {name}  {j + 1}/{len(pick)}", font),
                          (f"状態 #{st_id}  u0 = {st_u0:+.2f}   評価の結果: {ev_txt}（成功の時刻 = 条件を 1 秒続けて満たし終えた時刻）", font_s),
                          (f"t = {(t + 1) * dt_s:4.2f} 秒   " + (f"成功（{state['succ_t']:.2f} 秒）" if state["succ_t"] else
-                          ("立っている（角速度以外）" if bool(env._standing_now[0]) else "")), font_s)]
+                          ("立っている（角速度以外）" if bool(env._standing_now[0]) else "")) +
+                          ("   左右反転中" if getattr(env, "mir", None) is not None and bool(env.m_on[0]) else ""), font_s)]
                 y = 12
                 for txt, fo in lines:
                     d.text((16, y), txt, font=fo, fill=(255, 255, 255), stroke_width=2, stroke_fill=(0, 0, 0))
