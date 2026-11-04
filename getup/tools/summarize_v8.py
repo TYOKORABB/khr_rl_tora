@@ -87,17 +87,18 @@ def main() -> int:
             ("成功までの時間の中央値 s（L4）", "t_med_L4", 1), ("成功までの時間の中央値 s（L3）", "t_med_L3", 1), ("立ち続けた体（256 中、L2）", "stand_all", 1),
             ("L3 に上がったイテレーション", "promo_L3", 1), ("L4 に上がったイテレーション", "promo_L4", 1)]
 
-    def cell(vals):
+    def cell(vals, integer=False):
         if not vals:
             return "—"
-        fm = "/".join(f"{v:.1f}" if abs(v) >= 1 else f"{v:.3f}" for v in vals)
+        fm = "/".join(f"{v:.0f}" if integer else (f"{v:.1f}" if abs(v) >= 1 else f"{v:.3f}") for v in vals)
         return fm + (f"（平均 {st.mean(vals):.1f}）" if len(vals) >= 2 and abs(st.mean(vals)) >= 1 else "")
     L = ["# getup-v8 の結果（段階 L4）", "", "計画と判定の基準は `v8_plan.md`（学習の前に固定）。自動生成（`getup/tools/summarize_v8.py`）。成功率は % で、シード 1・2・3 の順。", "",
          "| 指標 | v7 の B | v8 |", "|---|---|---|"]
     for name, key, sc in rows:
         v8 = [d[key] * sc for d in ds if d is not None and d.get(key) is not None]
         v_b = [d[key7[key]] * sc for d in d7 if key in key7 and d.get(key7[key]) is not None]
-        L.append(f"| {name} | {cell(v_b)} | {cell(v8)} |")
+        integer = key in ("stand_all", "promo_L3", "promo_L4")
+        L.append(f"| {name} | {cell(v_b, integer)} | {cell(v8, integer)} |")
     L += ["", "## 判定", ""]
     verdict = None
     if any(d is None for d in ds):
@@ -113,6 +114,17 @@ def main() -> int:
     rows_b, raw_b = chest_up_rows(b, v7["beyond"])
     L += ["", "## 胸が上の範囲（`eval_getup --states`、v7 の B と同じ測り方）", "", "ドメインランダム化あり、8 秒。成功率は % で、シード 1・2・3 の順。主な指標の `falls_all` とは個体差の抽選が違う。", "",
           "| 最初の状態 | 状態の数 | v7 の B | v8 |", "|---|---|---|---|"] + rows_b
+    L += ["", "## L3 に上がってからの転んだ状態の成功（結果を見てから足した測定、判定には使わない）", "",
+          "`eval_getup --ckpt <番号> --states falls`（ドメインランダム化あり、8 秒）。v8 は L4 に上がる直前のチェックポイントと最後、v7 の B は L3 に上がってすぐと約 500 イテレーション後と最後。", "",
+          "| 構成 | シード | L3 に上がったイテレーション | チェックポイント | L3 に上がってからのイテレーション | 成功 % |", "|---|---|---|---|---|---|"]
+    entry = [("v8", PAT, 1, 1644, (1800, 3999)), ("v8", PAT, 2, 1541, (1700, 3999)), ("v8", PAT, 3, 600, (800, 3999)),
+             ("v7 の B", "getup7-hardflip-s{}", 2, 1457, (1700, 2000, 2999)), ("v7 の B", "getup7-hardflip-s{}", 3, 1324, (1500, 1800, 2999))]
+    for arm, pat, sd, up, ckpts in entry:
+        for ck in ckpts:
+            q = E / f"{pat.format(sd)}_{ck}_falls.json"
+            if q.exists():
+                lv = json.loads(q.read_text())["levels"]["falls"]
+                L.append(f"| {arm} | {sd} | {up} | {ck} | {ck - up} | {lv['dr']['n_success'] / lv['n_states'] * 100:.1f} |")
     (EXPERIMENT_ROOT / "getup" / "v8_results.md").write_text("\n".join(L) + "\n", encoding="utf-8")
     (EXPERIMENT_ROOT / "getup" / "v8_results.json").write_text(json.dumps({"data": ds, "verdict": verdict, "chest_up": raw_b}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print("\n".join(L))
