@@ -23,10 +23,11 @@
 | `train_getup6.py`・`train_getup7.py`・`train_getup8.py` | getup-v6（段階 L3、`bank_v2`）、v7（`--add hard flipthr`、L3 の弱点の改善）、v8（v7 の B ＋ 段階 L4）。v7・v8 は v6 の main に設定だけを差し替える。環境は `getup_env3` |
 | `tools/failure_modes.py` | 評価用の状態を動かし直して、失敗を型（胸を向けられない・姿勢の条件に入らない・立つが静止しない）に分ける（GPU） |
 | `train_getup9.py`・`sym_aug.py` | getup-v9（v7 の B ＋ `--add canon`（左右反転のスイッチを入れて学習）または `--add sym`（rsl-rl の対称性のデータ拡張））。部品は `khr_common/mirror.py`、環境の `mirror_switch`、学習済みの方策には `eval_getup --mirror` |
+| `train_getup10.py`・`envs/getup_env4.py` | getup-v10（`--base none/canon/sym` に `--add still pose fliplim replay` を足す）。使わない項は getup_env3 と同じ |
 | `tools/check_mirror.py` | 左右反転の並びを、鏡像の状態を置いて物理で確かめる（CPU、1 分以内） |
-| `tools/diag_levers.py`・`tools/diag_stuck.py`・`tools/diag_mirror.py` | 学習し直さない診断（GPU、各 5〜10 分）。評価のときだけ条件を変える、止まった姿勢を調べる、方策を左右反転して動かす。結果は `experiments/getup/eval/diag_*.json`、まとめは `docs/GetUpImprovementOptions.md` |
-| `tools/summarize_v7.py`・`tools/summarize_v8.py`・`tools/summarize_v9.py` | 版の結果の表と、学習の前に固定した基準での判定を `experiments/getup/v{7,8}_results.md` に書く |
-| `jobs/run_v7.sh`・`jobs/run_v8.sh`・`jobs/run_v9.sh` | 学習 → 検証 → 追加の動画 → 失敗の型 → まとめ を自動で回す |
+| `tools/diag_levers.py`・`tools/diag_stuck.py`・`tools/diag_mirror.py`・`tools/diag_sym.py` | 学習し直さない診断（GPU、各 5〜10 分）。評価のときだけ条件を変える、止まった姿勢を調べる、方策を左右反転して動かす。結果は `experiments/getup/eval/diag_*.json`、まとめは `docs/GetUpImprovementOptions.md` |
+| `tools/summarize_v7.py`・`tools/summarize_v8.py`・`tools/summarize_v9.py`・`tools/summarize_v10.py` | 版の結果の表と、学習の前に固定した基準での判定を `experiments/getup/v{7,8}_results.md` に書く |
+| `jobs/run_v7.sh`・`jobs/run_v8.sh`・`jobs/run_v9.sh`・`jobs/run_v10.sh` | 学習 → 検証 → 追加の動画 → 失敗の型 → まとめ を自動で回す |
 | `ppo_bound.py` | `PPOBound`: rsl-rl 5.4.0 の PPO に、行動の平均が ±1 を超えた分の 2 乗の罰（bound loss）を足したもの（v2 から） |
 | `eval_getup.py` | 学習後の検証。評価用の全状態を決定的な方策で動かし、成功率・トルクなどを `experiments/getup/eval/` に、**毎回、段階ごとに 6 エピソードの動画**を `media/videos/getup/` に（GPU）。エピソードは既定で学習と同じ長さ（`--episode_s` で変える）、`--tag` で記録の名前を分ける |
 | `jobs/train_eval.sh` | 学習 → 検証（動画つき）→ 立った後の揺れとトルク（`hold_analysis`）を続けて行う。5 番目から先の引数は学習の版へ渡す。whisper の解析が走っているとき・次の開始までに終わらないときは始めない（`--wait` で空くまで待つ） |
