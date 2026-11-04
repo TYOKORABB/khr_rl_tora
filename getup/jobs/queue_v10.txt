@@ -1,0 +1,13 @@
+# getup-v10: 候補 B・C を優先度順に 1 つずつ、A1 の土台（v7 の B、学習にスイッチなし、検証は --mirror）に足す（2026-11-05）。計画と判定の基準は experiments/getup/v10_plan.md（学習の前に固定）。
+getup10-still-s1    1 3000 train_getup10 --base none --add still
+getup10-still-s2    2 3000 train_getup10 --base none --add still
+getup10-still-s3    3 3000 train_getup10 --base none --add still
+getup10-pose-s1     1 3000 train_getup10 --base none --add pose
+getup10-pose-s2     2 3000 train_getup10 --base none --add pose
+getup10-pose-s3     3 3000 train_getup10 --base none --add pose
+getup10-fliplim-s1  1 3000 train_getup10 --base none --add fliplim
+getup10-fliplim-s2  2 3000 train_getup10 --base none --add fliplim
+getup10-fliplim-s3  3 3000 train_getup10 --base none --add fliplim
+getup10-replay-s1   1 3000 train_getup10 --base none --add replay
+getup10-replay-s2   2 3000 train_getup10 --base none --add replay
+getup10-replay-s3   3 3000 train_getup10 --base none --add replay

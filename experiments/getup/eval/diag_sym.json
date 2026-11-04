@@ -1,0 +1,38 @@
+{
+ "getup9-sym-s1": {
+  "n": 2769,
+  "success": 0.9801372336583605,
+  "stuck": 0.0007222824124232575,
+  "stuck_left": 0.00036114120621162876,
+  "stuck_right": 0.0,
+  "stuck_other": 0.00036114120621162876,
+  "u_end_stuck_median": -0.5204665660858154,
+  "gy_abs_stuck_median": 0.5130655169487,
+  "success_chestup": 0.9782809611829945,
+  "success_side_limp": 0.9899328859060402
+ },
+ "getup9-sym-s2": {
+  "n": 2769,
+  "success": 0.1708197905381004,
+  "stuck": 0.8291802094618996,
+  "stuck_left": 0.323943661971831,
+  "stuck_right": 0.27916215240158904,
+  "stuck_other": 0.2260743950884796,
+  "u_end_stuck_median": 0.339752733707428,
+  "gy_abs_stuck_median": 0.8120933771133423,
+  "success_chestup": 0.044824399260628464,
+  "success_side_limp": 0.36577181208053694
+ },
+ "getup9-sym-s3": {
+  "n": 2769,
+  "success": 0.1668472372697725,
+  "stuck": 0.8331527627302275,
+  "stuck_left": 0.3131094257854821,
+  "stuck_right": 0.27338389310220296,
+  "stuck_other": 0.24665944384254243,
+  "u_end_stuck_median": 0.3331815004348755,
+  "gy_abs_stuck_median": 0.8598060011863708,
+  "success_chestup": 0.04390018484288355,
+  "success_side_limp": 0.3422818791946309
+ }
+}
