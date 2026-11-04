@@ -22,6 +22,7 @@
 | `envs/getup_env3.py`・`train_getup3.py` | getup-v3（v2 ＋ エピソード 16 秒・シミュのトルクの上限を仕様の 90 %・行動の変化と 2 階差分の罰・目標角の速さの制限 0.03 rad/歩・エントロピー 0）。検証の割合は仕様に対する値で、上限に張り付いた時間も記録する |
 | `train_getup6.py`・`train_getup7.py`・`train_getup8.py` | getup-v6（段階 L3、`bank_v2`）、v7（`--add hard flipthr`、L3 の弱点の改善）、v8（v7 の B ＋ 段階 L4）。v7・v8 は v6 の main に設定だけを差し替える。環境は `getup_env3` |
 | `tools/failure_modes.py` | 評価用の状態を動かし直して、失敗を型（胸を向けられない・姿勢の条件に入らない・立つが静止しない）に分ける（GPU） |
+| `tools/diag_levers.py`・`tools/diag_stuck.py`・`tools/diag_mirror.py` | 学習し直さない診断（GPU、各 5〜10 分）。評価のときだけ条件を変える、止まった姿勢を調べる、方策を左右反転して動かす。結果は `experiments/getup/eval/diag_*.json`、まとめは `docs/GetUpImprovementOptions.md` |
 | `tools/summarize_v7.py`・`tools/summarize_v8.py` | 版の結果の表と、学習の前に固定した基準での判定を `experiments/getup/v{7,8}_results.md` に書く |
 | `jobs/run_v7.sh`・`jobs/run_v8.sh` | 学習 → 検証 → 追加の動画 → 失敗の型 → まとめ を自動で回す |
 | `ppo_bound.py` | `PPOBound`: rsl-rl 5.4.0 の PPO に、行動の平均が ±1 を超えた分の 2 乗の罰（bound loss）を足したもの（v2 から） |

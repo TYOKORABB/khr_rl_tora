@@ -1,0 +1,550 @@
+{
+ "states": 4204,
+ "stuck": {
+  "v7 B s1": {
+   "n": 1531,
+   "share_of_all_pct": 36.4,
+   "u_median": 0.329,
+   "u_std": 0.135,
+   "gy_median": 0.839,
+   "gy_std": 0.037,
+   "h_median": 0.081,
+   "h_std": 0.0011,
+   "joint_std_median_rad": 0.043,
+   "joints_at_limit_mean": 0.0,
+   "joint_median_from_nominal_rad": {
+    "l_ankle_pitch": -1.13,
+    "l_elbow_pitch": -1.07,
+    "r_elbow_pitch": -0.89,
+    "r_hip_pitch": 0.51,
+    "c_head_yaw": 0.49,
+    "r_shoulder_pitch": 0.45
+   },
+   "links_on_floor_pct": {
+    "l_hipjointlower": 89.6,
+    "l_ankle": 81.1,
+    "l_elbow": 73.7,
+    "r_foot": 8.2
+   },
+   "from_start_u0": {
+    "u0<0": 91.4,
+    "0≤u0<0.5": 8.3,
+    "u0≥0.5": 0.3
+   },
+   "escape_8s_pct": {
+    "v7 B s3": 99.2,
+    "v7 B s2": 93.4,
+    "v8 s1": 0.3,
+    "v7 B s1": 0.0
+   },
+   "escape_t_median_s": {
+    "v7 B s3": 3.46,
+    "v7 B s2": 3.74,
+    "v8 s1": 4.34,
+    "v7 B s1": null
+   }
+  },
+  "v8 s2": {
+   "n": 1518,
+   "share_of_all_pct": 36.1,
+   "u_median": 0.516,
+   "u_std": 0.016,
+   "gy_median": 0.848,
+   "gy_std": 0.01,
+   "h_median": 0.075,
+   "h_std": 0.0014,
+   "joint_std_median_rad": 0.024,
+   "joints_at_limit_mean": 0.0,
+   "joint_median_from_nominal_rad": {
+    "l_hip_pitch": 1.05,
+    "l_ankle_pitch": 0.95,
+    "l_knee_pitch": 0.88,
+    "r_ankle_pitch": 0.66,
+    "c_chest_yaw": -0.58,
+    "r_elbow_yaw": -0.46
+   },
+   "links_on_floor_pct": {
+    "l_foot": 83.4,
+    "l_lowerarm": 75.9,
+    "l_upperarm": 43.5,
+    "r_foot": 27.1,
+    "l_elbow": 20.5,
+    "l_lowerleg": 20.4
+   },
+   "from_start_u0": {
+    "u0<0": 91.7,
+    "0≤u0<0.5": 7.9,
+    "u0≥0.5": 0.4
+   },
+   "escape_8s_pct": {
+    "v7 B s3": 98.6,
+    "v7 B s2": 95.5,
+    "v8 s1": 0.0,
+    "v8 s2": 0.0
+   },
+   "escape_t_median_s": {
+    "v7 B s3": 4.1,
+    "v7 B s2": 3.96,
+    "v8 s1": null,
+    "v8 s2": null
+   }
+  },
+  "v8 s3": {
+   "n": 1448,
+   "share_of_all_pct": 34.4,
+   "u_median": 0.341,
+   "u_std": 0.04,
+   "gy_median": 0.845,
+   "gy_std": 0.018,
+   "h_median": 0.0808,
+   "h_std": 0.0006,
+   "joint_std_median_rad": 0.028,
+   "joints_at_limit_mean": 0.0,
+   "joint_median_from_nominal_rad": {
+    "l_ankle_pitch": -1.18,
+    "r_elbow_yaw": 0.53,
+    "l_elbow_pitch": -0.47,
+    "r_knee_pitch": 0.39,
+    "c_head_yaw": -0.39,
+    "r_ankle_pitch": 0.35
+   },
+   "links_on_floor_pct": {
+    "l_ankle": 85.9,
+    "l_hipjointlower": 84.1,
+    "l_elbow": 64.7,
+    "r_foot": 2.3
+   },
+   "from_start_u0": {
+    "u0<0": 91.4,
+    "0≤u0<0.5": 8.3,
+    "u0≥0.5": 0.3
+   },
+   "escape_8s_pct": {
+    "v7 B s3": 99.1,
+    "v7 B s2": 92.2,
+    "v8 s1": 0.0,
+    "v8 s3": 0.0
+   },
+   "escape_t_median_s": {
+    "v7 B s3": 3.52,
+    "v7 B s2": 3.74,
+    "v8 s1": null,
+    "v8 s3": null
+   }
+  }
+ },
+ "path": {
+  "v7 B s1": {
+   "chest_up_success_pct": 31.1,
+   "reach_u03_pct": 98.8,
+   "t_reach_u03_median_s": 1.22,
+   "gy_at_u03_positive_pct": 69.1,
+   "success_when_gy_pos_pct": 1.4,
+   "success_when_gy_neg_pct": 98.9,
+   "t_u03_to_u07_median_s": 0.36
+  },
+  "v7 B s2": {
+   "chest_up_success_pct": 90.9,
+   "reach_u03_pct": 99.8,
+   "t_reach_u03_median_s": 1.06,
+   "gy_at_u03_positive_pct": 69.0,
+   "success_when_gy_pos_pct": 90.9,
+   "success_when_gy_neg_pct": 91.5,
+   "t_u03_to_u07_median_s": 0.28
+  },
+  "v7 B s3": {
+   "chest_up_success_pct": 98.7,
+   "reach_u03_pct": 100.0,
+   "t_reach_u03_median_s": 1.5,
+   "gy_at_u03_positive_pct": 1.2,
+   "success_when_gy_pos_pct": 100.0,
+   "success_when_gy_neg_pct": 98.7,
+   "t_u03_to_u07_median_s": 0.14
+  },
+  "v8 s1": {
+   "chest_up_success_pct": 60.1,
+   "reach_u03_pct": 100.0,
+   "t_reach_u03_median_s": 1.24,
+   "gy_at_u03_positive_pct": 41.8,
+   "success_when_gy_pos_pct": 5.3,
+   "success_when_gy_neg_pct": 99.4,
+   "t_u03_to_u07_median_s": 0.24
+  },
+  "v8 s2": {
+   "chest_up_success_pct": 28.2,
+   "reach_u03_pct": 100.0,
+   "t_reach_u03_median_s": 1.08,
+   "gy_at_u03_positive_pct": 71.6,
+   "success_when_gy_pos_pct": 4.2,
+   "success_when_gy_neg_pct": 88.8,
+   "t_u03_to_u07_median_s": 0.72
+  },
+  "v8 s3": {
+   "chest_up_success_pct": 33.3,
+   "reach_u03_pct": 99.9,
+   "t_reach_u03_median_s": 1.18,
+   "gy_at_u03_positive_pct": 66.2,
+   "success_when_gy_pos_pct": 2.4,
+   "success_when_gy_neg_pct": 94.1,
+   "t_u03_to_u07_median_s": 0.32
+  }
+ },
+ "reward": {
+  "v7 B s1": {
+   "terms": {
+    "height": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.16,
+     0.37,
+     0.55,
+     1.83
+    ],
+    "upright": [
+     0.01,
+     0.16,
+     0.36,
+     0.45,
+     0.68,
+     0.77,
+     0.86,
+     0.99
+    ],
+    "pose": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.01,
+     1.49
+    ],
+    "success": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     2.09
+    ],
+    "body_ground_contact": [
+     -0.01,
+     -0.06,
+     -0.03,
+     -0.01,
+     -0.2,
+     -0.02,
+     -0.0,
+     0.0
+    ],
+    "torque_limits": [
+     -0.0,
+     -0.0,
+     -0.0,
+     -0.0,
+     -0.0,
+     -0.22,
+     -0.23,
+     -0.02
+    ],
+    "dof_vel_limits": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "dof_pos_limits": [
+     -0.35,
+     -0.31,
+     -0.2,
+     -0.02,
+     -0.58,
+     -1.5,
+     -0.39,
+     -0.01
+    ],
+    "action_rate": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "total": [
+    -0.36,
+    -0.21,
+    0.13,
+    0.41,
+    0.05,
+    -0.61,
+    0.8,
+    6.36
+   ],
+   "joints_at_limit": [
+    0.07,
+    0.06,
+    0.04,
+    0.0,
+    0.12,
+    0.3,
+    0.08,
+    0.0
+   ],
+   "body_steps": [
+    81300,
+    45064,
+    73349,
+    463183,
+    8041,
+    10767,
+    21993,
+    973699
+   ],
+   "u_bins": [
+    "-1.0〜-0.5",
+    "-0.5〜0.0",
+    "0.0〜0.3",
+    "0.3〜0.6",
+    "0.6〜0.7",
+    "0.7〜0.8",
+    "0.8〜0.9",
+    "0.9〜1.0"
+   ]
+  },
+  "v7 B s3": {
+   "terms": {
+    "height": [
+     0.0,
+     0.0,
+     0.0,
+     0.01,
+     0.17,
+     0.4,
+     0.56,
+     1.87
+    ],
+    "upright": [
+     0.02,
+     0.14,
+     0.32,
+     0.53,
+     0.68,
+     0.77,
+     0.86,
+     0.99
+    ],
+    "pose": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.53
+    ],
+    "success": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     2.21
+    ],
+    "body_ground_contact": [
+     -0.01,
+     -0.03,
+     -0.07,
+     -0.41,
+     -0.33,
+     -0.05,
+     -0.0,
+     0.0
+    ],
+    "torque_limits": [
+     -0.0,
+     -0.0,
+     -0.0,
+     -0.0,
+     -0.0,
+     -0.32,
+     -0.2,
+     -0.02
+    ],
+    "dof_vel_limits": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "dof_pos_limits": [
+     -0.4,
+     -0.3,
+     -0.8,
+     -0.78,
+     -0.71,
+     -1.14,
+     -0.33,
+     -0.01
+    ],
+    "action_rate": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "total": [
+    -0.4,
+    -0.18,
+    -0.55,
+    -0.65,
+    -0.19,
+    -0.35,
+    0.9,
+    6.57
+   ],
+   "joints_at_limit": [
+    0.08,
+    0.06,
+    0.16,
+    0.16,
+    0.14,
+    0.23,
+    0.07,
+    0.0
+   ],
+   "body_steps": [
+    84107,
+    87267,
+    27866,
+    24761,
+    11252,
+    16122,
+    29914,
+    1396107
+   ],
+   "u_bins": [
+    "-1.0〜-0.5",
+    "-0.5〜0.0",
+    "0.0〜0.3",
+    "0.3〜0.6",
+    "0.6〜0.7",
+    "0.7〜0.8",
+    "0.8〜0.9",
+    "0.9〜1.0"
+   ]
+  }
+ },
+ "stance": {
+  "v7 B s1": {
+   "ok_links_on_floor_pct": {
+    "l_foot": 98.9,
+    "l_lowerarm": 94.7,
+    "r_lowerarm": 92.5,
+    "r_foot": 4.2
+   },
+   "fail_links_on_floor_pct": {
+    "l_hipjointlower": 84.0,
+    "l_ankle": 75.9,
+    "l_elbow": 69.2,
+    "r_foot": 9.5,
+    "l_lowerarm": 5.5,
+    "r_lowerarm": 5.4
+   }
+  },
+  "v7 B s2": {
+   "ok_links_on_floor_pct": {
+    "l_lowerarm": 98.5,
+    "r_foot": 98.4,
+    "r_lowerarm": 75.9
+   },
+   "fail_links_on_floor_pct": {
+    "l_lowerarm": 96.6,
+    "r_foot": 95.2,
+    "r_lowerarm": 73.6
+   }
+  },
+  "v7 B s3": {
+   "ok_links_on_floor_pct": {
+    "l_foot": 99.4,
+    "r_lowerarm": 98.5,
+    "l_lowerarm": 97.4
+   },
+   "fail_links_on_floor_pct": {
+    "r_lowerarm": 97.0,
+    "l_foot": 97.0,
+    "l_lowerarm": 86.7,
+    "r_foot": 3.7
+   }
+  },
+  "v8 s1": {
+   "ok_links_on_floor_pct": {
+    "l_foot": 99.6,
+    "r_lowerarm": 98.4,
+    "l_lowerarm": 87.3
+   },
+   "fail_links_on_floor_pct": {
+    "l_hipjointlower": 66.9,
+    "l_ankle": 62.6,
+    "l_elbow": 46.8,
+    "l_foot": 20.7,
+    "r_lowerarm": 20.5,
+    "l_lowerarm": 17.6
+   }
+  },
+  "v8 s2": {
+   "ok_links_on_floor_pct": {
+    "l_lowerarm": 98.2,
+    "r_foot": 98.0,
+    "r_lowerarm": 88.5
+   },
+   "fail_links_on_floor_pct": {
+    "l_lowerarm": 80.8,
+    "l_foot": 64.1,
+    "r_foot": 43.2,
+    "l_upperarm": 33.4,
+    "r_lowerarm": 18.8,
+    "l_lowerleg": 15.7
+   }
+  },
+  "v8 s3": {
+   "ok_links_on_floor_pct": {
+    "l_foot": 98.8,
+    "r_lowerarm": 96.5,
+    "l_lowerarm": 95.0
+   },
+   "fail_links_on_floor_pct": {
+    "l_ankle": 72.8,
+    "l_hipjointlower": 71.3,
+    "l_elbow": 54.8,
+    "r_lowerarm": 14.6,
+    "l_foot": 14.5,
+    "l_lowerarm": 13.0
+   }
+  }
+ }
+}
