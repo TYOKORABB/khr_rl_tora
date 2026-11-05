@@ -1,0 +1,187 @@
+{
+ "rule": "right - left >= 5.0 pt で right、それ以外は left",
+ "exps": {
+  "getup10-fliplim-s2": {
+   "pick": {
+    "left": 0.33,
+    "right": 97.38,
+    "n": 917,
+    "choice": "right"
+   },
+   "eval_states": {
+    "left": 0.87,
+    "right": 97.82,
+    "n": 229
+   }
+  },
+  "getup10-fliplim-s1": {
+   "pick": {
+    "left": 97.93,
+    "right": 1.09,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 97.38,
+    "right": 0.87,
+    "n": 229
+   }
+  },
+  "getup10-fliplim-s3": {
+   "pick": {
+    "left": 89.2,
+    "right": 0.44,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 83.84,
+    "right": 0.87,
+    "n": 229
+   }
+  },
+  "getup7-hardflip-s1": {
+   "pick": {
+    "left": 94.87,
+    "right": 0.44,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 94.32,
+    "right": 0.87,
+    "n": 229
+   }
+  },
+  "getup7-hardflip-s2": {
+   "pick": {
+    "left": 93.78,
+    "right": 91.71,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 93.89,
+    "right": 91.7,
+    "n": 229
+   }
+  },
+  "getup7-hardflip-s3": {
+   "pick": {
+    "left": 98.15,
+    "right": 0.44,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 98.25,
+    "right": 0.87,
+    "n": 229
+   }
+  },
+  "getup10-still-s1": {
+   "pick": {
+    "left": 92.26,
+    "right": 95.75,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 90.39,
+    "right": 94.32,
+    "n": 229
+   }
+  },
+  "getup10-still-s2": {
+   "pick": {
+    "left": 98.15,
+    "right": 95.86,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 98.25,
+    "right": 96.51,
+    "n": 229
+   }
+  },
+  "getup10-still-s3": {
+   "pick": {
+    "left": 88.33,
+    "right": 95.2,
+    "n": 917,
+    "choice": "right"
+   },
+   "eval_states": {
+    "left": 89.96,
+    "right": 96.07,
+    "n": 229
+   }
+  },
+  "getup10-pose-s1": {
+   "pick": {
+    "left": 94.11,
+    "right": 95.2,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 94.76,
+    "right": 94.32,
+    "n": 229
+   }
+  },
+  "getup10-pose-s2": {
+   "pick": {
+    "left": 75.03,
+    "right": 0.44,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 68.56,
+    "right": 0.87,
+    "n": 229
+   }
+  },
+  "getup10-pose-s3": {
+   "pick": {
+    "left": 92.58,
+    "right": 0.44,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 93.89,
+    "right": 0.87,
+    "n": 229
+   }
+  },
+  "getup10-replay-s1": {
+   "pick": {
+    "left": 89.2,
+    "right": 0.44,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 90.83,
+    "right": 0.87,
+    "n": 229
+   }
+  },
+  "getup10-replay-s2": {
+   "pick": {
+    "left": 93.46,
+    "right": 91.82,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 91.27,
+    "right": 89.52,
+    "n": 229
+   }
+  }
+ }
+}

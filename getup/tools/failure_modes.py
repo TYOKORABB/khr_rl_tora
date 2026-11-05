@@ -120,7 +120,7 @@ def main() -> int:
             pool_n = int(level_mask(bank, env_cfg["curriculum"], env_cfg["curriculum"]["levels"][top], True).sum())
             env = GetupEnv(pool_n, env_cfg, obs_cfg, reward_cfg, eval_mode=True, level=top)
         runner = OnPolicyRunner(env, train_cfg, None, device=gs.device)
-        runner.load(str(log / f"model_{ckpt}.pt"))
+        runner.load(str(log / f"model_{ckpt}.pt"), map_location="cpu" if a.cpu else None)
         pol = runner.get_inference_policy(device=gs.device)
         pool = env.levels[top]
         B = len(pool)

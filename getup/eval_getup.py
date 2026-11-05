@@ -120,7 +120,7 @@ def main() -> int:
 
     env = GetupEnv(B, env_cfg, obs_cfg, reward_cfg, eval_mode=True, level=levels[0], camera_res=tuple(a.res))
     runner = OnPolicyRunner(env, train_cfg, None, device=gs.device)
-    runner.load(str(log / f"model_{ckpt}.pt"))
+    runner.load(str(log / f"model_{ckpt}.pt"), map_location="cpu" if a.cpu else None)
     pol = runner.get_inference_policy(device=gs.device)
     dev = gs.device
     T = env.max_episode_length - 1          # 最後の 1 歩で時間切れのリセットが入る前に止める
