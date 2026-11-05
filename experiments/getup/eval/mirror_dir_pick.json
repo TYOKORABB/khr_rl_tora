@@ -182,6 +182,19 @@
     "right": 89.52,
     "n": 229
    }
+  },
+  "getup10-replay-s3": {
+   "pick": {
+    "left": 94.22,
+    "right": 0.44,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 95.2,
+    "right": 0.87,
+    "n": 229
+   }
   }
  }
 }

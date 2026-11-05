@@ -2,7 +2,7 @@
  "exp": "getup10-fliplim-s2",
  "ckpt": 2999,
  "seed": 0,
- "date": "2026-11-05T19:34:21",
+ "date": "2026-11-05T22:05:29",
  "bank": "getup/data/banks/bank_v2.pt",
  "num_envs": 229,
  "episode_s": 7.98,
@@ -179,5 +179,5 @@
    ]
   }
  ],
- "elapsed_s": 222.1
+ "elapsed_s": 230.6
 }

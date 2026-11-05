@@ -29,7 +29,8 @@ minutes_until_busy() {
 gpu_free() {   # $1 = 必要な分数。空いていれば 0、理由は $WHY
   local mub; mub=$(minutes_until_busy)
   if (( mub < $1 )); then WHY="GPU の空きが ${mub} 分（必要 $1 分）。whisper 解析: $HEAVY_SCHEDULE"; return 1; fi
-  if ps -eo cmd --no-headers | grep -E "$GPU_JOB_PATTERN" | grep -qv grep; then
+  # --cpu の検証は GPU を使わないので数えない（11/5、CPU の検証のあいだキューが 2 時間 38 分止まった）
+  if ps -eo cmd --no-headers | grep -E "$GPU_JOB_PATTERN" | grep -v -- " --cpu" | grep -qv grep; then
     WHY="別の学習・測定が走っている"; return 1
   fi
   # 総点検のキューは測定の合間（プロセスの切れ目）にも GPU を使い続けるので、ロックを持っている間は空いていないとみなす
