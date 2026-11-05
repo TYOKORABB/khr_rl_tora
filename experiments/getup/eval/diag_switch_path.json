@@ -1,0 +1,314 @@
+{
+ "getup10-fliplim-s2": {
+  "なし": {
+   "rows": [
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右→左",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右→左",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右→左",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右→左",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右→左",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    }
+   ],
+   "success_pct": 100.0,
+   "flips_mean": 0,
+   "u_max_median": 1.0
+  },
+  "あり": {
+   "rows": [
+    {
+     "start": "左",
+     "path": "左→右→左→右→左→右→左→右→左",
+     "flips": 9,
+     "u_max": -0.25,
+     "success": false
+    },
+    {
+     "start": "左",
+     "path": "左→右→左→右→左→右→左",
+     "flips": 9,
+     "u_max": -0.35,
+     "success": false
+    },
+    {
+     "start": "左",
+     "path": "左→右→左→右→左→右→左→右",
+     "flips": 8,
+     "u_max": -0.35,
+     "success": false
+    },
+    {
+     "start": "左",
+     "path": "左→右→左→右→左→右→左",
+     "flips": 7,
+     "u_max": -0.28,
+     "success": false
+    },
+    {
+     "start": "左",
+     "path": "左→右→左→右→左→右→左→右",
+     "flips": 8,
+     "u_max": -0.38,
+     "success": false
+    },
+    {
+     "start": "右",
+     "path": "右→左→右→左→右→左→右→左",
+     "flips": 7,
+     "u_max": -0.3,
+     "success": false
+    },
+    {
+     "start": "右",
+     "path": "右→左→右→左→右→左→右",
+     "flips": 6,
+     "u_max": -0.34,
+     "success": false
+    },
+    {
+     "start": "右",
+     "path": "右→左→右→左→右→左→右→左→右",
+     "flips": 8,
+     "u_max": -0.25,
+     "success": false
+    },
+    {
+     "start": "右",
+     "path": "右→左→右→左→右→左→右→左→右",
+     "flips": 7,
+     "u_max": -0.36,
+     "success": false
+    },
+    {
+     "start": "右",
+     "path": "右→左→右→左→右→左→右→左",
+     "flips": 7,
+     "u_max": -0.26,
+     "success": false
+    }
+   ],
+   "success_pct": 0.0,
+   "flips_mean": 7.6,
+   "u_max_median": -0.32
+  }
+ },
+ "getup7-hardflip-s1": {
+  "なし": {
+   "rows": [
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 0,
+     "u_max": 0.38,
+     "success": false
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 0,
+     "u_max": 0.37,
+     "success": false
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 0,
+     "u_max": 0.37,
+     "success": false
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 0,
+     "u_max": 0.37,
+     "success": false
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 0,
+     "u_max": 0.35,
+     "success": false
+    },
+    {
+     "start": "右",
+     "path": "右",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    }
+   ],
+   "success_pct": 50.0,
+   "flips_mean": 0,
+   "u_max_median": 0.69
+  },
+  "あり": {
+   "rows": [
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 1,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 1,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 1,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 1,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "左",
+     "path": "左",
+     "flips": 1,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    },
+    {
+     "start": "右",
+     "path": "右",
+     "flips": 0,
+     "u_max": 1.0,
+     "success": true
+    }
+   ],
+   "success_pct": 100.0,
+   "flips_mean": 0.5,
+   "u_max_median": 1.0
+  }
+ }
+}

@@ -25,7 +25,7 @@
 | `train_getup9.py`・`sym_aug.py` | getup-v9（v7 の B ＋ `--add canon`（左右反転のスイッチを入れて学習）または `--add sym`（rsl-rl の対称性のデータ拡張））。部品は `khr_common/mirror.py`、環境の `mirror_switch`、学習済みの方策には `eval_getup --mirror` |
 | `train_getup10.py`・`envs/getup_env4.py` | getup-v10（`--base none/canon/sym` に `--add still pose fliplim replay` を足す）。使わない項は getup_env3 と同じ |
 | `tools/check_mirror.py` | 左右反転の並びを、鏡像の状態を置いて物理で確かめる（CPU、1 分以内） |
-| `tools/diag_levers.py`・`tools/diag_stuck.py`・`tools/diag_mirror.py`・`tools/diag_sym.py` | 学習し直さない診断（GPU、各 5〜10 分）。評価のときだけ条件を変える、止まった姿勢を調べる、方策を左右反転して動かす。結果は `experiments/getup/eval/diag_*.json`、まとめは `docs/GetUpImprovementOptions.md` |
+| `tools/diag_levers.py`・`tools/diag_stuck.py`・`tools/diag_mirror.py`・`tools/diag_sym.py`・`tools/diag_switch_path.py` | 学習し直さない診断（GPU、各 5〜10 分）。評価のときだけ条件を変える、止まった姿勢を調べる、方策を左右反転して動かす。結果は `experiments/getup/eval/diag_*.json`、まとめは `docs/GetUpImprovementOptions.md` |
 | `tools/summarize_v7.py`・`tools/summarize_v8.py`・`tools/summarize_v9.py`・`tools/summarize_v10.py`・`tools/summarize_v10_sym.py`・`tools/summarize_v10_still_seeds.py` | 版の結果の表と、学習の前に固定した基準での判定を `experiments/getup/v{7,8}_results.md` に書く |
 | `jobs/run_v7.sh`・`jobs/run_v8.sh`・`jobs/run_v9.sh`・`jobs/run_v10.sh`・`jobs/run_v10_sym.sh`・`jobs/run_v10_still_seeds.sh` | 学習 → 検証 → 追加の動画 → 失敗の型 → まとめ を自動で回す |
 | `ppo_bound.py` | `PPOBound`: rsl-rl 5.4.0 の PPO に、行動の平均が ±1 を超えた分の 2 乗の罰（bound loss）を足したもの（v2 から） |
