@@ -72,11 +72,14 @@ def main() -> int:
                          "falls = 歩行中に転んだ状態の全部、chest_up = 主のバンクで胸が上を向いた状態（u0 < 0）。記録は _<名前> を付け、元の記録を上書きしない")
     ap.add_argument("--cpu", action="store_true", help="CPU で動かす（動作確認用）")
     ap.add_argument("--mirror", action="store_true", help="左右反転のスイッチを入れて動かす（学習し直さない。getup-v9。記録と動画の名前に _mirror を足す）")
+    ap.add_argument("--mirror_dir", choices=("left", "right"), default="left", help="反転する向き（getup-v10 §10）。right = 右が下で反転。記録と動画の名前は _mirrorR。既定の left は前と同じ")
     a = ap.parse_args()
     if a.states:
         a.tag = a.tag or f"_{a.states}"
     if a.mirror:
-        a.tag = "_mirror" + a.tag
+        a.tag = ("_mirrorR" if a.mirror_dir == "right" else "_mirror") + a.tag
+    elif a.mirror_dir != "left":
+        ap.error("--mirror_dir は --mirror と一緒に使う")
     if a.n_video < 1:
         ap.error("--n_video は 1 以上（検証では毎回動画を撮る）")
     chdir_repo_root()
@@ -93,7 +96,7 @@ def main() -> int:
     train_episode_s = float(env_cfg["episode_length_s"])
     env_cfg = dict(env_cfg, episode_length_s=a.episode_s if a.episode_s is not None else train_episode_s)
     if a.mirror:
-        env_cfg = dict(env_cfg, mirror_switch=True)
+        env_cfg = dict(env_cfg, mirror_switch=True, mirror_dir=a.mirror_dir)
     names = env_cfg["curriculum"]["levels"]
     levels = a.levels if a.levels is not None else list(range(len(names)))
     if a.states:

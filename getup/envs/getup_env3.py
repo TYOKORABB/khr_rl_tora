@@ -205,6 +205,10 @@ class GetupEnv:
             self.mir = Mirror(self.device)
             self.m_on = torch.zeros(B, dtype=torch.bool, device=self.device)
             self.m_frozen = torch.zeros(B, dtype=torch.bool, device=self.device)
+            # 反転する向き（getup-v10 §10、11/5）: "left" = 左が下で反転（前からの動き）、"right" = 右が下で反転。env_cfg に無ければ "left"
+            self.m_dir = env_cfg.get("mirror_dir", "left")
+            if self.m_dir not in ("left", "right"):
+                raise ValueError(f"mirror_dir は left か right: {self.m_dir}")
         self.level = len(self.levels) - 1 if level is None and eval_mode else (level or 0)
         self.fixed_level = eval_mode or level is not None
         self.recent = deque(maxlen=cur["promote_window"])
@@ -324,7 +328,7 @@ class GetupEnv:
         o, p = self.obs_buf, self.privileged_obs_buf
         u, gy = o[:, 3], o[:, 4]
         self.m_frozen |= u >= 0.7
-        self.m_on = torch.where(~self.m_frozen & (gy.abs() > 0.5), gy > 0, self.m_on)
+        self.m_on = torch.where(~self.m_frozen & (gy.abs() > 0.5), (gy > 0) if self.m_dir == "left" else (gy < 0), self.m_on)
         mm = self.m_on.unsqueeze(1)
         self.obs_buf = torch.where(mm, self.mir.policy_obs(o), o)
         self.privileged_obs_buf = torch.where(mm, self.mir.privileged_obs(p), p)
