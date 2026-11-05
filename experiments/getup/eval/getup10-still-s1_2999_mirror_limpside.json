@@ -1,0 +1,237 @@
+{
+ "exp": "getup10-still-s1",
+ "ckpt": 2999,
+ "seed": 0,
+ "date": "2026-11-05T07:25:40",
+ "bank": "getup/data/banks/bank_v2.pt",
+ "num_envs": 2157,
+ "episode_s": 7.98,
+ "train_episode_s": 8.0,
+ "success_cfg": {
+  "u_min": 0.966,
+  "delta_rad": 0.3,
+  "omega_max": 0.5,
+  "h_thr": 0.175,
+  "hold_s": 1.0
+ },
+ "torque_denominator": "URDF の effort（get_dofs_force_range の上限）",
+ "levels": {
+  "L3": {
+   "n_states": 2157,
+   "dr": {
+    "success": 0.9328,
+    "success_ci95": [
+     0.9214,
+     0.9426
+    ],
+    "n_success": 2012,
+    "gate": null,
+    "by_u0": {
+     "[0.9,1.0)": {
+      "n": 758,
+      "success": 0.9208
+     },
+     "[0.7,0.9)": {
+      "n": 620,
+      "success": 0.9339
+     },
+     "[0.5,0.7)": {
+      "n": 215,
+      "success": 0.9535
+     },
+     "[0.0,0.5)": {
+      "n": 564,
+      "success": 0.9397
+     }
+    },
+    "by_kind": {
+     "0": {
+      "n": 2152,
+      "success": 0.9326
+     },
+     "2": {
+      "n": 5,
+      "success": 1.0
+     }
+    },
+    "cum_success_by_time": {
+     "1s": 0.0,
+     "2s": 0.1015,
+     "3s": 0.2318,
+     "4s": 0.5109,
+     "5s": 0.8076,
+     "6s": 0.8739,
+     "7s": 0.911,
+     "8s": 0.9328
+    },
+    "time_to_success_median_s": 4.0,
+    "stand_end": 0.9624,
+    "sim_error_episodes": 0,
+    "torque_p99_pct": 59.7,
+    "torque_over90_pct_time": 0.086,
+    "torque_saturated_pct_time": 0.0,
+    "torque_cap_pct_of_spec": 90.0,
+    "torque_at_cap_pct_time": 0.0864,
+    "torque_at_cap_episodes": 0.8442,
+    "torque_ep_max_median_pct": 90.0,
+    "torque_ep_max_p90_pct": 90.0,
+    "dof_vel_p99": 1.47,
+    "torque_saturated_episodes": 0.0,
+    "torque_saturated_joints_top5": {},
+    "torque_first_saturation_s": null
+   },
+   "nominal": {
+    "success": 0.9912,
+    "success_ci95": [
+     0.9863,
+     0.9944
+    ],
+    "n_success": 2138,
+    "gate": null,
+    "by_u0": {
+     "[0.9,1.0)": {
+      "n": 758,
+      "success": 0.9881
+     },
+     "[0.7,0.9)": {
+      "n": 620,
+      "success": 0.9919
+     },
+     "[0.5,0.7)": {
+      "n": 215,
+      "success": 1.0
+     },
+     "[0.0,0.5)": {
+      "n": 564,
+      "success": 0.9911
+     }
+    },
+    "by_kind": {
+     "0": {
+      "n": 2152,
+      "success": 0.9912
+     },
+     "2": {
+      "n": 5,
+      "success": 1.0
+     }
+    },
+    "cum_success_by_time": {
+     "1s": 0.0,
+     "2s": 0.1303,
+     "3s": 0.287,
+     "4s": 0.6124,
+     "5s": 0.9277,
+     "6s": 0.9801,
+     "7s": 0.9903,
+     "8s": 0.9912
+    },
+    "time_to_success_median_s": 3.68,
+    "stand_end": 0.9722,
+    "sim_error_episodes": 0,
+    "torque_p99_pct": 59.1,
+    "torque_over90_pct_time": 0.0783,
+    "torque_saturated_pct_time": 0.0,
+    "torque_cap_pct_of_spec": 90.0,
+    "torque_at_cap_pct_time": 0.0787,
+    "torque_at_cap_episodes": 0.8382,
+    "torque_ep_max_median_pct": 90.0,
+    "torque_ep_max_p90_pct": 90.0,
+    "dof_vel_p99": 1.43,
+    "torque_saturated_episodes": 0.0,
+    "torque_saturated_joints_top5": {},
+    "torque_first_saturation_s": null
+   }
+  }
+ },
+ "videos": [
+  {
+   "level": "L3",
+   "path": "media/videos/getup/getup10-still-s1_2999_mirror_limpside_L3.mp4",
+   "seconds": 47.9,
+   "episodes": [
+    {
+     "order": 1,
+     "bank_idx": 11011,
+     "u0": 0.046,
+     "eval_success": true,
+     "eval_t_s": 4.12,
+     "replay_success": true,
+     "replay_t_s": 6.1
+    },
+    {
+     "order": 2,
+     "bank_idx": 16989,
+     "u0": 0.228,
+     "eval_success": true,
+     "eval_t_s": 4.36,
+     "replay_success": true,
+     "replay_t_s": 4.48
+    },
+    {
+     "order": 3,
+     "bank_idx": 12504,
+     "u0": 0.297,
+     "eval_success": true,
+     "eval_t_s": 4.6,
+     "replay_success": true,
+     "replay_t_s": 5.0
+    },
+    {
+     "order": 4,
+     "bank_idx": 11492,
+     "u0": 0.48,
+     "eval_success": true,
+     "eval_t_s": 3.36,
+     "replay_success": true,
+     "replay_t_s": 3.28
+    },
+    {
+     "order": 5,
+     "bank_idx": 13722,
+     "u0": 0.15,
+     "eval_success": false,
+     "eval_t_s": null,
+     "replay_success": true,
+     "replay_t_s": 7.88
+    },
+    {
+     "order": 6,
+     "bank_idx": 6827,
+     "u0": 0.486,
+     "eval_success": false,
+     "eval_t_s": null,
+     "replay_success": true,
+     "replay_t_s": 5.48
+    }
+   ]
+  }
+ ],
+ "falls_all": {
+  "n_states": 229,
+  "obs_level": "L3",
+  "cond": "dr",
+  "success": 0.9389,
+  "success_ci95": [
+   0.9,
+   0.9632
+  ],
+  "by_u0": {
+   "[0.7,0.9)": {
+    "n": 2,
+    "success": 1.0
+   },
+   "[0.0,0.5)": {
+    "n": 3,
+    "success": 1.0
+   },
+   "[-1.0,0.0)": {
+    "n": 224,
+    "success": 0.9375
+   }
+  },
+  "stand_end": 0.9869,
+  "sim_error_episodes": 0
+ },
+ "elapsed_s": 130.2
+}

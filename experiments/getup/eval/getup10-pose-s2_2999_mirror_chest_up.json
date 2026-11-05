@@ -1,0 +1,167 @@
+{
+ "exp": "getup10-pose-s2",
+ "ckpt": 2999,
+ "seed": 0,
+ "date": "2026-11-05T12:04:43",
+ "bank": "getup/data/banks/bank_v2.pt",
+ "num_envs": 1823,
+ "episode_s": 7.98,
+ "train_episode_s": 8.0,
+ "success_cfg": {
+  "u_min": 0.966,
+  "delta_rad": 0.3,
+  "omega_max": 0.5,
+  "h_thr": 0.175,
+  "hold_s": 1.0
+ },
+ "torque_denominator": "URDF の effort（get_dofs_force_range の上限）",
+ "levels": {
+  "chest_up": {
+   "n_states": 1823,
+   "dr": {
+    "success": 0.8623,
+    "success_ci95": [
+     0.8457,
+     0.8774
+    ],
+    "n_success": 1572,
+    "gate": null,
+    "by_u0": {
+     "[-1.0,0.0)": {
+      "n": 1823,
+      "success": 0.8623
+     }
+    },
+    "cum_success_by_time": {
+     "1s": 0.0,
+     "2s": 0.0,
+     "3s": 0.1042,
+     "4s": 0.492,
+     "5s": 0.6835,
+     "6s": 0.7937,
+     "7s": 0.8491,
+     "8s": 0.8623
+    },
+    "time_to_success_median_s": 4.04,
+    "stand_end": 0.8848,
+    "sim_error_episodes": 0,
+    "torque_p99_pct": 61.9,
+    "torque_over90_pct_time": 0.2529,
+    "torque_saturated_pct_time": 0.0,
+    "torque_cap_pct_of_spec": 90.0,
+    "torque_at_cap_pct_time": 0.2538,
+    "torque_at_cap_episodes": 0.9984,
+    "torque_ep_max_median_pct": 90.0,
+    "torque_ep_max_p90_pct": 90.0,
+    "dof_vel_p99": 1.42,
+    "torque_saturated_episodes": 0.0,
+    "torque_saturated_joints_top5": {},
+    "torque_first_saturation_s": null
+   },
+   "nominal": {
+    "success": 0.8843,
+    "success_ci95": [
+     0.8688,
+     0.8981
+    ],
+    "n_success": 1612,
+    "gate": null,
+    "by_u0": {
+     "[-1.0,0.0)": {
+      "n": 1823,
+      "success": 0.8843
+     }
+    },
+    "cum_success_by_time": {
+     "1s": 0.0,
+     "2s": 0.0,
+     "3s": 0.1547,
+     "4s": 0.5782,
+     "5s": 0.7586,
+     "6s": 0.8535,
+     "7s": 0.8777,
+     "8s": 0.8843
+    },
+    "time_to_success_median_s": 3.76,
+    "stand_end": 0.8859,
+    "sim_error_episodes": 0,
+    "torque_p99_pct": 61.3,
+    "torque_over90_pct_time": 0.2494,
+    "torque_saturated_pct_time": 0.0,
+    "torque_cap_pct_of_spec": 90.0,
+    "torque_at_cap_pct_time": 0.2504,
+    "torque_at_cap_episodes": 0.9995,
+    "torque_ep_max_median_pct": 90.0,
+    "torque_ep_max_p90_pct": 90.0,
+    "dof_vel_p99": 1.37,
+    "torque_saturated_episodes": 0.0,
+    "torque_saturated_joints_top5": {},
+    "torque_first_saturation_s": null
+   }
+  }
+ },
+ "videos": [
+  {
+   "level": "chest_up",
+   "path": "media/videos/getup/getup10-pose-s2_2999_mirror_chest_up.mp4",
+   "seconds": 47.9,
+   "episodes": [
+    {
+     "order": 1,
+     "bank_idx": 11946,
+     "u0": -0.015,
+     "eval_success": true,
+     "eval_t_s": 3.08,
+     "replay_success": true,
+     "replay_t_s": 2.96
+    },
+    {
+     "order": 2,
+     "bank_idx": 19348,
+     "u0": -0.857,
+     "eval_success": true,
+     "eval_t_s": 4.38,
+     "replay_success": true,
+     "replay_t_s": 3.8
+    },
+    {
+     "order": 3,
+     "bank_idx": 7412,
+     "u0": -0.522,
+     "eval_success": true,
+     "eval_t_s": 4.38,
+     "replay_success": true,
+     "replay_t_s": 4.06
+    },
+    {
+     "order": 4,
+     "bank_idx": 18545,
+     "u0": -0.359,
+     "eval_success": true,
+     "eval_t_s": 3.44,
+     "replay_success": true,
+     "replay_t_s": 3.66
+    },
+    {
+     "order": 5,
+     "bank_idx": 5442,
+     "u0": -0.757,
+     "eval_success": false,
+     "eval_t_s": null,
+     "replay_success": false,
+     "replay_t_s": null
+    },
+    {
+     "order": 6,
+     "bank_idx": 6128,
+     "u0": -0.68,
+     "eval_success": false,
+     "eval_t_s": null,
+     "replay_success": true,
+     "replay_t_s": 5.1
+    }
+   ]
+  }
+ ],
+ "elapsed_s": 116.8
+}
