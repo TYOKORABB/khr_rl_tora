@@ -1,0 +1,4 @@
+# getup-v10 の追加: B1（静止の報酬）にシード 4・5・6 を足す（2026-11-05 にユーザーが追加）。計画と判定の基準は experiments/getup/v10_plan.md §9（学習の前に固定）。
+getup10-still-s4       4 3000 train_getup10 --base none --add still
+getup10-still-s5       5 3000 train_getup10 --base none --add still
+getup10-still-s6       6 3000 train_getup10 --base none --add still
