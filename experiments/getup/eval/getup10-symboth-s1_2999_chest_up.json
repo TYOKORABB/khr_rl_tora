@@ -1,0 +1,167 @@
+{
+ "exp": "getup10-symboth-s1",
+ "ckpt": 2999,
+ "seed": 0,
+ "date": "2026-11-06T12:14:37",
+ "bank": "getup/data/banks/bank_v2.pt",
+ "num_envs": 1823,
+ "episode_s": 7.98,
+ "train_episode_s": 8.0,
+ "success_cfg": {
+  "u_min": 0.966,
+  "delta_rad": 0.3,
+  "omega_max": 0.5,
+  "h_thr": 0.175,
+  "hold_s": 1.0
+ },
+ "torque_denominator": "URDF の effort（get_dofs_force_range の上限）",
+ "levels": {
+  "chest_up": {
+   "n_states": 1823,
+   "dr": {
+    "success": 0.0565,
+    "success_ci95": [
+     0.0468,
+     0.0681
+    ],
+    "n_success": 103,
+    "gate": null,
+    "by_u0": {
+     "[-1.0,0.0)": {
+      "n": 1823,
+      "success": 0.0565
+     }
+    },
+    "cum_success_by_time": {
+     "1s": 0.0,
+     "2s": 0.0,
+     "3s": 0.0208,
+     "4s": 0.0296,
+     "5s": 0.0527,
+     "6s": 0.056,
+     "7s": 0.0565,
+     "8s": 0.0565
+    },
+    "time_to_success_median_s": null,
+    "stand_end": 0.0603,
+    "sim_error_episodes": 0,
+    "torque_p99_pct": 60.2,
+    "torque_over90_pct_time": 0.2325,
+    "torque_saturated_pct_time": 0.0,
+    "torque_cap_pct_of_spec": 90.0,
+    "torque_at_cap_pct_time": 0.2334,
+    "torque_at_cap_episodes": 0.7702,
+    "torque_ep_max_median_pct": 90.0,
+    "torque_ep_max_p90_pct": 90.0,
+    "dof_vel_p99": 1.4,
+    "torque_saturated_episodes": 0.0,
+    "torque_saturated_joints_top5": {},
+    "torque_first_saturation_s": null
+   },
+   "nominal": {
+    "success": 0.0603,
+    "success_ci95": [
+     0.0503,
+     0.0722
+    ],
+    "n_success": 110,
+    "gate": null,
+    "by_u0": {
+     "[-1.0,0.0)": {
+      "n": 1823,
+      "success": 0.0603
+     }
+    },
+    "cum_success_by_time": {
+     "1s": 0.0,
+     "2s": 0.0,
+     "3s": 0.0247,
+     "4s": 0.0357,
+     "5s": 0.056,
+     "6s": 0.0603,
+     "7s": 0.0603,
+     "8s": 0.0603
+    },
+    "time_to_success_median_s": null,
+    "stand_end": 0.0609,
+    "sim_error_episodes": 0,
+    "torque_p99_pct": 58.1,
+    "torque_over90_pct_time": 0.2155,
+    "torque_saturated_pct_time": 0.0,
+    "torque_cap_pct_of_spec": 90.0,
+    "torque_at_cap_pct_time": 0.2165,
+    "torque_at_cap_episodes": 0.6451,
+    "torque_ep_max_median_pct": 90.0,
+    "torque_ep_max_p90_pct": 90.0,
+    "dof_vel_p99": 1.35,
+    "torque_saturated_episodes": 0.0,
+    "torque_saturated_joints_top5": {},
+    "torque_first_saturation_s": null
+   }
+  }
+ },
+ "videos": [
+  {
+   "level": "chest_up",
+   "path": "media/videos/getup/getup10-symboth-s1_2999_chest_up.mp4",
+   "seconds": 47.9,
+   "episodes": [
+    {
+     "order": 1,
+     "bank_idx": 17057,
+     "u0": -0.03,
+     "eval_success": true,
+     "eval_t_s": 4.62,
+     "replay_success": true,
+     "replay_t_s": 4.58
+    },
+    {
+     "order": 2,
+     "bank_idx": 4766,
+     "u0": -0.253,
+     "eval_success": true,
+     "eval_t_s": 4.56,
+     "replay_success": true,
+     "replay_t_s": 4.28
+    },
+    {
+     "order": 3,
+     "bank_idx": 3087,
+     "u0": -0.393,
+     "eval_success": true,
+     "eval_t_s": 4.04,
+     "replay_success": true,
+     "replay_t_s": 4.88
+    },
+    {
+     "order": 4,
+     "bank_idx": 18898,
+     "u0": -0.127,
+     "eval_success": true,
+     "eval_t_s": 4.16,
+     "replay_success": true,
+     "replay_t_s": 4.1
+    },
+    {
+     "order": 5,
+     "bank_idx": 16620,
+     "u0": -0.412,
+     "eval_success": false,
+     "eval_t_s": null,
+     "replay_success": false,
+     "replay_t_s": null
+    },
+    {
+     "order": 6,
+     "bank_idx": 18974,
+     "u0": -0.141,
+     "eval_success": false,
+     "eval_t_s": null,
+     "replay_success": false,
+     "replay_t_s": null
+    }
+   ]
+  }
+ ],
+ "elapsed_s": 115.4
+}
