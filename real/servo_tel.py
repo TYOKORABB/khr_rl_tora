@@ -12,8 +12,10 @@
   python -m real.servo_tel analyze <raw.npz>    # getup_session などの生の記録（Meridim の列）から電流・温度の時系列をまとめる
   python -m real.servo_tel selftest             # 合成した Meridim で読み方を確かめる（実機不要）
 
-電流と温度の換算は仮（ICS3.5 マニュアルに単位の記載が無い。電流は「電流制限の表で 0.1 A = 1」から 1 = 0.1 A、
-温度は「60 で約 80 度、30 で約 100 度」を直線で延ばした）。生の値も必ず残す。コンソールを閉じてから使う（UDP 22222 番を使う）。
+EEPROM の 64 バイトの並びは近藤科学「ICS3.5/3.6 ソフトウェアマニュアル」第 2.4 版 p.23〜24 の表（1 バイトに 4 bit ずつ、奇数番目が上位）。
+電流の換算は同じマニュアル p.6 の電流制限の表（1 = 0.1 A、目安）、温度は p.6 の温度制限の表（30 = 100 ℃、47 = 90、60 = 80、75 = 70、87 = 60 ℃、目安）を
+直線でつないだもの。読んだ電流値・温度値の単位はマニュアルに無いので、制限値と同じ目盛りと仮定した。生の値も必ず残す。
+コンソールを閉じてから使う（UDP 22222 番を使う）。
 """
 
 from __future__ import annotations
@@ -50,18 +52,47 @@ def has_tel(m) -> bool:
     return (u16(m, SLOT_HDR) >> 8) == MAGIC
 
 
+TMP_TABLE = ((30, 100.0), (47, 90.0), (60, 80.0), (75, 70.0), (87, 60.0))   # マニュアル p.6 の温度制限の表（目安）
+
+
 def cur_amp(raw: int | None) -> float | None:
-    """電流の生の値 → A（仮: 1 = 0.1 A。0..63 正転、64..127 逆転は負にする）。"""
+    """電流の生の値 → A（マニュアル p.6 の電流制限の表の目盛り 1 = 0.1 A と仮定。0..63 正転、64..127 逆転は負にする）。"""
     if raw is None:
         return None
     return 0.1 * raw if raw < 64 else -0.1 * (raw - 64)
 
 
 def tmp_deg(raw: int | None) -> float | None:
-    """温度の生の値 → ℃（仮: 60 で 80 ℃、30 で 100 ℃ を直線で延ばす。小さいほど高温）。"""
+    """温度の生の値 → ℃（マニュアル p.6 の表を直線でつなぎ、外は端の傾きで延ばす。小さいほど高温）。"""
     if raw is None:
         return None
-    return 80.0 + (60 - raw) * (20.0 / 30.0)
+    xs, ys = [x for x, _ in TMP_TABLE], [y for _, y in TMP_TABLE]
+    if raw <= xs[0]:
+        return ys[0] + (xs[0] - raw) * (ys[0] - ys[1]) / (xs[1] - xs[0])
+    if raw >= xs[-1]:
+        return ys[-1] - (raw - xs[-1]) * (ys[-2] - ys[-1]) / (xs[-1] - xs[-2])
+    return float(np.interp(raw, xs, ys))
+
+
+def decode_eeprom(eep: list[int]) -> dict:
+    """EEPROM の 64 バイト → 設定（マニュアル p.23〜24。BYTE n = eep[n-1]、1 バイトに 4 bit、奇数番目が上位）。"""
+    def v8(n):                       # BYTE n（上位）と n+1（下位）
+        return ((eep[n - 1] & 0x0F) << 4) | (eep[n] & 0x0F)
+
+    def v16(n):                      # BYTE n..n+3
+        return (v8(n) << 8) | v8(n + 2)
+    flags = v8(15)
+    off = v8(53)
+    st = v8(3)
+    return {"backup_char_ok": v8(1) == 0x5A, "stretch_gain": st, "stretch": st // 2, "speed": v8(5), "punch": v8(7), "dead_band": v8(9),
+            "damping": v8(11), "safe_timer": v8(13), "protection_s_approx": round(0.1 * v8(13), 1),
+            "protection_enabled_by_speed": v8(5) == 127,
+            "flags": {"reverse": bool(flags & 0x01), "free": bool(flags & 0x02), "pwminh": bool(flags & 0x08),
+                      "slave": bool(flags & 0x80), "rotation": bool(flags & 0x10)}, "flags_raw": flags,
+            "pulse_max": v16(17), "pulse_min": v16(21), "baud_code": v8(27), "temp_limit": v8(29), "temp_limit_C_approx": round(tmp_deg(v8(29)), 1),
+            "current_limit": v8(31), "current_limit_A_approx": round(0.1 * v8(31), 1), "response": v8(51),
+            "user_offset": off - 256 if off >= 128 else off, "id": v8(57),
+            "cc_stretch_gain": [v8(59), v8(61), v8(63)]}
 
 
 def decode(m) -> dict | None:
@@ -98,7 +129,7 @@ class ParamCollector:
             name = (R_NAMES if l else L_NAMES)[i]
             eep = [self.v[(l, i, 2 + k)] for k in range(64)]
             out[name] = {"line": "R" if l else "L", "idx": i, "stretch": self.v[(l, i, 0)], "speed": self.v[(l, i, 1)],
-                         "eeprom_hex": " ".join(f"{b:02x}" for b in eep)}
+                         "eeprom_hex": " ".join(f"{b:02x}" for b in eep), "eeprom": decode_eeprom(eep)}
         return out
 
 
@@ -142,9 +173,12 @@ def cmd_dump(a) -> int:
     out.write_text(json.dumps({"date": dt.datetime.now().isoformat(timespec="seconds"), "n_servos": len(tab), "servos": tab,
                                "note": "khr-getup.5 の読み出し。stretch・speed は ICS の読み出し（getStrc・getSpd）、eeprom_hex は 0xA0+ID・サブコマンド 0x00 の 64 バイト（並びは ICS3.5 マニュアル）"},
                               ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    print(f"\n{'関節':18s} {'系統':4s} ストレッチ スピード  EEPROM（先頭 16 バイト）")
+    print(f"\n{'関節':18s} {'系統':4s} ストレッチ スピード パンチ 不感帯 ダンピング プロテクション[秒] 電流制限[A] 温度制限[℃] レスポンス ID")
     for name, r in tab.items():
-        print(f"{name:18s} {r['line']}{r['idx']:<3d} {r['stretch']:8d} {r['speed']:8d}  {r['eeprom_hex'][:47]}")
+        e = r["eeprom"]
+        print(f"{name:18s} {r['line']}{r['idx']:<3d} {r['stretch']:8d} {r['speed']:8d} {e['punch']:6d} {e['dead_band']:6d} {e['damping']:10d} "
+              f"{e['protection_s_approx']:10.1f}{'（有効）' if e['protection_enabled_by_speed'] else '（無効）'} {e['current_limit_A_approx']:10.1f} "
+              f"{e['temp_limit_C_approx']:11.0f} {e['response']:10d} {e['id']:3d}{'' if e['backup_char_ok'] else '  ※先頭が 0x5A でない'}")
     print(f"\n[done] {len(tab)}/22 個 → {out.relative_to(REPO_ROOT)}")
     return 0 if len(tab) == 22 else 1
 
@@ -228,6 +262,21 @@ def cmd_selftest(_a) -> int:
     tab = col.table()
     assert list(tab) == ["r_elbow_yaw"] and tab["r_elbow_yaw"]["stretch"] == 0 and tab["r_elbow_yaw"]["speed"] == 1, tab
     assert tab["r_elbow_yaw"]["eeprom_hex"].split()[0] == "02"
+    # 出荷時の値の例（マニュアル p.23）で EEPROM を作って読み戻す
+    def nib(v):
+        return [(v >> 4) & 0x0F, v & 0x0F]
+    eep = [0] * 64
+    for n, v in ((1, 0x5A), (3, 60), (5, 127), (7, 1), (9, 2), (11, 40), (13, 250), (15, 0x04), (27, 10), (29, 80), (31, 63), (51, 3),
+                 (53, 0), (57, 7), (59, 120), (61, 60), (63, 254)):
+        eep[n - 1:n + 1] = nib(v)
+    for n, v in ((17, 11500), (21, 3500)):
+        eep[n - 1:n + 3] = nib(v >> 8) + nib(v & 0xFF)
+    e = decode_eeprom(eep)
+    assert e["backup_char_ok"] and e["stretch"] == 30 and e["speed"] == 127 and e["punch"] == 1 and e["dead_band"] == 2 and e["damping"] == 40, e
+    assert e["safe_timer"] == 250 and e["protection_s_approx"] == 25.0 and e["protection_enabled_by_speed"] and e["current_limit_A_approx"] == 6.3, e
+    assert e["pulse_max"] == 11500 and e["pulse_min"] == 3500 and e["id"] == 7 and e["response"] == 3 and e["cc_stretch_gain"] == [120, 60, 254], e
+    assert e["flags"]["pwminh"] is False and e["flags_raw"] == 0x04 and abs(e["temp_limit_C_approx"] - 65.8) < 0.1, e
+    assert abs(tmp_deg(75) - 70) < 1e-9 and abs(tmp_deg(30) - 100) < 1e-9
     print("selftest: ALL PASSED")
     return 0
 

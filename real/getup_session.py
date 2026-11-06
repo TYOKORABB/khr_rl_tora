@@ -650,6 +650,19 @@ def analyze_trial(p: Path) -> dict:
         "sat_cum_s_max": {JOINT_NAMES[i]: round(float(d["sat_cum"][i]), 2) for i in np.argsort(-d["sat_cum"])[:3]},
         "action_abs_p99": round(float(np.percentile(np.abs(act[g]), 99)), 3) if g.any() else None,
     })
+    if "meridim" in d.files:      # 改造ファーム khr-getup.5 のサーボの読み出し（11/7）。無い版の記録では何もしない
+        from real.servo_tel import TEL_NAMES, series
+        st = series(d["meridim"], d["t_rx"] if "t_rx" in d.files else None)
+        if st["n"] > 0:
+            t0g = float(t[g][0]) if g.any() else 0.0
+            cg = st["cur_A"][(st["t"] >= t0g) & (st["t"] <= t0g + 8.0)] if g.any() else st["cur_A"]
+            out["servo_tel"] = {"rows": st["n"], "fail": int(st["fail"]), "read_us_p50": float(np.median(st["us"])), "read_us_max": int(st["us"].max()),
+                                "cur_abs_A_getup": {nm: {"mean": round(float(np.nanmean(np.abs(cg[:, j]))), 2),
+                                                         "p95": round(float(np.nanpercentile(np.abs(cg[:, j]), 95)), 2),
+                                                         "max": round(float(np.nanmax(np.abs(cg[:, j]))), 2)} for j, nm in enumerate(TEL_NAMES)} if len(cg) else {},
+                                "tmp_C": {nm: [round(min(v for _, v in st["tmp"][nm]), 1), round(max(v for _, v in st["tmp"][nm]), 1)]
+                                          for nm in TEL_NAMES if st["tmp"][nm]},
+                                "note": "電流は仮の換算（1 = 0.1 A）。起き上がりの 8 秒。生の値は Meridim の列（real/servo_tel.py）"}
     return out
 
 
@@ -668,6 +681,10 @@ def print_trial(s: dict):
         print(f"      u 始め {s['u_start']} → 最大 {s['u_max']} → 終わり {s['u_end']}、胴体高 h_est 最大 {s['h_est_max_m']} m・終わり {s['h_est_end_m']} m、"
               f"終わりの条件 {s['conditions_end']}")
         print(f"      周期 {s['period_ms']} ms、目標角とのずれの最大 {s['err_max_deg']}°、ずれ > {s['e_sat_deg']}° の累計 {s['sat_cum_s_max']} s")
+    if "servo_tel" in s and s["servo_tel"]["cur_abs_A_getup"]:
+        c = s["servo_tel"]["cur_abs_A_getup"]
+        print("      サーボの電流（仮の換算、平均 / 95 % 点 / 最大 A）: " + "、".join(f"{k} {v['mean']}/{v['p95']}/{v['max']}" for k, v in c.items())
+              + f"、温度 {s['servo_tel']['tmp_C']} ℃、読み出しの失敗 {s['servo_tel']['fail']}")
 
 
 def cmd_getup(a) -> int:
