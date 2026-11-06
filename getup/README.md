@@ -25,9 +25,13 @@
 | `train_getup9.py`・`sym_aug.py` | getup-v9（v7 の B ＋ `--add canon`（左右反転のスイッチを入れて学習）または `--add sym`（rsl-rl の対称性のデータ拡張））。部品は `khr_common/mirror.py`、環境の `mirror_switch`、学習済みの方策には `eval_getup --mirror` |
 | `tools/pick_mirror_dir.py` | 左右反転のスイッチの向き（left / right）を、評価に使わない転んだ状態で方策ごとに選ぶ（getup-v10 §10）。`eval_getup --mirror --mirror_dir right` |
 | `train_getup10.py`・`envs/getup_env4.py` | getup-v10（`--base none/canon/sym` に `--add still pose fliplim replay` を足す）。使わない項は getup_env3 と同じ |
+| `train_getup11.py` | getup-v11（11/6）: `getup9-sym-s1` から学習を続け、個体差に `--ts`（関節ごとのトルクの上限の倍率）と `--pb`（電源の電流の合計の上限、全力のサーボ何個分か）を足す（`envs/getup_env3.py` の `env_cfg["dr"]`、使うときはシーンを `batch_dofs_info` で作る）。計画 `experiments/getup/v11_plan.md` |
+| `tools/real_repro_sweep.py` | 実機の起き上がりの試行の始めの姿勢（`real/data/raw/getup_trial/`）から、トルクの上限・硬さ・重さ・弱さの個体差を変えてシミュで動かし、実機と同じ失敗が出るかを見る（CPU）。getup-v11 の判定の計算にも使う |
+| `tools/real_vs_sim_video.py` | 実機の動画と、同じ始めの姿勢から動かしたシミュ 2 本（学習と同じ・kp 6）を時刻をそろえて並べる → `media/videos/getup/real_vs_sim_<試行>.mp4`（CPU） |
 | `tools/check_mirror.py` | 左右反転の並びを、鏡像の状態を置いて物理で確かめる（CPU、1 分以内） |
 | `tools/diag_levers.py`・`tools/diag_stuck.py`・`tools/diag_mirror.py`・`tools/diag_sym.py`・`tools/diag_switch_path.py` | 学習し直さない診断（GPU、各 5〜10 分）。評価のときだけ条件を変える、止まった姿勢を調べる、方策を左右反転して動かす。結果は `experiments/getup/eval/diag_*.json`、まとめは `docs/GetUpImprovementOptions.md` |
 | `tools/summarize_v7.py`・`tools/summarize_v8.py`・`tools/summarize_v9.py`・`tools/summarize_v10.py`・`tools/summarize_v10_sym.py`・`tools/summarize_v10_still_seeds.py`・`tools/summarize_v10_dir.py`・`tools/summarize_v10_c3.py` | 版の結果の表と、学習の前に固定した基準での判定を `experiments/getup/v{7,8}_results.md` に書く |
+| `jobs/run_v11.sh`・`jobs/queue_v11.txt`・`tools/summarize_v11.py` | getup-v11 の 3 シードを学習 → 検証（動画）→ 判定の計算（CPU）→ `experiments/getup/v11_results.md`。C3 より先に回す（11/6） |
 | `jobs/run_v7.sh`・`jobs/run_v8.sh`・`jobs/run_v9.sh`・`jobs/run_v10.sh`・`jobs/run_v10_sym.sh`・`jobs/run_v10_still_seeds.sh`・`jobs/run_v10_c3.sh` | 学習 → 検証 → 追加の動画 → 失敗の型 → まとめ を自動で回す |
 | `ppo_bound.py` | `PPOBound`: rsl-rl 5.4.0 の PPO に、行動の平均が ±1 を超えた分の 2 乗の罰（bound loss）を足したもの（v2 から） |
 | `eval_getup.py` | 学習後の検証。評価用の全状態を決定的な方策で動かし、成功率・トルクなどを `experiments/getup/eval/` に、**毎回、段階ごとに 6 エピソードの動画**を `media/videos/getup/` に（GPU）。エピソードは既定で学習と同じ長さ（`--episode_s` で変える）、`--tag` で記録の名前を分ける |

@@ -1548,4 +1548,5 @@ A1 の構成（`train_getup7 --add hard flipthr`）にシード 4・5・6。向�
 - 採った改善: `getup9-sym-s1` から学習を続け、個体差に「関節ごとのトルクの上限の倍率 0.3〜1.0」と「電源の電流の合計の上限 2〜8 個分（超える分は全関節を同じ割合で弱める）」を足す（`getup/envs/getup_env3.py`、既定は無効）。3 シード × 1500 イテレーション。
 - 体ごとのトルクの上限には Genesis の `batch_dofs_info` が要った。目標角を収める方法では、20 ms の間に力が落ちて上限より弱く効く（上限 30 % で胸が上がらない）ので使わなかった。
 - 模型の確かめ（親の方策、実機の始めの姿勢から 64 回）: 関節ごとの上限 30 % で 0 %（前の全体の上限 30 % と同じ形）、電源の上限 3 個分で 20.3 %（胴体の高さ 0.169 m、肩のずれ 50°。実機の失敗の形に近い）。
+- 出典: KRS-2500 シリーズの取扱説明書（最大電流 1.3 A @11.1 V、https://manualshive.com/en/manual/kondo/2500-series/1992319?page=2 ）、近藤科学 ICS3.5/3.6 ソフトウェアマニュアル 2.4（ストレッチ・電流制限、https://kondo-robot.com/w/wp-content/uploads/ICS3.5_3.6_SoftwareManual_2_4.pdf ）、KRS サーボカタログ（https://kondo-robot.com/w/wp-content/uploads/KRS-ServoCatalog20191214.pdf ）、HumanUP（https://arxiv.org/html/2502.12152v2 。簡単な衝突形状で学習した方策は実機で 5 回とも失敗、動きを 8 倍遅くして強い正則化）、OP3 のサッカー（https://arxiv.org/html/2304.13653v2 。サーボを重りつきの試験で同定、動きが電池の残量にとても敏感）。
 - 私の道具の誤り: `real_repro_sweep.py` と `real_vs_sim_video.py` は、実機の始めの姿勢を可動域に収めるときに最初の関節の範囲（±130°）を全関節に使っていた。1 回目の試行の姿勢（可動域を超えた関節が 3 つ）だけ影響。直した。
