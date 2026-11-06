@@ -1,0 +1,183 @@
+{
+ "exp": "getup10-replay-s2",
+ "ckpt": 2999,
+ "seed": 0,
+ "date": "2026-11-05T23:11:58",
+ "bank": "getup/data/banks/bank_v2.pt",
+ "num_envs": 229,
+ "episode_s": 7.98,
+ "train_episode_s": 8.0,
+ "success_cfg": {
+  "u_min": 0.966,
+  "delta_rad": 0.3,
+  "omega_max": 0.5,
+  "h_thr": 0.175,
+  "hold_s": 1.0
+ },
+ "torque_denominator": "URDF の effort（get_dofs_force_range の上限）",
+ "levels": {
+  "falls": {
+   "n_states": 229,
+   "dr": {
+    "success": 0.9214,
+    "success_ci95": [
+     0.8792,
+     0.9497
+    ],
+    "n_success": 211,
+    "gate": null,
+    "by_u0": {
+     "[0.7,0.9)": {
+      "n": 2,
+      "success": 0.5
+     },
+     "[0.0,0.5)": {
+      "n": 3,
+      "success": 1.0
+     },
+     "[-1.0,0.0)": {
+      "n": 224,
+      "success": 0.9241
+     }
+    },
+    "cum_success_by_time": {
+     "1s": 0.0,
+     "2s": 0.0,
+     "3s": 0.0,
+     "4s": 0.2445,
+     "5s": 0.6594,
+     "6s": 0.8122,
+     "7s": 0.8777,
+     "8s": 0.9214
+    },
+    "time_to_success_median_s": 4.54,
+    "stand_end": 0.9956,
+    "sim_error_episodes": 0,
+    "torque_p99_pct": 57.5,
+    "torque_over90_pct_time": 0.1142,
+    "torque_saturated_pct_time": 0.0,
+    "torque_cap_pct_of_spec": 90.0,
+    "torque_at_cap_pct_time": 0.1149,
+    "torque_at_cap_episodes": 0.9913,
+    "torque_ep_max_median_pct": 90.0,
+    "torque_ep_max_p90_pct": 90.0,
+    "dof_vel_p99": 1.38,
+    "torque_saturated_episodes": 0.0,
+    "torque_saturated_joints_top5": {},
+    "torque_first_saturation_s": null
+   },
+   "nominal": {
+    "success": 0.9956,
+    "success_ci95": [
+     0.9757,
+     0.9992
+    ],
+    "n_success": 228,
+    "gate": null,
+    "by_u0": {
+     "[0.7,0.9)": {
+      "n": 2,
+      "success": 1.0
+     },
+     "[0.0,0.5)": {
+      "n": 3,
+      "success": 0.6667
+     },
+     "[-1.0,0.0)": {
+      "n": 224,
+      "success": 1.0
+     }
+    },
+    "cum_success_by_time": {
+     "1s": 0.0,
+     "2s": 0.0,
+     "3s": 0.0,
+     "4s": 0.3755,
+     "5s": 0.8821,
+     "6s": 0.9782,
+     "7s": 0.9956,
+     "8s": 0.9956
+    },
+    "time_to_success_median_s": 4.18,
+    "stand_end": 1.0,
+    "sim_error_episodes": 0,
+    "torque_p99_pct": 56.3,
+    "torque_over90_pct_time": 0.1057,
+    "torque_saturated_pct_time": 0.0,
+    "torque_cap_pct_of_spec": 90.0,
+    "torque_at_cap_pct_time": 0.1062,
+    "torque_at_cap_episodes": 0.9825,
+    "torque_ep_max_median_pct": 90.0,
+    "torque_ep_max_p90_pct": 90.0,
+    "dof_vel_p99": 1.35,
+    "torque_saturated_episodes": 0.0,
+    "torque_saturated_joints_top5": {},
+    "torque_first_saturation_s": null
+   }
+  }
+ },
+ "videos": [
+  {
+   "level": "falls",
+   "path": "media/videos/getup/getup10-replay-s2_2999_falls.mp4",
+   "seconds": 47.9,
+   "episodes": [
+    {
+     "order": 1,
+     "bank_idx": 24739,
+     "u0": -0.855,
+     "eval_success": true,
+     "eval_t_s": 5.84,
+     "replay_success": true,
+     "replay_t_s": 5.4
+    },
+    {
+     "order": 2,
+     "bank_idx": 24672,
+     "u0": -0.801,
+     "eval_success": true,
+     "eval_t_s": 4.12,
+     "replay_success": true,
+     "replay_t_s": 4.88
+    },
+    {
+     "order": 3,
+     "bank_idx": 24411,
+     "u0": -0.812,
+     "eval_success": true,
+     "eval_t_s": 6.7,
+     "replay_success": false,
+     "replay_t_s": null
+    },
+    {
+     "order": 4,
+     "bank_idx": 24088,
+     "u0": -0.847,
+     "eval_success": true,
+     "eval_t_s": 4.32,
+     "replay_success": true,
+     "replay_t_s": 4.3
+    },
+    {
+     "order": 5,
+     "bank_idx": 24817,
+     "u0": -0.86,
+     "eval_success": false,
+     "eval_t_s": null,
+     "replay_success": true,
+     "replay_t_s": 7.7
+    },
+    {
+     "order": 6,
+     "bank_idx": 24514,
+     "u0": -0.854,
+     "eval_success": false,
+     "eval_t_s": null,
+     "replay_success": false,
+     "replay_t_s": null
+    }
+   ]
+  }
+ ],
+ "elapsed_s": 80.4
+}
