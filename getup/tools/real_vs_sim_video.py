@@ -8,6 +8,7 @@
 - シミュ: 実機の記録の最初の行（通電の始めに測った関節角と重力の向き）を可動域に収めて置き、学習環境（getup_env3、個体差あり、
   乱数は --seed）で方策を 8 秒動かす。条件は「学習と同じ（kp 25）」と「kp 6（実機の失敗を再現した条件、
   experiments/real/20261106_getup_r2/README.md）」。ずれの上限は実機の試行と同じ値にする。8 秒のあとは最後のコマで止める。
+  11/6 夜: 弱い側の既定を「トルクの上限を仕様の 30 %」（--weak cap0.3、出力は ..._cap0.3.mp4）に変えた。kp 6 は実機より弱すぎた（--weak kp6 で前と同じ）。
 - カメラは体の右側から（実機の動画と同じ向き）。始めの向きで固定し、位置だけ体を追う。
 動画は git に入れない（*.mp4）。
 """
@@ -57,7 +58,7 @@ def find_onset(path: Path) -> float:
     return (hit[0] + 1) / FPS
 
 
-def sim_frames(trial: Path, kp: float, gap: float, seed: int, seconds: float) -> tuple[list[np.ndarray], bool, float | None]:
+def sim_frames(trial: Path, kp: float, gap: float, seed: int, seconds: float, cap: float | None = None) -> tuple[list[np.ndarray], bool, float | None]:
     import genesis as gs
     import torch
     from rsl_rl.runners import OnPolicyRunner
@@ -66,11 +67,14 @@ def sim_frames(trial: Path, kp: float, gap: float, seed: int, seconds: float) ->
     exp = "getup9-sym-s1"
     env_cfg, obs_cfg, reward_cfg, train_cfg = pickle.load(open(LOG_ROOT / exp / "cfgs.pkl", "rb"))
     cfg = dict(env_cfg, episode_length_s=seconds, kp=kp, action=dict(env_cfg["action"], gap=gap))
+    if cap is not None:                              # トルクの上限（仕様に対する割合）。11/6 夜に追加
+        cfg["torque_cap_scale"] = cap
     Env = importlib.import_module(env_cfg["env_module"]).GetupEnv
     top = len(env_cfg["curriculum"]["levels"]) - 1
     torch.manual_seed(seed)
     env = Env(1, cfg, obs_cfg, reward_cfg, eval_mode=True, level=top, camera_res=(W, H))
     rows = np.load(trial)["rows"]
+    rows = rows[rows[:, 1].astype(int) == 2]          # 方策の最初の行（通電で可動域へ寄せたあと）。11/6 夜に変えた（前は記録の最初の行）
     n = 22
     q0, down = rows[0, 3:3 + n], rows[0, 6 + n:9 + n] / np.linalg.norm(rows[0, 6 + n:9 + n])
     lo, hi = env.q_lo.reshape(-1, 22)[0].cpu().numpy(), env.q_hi.reshape(-1, 22)[0].cpu().numpy()   # 関節ごとの可動域（11/6 に直した。前は最初の関節の範囲を全関節に使っていた）
@@ -131,6 +135,7 @@ def main() -> int:
     ap.add_argument("--title", required=True, help="実機の欄の見出し")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--onset", type=float, default=None, help="動き始めの時刻 [s]（省略時は自動で探す）")
+    ap.add_argument("--weak", default="cap0.3", help="弱い側のシミュ: cap0.3（トルクの上限を仕様の 30 %%、実機にいちばん近い）か kp6（前の動画）")
     a = ap.parse_args()
     chdir_repo_root()
     import genesis as gs
@@ -148,11 +153,12 @@ def main() -> int:
     pre, total = 1.0, pol_s + hold_s + 1.0
     i0 = int(round((onset - pre) * FPS))
     sims = []
-    for kp, name in ((25.0, "シミュ: 学習と同じ（kp 25）"), (6.0, "シミュ: サーボを弱く（kp 6）")):
-        fr, ok, st = sim_frames(trial, kp, gap, a.seed, pol_s)
+    weak = (6.0, None, "シミュ: サーボを弱く（kp 6）") if a.weak == "kp6" else (25.0, 0.3, "シミュ: トルクの上限を仕様の 30 %")
+    for kp, cap, name in ((25.0, None, "シミュ: 学習と同じ（kp 25）"), weak):
+        fr, ok, st = sim_frames(trial, kp, gap, a.seed, pol_s, cap)
         sims.append((fr, name, f"{'成功（' + format(st, '.1f') + ' 秒）' if ok else '成功せず'}、ずれの上限 {gap} rad"))
         print(f"[info] {name}: {'成功' if ok else '成功せず'}", flush=True)
-    out = REPO_ROOT / "media" / "videos" / "getup" / f"real_vs_sim_{trial.stem.replace('getup_trial_', '')}.mp4"
+    out = REPO_ROOT / "media" / "videos" / "getup" / f"real_vs_sim_{trial.stem.replace('getup_trial_', '')}{'' if a.weak == 'kp6' else '_' + a.weak}.mp4"
     out.parent.mkdir(parents=True, exist_ok=True)
     wr = imageio.get_writer(str(out), fps=FPS, codec="libx264", quality=7, macro_block_size=8)
     blank = np.zeros((H, W, 3), dtype=np.uint8)

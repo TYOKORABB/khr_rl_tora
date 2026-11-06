@@ -1,0 +1,406 @@
+{
+ "trial": "getup_trial_prone_20261106_145011.npz",
+ "exp": "getup9-sym-s1",
+ "ckpt": "2999",
+ "per": 16,
+ "gap": 0.05,
+ "policy_steps_real": 400,
+ "real": {
+  "push_pct": {
+   "肩ピッチ": 83.0,
+   "腕": 56.5,
+   "脚": 14.5,
+   "全関節": 30.3
+  },
+  "dtarget_deg_2s": 0.872,
+  "dtarget_deg_6s": 0.807,
+  "h_max": 0.213,
+  "u_end": 0.904
+ },
+ "conds": [
+  {
+   "cond": {
+    "kp": 10,
+    "cap": 0.3
+   },
+   "success_pct": 0.0,
+   "rmse_deg": {
+    "全関節": 20.1,
+    "腕": 22.7,
+    "脚": 18.2
+   },
+   "rmse_h_m": 0.107,
+   "rmse_u": 0.051,
+   "h_max_median": 0.059,
+   "push_pct_median": {
+    "肩ピッチ": 70.3,
+    "腕": 56.0,
+    "脚": 13.2,
+    "全関節": 29.3
+   },
+   "dtarget_deg_2s_median": 0.904,
+   "dtarget_deg_6s_median": 0.913,
+   "end_dev_deg_median": 19.3
+  },
+  {
+   "cond": {
+    "kp": 10,
+    "cap": 0.4
+   },
+   "success_pct": 0.0,
+   "rmse_deg": {
+    "全関節": 20.6,
+    "腕": 23.5,
+    "脚": 18.2
+   },
+   "rmse_h_m": 0.107,
+   "rmse_u": 0.051,
+   "h_max_median": 0.059,
+   "push_pct_median": {
+    "肩ピッチ": 71.6,
+    "腕": 55.6,
+    "脚": 12.5,
+    "全関節": 29.1
+   },
+   "dtarget_deg_2s_median": 0.913,
+   "dtarget_deg_6s_median": 0.92,
+   "end_dev_deg_median": 19.2
+  },
+  {
+   "cond": {
+    "kp": 10,
+    "cap": 0.5
+   },
+   "success_pct": 0.0,
+   "rmse_deg": {
+    "全関節": 20.4,
+    "腕": 23.4,
+    "脚": 18.1
+   },
+   "rmse_h_m": 0.107,
+   "rmse_u": 0.051,
+   "h_max_median": 0.06,
+   "push_pct_median": {
+    "肩ピッチ": 71.5,
+    "腕": 55.8,
+    "脚": 12.4,
+    "全関節": 28.9
+   },
+   "dtarget_deg_2s_median": 0.924,
+   "dtarget_deg_6s_median": 0.935,
+   "end_dev_deg_median": 18.9
+  },
+  {
+   "cond": {
+    "kp": 10,
+    "cap": 0.9
+   },
+   "success_pct": 0.0,
+   "rmse_deg": {
+    "全関節": 20.2,
+    "腕": 23.4,
+    "脚": 18.2
+   },
+   "rmse_h_m": 0.107,
+   "rmse_u": 0.051,
+   "h_max_median": 0.06,
+   "push_pct_median": {
+    "肩ピッチ": 71.2,
+    "腕": 55.5,
+    "脚": 12.3,
+    "全関節": 29.1
+   },
+   "dtarget_deg_2s_median": 0.919,
+   "dtarget_deg_6s_median": 0.933,
+   "end_dev_deg_median": 18.8
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "cap": 0.3
+   },
+   "success_pct": 0.0,
+   "rmse_deg": {
+    "全関節": 21.6,
+    "腕": 25.5,
+    "脚": 18.2
+   },
+   "rmse_h_m": 0.106,
+   "rmse_u": 0.05,
+   "h_max_median": 0.065,
+   "push_pct_median": {
+    "肩ピッチ": 67.9,
+    "腕": 54.9,
+    "脚": 14.2,
+    "全関節": 30.1
+   },
+   "dtarget_deg_2s_median": 0.866,
+   "dtarget_deg_6s_median": 0.87,
+   "end_dev_deg_median": 19.5
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "cap": 0.4
+   },
+   "success_pct": 6.2,
+   "rmse_deg": {
+    "全関節": 20.9,
+    "腕": 25.3,
+    "脚": 17.6
+   },
+   "rmse_h_m": 0.089,
+   "rmse_u": 0.047,
+   "h_max_median": 0.132,
+   "push_pct_median": {
+    "肩ピッチ": 62.6,
+    "腕": 51.3,
+    "脚": 14.6,
+    "全関節": 28.9
+   },
+   "dtarget_deg_2s_median": 0.899,
+   "dtarget_deg_6s_median": 0.917,
+   "end_dev_deg_median": 18.2
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "cap": 0.5
+   },
+   "success_pct": 6.2,
+   "rmse_deg": {
+    "全関節": 19.4,
+    "腕": 22.8,
+    "脚": 17.7
+   },
+   "rmse_h_m": 0.066,
+   "rmse_u": 0.046,
+   "h_max_median": 0.183,
+   "push_pct_median": {
+    "肩ピッチ": 59.9,
+    "腕": 51.7,
+    "脚": 16.1,
+    "全関節": 28.4
+   },
+   "dtarget_deg_2s_median": 0.987,
+   "dtarget_deg_6s_median": 1.14,
+   "end_dev_deg_median": 23.6
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "cap": 0.9
+   },
+   "success_pct": 6.2,
+   "rmse_deg": {
+    "全関節": 18.8,
+    "腕": 21.6,
+    "脚": 16.6
+   },
+   "rmse_h_m": 0.07,
+   "rmse_u": 0.046,
+   "h_max_median": 0.182,
+   "push_pct_median": {
+    "肩ピッチ": 56.7,
+    "腕": 52.1,
+    "脚": 16.4,
+    "全関節": 28.2
+   },
+   "dtarget_deg_2s_median": 0.986,
+   "dtarget_deg_6s_median": 1.082,
+   "end_dev_deg_median": 20.6
+  },
+  {
+   "cond": {
+    "kp": 15,
+    "cap": 0.3
+   },
+   "success_pct": 0.0,
+   "rmse_deg": {
+    "全関節": 23.1,
+    "腕": 29.8,
+    "脚": 18.2
+   },
+   "rmse_h_m": 0.1,
+   "rmse_u": 0.049,
+   "h_max_median": 0.088,
+   "push_pct_median": {
+    "肩ピッチ": 64.9,
+    "腕": 50.9,
+    "脚": 15.7,
+    "全関節": 31.0
+   },
+   "dtarget_deg_2s_median": 0.878,
+   "dtarget_deg_6s_median": 0.885,
+   "end_dev_deg_median": 21.2
+  },
+  {
+   "cond": {
+    "kp": 15,
+    "cap": 0.4
+   },
+   "success_pct": 37.5,
+   "rmse_deg": {
+    "全関節": 24.8,
+    "腕": 29.8,
+    "脚": 20.8
+   },
+   "rmse_h_m": 0.061,
+   "rmse_u": 0.047,
+   "h_max_median": 0.194,
+   "push_pct_median": {
+    "肩ピッチ": 42.5,
+    "腕": 38.8,
+    "脚": 13.9,
+    "全関節": 22.8
+   },
+   "dtarget_deg_2s_median": 1.036,
+   "dtarget_deg_6s_median": 1.336,
+   "end_dev_deg_median": 26.8
+  },
+  {
+   "cond": {
+    "kp": 15,
+    "cap": 0.5
+   },
+   "success_pct": 93.8,
+   "rmse_deg": {
+    "全関節": 26.5,
+    "腕": 30.6,
+    "脚": 24.0
+   },
+   "rmse_h_m": 0.05,
+   "rmse_u": 0.05,
+   "h_max_median": 0.195,
+   "push_pct_median": {
+    "肩ピッチ": 31.4,
+    "腕": 27.8,
+    "脚": 11.0,
+    "全関節": 18.3
+   },
+   "dtarget_deg_2s_median": 1.338,
+   "dtarget_deg_6s_median": 1.688,
+   "end_dev_deg_median": 27.2
+  },
+  {
+   "cond": {
+    "kp": 15,
+    "cap": 0.9
+   },
+   "success_pct": 100.0,
+   "rmse_deg": {
+    "全関節": 27.5,
+    "腕": 31.5,
+    "脚": 25.8
+   },
+   "rmse_h_m": 0.039,
+   "rmse_u": 0.049,
+   "h_max_median": 0.194,
+   "push_pct_median": {
+    "肩ピッチ": 19.1,
+    "腕": 23.4,
+    "脚": 7.2,
+    "全関節": 14.1
+   },
+   "dtarget_deg_2s_median": 1.442,
+   "dtarget_deg_6s_median": 1.692,
+   "end_dev_deg_median": 27.2
+  },
+  {
+   "cond": {
+    "kp": 18,
+    "cap": 0.3
+   },
+   "success_pct": 0.0,
+   "rmse_deg": {
+    "全関節": 24.2,
+    "腕": 30.7,
+    "脚": 18.1
+   },
+   "rmse_h_m": 0.094,
+   "rmse_u": 0.048,
+   "h_max_median": 0.097,
+   "push_pct_median": {
+    "肩ピッチ": 67.2,
+    "腕": 49.9,
+    "脚": 14.8,
+    "全関節": 29.4
+   },
+   "dtarget_deg_2s_median": 0.901,
+   "dtarget_deg_6s_median": 0.891,
+   "end_dev_deg_median": 22.2
+  },
+  {
+   "cond": {
+    "kp": 18,
+    "cap": 0.4
+   },
+   "success_pct": 62.5,
+   "rmse_deg": {
+    "全関節": 25.5,
+    "腕": 30.3,
+    "脚": 23.8
+   },
+   "rmse_h_m": 0.053,
+   "rmse_u": 0.043,
+   "h_max_median": 0.194,
+   "push_pct_median": {
+    "肩ピッチ": 36.0,
+    "腕": 32.2,
+    "脚": 12.1,
+    "全関節": 21.1
+   },
+   "dtarget_deg_2s_median": 1.235,
+   "dtarget_deg_6s_median": 1.611,
+   "end_dev_deg_median": 27.1
+  },
+  {
+   "cond": {
+    "kp": 18,
+    "cap": 0.5
+   },
+   "success_pct": 100.0,
+   "rmse_deg": {
+    "全関節": 28.9,
+    "腕": 33.5,
+    "脚": 26.6
+   },
+   "rmse_h_m": 0.04,
+   "rmse_u": 0.05,
+   "h_max_median": 0.196,
+   "push_pct_median": {
+    "肩ピッチ": 17.4,
+    "腕": 17.6,
+    "脚": 6.2,
+    "全関節": 11.9
+   },
+   "dtarget_deg_2s_median": 1.506,
+   "dtarget_deg_6s_median": 1.692,
+   "end_dev_deg_median": 27.1
+  },
+  {
+   "cond": {
+    "kp": 18,
+    "cap": 0.9
+   },
+   "success_pct": 100.0,
+   "rmse_deg": {
+    "全関節": 30.1,
+    "腕": 35.2,
+    "脚": 27.7
+   },
+   "rmse_h_m": 0.032,
+   "rmse_u": 0.051,
+   "h_max_median": 0.195,
+   "push_pct_median": {
+    "肩ピッチ": 8.3,
+    "腕": 13.8,
+    "脚": 4.5,
+    "全関節": 8.7
+   },
+   "dtarget_deg_2s_median": 1.596,
+   "dtarget_deg_6s_median": 1.691,
+   "end_dev_deg_median": 27.2
+  }
+ ]
+}

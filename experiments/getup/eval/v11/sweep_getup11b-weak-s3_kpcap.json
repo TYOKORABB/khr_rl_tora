@@ -1,0 +1,55 @@
+{
+ "exp": "getup11b-weak-s3",
+ "ckpt": "4498",
+ "per_start": 16,
+ "starts": [
+  "getup_trial_prone_20261106_144516.npz",
+  "getup_trial_prone_20261106_145011.npz",
+  "getup_trial_prone_mat_20261106_145940.npz",
+  "getup_trial_prone_mat_gap08_20261106_150153.npz"
+ ],
+ "results": [
+  {
+   "cond": {
+    "kp": 10,
+    "cap": 0.3
+   },
+   "success_pct": 25.0,
+   "push_pct": 34.4,
+   "shoulder_dev_deg": 2.8,
+   "h_max_m": 0.193,
+   "n": 64
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "cap": 0.3
+   },
+   "success_pct": 67.2,
+   "push_pct": 20.4,
+   "shoulder_dev_deg": 2.3,
+   "h_max_m": 0.194,
+   "n": 64
+  },
+  {
+   "cond": {
+    "kp": 10
+   },
+   "success_pct": 84.4,
+   "push_pct": 24.5,
+   "shoulder_dev_deg": 1.5,
+   "h_max_m": 0.194,
+   "n": 64
+  },
+  {
+   "cond": {
+    "kp": 12
+   },
+   "success_pct": 98.4,
+   "push_pct": 10.7,
+   "shoulder_dev_deg": 2.0,
+   "h_max_m": 0.194,
+   "n": 64
+  }
+ ]
+}

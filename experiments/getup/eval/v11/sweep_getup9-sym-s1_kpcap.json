@@ -1,0 +1,55 @@
+{
+ "exp": "getup9-sym-s1",
+ "ckpt": "2999",
+ "per_start": 16,
+ "starts": [
+  "getup_trial_prone_20261106_144516.npz",
+  "getup_trial_prone_20261106_145011.npz",
+  "getup_trial_prone_mat_20261106_145940.npz",
+  "getup_trial_prone_mat_gap08_20261106_150153.npz"
+ ],
+ "results": [
+  {
+   "cond": {
+    "kp": 10,
+    "cap": 0.3
+   },
+   "success_pct": 0.0,
+   "push_pct": 69.6,
+   "shoulder_dev_deg": 90.9,
+   "h_max_m": 0.06,
+   "n": 64
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "cap": 0.3
+   },
+   "success_pct": 0.0,
+   "push_pct": 60.4,
+   "shoulder_dev_deg": 89.3,
+   "h_max_m": 0.067,
+   "n": 64
+  },
+  {
+   "cond": {
+    "kp": 10
+   },
+   "success_pct": 0.0,
+   "push_pct": 69.8,
+   "shoulder_dev_deg": 89.6,
+   "h_max_m": 0.062,
+   "n": 64
+  },
+  {
+   "cond": {
+    "kp": 12
+   },
+   "success_pct": 20.3,
+   "push_pct": 45.8,
+   "shoulder_dev_deg": 6.2,
+   "h_max_m": 0.192,
+   "n": 64
+  }
+ ]
+}
