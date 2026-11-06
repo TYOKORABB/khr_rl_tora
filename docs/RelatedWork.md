@@ -45,3 +45,4 @@ humanoid multimodal locomotion bipedal quadrupedal transition／ヒューマノ�
 - 小型の人型（KHR・Robotis OP など）の強化学習の国内の研究（J-STAGE・日本ロボット学会の講演論文集）。
 - 報酬の設計の指針（相対量・観測できること）に近い研究。強化学習の一般論（部分観測）として書くときの文献。
 - iCub の這い歩きの原文。
+- 11/6: 起き上がりの Sim2Real・サーボの力と電源の制約・忘却・行動の滑らかさ・電流の測り方を、本人が Claude in Chrome で調べる（プロンプト `SurveyPrompt_20261106_getup.md`）。結果はここに足す。
