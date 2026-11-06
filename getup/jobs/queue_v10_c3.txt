@@ -1,0 +1,4 @@
+# getup-v10 の C3: A1 の構成（v7 の B、train_getup7 --add hard flipthr）にシード 4・5・6 を足す（2026-11-06）。計画と判定の基準は experiments/getup/v10_plan.md §11（学習の前に固定）。
+getup7-hardflip-s4  4 3000 train_getup7 --add hard flipthr
+getup7-hardflip-s5  5 3000 train_getup7 --add hard flipthr
+getup7-hardflip-s6  6 3000 train_getup7 --add hard flipthr
