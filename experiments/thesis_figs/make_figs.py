@@ -641,6 +641,45 @@ def fig_getup_seq(out: Path):
     save(fig, out, "getup_seq")
 
 
+def fig_getup_realsim(out: Path):
+    """実機の起き上がり 2 回目（11/6、うつ伏せ）と、同じ始めの姿勢からのシミュレーション（16 回の中央値）の関節角と胴体の高さ（11/7）。
+    出典: getup/tools/real_vs_sim_traj.py --save_npz の系列（logs/getup_jobs/current/traj_・trajgrid_prone_20261106_145011.npz、git 外。
+    実機の生の記録 real/data/raw/getup_trial/ から作り直せる）。値の表は experiments/real/20261106_getup_r2/traj_fit.md。"""
+    import sys
+    import numpy as np
+    sys.path.insert(0, str(ROOT))
+    from khr_common.joint_map import JOINT_NAMES
+    cur = ROOT / "logs" / "getup_jobs" / "current"
+    st = "prone_20261106_145011"
+    a, g = np.load(cur / f"traj_{st}.npz"), np.load(cur / f"trajgrid_{st}.npz")
+    series = [(a, "{}", "学習と同じ（kp 25，上限 90\\,%）", SEED_COLORS[1], "-"),
+              (g, '{"kp": 12, "cap": 0.3}', "kp 12，トルクの上限 30\\,%", SEED_COLORS[2], "--"),
+              (a, '{"pb": [3.0, 3.0], "pm": "waterfill"}', "電源の合計を 3 個分に制限", SEED_COLORS[3], "-.")]
+    panels = [("r_shoulder_pitch", "(a) 右肩ピッチ [$^\\circ$]"), ("l_shoulder_pitch", "(b) 左肩ピッチ [$^\\circ$]"),
+              ("r_elbow_pitch", "(c) 右肘ピッチ [$^\\circ$]"), ("h", "(d) 胴体の高さ [m]")]
+    fig, axes = plt.subplots(2, 2, figsize=(150 * MM, 92 * MM), sharex=True, gridspec_kw={"hspace": 0.38, "wspace": 0.25})
+    t = (np.arange(len(a["real_q"])) + 1) * 0.02
+    for ax, (key, title) in zip(axes.flat, panels):
+        if key == "h":
+            real = a["real_h"]
+        else:
+            real = np.degrees(a["real_q"][:, JOINT_NAMES.index(key)])
+        for d, cond, lab, col, ls in series:
+            v = d[("sim_h_median__" if key == "h" else "sim_q_median__") + cond]
+            v = v if key == "h" else np.degrees(v[:, JOINT_NAMES.index(key)])
+            ax.plot(t[:len(v)], v, color=col, lw=1.3, ls=ls, label=lab.replace("\\,", " "))
+        ax.plot(t, real, color=INK, lw=2.0, label="実機")
+        ax.set_title(title, loc="left")
+        ax.grid(axis="y", color=GRID, lw=0.6)
+        for sp in ("top", "right"):
+            ax.spines[sp].set_visible(False)
+    for ax in axes[1]:
+        ax.set_xlabel("方策を動かし始めてからの時間 [s]")
+    h, lab = axes.flat[0].get_legend_handles_labels()
+    fig.legend(h, lab, loc="upper center", bbox_to_anchor=(0.5, 1.02), ncol=4, frameon=False, fontsize=7)
+    save(fig, out, "getup_realsim")
+
+
 U0_BINS = (("0.9 以上\nうつ伏せ", 0.9, 1.01, "[0.9,1.0)"), ("0.7〜0.9", 0.7, 0.9, "[0.7,0.9)"), ("0.5〜0.7", 0.5, 0.7, "[0.5,0.7)"),
            ("0〜0.5\n横倒し", 0.0, 0.5, "[0.0,0.5)"), ("0 未満\n仰向け寄り", -1.01, 0.0, "[-1.0,0.0)"))
 
@@ -694,7 +733,7 @@ def fig_getup_gap(out: Path):
 FIGS = {"allver": fig_allver, "progress": fig_progress, "push": fig_push, "ablation": fig_ablation,
         "learncurve": fig_learncurve, "jointtrack": fig_jointtrack, "gait": fig_gait, "basestate": fig_basestate,
         "torquejoint": fig_torquejoint, "clearance": fig_clearance, "heading": fig_heading, "simreal": fig_simreal,
-        "torquecmp": fig_torquecmp, "jointerr": fig_jointerr, "getup_seq": fig_getup_seq, "getup_gap": fig_getup_gap}
+        "torquecmp": fig_torquecmp, "jointerr": fig_jointerr, "getup_seq": fig_getup_seq, "getup_gap": fig_getup_gap, "getup_realsim": fig_getup_realsim}
 
 
 def main():
