@@ -4,7 +4,7 @@
 
 始めの姿勢は real/data/raw/getup_trial/ の各試行の最初の行（通電の始めに測った関節角と重力の向き。可動域に収めて置く）。方策は getup9-sym-s1。
 条件: cap = torque_cap_scale、kp = サーボの硬さ、mass = 胴体の質量の増減の範囲 [kg]、gap = 目標角と測った角度のずれの上限 [rad]。
-「肩ピッチが上限近くで押した割合」は 1.5 秒以降、左右の肩ピッチで |送った目標角 − 角度| > gap − 0.01 rad の割合（実機の記録と同じ見方）。
+胴体の高さはシミュの真の値（実機は関節角と重力からの推定）。「肩ピッチが上限近くで押した割合」は 1.5 秒以降、左右の肩ピッチで |送った目標角 − 角度| > gap − 0.01 rad の割合（実機の記録と同じ見方）。
 結果の表は experiments/real/20261106_getup_r2/README.md。生データ（real/data/raw/）はこの PC にしかない。
 """
 import copy, importlib, pickle, sys, glob, math, json
@@ -50,15 +50,16 @@ for c in configs:
     idx = torch.arange(len(starts)).repeat_interleave(per)
     obs = env.force_reset(idx, top)
     gap = env.post.gap
-    succ = torch.zeros(B, dtype=torch.bool); push = torch.zeros(B); cnt = 0
+    succ = torch.zeros(B, dtype=torch.bool); push = torch.zeros(B); cnt = 0; hmax = torch.zeros(B)
     with torch.no_grad():
         for t in range(env.max_episode_length - 1):
             tgt = env.q_delay.clone()
             obs, _, done, _ = env.step(pol(obs))
             succ |= env.ep_success.cpu()
+            hmax = torch.maximum(hmax, env.h_base.cpu())
             if t >= 75:
                 push += ((tgt - env.q)[:, SH].abs() > gap - 0.01).float().mean(1).cpu(); cnt += 1
     push = push / cnt
     dev = torch.rad2deg((env.q - env.q_nom)[:, SH].abs()).mean(1).cpu()
-    print(f"{json.dumps(c, ensure_ascii=False):45s} 成功 {100*succ.float().mean():5.1f} %  肩ピッチが上限近くで押した割合 {100*push.mean():5.1f} %  最後の肩ピッチの公称からのずれ {dev.median():5.1f}°", flush=True)
+    print(f"{json.dumps(c, ensure_ascii=False):45s} 成功 {100*succ.float().mean():5.1f} %  肩ピッチが上限近くで押した割合 {100*push.mean():5.1f} %  最後の肩ピッチの公称からのずれ {dev.median():5.1f}°  胴体の高さの最大（中央値） {hmax.median():.3f} m", flush=True)
     del env, rn, pol
