@@ -505,8 +505,17 @@ class GetupEnv:
             if keep is not None and "t_scale" in keep:
                 self.t_scale[ids], self.p_budget[ids] = keep["t_scale"], keep["p_budget"]
             else:
-                self.t_scale[ids] = rnd(dr["torque_scale"], k, 1) if "torque_scale" in dr else 1.0
-                self.p_budget[ids] = rnd(dr["power_budget"], k) if "power_budget" in dr else float("inf")
+                # v11b（11/6）: weak_ramp_iters があれば、学習の始めは弱さの下限を上限側に寄せ、そのイテレーション数で目標の範囲まで広げる
+                # （評価では最初から目標の範囲）。weak_full_frac の割合のエピソードは元の強さにする
+                ramp = dr.get("weak_ramp_iters")
+                frac = 1.0 if (not ramp or self.eval_mode) else min(1.0, (self.common_step_counter // self.env_cfg["curriculum"]["steps_per_iter"]) / ramp)
+                def rng(lo_hi):
+                    return (lo_hi[1] - (lo_hi[1] - lo_hi[0]) * frac, lo_hi[1])
+                self.t_scale[ids] = rnd(rng(dr["torque_scale"]), k, 1) if "torque_scale" in dr else 1.0
+                self.p_budget[ids] = rnd(rng(dr["power_budget"]), k) if "power_budget" in dr else float("inf")
+                full = torch.rand(k, device=self.device) < float(dr.get("weak_full_frac", 0.0))
+                self.t_scale[ids] = torch.where(full.unsqueeze(1), torch.ones_like(self.t_scale[ids]), self.t_scale[ids])
+                self.p_budget[ids] = torch.where(full, torch.full_like(self.p_budget[ids], float("inf")), self.p_budget[ids])
         # 状態を読み直し、前回の目標角・遅れのバッファ・履歴を実測から作る（公称姿勢からの跳びを防ぐ）
         self._read_state()
         q_meas = (self.q - self.trim)[ids]

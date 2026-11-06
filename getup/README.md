@@ -32,6 +32,7 @@
 | `tools/diag_levers.py`・`tools/diag_stuck.py`・`tools/diag_mirror.py`・`tools/diag_sym.py`・`tools/diag_switch_path.py` | 学習し直さない診断（GPU、各 5〜10 分）。評価のときだけ条件を変える、止まった姿勢を調べる、方策を左右反転して動かす。結果は `experiments/getup/eval/diag_*.json`、まとめは `docs/GetUpImprovementOptions.md` |
 | `tools/summarize_v7.py`・`tools/summarize_v8.py`・`tools/summarize_v9.py`・`tools/summarize_v10.py`・`tools/summarize_v10_sym.py`・`tools/summarize_v10_still_seeds.py`・`tools/summarize_v10_dir.py`・`tools/summarize_v10_c3.py` | 版の結果の表と、学習の前に固定した基準での判定を `experiments/getup/v{7,8}_results.md` に書く |
 | `jobs/run_v11.sh`・`jobs/queue_v11.txt`・`tools/summarize_v11.py` | getup-v11 の 3 シードを学習 → 検証（動画）→ 判定の計算（CPU）→ `experiments/getup/v11_results.md`。C3 より先に回す（11/6） |
+| `jobs/run_v11b.sh` | getup-v11b（`v11_plan.md` §5、std 固定・エントロピー 0・弱さを段階的に・元の強さ 25 %）の 3 シード → `summarize_v11 --tag b` → `experiments/getup/v11b_results.md` |
 | `jobs/run_v7.sh`・`jobs/run_v8.sh`・`jobs/run_v9.sh`・`jobs/run_v10.sh`・`jobs/run_v10_sym.sh`・`jobs/run_v10_still_seeds.sh`・`jobs/run_v10_c3.sh` | 学習 → 検証 → 追加の動画 → 失敗の型 → まとめ を自動で回す |
 | `ppo_bound.py` | `PPOBound`: rsl-rl 5.4.0 の PPO に、行動の平均が ±1 を超えた分の 2 乗の罰（bound loss）を足したもの（v2 から） |
 | `eval_getup.py` | 学習後の検証。評価用の全状態を決定的な方策で動かし、成功率・トルクなどを `experiments/getup/eval/` に、**毎回、段階ごとに 6 エピソードの動画**を `media/videos/getup/` に（GPU）。エピソードは既定で学習と同じ長さ（`--episode_s` で変える）、`--tag` で記録の名前を分ける |

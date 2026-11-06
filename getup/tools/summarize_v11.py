@@ -1,12 +1,14 @@
 """getup-v11 の判定（experiments/getup/v11_plan.md §3、学習の前に固定）をまとめる（2026-11-06）。
 
-  python -m getup.tools.summarize_v11      # → experiments/getup/v11_results.md / .json
+  python -m getup.tools.summarize_v11            # → experiments/getup/v11_results.md / .json
+  python -m getup.tools.summarize_v11 --tag b    # → v11b_results.md（getup11b-weak-s*、v11_plan.md §5）
 
 入力は getup/jobs/run_v11.sh が書く experiments/getup/eval/v11/sweep_<exp>.json（getup/tools/real_repro_sweep.py の結果）。
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import statistics as st
 
@@ -29,10 +31,15 @@ def load(exp: str) -> dict | None:
 
 
 def main() -> int:
+    global PAT
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--tag", default="", help="b なら v11b（getup11b-weak-s*、v11b_results.md）")
+    a = ap.parse_args()
+    PAT = f"getup11{a.tag}-weak-s{{}}"
     par = load(PARENT)
     runs = {s: load(PAT.format(s)) for s in SEEDS}
     done = [s for s in SEEDS if runs[s] is not None]
-    lines = ["# getup-v11 の結果（実機の力の不足に合わせて学習を続ける）", "",
+    lines = [f"# getup-v11{a.tag} の結果（実機の力の不足に合わせて学習を続ける）", "",
              "計画と判定の基準は `v11_plan.md` §3（学習の前に固定）。自動生成（`getup/tools/summarize_v11.py`）。",
              "値は成功 %。実機の 4 回の始めの姿勢 × 16 回（`getup/tools/real_repro_sweep.py`、個体差あり、8 秒）。", ""]
     head = "| 条件 | 親（getup9-sym-s1） | " + " | ".join(f"シード {s}" for s in SEEDS) + " | 平均 |"
@@ -60,8 +67,8 @@ def main() -> int:
                   "| 問い | 基準 | 結果 |", "|---|---|---|",
                   f"| 1. 弱いサーボで起き上がれるか（主） | 上限 30 % と電源 3 個分の 2 つとも、平均 ≥ 70 % かつ各シード ≥ 50 % | {'満たす' if q1 else '満たさない'} |",
                   f"| 2. 元の強さで悪くならないか | 弱さなしで各シード ≥ 90 % | {'満たす' if q2 else '満たさない'} |", ""]
-    (EXPERIMENT_ROOT / "getup" / "v11_results.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    (EXPERIMENT_ROOT / "getup" / "v11_results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    (EXPERIMENT_ROOT / "getup" / f"v11{a.tag}_results.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (EXPERIMENT_ROOT / "getup" / f"v11{a.tag}_results.json").write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print("\n".join(lines[-6:]))
     return 0
 
