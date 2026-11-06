@@ -76,6 +76,10 @@ def main() -> int:
         cfg = dict(env_cfg0, episode_length_s=8.0, dr=dict(env_cfg0["dr"]))
         cfg["dr"].pop("torque_scale", None)
         cfg["dr"].pop("power_budget", None)
+        cfg["dr"].pop("protection", None)         # 11/7: プロテクションと観測の古さも、条件で指定しない限り入れない
+        cfg["dr"].pop("obs_stale", None)
+        cfg["dr"].pop("kp_range", None)
+        cfg["dr"].pop("weak_mix", None)          # 11/7: v11c の「電源だけ / サーボ側だけ」の振り分けも評価では入れない
         cfg["dr"].pop("power_model", None)
         cfg["dr"].pop("weak_full_frac", None)       # v11b の設定の「元の強さ 25 %」を評価では入れない
         cfg["dr"].pop("weak_ramp_iters", None)

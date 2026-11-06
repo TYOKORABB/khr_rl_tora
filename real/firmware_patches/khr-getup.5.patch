@@ -1,0 +1,834 @@
+diff -ruN '--exclude=.pio' '--exclude=keys.h' '--exclude=*.orig' base/Meridian_LITE_for_ESP32/src/config.h dev/Meridian_LITE_for_ESP32/src/config.h
+--- a/Meridian_LITE_for_ESP32/src/config.h
++++ b/Meridian_LITE_for_ESP32/src/config.h
+@@ -132,8 +132,30 @@
+ #define MODE_UDP_RECEIVE      1 // PCからのデータ受信(0:OFF, 1:ON, 通常は1)
+ #define MODE_UDP_SEND         1 // PCへのデータ送信(0:OFF, 1:ON, 通常は1)
+ 
++// [khr] 起き上がり実験のための追加(khr_ext.h). 3つとも0/NDOFにすると改造前と同じ動作になる.
++// 通信監視: PCからの正しいパケットが途絶えたら, 最後の目標角を保持 → 全サーボ脱力(ラッチ).
++//           ラッチはコンソールの Power を切ったパケットが届くと解ける. 起動直後も同じ(Power OFF を受けるまで脱力).
++#define KHR_WDG_ENABLE     1    // 通信監視(0:OFF=改造前と同じく最後の目標角を保持し続ける, 1:ON)
++#define KHR_WDG_TIMEOUT_MS 200  // 途絶がこれ以上で HOLD(最後の目標角を保持)
++#define KHR_WDG_HOLD_MS    1000 // HOLD がこれだけ続いたら LIMP(全サーボ脱力)
++// IMU: BNO055 の融合推定の重力ベクトルを Meridim[8..10](100倍値, m/s^2)に, 状態語を[11]に入れる.
++#define KHR_SEND_GRAVITY 1 // (0:OFF, 1:ON)
++// BNO055 の融合モード. 改造前と同じ OPERATION_MODE_NDOF(地磁気あり)が既定.
++// 地磁気を使わないなら OPERATION_MODE_IMUPLUS(ヨーは起動時を基準とした相対値になる).
++#define KHR_BNO055_MODE OPERATION_MODE_NDOF
++// IMU の読み取り方. 1: 加速度・ジャイロ・Euler 角・重力を1回の I2C 読み取りでまとめて読む(khr-getup.3 の既定).
++// 0: 梶田版と同じ個別の読み取り(+重力). 1 のときも, PC が Meridim[87] に 0x6B4C を送っている間は 0 と同じ読み方になる(比較用).
++#define KHR_IMU_BURST       1
++#define KHR_BNO055_I2C_ADDR 0x28 // main.h の Adafruit_BNO055(55, 0x28, &Wire) と同じ
++// 受信: 1 だと, 受けたあとに受信バッファに溜まっている古い通常パケットを読み捨てて最新だけを使う(PC の指令の遅れを減らす).
++// 特殊コマンド(脱力・トリム設定など)は読み捨てない. 0 だと改造前と同じく毎フレーム一番古いパケットを1つ読む.
++#define KHR_UDP_DRAIN 1
++
+ // Wifiの設定(SSID,パスワード等は別途keys.hで指定)
+ #define MODE_FIXED_IP 0 // IPアドレスを固定するか(0:NO, 1:YES)
++// [khr] サーボの電流・温度・設定の読み出し(khr-getup.5). 1: 読む(読み出しのコマンドだけ. 設定は書き換えない). 0: 読まない(khr-getup.4 と同じ)
++#define KHR_SERVO_TEL 1
++
+ #define UDP_TIMEOUT   3 // UDPの待受タイムアウト(単位ms,推奨値0)
+ 
+ // EEPROMの設定　(EEPROMの読み書きを止めるとモータ角度が表示されるようになった)
+diff -ruN '--exclude=.pio' '--exclude=keys.h' '--exclude=*.orig' base/Meridian_LITE_for_ESP32/src/khr_core.h dev/Meridian_LITE_for_ESP32/src/khr_core.h
+--- a/Meridian_LITE_for_ESP32/src/khr_core.h
++++ b/Meridian_LITE_for_ESP32/src/khr_core.h
+@@ -0,0 +1,292 @@
++#ifndef __KHR_CORE_H__
++#define __KHR_CORE_H__
++
++/// @file    khr_core.h
++/// @brief   [khr] khr_ext.h のうち Arduino に依存しない部分(通信監視の状態機械と状態語の組み立て).
++/// @details ホストの g++ で単体テストできる(khr_rl_tora/real/firmware_patches/test/test_khr_core.cpp).
++///          追加: khr_rl_tora (起き上がり実験の安全系 P0-2 と IMU の P0-1), 2026-10.
++
++#include <stdint.h>
++#include <string.h>
++
++enum KhrWdgState : uint8_t {
++  KHR_WDG_DISARMED = 0, // 起動後, Power OFF のパケットをまだ受けていない: 全サーボ脱力
++  KHR_WDG_OK = 1,       // 正常
++  KHR_WDG_HOLD = 2,     // 途絶が timeout_ms 以上: 最後の目標角を保持(改造前と同じ挙動)
++  KHR_WDG_LIMP = 3      // 途絶が timeout_ms + hold_ms 以上: 全サーボ脱力. ラッチする
++};
++
++struct KhrWatchdog {
++  uint32_t timeout_ms;
++  uint32_t hold_ms;
++  uint8_t state = KHR_WDG_DISARMED;
++  uint32_t last_fresh_ms = 0;
++
++  KhrWatchdog(uint32_t a_timeout_ms, uint32_t a_hold_ms)
++      : timeout_ms(a_timeout_ms), hold_ms(a_hold_ms) {}
++
++  /// @brief 1フレームに1回呼び, 新しい状態を返す.
++  /// @param a_now_ms 現在時刻(millis()).
++  /// @param a_fresh このフレームでPCから正しい(チェックサムOKの)パケットを受けたか.
++  /// @param a_all_power_off そのパケットで, マウントされた全サーボの電源フラグが0か.
++  /// @details LIMP のラッチは「パケットが戻った」だけでは解けない. コンソールの Power を切った
++  ///          パケット(全サーボの電源フラグ0)が届いて初めて解ける. 解いたあと再び Power を入れる
++  ///          のはコンソールの通常手順に任せる(コンソールは Power ON の瞬間の実測角を目標にする)ので,
++  ///          脱力して崩れた姿勢から古い目標角へ跳ぶことはない.
++  ///          起動直後(DISARMED)も同じ条件で抜ける. 実験中に ESP32 が電圧降下などで再起動しても,
++  ///          コンソールが Power ON のまま送り続けている目標角へいきなり動き出さない.
++  ///          (コンソールは Power OFF で起動するので, 通常の起動手順は改造前と変わらない.)
++  uint8_t update(uint32_t a_now_ms, bool a_fresh, bool a_all_power_off) {
++    if (a_fresh) {
++      last_fresh_ms = a_now_ms;
++    }
++    const uint32_t silent_ms = a_now_ms - last_fresh_ms; // 符号なし減算なので millis() の桁あふれでも正しい
++
++    switch (state) {
++    case KHR_WDG_OK:
++    case KHR_WDG_HOLD:
++      if (silent_ms >= timeout_ms + hold_ms) {
++        state = KHR_WDG_LIMP;
++      } else if (silent_ms >= timeout_ms) {
++        state = KHR_WDG_HOLD;
++      } else {
++        state = KHR_WDG_OK;
++      }
++      break;
++    case KHR_WDG_DISARMED:
++    case KHR_WDG_LIMP:
++      if (a_fresh && a_all_power_off) {
++        state = KHR_WDG_OK;
++      }
++      break;
++    default: // ありえない値になったら安全側(脱力)へ
++      state = KHR_WDG_LIMP;
++      break;
++    }
++    return state;
++  }
++};
++
++#define KHR_STATUS_MAGIC 0x6B
++
++/// @brief 状態語 Meridim[11] を組み立てる. ビットの割り当ては khr_ext.h の冒頭を参照.
++///        PC 側の読み取りは khr_rl_tora/khr_common/gravity.py の decode_status().
++/// @param a_wdg_state 通信監視の状態(KhrWdgState).
++/// @param a_gravity_fresh このフレームで重力ベクトルを読めたか.
++/// @param a_wdg_enabled 通信監視が有効か.
++/// @param a_calib_stat BNO055 の CALIB_STAT レジスタの値(sys<<6 | gyro<<4 | accel<<2 | mag).
++inline uint16_t khr_pack_status(uint8_t a_wdg_state, bool a_gravity_fresh, bool a_wdg_enabled,
++                                uint8_t a_calib_stat) {
++  uint16_t status = (uint16_t)KHR_STATUS_MAGIC << 8;
++  status |= (uint16_t)(a_wdg_state & 0x03);
++  status |= (uint16_t)(a_gravity_fresh ? 1 : 0) << 2;
++  status |= (uint16_t)(a_wdg_enabled ? 1 : 0) << 3;
++  status |= (uint16_t)((a_calib_stat >> 2) & 0x03) << 4; // 加速度センサ
++  status |= (uint16_t)((a_calib_stat >> 6) & 0x03) << 6; // システム(融合)
++  return status;
++}
++
++// ---- BNO055 の一括読み取り(khr-getup.3) ----------------------------------------------------------
++// 加速度(0x08)から重力(0x2E)までの 44 バイトを 1 回の I2C 読み取りで取る. 同じ融合周期の値がそろい,
++// 個別に 4 回読むより I2C の回数が減る. レジスタの並びは BNO055 のデータシート 4.2(page 0).
++#define KHR_BNO_BURST_ADDR 0x08 // ACC_DATA_X_LSB
++#define KHR_BNO_BURST_LEN  44   // 0x08..0x33
++#define KHR_BNO_OFS_ACC    0    // 0x08 加速度  1 m/s^2 = 100 LSB
++#define KHR_BNO_OFS_GYR    12   // 0x14 ジャイロ 1 dps = 16 LSB
++#define KHR_BNO_OFS_EUL    18   // 0x1A Euler 角 1 deg = 16 LSB (heading, roll, pitch の順)
++#define KHR_BNO_OFS_GRV    38   // 0x2E 重力    1 m/s^2 = 100 LSB
++
++struct KhrImuSample {
++  double acc[3]; // m/s^2
++  double gyr[3]; // deg/s
++  double eul[3]; // deg
++  double grv[3]; // m/s^2
++};
++
++inline int16_t khr_le16(const uint8_t *a_p) {
++  return (int16_t)((uint16_t)a_p[0] | ((uint16_t)a_p[1] << 8));
++}
++
++/// @brief 一括読み取りの 44 バイトを物理量にする. 換算は Adafruit_BNO055::getVector() と同じ(double で割る).
++inline void khr_decode_bno_burst(const uint8_t *a_buf, KhrImuSample &a_s) {
++  for (int i = 0; i < 3; i++) {
++    a_s.acc[i] = (double)khr_le16(a_buf + KHR_BNO_OFS_ACC + 2 * i) / 100.0;
++    a_s.gyr[i] = (double)khr_le16(a_buf + KHR_BNO_OFS_GYR + 2 * i) / 16.0;
++    a_s.eul[i] = (double)khr_le16(a_buf + KHR_BNO_OFS_EUL + 2 * i) / 16.0;
++    a_s.grv[i] = (double)khr_le16(a_buf + KHR_BNO_OFS_GRV + 2 * i) / 100.0;
++  }
++}
++
++inline bool khr_all_zero(const uint8_t *a_buf, int a_len) {
++  for (int i = 0; i < a_len; i++) {
++    if (a_buf[i] != 0) {
++      return false;
++    }
++  }
++  return true;
++}
++
++// IMU の読み取り方(PC から Meridim[87] に KHR_IMU_LEGACY_MAGIC を送ると, 比較のため梶田版と同じ読み方に切り替わる)
++enum KhrImuMode : uint8_t {
++  KHR_IMU_MODE_BURST = 0,  // 一括読み取り(khr-getup.3 の既定)
++  KHR_IMU_MODE_LEGACY = 1  // 梶田版と同じ個別読み取り + 重力ベクトル(khr-getup.2 と同じ)
++};
++#define KHR_IMU_LEGACY_MAGIC 0x6B4C // 上位 0x6B は診断語(下)には現れない値
++
++// 読み取りに失敗した理由. 0〜8 は Arduino-ESP32 1.0.6 の i2c_err_t(Wire.lastError())
++enum : uint8_t {
++  KHR_IMU_FAIL_ZERO_ALL = 0xD,  // I2C は成功したが 44 バイトすべて 0
++  KHR_IMU_FAIL_SHORT = 0xE,     // 受け取ったバイト数が足りない(エラーコードなし)
++  KHR_IMU_FAIL_ZERO_GRAV = 0xF  // 重力ベクトルだけ全要素 0(ほかの値は使う)
++};
++
++/// @brief 診断語 Meridim[87] を組み立てる.
++///        bit 0-7 失敗の累計(下位 8 bit), bit 8-11 最後の失敗の理由, bit 12-13 読み取り方(KhrImuMode).
++inline uint16_t khr_pack_imu_diag(uint32_t a_fail_count, uint8_t a_last_reason, uint8_t a_mode) {
++  return (uint16_t)((a_fail_count & 0xFF) | ((uint16_t)(a_last_reason & 0x0F) << 8) |
++                    ((uint16_t)(a_mode & 0x03) << 12));
++}
++
++// ---- 受信バッファの読み捨て(khr-getup.4) -----------------------------------------------------------
++// 梶田版は受信バッファから毎フレーム一番古いパケットを1つだけ読むので, 溜まった分だけ PC の指令が遅れる
++// (2026-10-13 実測で往復 約 50 ms). 受けたあとに溜まっている通常パケットを読み捨て, 最新だけを使う.
++// 特殊コマンド(マスターコマンドが Meridim の長さ 90 以外: 脱力・トリム設定など)は読み捨てない.
++#define KHR_MRDM_LEN    90 // Meridim の長さ(= 通常パケットのマスターコマンド [0])
++#define KHR_DRAIN_MAX   16 // 1 フレームに読み捨てる上限
++
++/// @brief Meridian のチェックサム(Meridian::cksm_rslt と同じ計算)が合っているか.
++inline bool khr_cksm_ok(const int16_t *a_m) {
++  int sum = 0;
++  for (int i = 0; i < KHR_MRDM_LEN - 1; i++) {
++    sum += (int)a_m[i];
++  }
++  return (int16_t)(~sum) == a_m[KHR_MRDM_LEN - 1];
++}
++
++/// @brief 受信バッファに溜まった通常パケットを読み捨て, a_cur を最新にする.
++/// @param a_cur いま受けたパケット(int16 の Meridim). 最新のパケットで上書きされる.
++/// @param a_recv 次のパケットを引数の配列に読めたら true を返す受信関数(無ければ false).
++/// @param a_prev_seq 読み捨てたとき, 最後に残したパケットの1つ前に持っていたパケットのシーケンス番号 [1].
++/// @return 読み捨てた数(0 なら a_cur も a_prev_seq も変えない).
++/// @details a_cur が特殊コマンドなら何もしない. 特殊コマンドが来たらそれを a_cur にしてそこで止める(後ろは次のフレーム).
++///          チェックサムが合わないパケットは捨てて続ける.
++template <class Recv>
++int khr_udp_drain(int16_t *a_cur, Recv a_recv, uint16_t &a_prev_seq, int a_max = KHR_DRAIN_MAX) {
++  int drained = 0;
++  int16_t next[KHR_MRDM_LEN];
++  for (int k = 0; k < a_max && a_cur[0] == KHR_MRDM_LEN; k++) {
++    if (!a_recv(next)) {
++      break;
++    }
++    if (!khr_cksm_ok(next)) {
++      continue;
++    }
++    a_prev_seq = (uint16_t)a_cur[1];
++    memcpy(a_cur, next, sizeof(next));
++    drained++;
++  }
++  return drained;
++}
++
++// ---- サーボの電流・温度・設定の読み出し(khr-getup.5, 2026-11-07) ---------------------------------------
++// 起き上がりの実機で肩・肘が押したまま回りきらない原因(電源の電流の合計 / サーボのプロテクション / サーボ内の硬さ)を切り分けるため,
++// ICS の読み出しのコマンドだけを使って, 肩・肘のピッチ 4 個の電流と温度, 全サーボのストレッチ・スピード・EEPROM(64 バイト)を読む.
++// サーボの設定は書き換えない(書き込みのコマンドは送らない. 本人の決定 11/7: プロテクションは外さない).
++// 送り先は使っていないサーボの枠(L 11..14 = Meridim[42..49], R 11..14 = [72..79]). PC のデプロイヤは L0..10・R0..10 しか読まない.
++#define KHR_TEL_MAGIC     0x54   // [42] の上位 8 bit(改造前は PC の値をそのまま返していた)
++#define KHR_TEL_NSV       4      // 電流を毎フレーム読むサーボ: 左肩ピッチ, 左肘ピッチ, 右肩ピッチ, 右肘ピッチ
++#define KHR_TEL_TMP_EVERY 25     // 温度は 25 フレームに 1 回, 4 個を順に(1 個あたり 1 秒に 1 回)
++#define KHR_TEL_PARAM_EVERY 4    // 設定はこのフレームに 1 回, 脱力中のサーボを 1 個ずつ
++#define KHR_TEL_N_SERVO   11     // 1 系統のサーボの数(0..10)
++#define KHR_TEL_N_ITEMS   66     // 1 サーボの設定の項目: 0 ストレッチ, 1 スピード, 2..65 EEPROM の 0..63 バイト目
++#define KHR_TEL_NA        0xFFFF // 読めなかった・まだ無い
++
++#define KHR_TEL_SLOT_HDR  42 // [42] KHR_TEL_MAGIC << 8 | フレームの通し番号(下位 8 bit)
++#define KHR_TEL_SLOT_CUR  43 // [43..46] 電流の生の値(ICS: 0..63 正転, 64..127 逆転). 読めなければ 0xFFFF
++#define KHR_TEL_SLOT_TMP  47 // [47] bit 8-9 どのサーボか(0..3), bit 0-7 温度の生の値(1..127, 小さいほど高温). 読めなければ 0xFFFF
++#define KHR_TEL_SLOT_PHDR 48 // [48] 設定の項目: bit 15 系統(0:L 1:R), bit 8-11 サーボの番号(0..10), bit 0-6 項目(0..65). 無ければ 0xFFFF
++#define KHR_TEL_SLOT_PVAL 49 // [49] 設定の値(0..255)
++#define KHR_TEL_SLOT_US   72 // [72] このフレームの読み出しにかかった時間 [us]
++#define KHR_TEL_SLOT_FAIL 73 // [73] 読み出しの失敗の累計(下位 16 bit)
++#define KHR_TEL_SLOT_DONE 74 // [74] 設定を読み終えたサーボの数(0..22)
++
++const uint8_t KHR_TEL_LINE[KHR_TEL_NSV] = {0, 0, 1, 1}; // 0: L 系統, 1: R 系統
++const uint8_t KHR_TEL_IDX[KHR_TEL_NSV] = {1, 4, 1, 4};  // config.h の [01] 肩ピッチ, [04] 肘ピッチ
++
++inline uint16_t khr_tel_pack_phdr(uint8_t a_line, uint8_t a_idx, uint8_t a_item) {
++  return (uint16_t)(((a_line & 1u) << 15) | ((a_idx & 0x0Fu) << 8) | (a_item & 0x7Fu));
++}
++inline void khr_tel_unpack_phdr(uint16_t a_h, uint8_t &a_line, uint8_t &a_idx, uint8_t &a_item) {
++  a_line = (uint8_t)(a_h >> 15);
++  a_idx = (uint8_t)((a_h >> 8) & 0x0F);
++  a_item = (uint8_t)(a_h & 0x7F);
++}
++inline uint16_t khr_tel_pack_tmp(uint8_t a_k, int a_raw) {
++  return a_raw < 0 ? (uint16_t)KHR_TEL_NA : (uint16_t)(((a_k & 3u) << 8) | ((unsigned)a_raw & 0xFFu));
++}
++
++/// @brief 読み終えたサーボの設定(ストレッチ・スピード・EEPROM). valid のサーボだけを PC へ順に流す.
++struct KhrParamCache {
++  bool valid[2][KHR_TEL_N_SERVO];
++  uint8_t strc[2][KHR_TEL_N_SERVO];
++  uint8_t spd[2][KHR_TEL_N_SERVO];
++  uint8_t eep[2][KHR_TEL_N_SERVO][64];
++};
++
++inline uint8_t khr_param_item(const KhrParamCache &a_c, int a_line, int a_idx, int a_item) {
++  if (a_item == 0) {
++    return a_c.strc[a_line][a_idx];
++  }
++  if (a_item == 1) {
++    return a_c.spd[a_line][a_idx];
++  }
++  return a_c.eep[a_line][a_idx][a_item - 2];
++}
++
++inline int khr_param_done(const KhrParamCache &a_c) {
++  int n = 0;
++  for (int l = 0; l < 2; l++) {
++    for (int i = 0; i < KHR_TEL_N_SERVO; i++) {
++      n += a_c.valid[l][i] ? 1 : 0;
++    }
++  }
++  return n;
++}
++
++/// @brief 次に PC へ流す設定の項目. a_pos(0 .. 2*11*66-1 を巡回)を進め, 読み終えたサーボの項目だけを返す.
++/// @return 読み終えたサーボが1つも無ければ false.
++inline bool khr_param_next(const KhrParamCache &a_c, int &a_pos, uint8_t &a_line, uint8_t &a_idx, uint8_t &a_item) {
++  const int total = 2 * KHR_TEL_N_SERVO * KHR_TEL_N_ITEMS;
++  for (int k = 0; k < total; k++) {
++    int p = a_pos;
++    a_pos = (a_pos + 1) % total;
++    int sv = p / KHR_TEL_N_ITEMS;
++    int l = sv / KHR_TEL_N_SERVO, i = sv % KHR_TEL_N_SERVO;
++    if (a_c.valid[l][i]) {
++      a_line = (uint8_t)l;
++      a_idx = (uint8_t)i;
++      a_item = (uint8_t)(p % KHR_TEL_N_ITEMS);
++      return true;
++    }
++  }
++  return false;
++}
++
++/// @brief まだ読んでいないサーボのうち, a_free(l, i) が true(脱力中)のものを a_cursor から順に1つ選ぶ.
++template <class Free>
++inline bool khr_param_pick(const KhrParamCache &a_c, int &a_cursor, Free a_free, uint8_t &a_line, uint8_t &a_idx) {
++  const int total = 2 * KHR_TEL_N_SERVO;
++  for (int k = 0; k < total; k++) {
++    int p = a_cursor;
++    a_cursor = (a_cursor + 1) % total;
++    int l = p / KHR_TEL_N_SERVO, i = p % KHR_TEL_N_SERVO;
++    if (!a_c.valid[l][i] && a_free(l, i)) {
++      a_line = (uint8_t)l;
++      a_idx = (uint8_t)i;
++      return true;
++    }
++  }
++  return false;
++}
++
++#endif // __KHR_CORE_H__
+diff -ruN '--exclude=.pio' '--exclude=keys.h' '--exclude=*.orig' base/Meridian_LITE_for_ESP32/src/khr_ext.h dev/Meridian_LITE_for_ESP32/src/khr_ext.h
+--- a/Meridian_LITE_for_ESP32/src/khr_ext.h
++++ b/Meridian_LITE_for_ESP32/src/khr_ext.h
+@@ -0,0 +1,250 @@
++#ifndef __KHR_EXT_H__
++#define __KHR_EXT_H__
++
++/// @file    khr_ext.h
++/// @brief   [khr] 起き上がり実験のための追加 (khr_rl_tora/real/firmware, 2026-10).
++/// @details 1) 通信監視: PCからの正しいパケットが途絶えたら, 保持 → 全サーボ脱力(ラッチ).
++///             起動直後も, コンソールの Power OFF のパケットを一度受けるまでは全サーボ脱力.
++///          2) IMU: BNO055 の融合推定の重力ベクトルを Meridim[8..10] に, 状態語を [11] に入れる.
++///             改造前のファームはこの4スロットに常に0を送っていた(地磁気・温度は読んでいない).
++///             Euler 角 [12..14] は改造前のまま送るので, 既存のコンソール・デプロイヤはそのまま動く.
++///
++///          状態語 Meridim[11] (unsigned short):
++///            bit 0-1  通信監視の状態 (0:DISARMED 1:OK 2:HOLD 3:LIMP)
++///            bit 2    前のフレームから新しい重力ベクトルが届いた(IMU スレッドが1周読み終えた)
++///            bit 3    通信監視が有効 (KHR_WDG_ENABLE)
++///            bit 4-5  BNO055 の加速度センサのキャリブレーション状態 (0-3)
++///            bit 6-7  BNO055 のシステム(融合)のキャリブレーション状態 (0-3)
++///            bit 8-15 0x6B (改造ファームの印. 改造前は [11] が常に0)
++///
++///          診断用 (khr-getup.2 から): Meridim[84] 重力ベクトルの通し番号(下位16bit), [85] IMU スレッド1周の読み取り時間(us).
++///            [87] (khr-getup.3 から) IMU の診断語: bit 0-7 読み取りの失敗の累計, bit 8-11 最後の失敗の理由,
++///                 bit 12-13 読み取り方(0: 一括, 1: 梶田版と同じ個別). khr_core.h の khr_pack_imu_diag().
++///            [86] は使わない(PC が往復遅れの測定に使う. ESP32 は受信した値をそのまま返す).
++///          PC → ESP32: [87] に 0x6B4C を送っている間は, IMU を梶田版と同じ個別の読み取りにする(比較用).
++///          3) 受信 (khr-getup.4 から): 受信バッファに溜まった古い通常パケットを読み捨て, 最新だけを使う(KHR_UDP_DRAIN).
++///          4) サーボの読み出し (khr-getup.5 から): 肩・肘の電流・温度, 全サーボの設定を読むだけ(KHR_SERVO_TEL). 枠は khr_core.h.
++
++#include "config.h"
++#include "main.h"
++#include "khr_core.h"
++
++KhrWatchdog khr_wdg(KHR_WDG_TIMEOUT_MS, KHR_WDG_HOLD_MS);
++
++bool khr_gravity_fresh = false; // 前のフレームから新しい重力ベクトルが届いたか
++uint32_t khr_grav_seq_sent = 0; // 前のフレームで送った重力ベクトルの通し番号
++
++/// @brief 受信した Meridim で, マウントされた全サーボの電源フラグが0か.
++bool khr_all_power_off(const Meridim90Union &a_meridim, const ServoParam &a_sv) {
++  for (int i = 0; i < a_sv.num_max; i++) {
++    if (a_sv.ixl_mount[i] && a_meridim.sval[i * 2 + MRD_L_ORIGIDX] != 0) {
++      return false;
++    }
++    if (a_sv.ixr_mount[i] && a_meridim.sval[i * 2 + MRD_R_ORIGIDX] != 0) {
++      return false;
++    }
++  }
++  return true;
++}
++
++/// @brief [2-1] で受けたあと, 受信バッファに溜まった古い通常パケットを読み捨てて最新だけを残す(khr-getup.4).
++/// @return 読み捨てた数. 1 以上なら a_prev_seq に, 残したパケットの1つ前のシーケンス番号.
++int khr_udp_drain_rx(Meridim90Union &a_received, WiFiUDP &a_udp, uint16_t &a_prev_seq) {
++  return khr_udp_drain(
++      a_received.sval, [&a_udp](int16_t *a_dst) { return mrd_wifi_udp_receive((byte *)a_dst, MRDM_BYTE, a_udp); },
++      a_prev_seq);
++}
++
++/// @brief PC からの診断用の指定を反映する(正しいパケットを受けたフレームだけ).
++void khr_pc_options(const Meridim90Union &a_received, bool a_fresh) {
++#if KHR_SEND_GRAVITY && KHR_IMU_BURST
++  if (a_fresh) {
++    khr_imu_mode = (a_received.usval[MRD_USERDATA_87] == KHR_IMU_LEGACY_MAGIC) ? KHR_IMU_MODE_LEGACY
++                                                                               : KHR_IMU_MODE_BURST;
++  }
++#else
++  (void)a_received;
++  (void)a_fresh;
++#endif
++}
++
++/// @brief 起動時の設定表示.
++void khr_ext_hello() {
++  Serial.print("[khr] watchdog: ");
++  if (KHR_WDG_ENABLE) {
++    Serial.print("ON (hold after ");
++    Serial.print(KHR_WDG_TIMEOUT_MS);
++    Serial.print(" ms, limp after ");
++    Serial.print(KHR_WDG_TIMEOUT_MS + KHR_WDG_HOLD_MS);
++    Serial.println(" ms)");
++  } else {
++    Serial.println("OFF");
++  }
++  Serial.print("[khr] gravity vector -> Meridim[8..10]: ");
++  Serial.println(KHR_SEND_GRAVITY ? "ON" : "OFF");
++  Serial.print("[khr] BNO055 fusion mode: 0x");
++  Serial.println((int)KHR_BNO055_MODE, HEX);
++  Serial.print("[khr] UDP receive: ");
++  Serial.println(KHR_UDP_DRAIN ? "newest packet (drain older normal packets)" : "oldest packet (kajita)");
++  Serial.print("[khr] IMU read: ");
++  Serial.println((KHR_SEND_GRAVITY && KHR_IMU_BURST) ? "burst 0x08-0x33 (44 bytes, 1 transaction)" : "per vector (kajita)");
++  Serial.print("[khr] servo telemetry (read only) -> Meridim[42..49,72..74]: ");
++  Serial.println(KHR_SERVO_TEL ? "ON (current: L/R shoulder+elbow pitch every frame, temp 1/25, params of free servos 1/4)" : "OFF");
++}
++
++/// @brief 通信監視を1フレーム進め, LIMP なら全サーボの電源フラグを0にする.
++/// @param a_meridim サーボ駆動に使う送信用 Meridim (s_udp_meridim).
++/// @param a_received PCから受信した Meridim (r_udp_meridim). 電源フラグの判定に使う.
++///        マスターコマンドは送信用の配列を書き換えることがあるので, 判定は受信した配列で行う.
++/// @param a_sv サーボパラメータ.
++/// @param a_fresh このフレームでPCから正しいパケットを受けたか.
++/// @details マスターコマンド第2群の後, [7] でサーボ目標を読む前に呼ぶ.
++void khr_wdg_step(Meridim90Union &a_meridim, const Meridim90Union &a_received,
++                  const ServoParam &a_sv, bool a_fresh) {
++  if (!KHR_WDG_ENABLE) {
++    return;
++  }
++  const uint8_t prev = khr_wdg.state;
++  const bool all_off = a_fresh && khr_all_power_off(a_received, a_sv);
++  const uint8_t state = khr_wdg.update(millis(), a_fresh, all_off);
++
++  if (state != prev) { // 状態が変わったときだけ表示する
++    static const char *names[] = {"DISARMED", "OK", "HOLD", "LIMP"};
++    Serial.print("[khr] watchdog ");
++    Serial.print(names[prev & 0x03]);
++    Serial.print(" -> ");
++    Serial.println(names[state & 0x03]);
++    if (state == KHR_WDG_LIMP) {
++      Serial.println("[khr] all servos limp. Turn console 'Power' OFF to release, then ON again.");
++    }
++  }
++
++  if (state == KHR_WDG_LIMP || state == KHR_WDG_DISARMED) {
++    for (int i = 0; i < MRD_SERVO_SLOTS; i++) {
++      a_meridim.sval[i * 2 + MRD_L_ORIGIDX] = 0; // 電源フラグ0 → [8] で ICS の setFree(脱力)
++      a_meridim.sval[i * 2 + MRD_R_ORIGIDX] = 0;
++    }
++  }
++}
++
++/// @brief 重力ベクトルを Meridim[8..10] に, 状態語を [11] に入れる.
++/// @details meriput90_ahrs() の直後に呼ぶ(あちらが [8..11] に0を書くので上書きする).
++void khr_meriput90_ext(Meridim90Union &a_meridim) {
++#if KHR_SEND_GRAVITY
++  float g[3];
++  uint32_t seq, fail_count;
++  uint16_t read_us;
++  uint8_t fail_reason;
++  portENTER_CRITICAL(&khr_imu_mux); // IMU スレッドが読み終えた値だけを取る(mrd_wire0.h)
++  g[0] = khr_grav_shared[0];
++  g[1] = khr_grav_shared[1];
++  g[2] = khr_grav_shared[2];
++  seq = khr_grav_seq;
++  read_us = khr_imu_read_us;
++  fail_count = khr_imu_fail_count;
++  fail_reason = khr_imu_fail_reason;
++  portEXIT_CRITICAL(&khr_imu_mux);
++  khr_gravity_fresh = (seq != khr_grav_seq_sent); // 新しくなければ前回と同じ値を送る
++  khr_grav_seq_sent = seq;
++  a_meridim.sval[MRD_MAG_X] = mrd.float2HfShort(g[0]); // 100倍値(0.01 m/s^2 刻み)
++  a_meridim.sval[MRD_MAG_Y] = mrd.float2HfShort(g[1]);
++  a_meridim.sval[MRD_MAG_Z] = mrd.float2HfShort(g[2]);
++  a_meridim.usval[MRD_USERDATA_84] = (uint16_t)seq;   // 診断用: PC で更新の頻度・抜けを数える
++  a_meridim.usval[MRD_USERDATA_85] = read_us;         // 診断用: IMU スレッドの読み取り時間
++  a_meridim.usval[MRD_USERDATA_87] = khr_pack_imu_diag(fail_count, fail_reason, khr_imu_mode); // 診断用
++#endif
++  a_meridim.usval[MRD_TEMP] = khr_pack_status(khr_wdg.state, khr_gravity_fresh, KHR_WDG_ENABLE, khr_calib_stat);
++}
++
++// ---- サーボの電流・温度・設定の読み出し(khr-getup.5) ------------------------------------------------------
++#if KHR_SERVO_TEL
++KhrParamCache khr_pcache = {};
++int16_t khr_tel_cur[KHR_TEL_NSV] = {-1, -1, -1, -1};
++uint16_t khr_tel_tmp_word = KHR_TEL_NA;
++uint32_t khr_tel_frame = 0, khr_tel_fail = 0;
++uint16_t khr_tel_us = 0;
++int khr_tel_ppos = 0, khr_tel_pcur = 0;
++
++/// @brief ICS の EEPROM の 64 バイトを読む(読み出しのコマンド 0xA0+ID, サブコマンド 0x00. 書き込みはしない).
++bool khr_ics_read_eeprom(IcsHardSerialClass &a_ics, uint8_t a_id, uint8_t *a_out) {
++  byte tx[2] = {(byte)(0xA0 + a_id), 0x00};
++  byte rx[66];
++  if (!a_ics.synchronize(tx, 2, rx, 66)) {
++    return false;
++  }
++  if ((rx[0] & 0x1F) != a_id || rx[1] != 0x00) { // 返事の ID とサブコマンドを確かめる
++    return false;
++  }
++  memcpy(a_out, rx + 2, 64);
++  return true;
++}
++
++/// @brief [8-1] のサーボの駆動の直後に呼ぶ. 肩・肘の電流(毎フレーム)と温度(25 フレームに 1 個), 脱力中のサーボの設定(4 フレームに 1 個)を読む.
++void khr_servo_tel_read(const Meridim90Union &a_meridim, ServoParam &a_sv) {
++  unsigned long t0 = micros();
++  for (int k = 0; k < KHR_TEL_NSV; k++) {
++    uint8_t l = KHR_TEL_LINE[k], i = KHR_TEL_IDX[k];
++    IcsHardSerialClass &ics = l ? ics_R : ics_L;
++    int v = ics.getCur((byte)(l ? a_sv.ixr_id[i] : a_sv.ixl_id[i]));
++    if (v < 0) {
++      khr_tel_fail++;
++    }
++    khr_tel_cur[k] = (int16_t)v;
++  }
++  if (khr_tel_frame % KHR_TEL_TMP_EVERY == 0) {
++    uint8_t k = (uint8_t)((khr_tel_frame / KHR_TEL_TMP_EVERY) % KHR_TEL_NSV);
++    uint8_t l = KHR_TEL_LINE[k], i = KHR_TEL_IDX[k];
++    IcsHardSerialClass &ics = l ? ics_R : ics_L;
++    int v = ics.getTmp((byte)(l ? a_sv.ixr_id[i] : a_sv.ixl_id[i]));
++    if (v < 0) {
++      khr_tel_fail++;
++    }
++    khr_tel_tmp_word = khr_tel_pack_tmp(k, v);
++  }
++  if (khr_tel_frame % KHR_TEL_PARAM_EVERY == 0) {
++    auto is_free = [&](int l, int i) {   // 送った指令が脱力(電源フラグ 0)のサーボだけ読む
++      bool mounted = l ? a_sv.ixr_mount[i] : a_sv.ixl_mount[i];
++      return mounted && a_meridim.sval[i * 2 + (l ? MRD_R_ORIGIDX : MRD_L_ORIGIDX)] == 0;
++    };
++    uint8_t l, i;
++    if (khr_param_pick(khr_pcache, khr_tel_pcur, is_free, l, i)) {
++      IcsHardSerialClass &ics = l ? ics_R : ics_L;
++      uint8_t id = (uint8_t)(l ? a_sv.ixr_id[i] : a_sv.ixl_id[i]);
++      int st = ics.getStrc(id);
++      int sp = ics.getSpd(id);
++      bool ok = st >= 0 && sp >= 0 && khr_ics_read_eeprom(ics, id, khr_pcache.eep[l][i]);
++      if (ok) {
++        khr_pcache.strc[l][i] = (uint8_t)st;
++        khr_pcache.spd[l][i] = (uint8_t)sp;
++        khr_pcache.valid[l][i] = true;
++      } else {
++        khr_tel_fail++;
++      }
++    }
++  }
++  khr_tel_us = (uint16_t)min((unsigned long)65535, micros() - t0);
++  khr_tel_frame++;
++}
++
++/// @brief 読んだ値を Meridim に入れる. [9-1] が使っていない枠に受信の値を書き戻すので, その後(khr_meriput90_ext の直後)に呼ぶ.
++void khr_servo_tel_put(Meridim90Union &a_meridim) {
++  a_meridim.usval[KHR_TEL_SLOT_HDR] = (uint16_t)((KHR_TEL_MAGIC << 8) | (khr_tel_frame & 0xFF));
++  for (int k = 0; k < KHR_TEL_NSV; k++) {
++    a_meridim.usval[KHR_TEL_SLOT_CUR + k] = khr_tel_cur[k] < 0 ? (uint16_t)KHR_TEL_NA : (uint16_t)khr_tel_cur[k];
++  }
++  a_meridim.usval[KHR_TEL_SLOT_TMP] = khr_tel_tmp_word;
++  uint8_t l, i, item;
++  if (khr_param_next(khr_pcache, khr_tel_ppos, l, i, item)) {
++    a_meridim.usval[KHR_TEL_SLOT_PHDR] = khr_tel_pack_phdr(l, i, item);
++    a_meridim.usval[KHR_TEL_SLOT_PVAL] = khr_param_item(khr_pcache, l, i, item);
++  } else {
++    a_meridim.usval[KHR_TEL_SLOT_PHDR] = KHR_TEL_NA;
++    a_meridim.usval[KHR_TEL_SLOT_PVAL] = KHR_TEL_NA;
++  }
++  a_meridim.usval[KHR_TEL_SLOT_US] = khr_tel_us;
++  a_meridim.usval[KHR_TEL_SLOT_FAIL] = (uint16_t)khr_tel_fail;
++  a_meridim.usval[KHR_TEL_SLOT_DONE] = (uint16_t)khr_param_done(khr_pcache);
++}
++#endif
++
++#endif // __KHR_EXT_H__
+diff -ruN '--exclude=.pio' '--exclude=keys.h' '--exclude=*.orig' base/Meridian_LITE_for_ESP32/src/main.cpp dev/Meridian_LITE_for_ESP32/src/main.cpp
+--- a/Meridian_LITE_for_ESP32/src/main.cpp
++++ b/Meridian_LITE_for_ESP32/src/main.cpp
+@@ -1,7 +1,7 @@
+ #ifndef __MERIDIAN_LITE_MAIN__
+ #define __MERIDIAN_LITE_MAIN__
+ 
+-#define VERSION "Meridian_LITE_v1.1.1_2025_08.22(kajita)" // バージョン表示
++#define VERSION "Meridian_LITE_v1.1.1_2025_08.22(kajita)+khr-getup.5" // バージョン表示([khr] 改造版)
+ 
+ /// @file    Meridian_LITE_for_ESP32/src/main.cpp
+ /// @brief   Meridian is a system that smartly realizes the digital twin of a robot.
+@@ -29,6 +29,7 @@
+ #include "mrd_util.h"
+ #include "mrd_wifi.h"
+ #include "mrd_wire0.h"
++#include "khr_ext.h" // [khr] 通信監視と重力ベクトル(khr_rl_tora/real/firmware_patches)
+ 
+ MERIDIANFLOW::Meridian mrd;
+ IcsHardSerialClass ics_L(&Serial1, PIN_EN_L, SERVO_BAUDRATE_L, SERVO_TIMEOUT_L);
+@@ -161,6 +162,7 @@
+     delay(10);
+   }
+ #endif
++  khr_ext_hello(); // [khr] 追加機能の設定を表示
+ 
+   // WiFiの初期化と開始
+   mrd_disp.esp_wifi(WIFI_AP_SSID);
+@@ -272,13 +274,26 @@
+       }
+       delay(1);
+     }
++#if KHR_UDP_DRAIN
++    // [khr] 受信バッファに溜まった古い通常パケットを読み捨て, 最新だけを使う(PC の指令の遅れを減らす)
++    if (flg.udp_rcvd) {
++      uint16_t khr_prev_seq = 0;
++      if (khr_udp_drain_rx(r_udp_meridim, udp, khr_prev_seq) > 0) {
++        mrdsq.r_expect = khr_prev_seq; // 読み捨てた分は [2-5] でシーケンス番号の飛び(スキップ)として数えない
++      }
++    }
++#endif
+   }
+   flg.udp_busy = false; // UDP使用中フラグをサゲる
+ 
+   // @[2-2] チェックサムを確認
++  bool khr_fresh = false;                          // [khr] このフレームでPCから正しいパケットを受けたか
+   if (mrd.cksm_rslt(r_udp_meridim.sval, MRDM_LEN)) // Check sum OK!
+   {
+     mrd.monitor_check_flow("CsOK", monitor.flow); // デバグ用フロー表示
++    // [khr] 受信がタイムアウトしても r_udp_meridim には前回のパケットが残っていてチェックサムが通るので,
++    //       「今回受けたか」は udp_rcvd と組み合わせて判定する
++    khr_fresh = flg.udp_rcvd;
+ 
+     // @[2-3] UDP受信配列から UDP送信配列にデータを転写
+     memcpy(s_udp_meridim.bval, r_udp_meridim.bval, MRDM_LEN * 2);
+@@ -381,6 +396,10 @@
+   // @[6-1] MasterCommand group2 の処理
+   execute_master_command_2(s_udp_meridim, flg.meridim_rcvd, sv, Serial);
+ 
++  // @[6-2] [khr] 通信監視(途絶えたら保持 → 全サーボ脱力). [7] でサーボ目標を読む前に行う
++  khr_wdg_step(s_udp_meridim, r_udp_meridim, sv, khr_fresh);
++  khr_pc_options(r_udp_meridim, khr_fresh); // [khr] PC からの診断用の指定(IMU の読み取り方の比較)
++
+   //------------------------------------------------------------------------------------
+   //  [ 7 ] ESP32内部で位置制御する場合の処理
+   //------------------------------------------------------------------------------------
+@@ -412,6 +431,9 @@
+   // @[8-1] サーボ受信値の処理
+   if (!MODE_ESP32_STANDALONE) {                                                       // サーボ処理を行うかどうか
+     mrd_servos_drive_lite(s_udp_meridim, MOUNT_SERVO_TYPE_L, MOUNT_SERVO_TYPE_R, sv); // サーボ動作を実行する
++#if KHR_SERVO_TEL
++    khr_servo_tel_read(s_udp_meridim, sv); // [khr] 肩・肘の電流・温度と, 脱力中のサーボの設定を読む(khr-getup.5)
++#endif
+   } else {
+     // ボード単体動作モードの場合はサーボ処理をせずL0番サーボ値として+-30度のサインカーブ値を返す
+     sv.ixl_tgt[0] = sin(tmr.count_loop * M_PI / 180.0) * 30;
+@@ -454,8 +476,14 @@
+     now = millis();
+   }
+   imu_read_done = true;    // タイムアウト時でも読み終えたことにする
++  portENTER_CRITICAL(&khr_imu_mux); // [khr] IMU スレッドが書き込み中の値を読まない(一括読み取りのとき)
+   imu2ahrs();
++  portEXIT_CRITICAL(&khr_imu_mux);
+   meriput90_ahrs(s_udp_meridim, ahrs.read, MOUNT_IMUAHRS);
++  khr_meriput90_ext(s_udp_meridim); // [khr] 重力ベクトル [8..10] と状態語 [11]
++#if KHR_SERVO_TEL
++  khr_servo_tel_put(s_udp_meridim); // [khr] サーボの読み出しの値 [42..49, 72..74](khr-getup.5)
++#endif
+   unsigned long T_sensor_read = millis();  
+   #endif
+ 
+diff -ruN '--exclude=.pio' '--exclude=keys.h' '--exclude=*.orig' base/Meridian_LITE_for_ESP32/src/mrd_wire0.h dev/Meridian_LITE_for_ESP32/src/mrd_wire0.h
+--- a/Meridian_LITE_for_ESP32/src/mrd_wire0.h
++++ b/Meridian_LITE_for_ESP32/src/mrd_wire0.h
+@@ -8,6 +8,8 @@
+ // ライブラリ導入
+ #include <Wire.h>
+ 
++#include "khr_core.h" // [khr] BNO055 の一括読み取りの換算・診断語
++
+ // スレッド同期のため main.cpp 側の定義を参照
+ extern volatile unsigned long count_timer;
+ extern portMUX_TYPE timer_mux;
+@@ -72,7 +74,7 @@
+ /// @return BNO055センサーの初期化が成功した場合はtrue, それ以外の場合はfalseを返す.
+ ///         現在, この関数は常にfalseを返すように設定されています.
+ bool mrd_wire0_init_bno055(AhrsValue &a_ahrs) {
+-  if (!a_ahrs.bno.begin()) {
++  if (!a_ahrs.bno.begin(KHR_BNO055_MODE)) { // [khr] 融合モードを config.h で選ぶ(既定は改造前と同じ NDOF)
+     Serial.println("No BNO055 detected ... Check your wiring or I2C ADDR!");
+     return false;
+   } else {
+@@ -202,6 +204,91 @@
+ imu::Vector<3> accelerometer;
+ imu::Vector<3> magnetometer;
+ imu::Quaternion quat;
++// [khr] 重力ベクトルの受け渡し(IMU スレッド → メインループ). 読み終えた値だけを khr_imu_mux の中で書き換える.
++// グローバルの imu::Vector に getVector() を直接代入すると, 読み取り中に全要素0が見えることがある
++// (梶田版の Euler 角の「全要素0なら前回値を使う」と同じ現象. メインループは IMU の読み終わりを最大 3 ms しか待たない).
++portMUX_TYPE khr_imu_mux = portMUX_INITIALIZER_UNLOCKED;
++float khr_grav_shared[3] = {0.0, 0.0, 0.0}; // 最後に読み終えた重力ベクトル(m/s^2)
++uint32_t khr_grav_seq = 0;                  // 読み終えた重力ベクトルの通し番号(0: まだ無い)
++uint16_t khr_imu_read_us = 0;               // IMU スレッド1周の読み取り時間(us, 診断用)
++uint32_t khr_imu_fail_count = 0;            // 読み取りに失敗した回数(診断用. 以下3つも khr_imu_mux の中で書く)
++uint8_t khr_imu_fail_reason = 0;            // 最後の失敗の理由(khr_core.h の KHR_IMU_FAIL_* か i2c_err_t)
++volatile uint8_t khr_calib_stat = 0;        // [khr] BNO055 のキャリブレーション状態(sys<<6|gyro<<4|accel<<2|mag)
++volatile uint8_t khr_imu_mode = KHR_IMU_BURST ? KHR_IMU_MODE_BURST : KHR_IMU_MODE_LEGACY; // 読み取り方
++
++/// @brief [khr] BNO055 のキャリブレーション状態を 32 周に1回だけ読む(ゆっくりしか変わらない. スレッドを短くする).
++void khr_read_calib_sometimes() {
++  static uint8_t calib_div = 0;
++  if (++calib_div >= 32) {
++    calib_div = 0;
++    uint8_t cal_sys, cal_gyro, cal_accel, cal_mag;
++    ahrs.bno.getCalibration(&cal_sys, &cal_gyro, &cal_accel, &cal_mag);
++    khr_calib_stat = (cal_sys << 6) | (cal_gyro << 4) | (cal_accel << 2) | cal_mag;
++  }
++}
++
++/// @brief [khr] 加速度・ジャイロ・Euler 角・重力を 1 回の I2C 読み取り(0x08〜0x33)で取る(khr-getup.3).
++/// @details 個別に 4 回読むと 1 周 約 6 ms かかり, 重力の読み取りの約 8 割が 0 を返していた(2026-10-13 実測).
++///          読み終えた値だけを khr_imu_mux の中で梶田版の変数(accelerometer, gyroscope, euler)と重力に書くので,
++///          メインループ(imu2ahrs)が読み取り途中の値を見ることはない. 失敗したら何も書かず, 理由と回数を数える.
++/// @return 加速度・ジャイロ・Euler 角を更新できたか(重力だけ 0 のときも true).
++bool khr_read_bno_burst(uint32_t a_t0_us) {
++  uint8_t buf[KHR_BNO_BURST_LEN];
++  uint8_t reason = 0;
++  Wire.beginTransmission(KHR_BNO055_I2C_ADDR);
++  Wire.write((uint8_t)KHR_BNO_BURST_ADDR);
++  Wire.endTransmission(false); // 1.0.6 ではここでは送らず, 次の requestFrom でまとめて行う(エラーもそこで出る)
++  const uint8_t n = Wire.requestFrom((uint16_t)KHR_BNO055_I2C_ADDR, (uint8_t)KHR_BNO_BURST_LEN, true);
++  if (n != KHR_BNO_BURST_LEN) {
++    const uint8_t err = Wire.lastError();
++    reason = err ? err : KHR_IMU_FAIL_SHORT;
++  } else {
++    for (int i = 0; i < KHR_BNO_BURST_LEN; i++) {
++      buf[i] = Wire.read();
++    }
++    if (khr_all_zero(buf, KHR_BNO_BURST_LEN)) {
++      reason = KHR_IMU_FAIL_ZERO_ALL;
++    }
++  }
++  khr_read_calib_sometimes();
++  const uint32_t read_us = micros() - a_t0_us;
++
++  KhrImuSample smp;
++  bool data_ok = (reason == 0);
++  bool grav_ok = false;
++  if (data_ok) {
++    khr_decode_bno_burst(buf, smp);
++    grav_ok = (smp.grv[0] != 0.0 || smp.grv[1] != 0.0 || smp.grv[2] != 0.0);
++    if (!grav_ok) {
++      reason = KHR_IMU_FAIL_ZERO_GRAV;
++    }
++  }
++  portENTER_CRITICAL(&khr_imu_mux);
++  if (data_ok) {
++    for (int i = 0; i < 3; i++) {
++      accelerometer[i] = smp.acc[i];
++      gyroscope[i] = smp.gyr[i];
++      euler[i] = smp.eul[i];
++    }
++  }
++  if (grav_ok) {
++    for (int i = 0; i < 3; i++) {
++      khr_grav_shared[i] = (float)smp.grv[i];
++    }
++    khr_grav_seq++;
++  }
++  if (reason) {
++    khr_imu_fail_count++;
++    khr_imu_fail_reason = reason;
++  }
++  khr_imu_read_us = (uint16_t)(read_us > 65535u ? 65535u : read_us);
++  portEXIT_CRITICAL(&khr_imu_mux);
++  return data_ok;
++}
++
++// 一括読み取りが続けて失敗したら, 1周だけ梶田版と同じ個別の読み取りをはさむ(Euler 角などが止まったままにならないように)
++#define KHR_BURST_FALLBACK_RUN 10
++uint8_t khr_burst_fail_run = 0;
+ 
+ void read_bno055() {
+   // ジャイロセンサ値の取得 - VECTOR_GYROSCOPE - rad/s
+@@ -358,6 +445,16 @@
+     }
+ 
+     T_thread_time = millis(); // スレッドの同期確認用
++#if KHR_SEND_GRAVITY
++    const uint32_t khr_t0_us = micros(); // [khr] 読み取り時間の計測
++    if (khr_imu_mode == KHR_IMU_MODE_BURST && khr_burst_fail_run < KHR_BURST_FALLBACK_RUN) {
++      // [khr] 1回の I2C 読み取りで全部取る(下の個別の読み取りの代わり)
++      khr_burst_fail_run = khr_read_bno_burst(khr_t0_us) ? 0 : khr_burst_fail_run + 1;
++      imu_read_done = true;
++      continue;
++    }
++    khr_burst_fail_run = 0; // 個別の読み取りを1周はさんだら, 次の周は一括に戻る
++#endif
+ 
+     // ジャイロセンサ値の取得- VECTOR_GYROSCOPE - deg/s
+     gyroscope = ahrs.bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
+@@ -368,6 +465,28 @@
+     // 加速度センサ値の取得 - VECTOR_ACCELEROMETER - m/s^2
+     accelerometer = ahrs.bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+ 
++#if KHR_SEND_GRAVITY
++    // [khr] 融合推定の重力ベクトル - VECTOR_GRAVITY - m/s^2
++    // Euler 角と違い特異点がないので, うつ伏せ・仰向け・四脚姿勢(ピッチ90°)でも姿勢が求まる.
++    // (khr-getup.2 と同じ読み方. PC が比較のために切り替えたときと, 一括読み取りが続けて失敗したときに通る)
++    const imu::Vector<3> g = ahrs.bno.getVector(Adafruit_BNO055::VECTOR_GRAVITY);
++    khr_read_calib_sometimes();
++    const uint32_t read_us = micros() - khr_t0_us;
++    const bool grav_ok = (g.x() != 0.0 || g.y() != 0.0 || g.z() != 0.0); // I2C の読み取りに失敗すると全要素0になる → 渡さない
++    portENTER_CRITICAL(&khr_imu_mux);
++    if (grav_ok) {
++      khr_grav_shared[0] = (float)g.x();
++      khr_grav_shared[1] = (float)g.y();
++      khr_grav_shared[2] = (float)g.z();
++      khr_grav_seq++;
++    } else {
++      khr_imu_fail_count++;
++      khr_imu_fail_reason = KHR_IMU_FAIL_ZERO_GRAV;
++    }
++    khr_imu_read_us = (uint16_t)(read_us > 65535u ? 65535u : read_us);
++    portEXIT_CRITICAL(&khr_imu_mux);
++#endif
++
+     // 読み取り完了フラグをセット（メインloopが確認）
+     imu_read_done = true;
+   }

@@ -299,6 +299,63 @@ int main() {
     CHECK(n == KHR_DRAIN_MAX && left == many.size() - KHR_DRAIN_MAX, "上限 n=%d left=%zu", n, left);
   }
 
+
+  std::printf("[19] サーボの読み出し（khr-getup.5）: 設定の項目の詰め方と戻し方、温度の詰め方\n");
+  {
+    for (uint8_t l = 0; l < 2; l++)
+      for (uint8_t i = 0; i < KHR_TEL_N_SERVO; i++)
+        for (uint8_t it = 0; it < KHR_TEL_N_ITEMS; it++) {
+          uint16_t h = khr_tel_pack_phdr(l, i, it);
+          uint8_t l2, i2, it2;
+          khr_tel_unpack_phdr(h, l2, i2, it2);
+          CHECK(l2 == l && i2 == i && it2 == it && h != KHR_TEL_NA, "l=%d i=%d item=%d → %04x", l, i, it, h);
+        }
+    CHECK(khr_tel_pack_tmp(2, 60) == ((2u << 8) | 60u), "温度の詰め方 %04x", khr_tel_pack_tmp(2, 60));
+    CHECK(khr_tel_pack_tmp(1, -1) == KHR_TEL_NA, "読めなかった温度は 0xFFFF");
+    CHECK(KHR_TEL_SLOT_PVAL < 50 && KHR_TEL_SLOT_HDR >= 42 && KHR_TEL_SLOT_DONE <= 79 && KHR_TEL_SLOT_US >= 72,
+          "使うのは L 11..14（[42..49]）と R 11..14（[72..79]）の枠だけ");
+  }
+
+  std::printf("[20] サーボの読み出し: 脱力中で未読のサーボだけを順に選び、読み終えたサーボの項目だけを巡回して流す\n");
+  {
+    KhrParamCache c = {};
+    uint8_t l, i, it;
+    int pos = 0, cur = 0;
+    CHECK(!khr_param_next(c, pos, l, i, it), "読み終えたサーボが無いのに項目を返した");
+    CHECK(khr_param_done(c) == 0, "done=%d", khr_param_done(c));
+    auto none = [](int, int) { return false; };
+    CHECK(!khr_param_pick(c, cur, none, l, i), "脱力中のサーボが無いのに選んだ");
+    auto only_r3 = [](int ll, int ii) { return ll == 1 && ii == 3; };
+    CHECK(khr_param_pick(c, cur, only_r3, l, i) && l == 1 && i == 3, "l=%d i=%d", l, i);
+    c.valid[1][3] = true;
+    c.strc[1][3] = 60;
+    c.spd[1][3] = 127;
+    for (int k = 0; k < 64; k++) c.eep[1][3][k] = (uint8_t)k;
+    CHECK(!khr_param_pick(c, cur, only_r3, l, i), "読み終えたサーボをまた選んだ");
+    auto all = [](int, int) { return true; };
+    int picked = 0;
+    for (int k = 0; k < 2 * KHR_TEL_N_SERVO; k++) {
+      if (khr_param_pick(c, cur, all, l, i)) { c.valid[l][i] = true; picked++; }
+    }
+    CHECK(picked == 2 * KHR_TEL_N_SERVO - 1 && khr_param_done(c) == 2 * KHR_TEL_N_SERVO, "picked=%d done=%d", picked, khr_param_done(c));
+    KhrParamCache d = {};
+    d.valid[1][3] = true;
+    d.strc[1][3] = 60;
+    d.spd[1][3] = 127;
+    for (int k = 0; k < 64; k++) d.eep[1][3][k] = (uint8_t)(100 + k);
+    pos = 0;
+    bool seen[KHR_TEL_N_ITEMS] = {};
+    for (int k = 0; k < 2 * KHR_TEL_N_ITEMS; k++) {
+      CHECK(khr_param_next(d, pos, l, i, it) && l == 1 && i == 3, "k=%d l=%d i=%d", k, l, i);
+      seen[it] = true;
+      uint8_t v = khr_param_item(d, l, i, it);
+      CHECK(v == (it == 0 ? 60 : it == 1 ? 127 : 100 + it - 2), "item=%d v=%d", it, v);
+    }
+    bool all_seen = true;
+    for (bool b : seen) all_seen = all_seen && b;
+    CHECK(all_seen, "読み終えたサーボの 66 項目を全部流していない");
+  }
+
   if (g_fail) {
     std::printf("FAILED: %d 件\n", g_fail);
     return EXIT_FAILURE;

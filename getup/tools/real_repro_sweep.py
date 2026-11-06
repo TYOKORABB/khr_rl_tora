@@ -38,6 +38,10 @@ for c in configs:
                dr=dict(env_cfg0["dr"], mass_kg=tuple(c["mass"]) if "mass" in c else env_cfg0["dr"]["mass_kg"]))
     cfg["dr"].pop("torque_scale", None)       # 学習の設定に弱さの個体差があっても、条件で指定しない限り入れない
     cfg["dr"].pop("power_budget", None)
+    cfg["dr"].pop("protection", None)         # 11/7: プロテクションと観測の古さも、条件で指定しない限り入れない
+    cfg["dr"].pop("obs_stale", None)
+    cfg["dr"].pop("kp_range", None)
+    cfg["dr"].pop("weak_mix", None)          # 11/7: v11c の「電源だけ / サーボ側だけ」の振り分けも評価では入れない
     # 11/6 夜に直した: v11b の設定の weak_full_frac（元の強さのエピソード 25 %）が評価でも効き、弱い条件の 4 回に 1 回が元の強さだった
     cfg["dr"].pop("weak_full_frac", None)
     cfg["dr"].pop("weak_ramp_iters", None)
@@ -48,6 +52,10 @@ for c in configs:
         cfg["dr"]["torque_scale"] = tuple(c["ts"])
     if "pb" in c:                             # 電源の電流の合計の上限（全力のサーボ何個分か）(lo, hi)
         cfg["dr"]["power_budget"] = tuple(c["pb"])
+    if "prot" in c:                           # プロテクション（11/7、getup_env3 の dr["protection"]）: [lo, hi] 秒、"pf" は出力の倍率（既定 0.5）
+        cfg["dr"]["protection"] = {"t": tuple(c["prot"]), "factor": c.get("pf", 0.5)}
+    if "stale" in c:                          # 観測の古さ（11/7）: [lo, hi] の確率
+        cfg["dr"]["obs_stale"] = tuple(c["stale"])
     if "gap" in c:
         cfg["action"] = dict(env_cfg0["action"], gap=c["gap"])
     B = per * len(starts)

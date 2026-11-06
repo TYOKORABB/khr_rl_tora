@@ -5,6 +5,8 @@ experiments/getup/v11_plan.md（学習の前に固定）。
 
   python -m getup.train_getup11 -e getup11-weak-s1 -B 4096 -I 1500 --seed 1 --ts 0.3 1.0 --pb 2.0 8.0
   python -m getup.train_getup11 -e getup11b-weak-s1 -B 4096 -I 1500 --seed 1 --ts 0.3 1.0 --pb 2.0 8.0 --std_fix 0.5 --entropy 0 --ramp 600 --full 0.25   # v11b
+  python -m getup.train_getup11 -e getup11c-mix-s1 -B 4096 -I 1500 --seed 1 --ts 0.3 1.0 --kp 10 25 --pb 3.0 8.0 --pm waterfill --mix_power 0.5 \
+      --prot 0.3 3.0 --stale 0.0 0.3 --std_fix 0.5 --entropy 0 --ramp 600 --full 0.25                                                                 # v11c（11/7）
 
 実機の 4 回（experiments/real/20261106_getup_r2/README.md）は、肩と肘が目標角の上限いっぱいで押し続けたまま回りきらず、シミュでは
 トルクの上限を仕様の 30 % にすると同じ失敗が出た。サーボ 1 個の最大電流は 1.3 A（11.1 V）で、電源は 12 V・5 A のアダプター。
@@ -34,6 +36,12 @@ def main() -> int:
     ap.add_argument("--entropy", type=float, default=None, help="エントロピーの係数（既定は親と同じ 0.005）")
     ap.add_argument("--ramp", type=int, default=None, help="弱さの下限を、このイテレーション数で目標の範囲まで広げる")
     ap.add_argument("--full", type=float, default=0.0, help="元の強さにするエピソードの割合")
+    # v11c（11/7、experiments/getup/v11_plan.md §7）: 実機に近い弱さの模型（kp 10〜12 ＋ 上限 30 %、電源の合計を抑える模型）と、プロテクション・観測の古さ
+    ap.add_argument("--pm", default=None, choices=("scale", "waterfill"), help="電源の上限の模型（既定は scale = v11b と同じ）")
+    ap.add_argument("--kp", nargs=2, type=float, default=None, metavar=("LO", "HI"), help="サーボの硬さ kp の範囲")
+    ap.add_argument("--prot", nargs=2, type=float, default=None, metavar=("LO", "HI"), help="プロテクション（押したまま動かないのが何秒で出力 50 %%）")
+    ap.add_argument("--stale", nargs=2, type=float, default=None, metavar=("LO", "HI"), help="観測を前の周期のままにする確率の範囲")
+    ap.add_argument("--mix_power", type=float, default=None, help="弱いエピソードのうち電源の上限だけにする割合（残りはサーボ側だけ）")
     a, rest = ap.parse_known_args()
     import getup.train_getup6 as v6
     import getup.train_getup7 as v7
@@ -56,8 +64,19 @@ def main() -> int:
             env_cfg["dr"]["weak_ramp_iters"] = a.ramp
         if a.full:
             env_cfg["dr"]["weak_full_frac"] = a.full
+        if a.pm:
+            env_cfg["dr"]["power_model"] = a.pm
+        if a.kp:
+            env_cfg["dr"]["kp_range"] = tuple(a.kp)
+        if a.prot:
+            env_cfg["dr"]["protection"] = {"t": tuple(a.prot), "factor": 0.5}
+        if a.stale:
+            env_cfg["dr"]["obs_stale"] = tuple(a.stale)
+        if a.mix_power is not None:
+            env_cfg["dr"]["weak_mix"] = {"power": a.mix_power}
         env_cfg["getup11"] = {"init": a.init, "init_ckpt": a.init_ckpt, "torque_scale": a.ts, "power_budget": a.pb,
-                              "std_fix": a.std_fix, "entropy": a.entropy, "ramp": a.ramp, "full": a.full}
+                              "std_fix": a.std_fix, "entropy": a.entropy, "ramp": a.ramp, "full": a.full,
+                              "pm": a.pm, "kp": a.kp, "prot": a.prot, "stale": a.stale, "mix_power": a.mix_power}
         return env_cfg, obs_cfg, reward_cfg
 
     def get_train_cfg(exp):

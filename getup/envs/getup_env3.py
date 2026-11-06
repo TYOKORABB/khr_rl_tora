@@ -94,6 +94,10 @@ def axis_angle_mat(axis: torch.Tensor, ang: torch.Tensor) -> torch.Tensor:
                         torch.stack([z * x * C - y * s, z * y * C + x * s, c + z * z * C], -1)], -2)
 
 
+# 弱さの個体差の鍵（getup-v11: torque_scale・power_budget、11/7: protection・kp_range）。どれかがあれば関節の設定を体ごとに持つ
+WEAK_KEYS = ("torque_scale", "power_budget", "protection", "kp_range")
+
+
 def build_scene(n_envs: int, env_cfg: dict, show_viewer: bool = False, before_build=None):
     """起き上がり用のシーン（バンクの生成と環境で共用）。戻り値 (scene, robot, ground, motors_dof_idx)。
     before_build(scene) は build の直前に呼ぶ（録画用のカメラを足すため。学習では使わない）。"""
@@ -102,7 +106,7 @@ def build_scene(n_envs: int, env_cfg: dict, show_viewer: bool = False, before_bu
         rigid_options=gs.options.RigidOptions(enable_collision=True, enable_neutral_collision=True, enable_joint_limit=True,
                                               tolerance=1e-5, max_collision_pairs=env_cfg.get("max_collision_pairs", 150),
                                               # 弱さの個体差（getup-v11）があるときだけ、関節の設定（トルクの上限）を体ごとに持つ
-                                              batch_dofs_info=any(k in env_cfg["dr"] for k in ("torque_scale", "power_budget"))),
+                                              batch_dofs_info=any(k in env_cfg["dr"] for k in WEAK_KEYS)),
         viewer_options=gs.options.ViewerOptions(camera_pos=(1.0, -1.0, 0.6), camera_lookat=(0.0, 0.0, 0.1), camera_fov=40, max_FPS=50),
         vis_options=gs.options.VisOptions(rendered_envs_idx=[0]),
         show_viewer=show_viewer,
@@ -180,11 +184,29 @@ class GetupEnv:
         #   power_budget = (lo, hi): 電源の電流の合計の上限（全力のサーボ何個分か）。PD の推定トルクの |τ|/仕様 の合計がこれを超える分は、
         #                            その周期だけ全関節の上限を同じ割合で下げる（電源の電圧が下がると全サーボの最大トルクが一緒に下がる）
         # があれば使う。評価の公称（eval_getup の dr_nominal）にはこの 2 つが無いので、公称では元の強さ。
-        self.weak_on = any(k in env_cfg["dr"] for k in ("torque_scale", "power_budget"))
+        #   protection = {"t": (lo, hi), "factor": 0.5, "err": 0.03, "move": 0.03}（11/7、近藤の ICS3.5 マニュアル p.5 のプロテクション）:
+        #                関節ごとに「指令と角度の差が err rad 以上のまま、押し始めの角度から move rad 以上動かない」（押したまま動かない）が
+        #                体ごとの t 秒続くと、その関節のトルクの上限を factor 倍にする。差が err 未満に戻るまで続く（ロックが解けたら戻る、とみる）。
+        #                動かないかは角速度でなく角度で見る（シミュの関節は止まっていても細かく揺れ、角速度の閾値では続かなかった。11/7）
+        self.weak_on = any(k in env_cfg["dr"] for k in WEAK_KEYS)
         self.cap_base = (self.tau_cap if self.tau_cap.dim() == 2 else self.tau_cap.unsqueeze(0)).expand(num_envs, -1).clone()
         self.t_scale = torch.ones(num_envs, 1, device=self.device, dtype=gs.tc_float)
         self.p_budget = torch.full((num_envs,), float("inf"), device=self.device, dtype=gs.tc_float)
         self.p_scale = torch.ones(num_envs, device=self.device, dtype=gs.tc_float)
+        #   kp_range = (lo, hi)（11/7）: 体ごと・エピソードごとのサーボの硬さ kp [N·m/rad]（実機の 4 回に近いのは kp 10〜12 ＋ 上限 30 %、
+        #              experiments/real/20261106_getup_r2/traj_fit.md）。元の強さのエピソードは env_cfg["kp"]
+        self.kp_env = torch.full((num_envs, 1), float(env_cfg["kp"]), device=self.device, dtype=gs.tc_float)
+        self.kp_dr = "kp_range" in env_cfg["dr"]
+        self.prot = env_cfg["dr"].get("protection")
+        self.prot_T = torch.full((num_envs,), float("inf"), device=self.device, dtype=gs.tc_float)
+        self.lock_t = torch.zeros(num_envs, len(self.motors), device=self.device, dtype=gs.tc_float)
+        self.prot_on = torch.zeros(num_envs, len(self.motors), dtype=torch.bool, device=self.device)
+        self.q_lock_ref = torch.zeros(num_envs, len(self.motors), device=self.device, dtype=gs.tc_float)
+        # 観測の古さ（11/7、実機の起き上がり中は方策の 2 割の周期で 20 ms より古い関節角を使っていた）: env_cfg["dr"]["obs_stale"] = (lo, hi)
+        # があれば、体ごと・エピソードごとの確率 p で、その周期の観測（角速度・重力・関節角）を前の周期のままにする（実機では Meridim の 1 フレームごと古い）
+        self.stale_p = torch.zeros(num_envs, device=self.device, dtype=gs.tc_float)
+        self.stale_on = "obs_stale" in env_cfg["dr"]
+        self.s_last = None
 
         # 初期状態バンク
         bank = torch.load(REPO_ROOT / env_cfg["bank"], map_location="cpu")
@@ -368,7 +390,7 @@ class GetupEnv:
         if self.weak_on:
             # 体ごとのトルクの上限（シーンは batch_dofs_info で関節の設定を体ごとに持つ）。電源の上限は、PD の推定トルクの合計から決める
             cap = self.cap_base * self.t_scale
-            tau = (self.env_cfg["kp"] * (exec_t + self.trim - self.q) - self.env_cfg["kd"] * self.dq).clamp(-cap, cap)
+            tau = (self.kp_env * (exec_t + self.trim - self.q) - self.env_cfg["kd"] * self.dq).clamp(-cap, cap)
             cs = float(self.env_cfg.get("torque_cap_scale", 1.0))
             a_sp = tau.abs() / self.cap_base * cs                     # 関節ごとの |τ| ÷ 仕様
             demand = a_sp.sum(1)                                      # 全力（仕様）のサーボ何個分か
@@ -388,6 +410,13 @@ class GetupEnv:
                 self.p_scale = (self.p_budget / demand.clamp(min=1e-6)).clamp(max=1.0)
                 self.power_used = torch.minimum(a_sp, (self.p_scale.unsqueeze(1) * cap / self.cap_base * cs)).sum(1)   # 周期の始めに出す合計（仕様の何個分か）
             cap = cap * self.p_scale.unsqueeze(1)
+            if self.prot is not None:
+                push = (exec_t + self.trim - self.q).abs() >= float(self.prot.get("err", 0.03))
+                lock = push & ((self.q - self.q_lock_ref).abs() < float(self.prot.get("move", 0.03)))
+                self.lock_t = torch.where(lock, self.lock_t + self.dt, torch.zeros_like(self.lock_t))
+                self.q_lock_ref = torch.where(lock, self.q_lock_ref, self.q)     # 動いたら（押していなければ）押し始めの角度を取り直す
+                self.prot_on = (self.prot_on | (self.lock_t >= self.prot_T.unsqueeze(1))) & push
+                cap = torch.where(self.prot_on, cap * float(self.prot.get("factor", 0.5)), cap)
             self.robot.set_dofs_force_range(-cap, cap, self.motors)
         self.robot.control_dofs_position(exec_t + self.trim, self.motors)   # 実際の角度 = 指令 + 0 点のずれ
         self.scene.step()
@@ -422,9 +451,19 @@ class GetupEnv:
         self._sim_error_count = int(err.sum())
         if self.reset_buf.any():
             self._reset_idx(self.reset_buf)
-        w, gv, q_obs = self._sensed()
+        w, gv, q_obs = self._stale(*self._sensed())
         self._build_obs(w, gv, q_obs)
         return self.get_observations(), self.rew_buf, self.reset_buf, self.extras
+
+    def _stale(self, w, gv, q_obs):
+        """観測の古さ（dr["obs_stale"]）。無ければそのまま返す。"""
+        if not self.stale_on:
+            return w, gv, q_obs
+        if self.s_last is not None:
+            m = (torch.rand(self.num_envs, device=self.device) < self.stale_p).unsqueeze(1)
+            w, gv, q_obs = (torch.where(m, old, new) for old, new in zip(self.s_last, (w, gv, q_obs)))
+        self.s_last = (w.clone(), gv.clone(), q_obs.clone())
+        return w, gv, q_obs
 
     def _success_instant(self) -> torch.Tensor:
         """§3.2 の条件（その瞬間）。角速度を除いた条件は self._standing_now に残す（昇格の判定 end_hold 用）。"""
@@ -532,6 +571,30 @@ class GetupEnv:
                 full = torch.rand(k, device=self.device) < float(dr.get("weak_full_frac", 0.0))
                 self.t_scale[ids] = torch.where(full.unsqueeze(1), torch.ones_like(self.t_scale[ids]), self.t_scale[ids])
                 self.p_budget[ids] = torch.where(full, torch.full_like(self.p_budget[ids], float("inf")), self.p_budget[ids])
+                # プロテクションの時間は、いまの dr にあるときだけ（eval_getup の公称は dr を差し替えるので、そのときは効かない）
+                inf_k = torch.full((k,), float("inf"), device=self.device, dtype=gs.tc_float)
+                self.prot_T[ids] = torch.where(full, inf_k, rnd(rng(dr["protection"]["t"]), k)) if "protection" in dr else inf_k
+                kp0 = torch.full((k, 1), float(self.env_cfg["kp"]), device=self.device, dtype=gs.tc_float)
+                self.kp_env[ids] = torch.where(full.unsqueeze(1), kp0, rnd(rng(dr["kp_range"]), k, 1)) if "kp_range" in dr else kp0
+                # weak_mix = {"power": p}（11/7、getup-v11c）: 弱いエピソードの割合 p を「電源の上限だけ」、残りを「サーボ側（硬さ・上限）だけ」にする
+                # （実機の弱さの原因は 1 つの見込みで、全部を同時に弱くした体は実機に無い）。プロテクションと観測の古さはどちらにも入れる。無ければ全部を同時に引く
+                mix = dr.get("weak_mix")
+                if mix:
+                    fam_p = torch.rand(k, device=self.device) < float(mix.get("power", 0.5))
+                    self.t_scale[ids] = torch.where(fam_p.unsqueeze(1), torch.ones_like(self.t_scale[ids]), self.t_scale[ids])
+                    self.kp_env[ids] = torch.where(fam_p.unsqueeze(1), kp0, self.kp_env[ids])
+                    self.p_budget[ids] = torch.where(fam_p, self.p_budget[ids], torch.full_like(self.p_budget[ids], float("inf")))
+            if keep is not None and "prot_T" in keep:
+                self.prot_T[ids] = keep["prot_T"]
+            if keep is not None and "kp_env" in keep:
+                self.kp_env[ids] = keep["kp_env"]
+            if self.kp_dr:     # 作ったときの dr に kp_range があれば毎回設定する（eval_getup が公称の dr に差し替えたときも元の kp に戻すため）
+                self.robot.set_dofs_kp(self.kp_env[ids].expand(-1, len(self.motors)), self.motors, envs_idx=ids)
+            self.lock_t[ids] = 0.0
+            self.prot_on[ids] = False
+            self.q_lock_ref[ids] = 1e3          # 最初の周期は「動いた」扱いで、押し始めの角度を取る
+        if self.stale_on:
+            self.stale_p[ids] = rnd(tuple(dr["obs_stale"]), k) if "obs_stale" in dr else 0.0
         # 状態を読み直し、前回の目標角・遅れのバッファ・履歴を実測から作る（公称姿勢からの跳びを防ぐ）
         self._read_state()
         q_meas = (self.q - self.trim)[ids]
@@ -543,6 +606,9 @@ class GetupEnv:
         self.last_actions[ids] = 0.0
         self.last_last_actions[ids] = 0.0
         w, gv, q_obs = self._sensed()
+        if self.s_last is not None:          # 観測の古さ: リセットした体は、いまの値から始める
+            for old, new in zip(self.s_last, (w, gv, q_obs)):
+                old[ids] = new[ids]
         self.q_obs_prev[ids] = q_obs[ids]
         frame = torch.cat([w, gv, q_obs - self.q_nom], dim=-1)[ids]
         self.hist[ids] = frame.unsqueeze(1).repeat(1, self.obs_cfg["history"], 1)
@@ -584,7 +650,7 @@ class GetupEnv:
             fz["yaw"] = yaw.to(self.device)
         if dr_state is not None:
             fz["dr_state"] = {k: dr_state[k].to(self.device) for k in ("friction_ratio", "mass_shift", "com_shift", "trim", "R_imu",
-                                                                         "t_scale", "p_budget") if k in dr_state}
+                                                                         "t_scale", "p_budget", "prot_T", "kp_env") if k in dr_state}
         self._forced = fz
         self.common_step_counter, saved = 0, self.common_step_counter   # 終わっていないエピソードを記録しない
         self._reset_idx(torch.ones(B, dtype=torch.bool, device=self.device))
@@ -597,7 +663,8 @@ class GetupEnv:
         """いまの個体差（体ごと）の写し。force_reset(dr_state=...) で再現できる。"""
         return {"friction_ratio": self.friction_ratio.clone(), "mass_shift": self.mass_shift.clone(),
                 "com_shift": self.com_shift.clone(), "trim": self.trim.clone(), "R_imu": self.R_imu.clone(),
-                "yaw": self.ep_yaw.clone(), "t_scale": self.t_scale.clone(), "p_budget": self.p_budget.clone()}
+                "yaw": self.ep_yaw.clone(), "t_scale": self.t_scale.clone(), "p_budget": self.p_budget.clone(),
+                "prot_T": self.prot_T.clone(), "kp_env": self.kp_env.clone()}
 
     def reset(self):
         self.common_step_counter = 0

@@ -34,6 +34,10 @@ def name(c: dict) -> str:
         parts.append(f"摩擦 {c['fr']}")
     if "mass" in c:
         parts.append(f"質量 {c['mass'][0]:+g} kg")
+    if "prot" in c:      # 11/7: プロテクション（押したまま動かないのが t 秒続くと出力 pf 倍）
+        parts.append(f"プロテクション {c['prot'][0]:g} 秒で {round(100 * c.get('pf', 0.5))} %")
+    if "stale" in c:     # 11/7: 観測の古さ（その周期の観測を前の周期のままにする確率）
+        parts.append(f"観測の古さ {round(100 * c['stale'][0])} %")
     return "、".join(parts)
 
 

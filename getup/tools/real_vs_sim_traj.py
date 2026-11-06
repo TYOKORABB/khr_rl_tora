@@ -95,8 +95,12 @@ def main() -> int:
     for c in conds:
         cfg = dict(env_cfg0, episode_length_s=8.0, kp=c.get("kp", env_cfg0["kp"]), torque_cap_scale=c.get("cap", env_cfg0["torque_cap_scale"]),
                    dr=dict(env_cfg0["dr"]), action=dict(env_cfg0["action"], gap=R["gap"]))
-        for k in ("torque_scale", "power_budget", "power_model", "weak_full_frac", "weak_ramp_iters"):
+        for k in ("torque_scale", "power_budget", "power_model", "weak_full_frac", "weak_ramp_iters", "protection", "obs_stale", "kp_range", "weak_mix"):
             cfg["dr"].pop(k, None)
+        if "prot" in c:                         # プロテクション（11/7）: [lo, hi] 秒。"pf" で出力の倍率（既定 0.5）
+            cfg["dr"]["protection"] = {"t": tuple(c["prot"]), "factor": c.get("pf", 0.5)}
+        if "stale" in c:                        # 観測の古さ（11/7）: [lo, hi] の確率
+            cfg["dr"]["obs_stale"] = tuple(c["stale"])
         if "ts" in c:
             cfg["dr"]["torque_scale"] = tuple(c["ts"])
         if "pb" in c:
