@@ -195,6 +195,45 @@
     "right": 0.87,
     "n": 229
    }
+  },
+  "getup7-hardflip-s4": {
+   "pick": {
+    "left": 0.33,
+    "right": 0.44,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 0.87,
+    "right": 0.87,
+    "n": 229
+   }
+  },
+  "getup7-hardflip-s5": {
+   "pick": {
+    "left": 94.11,
+    "right": 92.26,
+    "n": 917,
+    "choice": "left"
+   },
+   "eval_states": {
+    "left": 92.58,
+    "right": 90.83,
+    "n": 229
+   }
+  },
+  "getup7-hardflip-s6": {
+   "pick": {
+    "left": 0.44,
+    "right": 49.95,
+    "n": 917,
+    "choice": "right"
+   },
+   "eval_states": {
+    "left": 0.87,
+    "right": 54.15,
+    "n": 229
+   }
   }
  }
 }
