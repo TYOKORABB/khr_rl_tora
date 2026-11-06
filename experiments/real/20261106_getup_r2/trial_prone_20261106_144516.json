@@ -1,0 +1,46 @@
+{
+ "exp": "getup9-sym-s1",
+ "ckpt": 2999,
+ "label": "prone",
+ "reason": "最後まで動いた",
+ "aborted": false,
+ "e_sat_deg": 4.6,
+ "raw": "real/data/raw/getup_trial/getup_trial_prone_20261106_144516.npz",
+ "phases_s": {
+  "脱力": 0.0,
+  "通電": 1.5,
+  "起き上がり": 8.0,
+  "保持": 3.02
+ },
+ "success": false,
+ "success_time_s": null,
+ "u_start": 0.991,
+ "u_max": 0.998,
+ "u_end": 0.953,
+ "h_est_end_m": 0.177,
+ "h_est_max_m": 0.184,
+ "max_dev_from_nominal_end_deg": 91.9,
+ "omega_end": 0.0,
+ "conditions_end": {
+  "u": false,
+  "関節角": false,
+  "胴体高": true,
+  "角速度": true
+ },
+ "period_ms": {
+  "p50": 20.0,
+  "p99": 20.23
+ },
+ "rx_age_ms_p99": 102.5,
+ "err_max_deg": {
+  "l_elbow_pitch": 8.0,
+  "l_knee_pitch": 5.3,
+  "r_elbow_yaw": 5.1
+ },
+ "sat_cum_s_max": {
+  "r_elbow_yaw": 0.06,
+  "l_elbow_pitch": 0.04,
+  "r_shoulder_roll": 0.02
+ },
+ "action_abs_p99": 1.764
+}

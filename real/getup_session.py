@@ -482,6 +482,9 @@ def getup_run(a, link, R: np.ndarray, out_raw: Path, sign: np.ndarray, stop_file
     from real.pose_session import SLOTS as HOLD_SLOTS
     from real.pose_session import hold_packet
     policy, norm, env_cfg, obs_cfg = load_policy(a.exp, a.ckpt)
+    gap = getattr(a, "gap", None)
+    if gap is not None:                       # 実機だけ、目標角と測った角度のずれの上限を変える（11/6、力の不足の切り分け）
+        env_cfg = dict(env_cfg, action=dict(env_cfg["action"], gap=gap))
     ob = GetupObsBuilder(env_cfg, obs_cfg)
     order = [HOLD_SLOTS.index(s_) for s_ in SLOTS]
     tx, rows = [], []
@@ -529,7 +532,8 @@ def getup_run(a, link, R: np.ndarray, out_raw: Path, sign: np.ndarray, stop_file
         q0 = np.median([read(m)[0] for _, m in rx], axis=0)
         q_start = np.clip(q0, ob.lo + 0.03, ob.hi - 0.03)               # 学習環境のリセットと同じ（可動域の内側 0.03 rad）
         moved = np.degrees(np.abs(q_start - q0))
-        print(f"[info] 起き上がり: {a.exp} model_{a.ckpt}、姿勢「{a.label}」、{a.seconds} 秒 + 保持 {a.hold} 秒。"
+        print(f"[info] 起き上がり: {a.exp} model_{a.ckpt}、姿勢「{a.label}」、{a.seconds} 秒 + 保持 {a.hold} 秒、"
+              f"ずれの上限 {ob.post.gap} rad、中止の閾値 {a.e_sat_deg}°。"
               f"通電で可動域の内側へ寄せる関節: " + (", ".join(f"{JOINT_NAMES[i]} {moved[i]:.1f}°" for i in np.nonzero(moved > 0.5)[0]) or "なし"), flush=True)
         phase, t_ph = PH_ARM, time.monotonic()
         target = q0.copy()
@@ -596,7 +600,7 @@ def getup_run(a, link, R: np.ndarray, out_raw: Path, sign: np.ndarray, stop_file
     stamp = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
     p = out_raw / f"getup_trial_{a.label}_{stamp}.npz"
     np.savez_compressed(p, rows=np.array(rows), exp=a.exp, ckpt=a.ckpt, label=a.label, reason=reason, aborted=aborted,
-                        e_sat_deg=a.e_sat_deg, sign=sign, joint_names=np.array(JOINT_NAMES), sat_cum=sat_cum,
+                        e_sat_deg=a.e_sat_deg, gap=float(env_cfg["action"]["gap"]), sign=sign, joint_names=np.array(JOINT_NAMES), sat_cum=sat_cum,
                         t_rx=np.array([t for t, _ in rx_all]) - t_start, meridim=np.array([m for _, m in rx_all]),
                         tx=np.array(tx, dtype=np.float64) - [t_start, 0, 0] if tx else np.zeros((0, 3)),
                         norm_mean=norm[0], norm_std=norm[1], success_cfg=json.dumps(env_cfg["success"]))
@@ -611,7 +615,7 @@ def analyze_trial(p: Path) -> dict:
     rows, n = d["rows"], len(JOINT_NAMES)
     sc = json.loads(str(d["success_cfg"]))
     out = {"exp": str(d["exp"]), "ckpt": int(d["ckpt"]), "label": str(d["label"]), "reason": str(d["reason"]), "aborted": bool(d["aborted"]),
-           "e_sat_deg": float(d["e_sat_deg"]), "raw": str(p.relative_to(REPO_ROOT)) if p.is_relative_to(REPO_ROOT) else str(p)}
+           "e_sat_deg": float(d["e_sat_deg"]), "gap_rad": float(d["gap"]) if "gap" in d else None, "raw": str(p.relative_to(REPO_ROOT)) if p.is_relative_to(REPO_ROOT) else str(p)}
     if len(rows) == 0:
         return out
     t, ph = rows[:, 0], rows[:, 1].astype(int)
@@ -834,7 +838,8 @@ def main(argv=None) -> int:
     s.add_argument("--label", required=True, help="置いた姿勢（prone、left_down など。記録用）")
     s.add_argument("--seconds", type=float, default=8.0, help="方策を動かす秒数（学習時のエピソードと同じ 8 秒）")
     s.add_argument("--hold", type=float, default=3.0, help="そのあと最後の目標角で保持する秒数")
-    s.add_argument("--e-sat-deg", type=float, default=4.6, help="目標角とのずれの中止の閾値 [deg]")
+    s.add_argument("--e-sat-deg", type=float, default=4.6, help="目標角とのずれの中止の閾値 [deg]（--gap を広げたら上げる）")
+    s.add_argument("--gap", type=float, default=None, help="目標角と測った角度のずれの上限 [rad]（既定は学習時の値）")
     s.add_argument("--exp", default=DEFAULT_EXP)
     s.add_argument("--ckpt", type=int, default=DEFAULT_CKPT)
     s.add_argument("--esp-ip", default=None)
@@ -857,6 +862,8 @@ def main(argv=None) -> int:
         sys.exit("[error] 1 回は 120 秒まで")
     if a.cmd == "getup" and (a.seconds > 16 or a.hold > 10):
         sys.exit("[error] 起き上がりは 16 秒、保持は 10 秒まで")
+    if a.cmd == "getup" and a.gap is not None and (a.gap > 0.12 or math.radians(a.e_sat_deg) <= a.gap):
+        sys.exit("[error] --gap は 0.12 rad まで、--e-sat-deg は gap より大きく")
     return {"obs-check": cmd_obs_check, "shadow": cmd_shadow, "analyze": cmd_analyze, "selftest": cmd_selftest, "sign-hand": cmd_sign_hand, "getup": cmd_getup,
             "getup-selftest": cmd_getup_selftest,
             "analyze-trial": lambda a: (print_trial(analyze_trial(Path(a.npz).resolve())), 0)[1]}[a.cmd](a)

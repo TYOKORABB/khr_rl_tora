@@ -225,3 +225,8 @@ IsaacGymEnvs_khr-master.zip
 
 # 起き上がりの棒の図のデータ（リンクの位置から機体の寸法が分かるので公開のリポジトリに入れない。record_getup_seq.py で作り直せる）
 experiments/thesis_figs/data/getup_seq.json
+
+# 実機の動画（スマホの .MOV）は git に入れない（2026-11-06）
+*.MOV
+*.mov
+media/mp4/
