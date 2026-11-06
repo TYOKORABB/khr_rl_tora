@@ -1,0 +1,41 @@
+{
+ "exp": "getup9-sym-s1",
+ "ckpt": "2999",
+ "per_start": 16,
+ "starts": [
+  "getup_trial_prone_20261106_144516.npz",
+  "getup_trial_prone_20261106_145011.npz",
+  "getup_trial_prone_mat_20261106_145940.npz",
+  "getup_trial_prone_mat_gap08_20261106_150153.npz"
+ ],
+ "results": [
+  {
+   "cond": {
+    "pb": [
+     3.0,
+     3.0
+    ],
+    "pm": "waterfill"
+   },
+   "success_pct": 0.0,
+   "push_pct": 58.0,
+   "shoulder_dev_deg": 85.6,
+   "h_max_m": 0.071,
+   "n": 64
+  },
+  {
+   "cond": {
+    "pb": [
+     4.0,
+     4.0
+    ],
+    "pm": "waterfill"
+   },
+   "success_pct": 0.0,
+   "push_pct": 50.6,
+   "shoulder_dev_deg": 82.4,
+   "h_max_m": 0.081,
+   "n": 64
+  }
+ ]
+}

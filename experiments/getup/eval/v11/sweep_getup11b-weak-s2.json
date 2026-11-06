@@ -25,8 +25,8 @@
     ]
    },
    "success_pct": 93.8,
-   "push_pct": 5.2,
-   "shoulder_dev_deg": 4.4,
+   "push_pct": 6.3,
+   "shoulder_dev_deg": 4.7,
    "h_max_m": 0.194,
    "n": 64
   },
@@ -37,9 +37,9 @@
      3.0
     ]
    },
-   "success_pct": 98.4,
-   "push_pct": 2.2,
-   "shoulder_dev_deg": 3.2,
+   "success_pct": 96.9,
+   "push_pct": 3.1,
+   "shoulder_dev_deg": 3.5,
    "h_max_m": 0.194,
    "n": 64
   },
@@ -50,9 +50,9 @@
      0.4
     ]
    },
-   "success_pct": 98.4,
-   "push_pct": 1.6,
-   "shoulder_dev_deg": 3.2,
+   "success_pct": 96.9,
+   "push_pct": 1.9,
+   "shoulder_dev_deg": 3.7,
    "h_max_m": 0.194,
    "n": 64
   },
@@ -63,10 +63,38 @@
      2.0
     ]
    },
-   "success_pct": 78.1,
-   "push_pct": 11.6,
-   "shoulder_dev_deg": 4.7,
+   "success_pct": 68.8,
+   "push_pct": 18.5,
+   "shoulder_dev_deg": 6.6,
    "h_max_m": 0.193,
+   "n": 64
+  },
+  {
+   "cond": {
+    "pb": [
+     3.0,
+     3.0
+    ],
+    "pm": "waterfill"
+   },
+   "success_pct": 0.0,
+   "push_pct": 29.3,
+   "shoulder_dev_deg": 26.4,
+   "h_max_m": 0.136,
+   "n": 64
+  },
+  {
+   "cond": {
+    "pb": [
+     4.0,
+     4.0
+    ],
+    "pm": "waterfill"
+   },
+   "success_pct": 84.4,
+   "push_pct": 15.5,
+   "shoulder_dev_deg": 6.3,
+   "h_max_m": 0.192,
    "n": 64
   }
  ]

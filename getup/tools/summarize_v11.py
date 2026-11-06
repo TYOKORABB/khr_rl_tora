@@ -19,7 +19,10 @@ PAT = "getup11-weak-s{}"
 PARENT = "getup9-sym-s1"
 OUT = EXPERIMENT_ROOT / "getup" / "eval" / "v11"
 NAMES = {"{}": "弱さなし", '{"ts": [0.3, 0.3]}': "関節ごとの上限 30 %", '{"pb": [3.0, 3.0]}': "電源の上限 3 個分",
-         '{"ts": [0.4, 0.4]}': "関節ごとの上限 40 %（参考）", '{"pb": [2.0, 2.0]}': "電源の上限 2 個分（参考）"}
+         '{"ts": [0.4, 0.4]}': "関節ごとの上限 40 %（参考）", '{"pb": [2.0, 2.0]}': "電源の上限 2 個分（参考）",
+         # 11/6 夜に追加（参考）: 合計が予算に収まる模型（getup_env3 の dr["power_model"] = "waterfill"）。親の値は sweep_getup9-sym-s1_pm.json
+         '{"pb": [3.0, 3.0], "pm": "waterfill"}': "電源の上限 3 個分・合計を抑える模型（参考）",
+         '{"pb": [4.0, 4.0], "pm": "waterfill"}': "電源の上限 4 個分・合計を抑える模型（参考）"}
 
 
 def load(exp: str) -> dict | None:
@@ -37,11 +40,14 @@ def main() -> int:
     a = ap.parse_args()
     PAT = f"getup11{a.tag}-weak-s{{}}"
     par = load(PARENT)
+    if par is not None and (pm := load(PARENT + "_pm")) is not None:
+        par.update({k: v for k, v in pm.items() if k != "_ckpt"})
     runs = {s: load(PAT.format(s)) for s in SEEDS}
     done = [s for s in SEEDS if runs[s] is not None]
     lines = [f"# getup-v11{a.tag} の結果（実機の力の不足に合わせて学習を続ける）", "",
              "計画と判定の基準は `v11_plan.md` §3（学習の前に固定）。自動生成（`getup/tools/summarize_v11.py`）。",
-             "値は成功 %。実機の 4 回の始めの姿勢 × 16 回（`getup/tools/real_repro_sweep.py`、個体差あり、8 秒）。", ""]
+             "値は成功 %。実機の 4 回の始めの姿勢 × 16 回（`getup/tools/real_repro_sweep.py`、個体差あり、8 秒）。",
+             "11/6 夜に計算し直した: 学習の設定の「元の強さのエピソード 25 %」が評価にも入っていたのを外した（`v11_plan.md` §5.2）。", ""]
     head = "| 条件 | 親（getup9-sym-s1） | " + " | ".join(f"シード {s}" for s in SEEDS) + " | 平均 |"
     lines += [head, "|" + "---|" * (len(SEEDS) + 3)]
     table = {}

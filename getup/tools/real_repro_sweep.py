@@ -4,7 +4,7 @@
 
 始めの姿勢は real/data/raw/getup_trial/ の各試行の最初の行（通電の始めに測った関節角と重力の向き。可動域に収めて置く）。方策は getup9-sym-s1。
 引数: 1 = 始めの姿勢ごとの回数、2 = 条件の JSON、3 = 方策（既定 getup9-sym-s1）、4 = チェックポイント（既定 2999）、5 = 結果の JSON（省略可）。
-条件: cap = torque_cap_scale、ts = 体ごとのトルクの上限の倍率 [lo, hi]、pb = 電源の電流の合計の上限（全力のサーボ何個分か）[lo, hi]、kp = サーボの硬さ、mass = 胴体の質量の増減の範囲 [kg]、gap = 目標角と測った角度のずれの上限 [rad]。
+条件: cap = torque_cap_scale、ts = 体ごとのトルクの上限の倍率 [lo, hi]、pb = 電源の電流の合計の上限（全力のサーボ何個分か）[lo, hi]、pm = 電源の上限の模型（scale / waterfill）、kp = サーボの硬さ、mass = 胴体の質量の増減の範囲 [kg]、gap = 目標角と測った角度のずれの上限 [rad]。
 胴体の高さはシミュの真の値（実機は関節角と重力からの推定）。「肩ピッチが上限近くで押した割合」は 1.5 秒以降、左右の肩ピッチで |送った目標角 − 角度| > gap − 0.01 rad の割合（実機の記録と同じ見方）。
 結果の表は experiments/real/20261106_getup_r2/README.md。生データ（real/data/raw/）はこの PC にしかない。
 """
@@ -38,6 +38,12 @@ for c in configs:
                dr=dict(env_cfg0["dr"], mass_kg=tuple(c["mass"]) if "mass" in c else env_cfg0["dr"]["mass_kg"]))
     cfg["dr"].pop("torque_scale", None)       # 学習の設定に弱さの個体差があっても、条件で指定しない限り入れない
     cfg["dr"].pop("power_budget", None)
+    # 11/6 夜に直した: v11b の設定の weak_full_frac（元の強さのエピソード 25 %）が評価でも効き、弱い条件の 4 回に 1 回が元の強さだった
+    cfg["dr"].pop("weak_full_frac", None)
+    cfg["dr"].pop("weak_ramp_iters", None)
+    cfg["dr"].pop("power_model", None)
+    if "pm" in c:                             # 電源の上限の模型（getup_env3 の dr["power_model"]: scale = 学習で使ったもの、waterfill = 合計が予算に収まる）
+        cfg["dr"]["power_model"] = c["pm"]
     if "ts" in c:                             # 体ごとのトルクの上限の倍率 (lo, hi)（getup-v11 の個体差、11/6）
         cfg["dr"]["torque_scale"] = tuple(c["ts"])
     if "pb" in c:                             # 電源の電流の合計の上限（全力のサーボ何個分か）(lo, hi)

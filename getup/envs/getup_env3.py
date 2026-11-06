@@ -369,8 +369,24 @@ class GetupEnv:
             # 体ごとのトルクの上限（シーンは batch_dofs_info で関節の設定を体ごとに持つ）。電源の上限は、PD の推定トルクの合計から決める
             cap = self.cap_base * self.t_scale
             tau = (self.env_cfg["kp"] * (exec_t + self.trim - self.q) - self.env_cfg["kd"] * self.dq).clamp(-cap, cap)
-            demand = (tau.abs() / self.cap_base * float(self.env_cfg.get("torque_cap_scale", 1.0))).sum(1)   # 全力（仕様）のサーボ何個分か
-            self.p_scale = (self.p_budget / demand.clamp(min=1e-6)).clamp(max=1.0)
+            cs = float(self.env_cfg.get("torque_cap_scale", 1.0))
+            a_sp = tau.abs() / self.cap_base * cs                     # 関節ごとの |τ| ÷ 仕様
+            demand = a_sp.sum(1)                                      # 全力（仕様）のサーボ何個分か
+            if self.env_cfg["dr"].get("power_model", "scale") == "waterfill":
+                # 11/6 夜: 「scale」は上限を budget ÷ demand 倍に下げるだけで、上限より小さい関節は削られず、合計は予算を超える。
+                # 電源の電圧が下がると全サーボの上限が同じ割合で下がり、合計の電流が予算に等しくなるところで釣り合う、とみて、
+                # Σ min(a_i, s × c_i) = 予算 となる共通の割合 s を二分法で解く（c_i = 関節ごとの上限 ÷ 仕様）
+                c_sp = cap / self.cap_base * cs
+                lo_s, hi_s = torch.zeros_like(demand), torch.ones_like(demand)
+                for _ in range(20):
+                    mid = 0.5 * (lo_s + hi_s)
+                    over = torch.minimum(a_sp, mid.unsqueeze(1) * c_sp).sum(1) > self.p_budget
+                    hi_s, lo_s = torch.where(over, mid, hi_s), torch.where(over, lo_s, mid)
+                self.p_scale = torch.where(demand > self.p_budget, lo_s, torch.ones_like(lo_s))
+                self.power_used = torch.minimum(a_sp, self.p_scale.unsqueeze(1) * c_sp).sum(1)
+            else:
+                self.p_scale = (self.p_budget / demand.clamp(min=1e-6)).clamp(max=1.0)
+                self.power_used = torch.minimum(a_sp, (self.p_scale.unsqueeze(1) * cap / self.cap_base * cs)).sum(1)   # 周期の始めに出す合計（仕様の何個分か）
             cap = cap * self.p_scale.unsqueeze(1)
             self.robot.set_dofs_force_range(-cap, cap, self.motors)
         self.robot.control_dofs_position(exec_t + self.trim, self.motors)   # 実際の角度 = 指令 + 0 点のずれ

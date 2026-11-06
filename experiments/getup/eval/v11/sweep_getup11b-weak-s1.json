@@ -24,9 +24,9 @@
      0.3
     ]
    },
-   "success_pct": 98.4,
-   "push_pct": 5.2,
-   "shoulder_dev_deg": 2.9,
+   "success_pct": 95.3,
+   "push_pct": 7.1,
+   "shoulder_dev_deg": 3.3,
    "h_max_m": 0.194,
    "n": 64
   },
@@ -38,8 +38,8 @@
     ]
    },
    "success_pct": 98.4,
-   "push_pct": 3.5,
-   "shoulder_dev_deg": 2.3,
+   "push_pct": 4.3,
+   "shoulder_dev_deg": 2.4,
    "h_max_m": 0.194,
    "n": 64
   },
@@ -51,8 +51,8 @@
     ]
    },
    "success_pct": 100.0,
-   "push_pct": 1.7,
-   "shoulder_dev_deg": 2.4,
+   "push_pct": 2.3,
+   "shoulder_dev_deg": 2.5,
    "h_max_m": 0.194,
    "n": 64
   },
@@ -63,9 +63,37 @@
      2.0
     ]
    },
-   "success_pct": 64.1,
-   "push_pct": 12.8,
-   "shoulder_dev_deg": 3.5,
+   "success_pct": 39.1,
+   "push_pct": 20.1,
+   "shoulder_dev_deg": 7.6,
+   "h_max_m": 0.192,
+   "n": 64
+  },
+  {
+   "cond": {
+    "pb": [
+     3.0,
+     3.0
+    ],
+    "pm": "waterfill"
+   },
+   "success_pct": 0.0,
+   "push_pct": 25.0,
+   "shoulder_dev_deg": 40.6,
+   "h_max_m": 0.129,
+   "n": 64
+  },
+  {
+   "cond": {
+    "pb": [
+     4.0,
+     4.0
+    ],
+    "pm": "waterfill"
+   },
+   "success_pct": 59.4,
+   "push_pct": 16.3,
+   "shoulder_dev_deg": 5.1,
    "h_max_m": 0.193,
    "n": 64
   }

@@ -27,6 +27,7 @@
 | `train_getup10.py`・`envs/getup_env4.py` | getup-v10（`--base none/canon/sym` に `--add still pose fliplim replay` を足す）。使わない項は getup_env3 と同じ |
 | `train_getup11.py` | getup-v11（11/6）: `getup9-sym-s1` から学習を続け、個体差に `--ts`（関節ごとのトルクの上限の倍率）と `--pb`（電源の電流の合計の上限、全力のサーボ何個分か）を足す（`envs/getup_env3.py` の `env_cfg["dr"]`、使うときはシーンを `batch_dofs_info` で作る）。計画 `experiments/getup/v11_plan.md` |
 | `tools/real_repro_sweep.py` | 実機の起き上がりの試行の始めの姿勢（`real/data/raw/getup_trial/`）から、トルクの上限・硬さ・重さ・弱さの個体差を変えてシミュで動かし、実機と同じ失敗が出るかを見る（CPU）。getup-v11 の判定の計算にも使う |
+| `tools/current_estimate.py`・`tools/plot_current.py` | 同じ始めの姿勢から方策を動かし、全関節の トルクの絶対値 ÷ 仕様の合計から電源の電流を見積もる（待機 1 A ＋ 1.3 A × 合計、CPU）。図は `media/getup_plots/current_estimate_v11b.png`（11/6） |
 | `tools/real_vs_sim_video.py` | 実機の動画と、同じ始めの姿勢から動かしたシミュ 2 本（学習と同じ・kp 6）を時刻をそろえて並べる → `media/videos/getup/real_vs_sim_<試行>.mp4`（CPU） |
 | `tools/check_mirror.py` | 左右反転の並びを、鏡像の状態を置いて物理で確かめる（CPU、1 分以内） |
 | `tools/diag_levers.py`・`tools/diag_stuck.py`・`tools/diag_mirror.py`・`tools/diag_sym.py`・`tools/diag_switch_path.py` | 学習し直さない診断（GPU、各 5〜10 分）。評価のときだけ条件を変える、止まった姿勢を調べる、方策を左右反転して動かす。結果は `experiments/getup/eval/diag_*.json`、まとめは `docs/GetUpImprovementOptions.md` |
