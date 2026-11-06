@@ -1,0 +1,15 @@
+{
+ "joint": "l_elbow_yaw",
+ "hint": "肘を曲げて前腕を前に向け、手をロボット自身の左へ動かす",
+ "start_deg": -1.46,
+ "max_plus_deg": 0.34,
+ "max_minus_deg": 0.3,
+ "sign": null,
+ "moved_most_deg": {
+  "l_shoulder_pitch": 70.6,
+  "l_shoulder_roll": 1.0,
+  "l_ankle_roll": 0.7,
+  "r_elbow_pitch": 0.6
+ },
+ "time": "2026-11-06T14:35:05"
+}

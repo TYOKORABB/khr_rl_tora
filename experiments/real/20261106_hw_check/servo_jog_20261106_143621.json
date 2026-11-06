@@ -1,0 +1,28 @@
+{
+  "servo": "L3",
+  "amp_deg": 10.0,
+  "ramp_s": 1.5,
+  "esp_ip": "192.168.11.21",
+  "aborted": null,
+  "theta0_deg": 6.04,
+  "max_track_err_deg": 0.7177147137762914,
+  "lag_ms": 57,
+  "rms_after_lag_deg": 0.2163335279366391,
+  "measured_range_deg": [
+    -4.43,
+    15.76
+  ],
+  "powered_frames": 851,
+  "after_limp_range_deg": [
+    5.73,
+    6.38
+  ],
+  "echo_rtt_ms": {
+    "p50": 19.633391057141125,
+    "p90": 26.28426137380302,
+    "max": 83.17633299157023
+  },
+  "rx_packets": 1071,
+  "tx_packets": 1050,
+  "raw": "real/data/raw/servo_jog_20261106_143621.npz"
+}

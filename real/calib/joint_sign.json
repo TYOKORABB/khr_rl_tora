@@ -1,0 +1,9 @@
+{
+ "note": "起き上がりのデプロイヤ（real/getup_session.py getup）が使う関節の符号。学習環境の角度 = 符号 × Meridim の角度。ここに無い関節は +1。歩行の道具（walk_session）は使わない",
+ "sign": {"r_elbow_yaw": -1},
+ "evidence": {
+  "r_elbow_yaw": "2026-11-06 servo_jog R3 ±10°: + の指令で、肘を 90° 曲げて前腕を前に向けた右手が体の外側（ロボット自身の右）へ動いた（本人の目視）。URDF（軸 +z）では内側へ動く。experiments/real/20261106_hw_check/servo_jog_20261106_143724.json",
+  "l_elbow_yaw": "同日 servo_jog L3 ±10°: + で左手が外側（ロボット自身の左）へ。URDF と一致 → +1。servo_jog_20261106_143621.json",
+  "c_head_yaw": "同日、脱力のまま手で回した: ロボット自身の右へ回して読みが負 → +1。experiments/real/20261106_getup_r0/sign_c_head_yaw_142931.json"
+ }
+}

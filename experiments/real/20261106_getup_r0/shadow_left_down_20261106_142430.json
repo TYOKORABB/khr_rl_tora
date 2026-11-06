@@ -1,0 +1,116 @@
+{
+ "raw": "real/data/raw/getup_shadow/getup_shadow_left_down_20261106_142430.npz",
+ "exp": "getup9-sym-s1",
+ "ckpt": 2999,
+ "label": "left_down",
+ "reason": "10.0 秒たった",
+ "policy_steps": 500,
+ "period_ms": {
+  "p50": 20.0,
+  "p99": 20.21
+ },
+ "frame_age_ms": {
+  "p50": 0.8,
+  "p99": 20.68
+ },
+ "range": {
+  "角速度": {
+   "z_p99": 0.14,
+   "z_max": 0.14,
+   "ok": true
+  },
+  "重力": {
+   "z_p99": 3.8,
+   "z_max": 3.8,
+   "ok": true
+  },
+  "関節角": {
+   "z_p99": 5.21,
+   "z_max": 5.21,
+   "ok": false
+  },
+  "関節速度": {
+   "z_p99": 0.79,
+   "z_max": 1.52,
+   "ok": true
+  },
+  "前回の目標角": {
+   "z_p99": 5.15,
+   "z_max": 5.29,
+   "ok": false
+  },
+  "履歴の角速度": {
+   "z_p99": 0.14,
+   "z_max": 0.14,
+   "ok": true
+  },
+  "履歴の重力": {
+   "z_p99": 3.78,
+   "z_max": 3.78,
+   "ok": true
+  },
+  "履歴の関節角": {
+   "z_p99": 5.14,
+   "z_max": 5.16,
+   "ok": false
+  }
+ },
+ "down_mean": [
+  0.145,
+  0.983,
+  -0.114
+ ],
+ "gyro_mean_dps": [
+  -0.0,
+  -0.01,
+  -0.0
+ ],
+ "gyro_std_dps": [
+  0.09,
+  0.06,
+  0.1
+ ],
+ "down_check": {
+  "expected": [
+   0,
+   1,
+   0
+  ],
+  "angle_deg": 10.6,
+  "tolerance_deg": 15.0,
+  "ok": true
+ },
+ "action": {
+  "abs_p99": 1.669,
+  "frac_beyond_1": 0.091
+ },
+ "target_minus_measured_deg": {
+  "p99": 4.74,
+  "max": 4.74
+ },
+ "q_median_deg": {
+  "l_shoulder_pitch": 16.8,
+  "l_shoulder_roll": -4.1,
+  "l_elbow_yaw": -10.4,
+  "l_elbow_pitch": 12.9,
+  "r_shoulder_pitch": 17.0,
+  "r_shoulder_roll": 3.0,
+  "r_elbow_yaw": 2.2,
+  "r_elbow_pitch": -4.0,
+  "l_hip_yaw": -11.8,
+  "l_hip_roll": -14.1,
+  "l_hip_pitch": 5.1,
+  "l_knee_pitch": 56.2,
+  "l_ankle_pitch": -80.2,
+  "l_ankle_roll": 8.0,
+  "r_hip_yaw": -11.1,
+  "r_hip_roll": -7.2,
+  "r_hip_pitch": 18.9,
+  "r_knee_pitch": 48.0,
+  "r_ankle_pitch": -82.2,
+  "r_ankle_roll": -23.0,
+  "c_chest_yaw": 7.2,
+  "c_head_yaw": 1.2
+ },
+ "ok": false
+}

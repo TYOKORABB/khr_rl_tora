@@ -459,6 +459,353 @@ def cmd_selftest(a) -> int:
     return 0 if ok else 1
 
 
+# ---- 通電した起き上がり（計画書 §5.5 の MVP、2026-11-06）--------------------------------------------------
+TRIAL_DIR = REPO_ROOT / "real" / "data" / "raw" / "getup_trial"
+SIGN_FILE = REPO_ROOT / "real" / "calib" / "joint_sign.json"
+PH_LIMP, PH_ARM, PH_GETUP, PH_HOLD = 0, 1, 2, 3
+PHASE_NAME = {PH_LIMP: "脱力", PH_ARM: "通電", PH_GETUP: "起き上がり", PH_HOLD: "保持"}
+ARM_RAMP_S, ARM_HOLD_S = 1.0, 0.5        # 通電: 測った角度 → 可動域の内側へ 1 秒で寄せ、0.5 秒保持
+SAT_CONT_S, SAT_CUM_S = 1.0, 2.0         # 計画書 §5.5: 飽和が 1 秒連続、または 1 試行で累計 2 秒 → 脱力
+TRIAL_RX_GAP_S = 0.2
+
+
+def joint_sign() -> np.ndarray:
+    """学習環境の角度 = 符号 × Meridim の角度（real/calib/joint_sign.json、無い関節は +1）。"""
+    d = json.loads(SIGN_FILE.read_text(encoding="utf-8"))["sign"]
+    return np.array([float(d.get(n, 1)) for n in JOINT_NAMES])
+
+
+def getup_run(a, link, R: np.ndarray, out_raw: Path, sign: np.ndarray, stop_file: Path | None = None) -> Path:
+    """脱力 1 s → 通電（今の角度を保持して可動域の内側へ寄せる）→ 方策で a.seconds 秒 → 最後の目標角で a.hold 秒保持 → 脱力。
+    中止（すぐ脱力）: 受信の途絶 TRIAL_RX_GAP_S、stop ファイル、Ctrl-C、どれかの関節で |送った目標角 − 測った角度| > a.e_sat_deg が
+    SAT_CONT_S 連続か累計 SAT_CUM_S。目標角は学習時と同じ（直前に測った角度 ± gap、可動域の内側）。"""
+    from real.pose_session import SLOTS as HOLD_SLOTS
+    from real.pose_session import hold_packet
+    policy, norm, env_cfg, obs_cfg = load_policy(a.exp, a.ckpt)
+    ob = GetupObsBuilder(env_cfg, obs_cfg)
+    order = [HOLD_SLOTS.index(s_) for s_ in SLOTS]
+    tx, rows = [], []
+    seq = echo = 0
+    t_start = time.monotonic()
+    reason, aborted = "?", True
+    sat_run = np.zeros(len(JOINT_NAMES))
+    sat_cum = np.zeros(len(JOINT_NAMES))
+    e_sat = math.radians(a.e_sat_deg)
+
+    def send(tgt_sim):
+        """tgt_sim: 学習環境の角度 [rad]（None なら全サーボ脱力）。Meridim の角度 = 符号 × 学習環境の角度。"""
+        nonlocal seq, echo
+        echo += 1
+        if tgt_sim is None:
+            pk = hold_packet(seq, echo, None)
+        else:
+            deg = np.zeros(22)
+            deg[order] = np.degrees(sign * tgt_sim)
+            pk = hold_packet(seq, echo, deg)
+        link.sock.sendto(pk, link.esp)
+        tx.append((time.monotonic(), echo % 30000, tgt_sim is not None))
+        seq += 1
+
+    def read(m):
+        q, w, down = read_meridim(m.astype(np.int64), SLOTS, R)
+        return sign * q, w, down
+
+    def tick(nxt):
+        nxt += 0.01
+        time.sleep(max(0.0, nxt - time.monotonic()))
+        return nxt
+
+    try:
+        nxt = t0 = time.monotonic()
+        while time.monotonic() - t0 < 1.0:                          # 1 s: 脱力のパケットで通信監視を OK にし、今の角度を読む
+            send(None)
+            nxt = tick(nxt)
+        rx = link.since(t0 + 0.6)
+        if len(rx) < 20:
+            raise RuntimeError(f"ESP32 から受信できません（0.4 s で {len(rx)} パケット）")
+        st = gv.decode_status(int(rx[-1][1][gv.MRD_STATUS]))
+        if not st.patched or st.wdg_state != "OK":
+            raise RuntimeError(f"改造ファームの通信監視が OK になりません（{st}）")
+        q0 = np.median([read(m)[0] for _, m in rx], axis=0)
+        q_start = np.clip(q0, ob.lo + 0.03, ob.hi - 0.03)               # 学習環境のリセットと同じ（可動域の内側 0.03 rad）
+        moved = np.degrees(np.abs(q_start - q0))
+        print(f"[info] 起き上がり: {a.exp} model_{a.ckpt}、姿勢「{a.label}」、{a.seconds} 秒 + 保持 {a.hold} 秒。"
+              f"通電で可動域の内側へ寄せる関節: " + (", ".join(f"{JOINT_NAMES[i]} {moved[i]:.1f}°" for i in np.nonzero(moved > 0.5)[0]) or "なし"), flush=True)
+        phase, t_ph = PH_ARM, time.monotonic()
+        target = q0.copy()
+        k_last, t_go = None, None
+        while True:
+            now = time.monotonic()
+            if stop_file is not None and stop_file.exists():
+                reason = "stop が指示された"
+                break
+            last = link.latest()
+            if last is None or now - last[0] > TRIAL_RX_GAP_S:
+                reason = f"ESP32 からの受信が {TRIAL_RX_GAP_S} s 途絶えた"
+                break
+            if phase == PH_ARM:
+                frac = min(1.0, (now - t_ph) / ARM_RAMP_S)
+                target = q0 + (q_start - q0) * (0.5 - 0.5 * math.cos(math.pi * frac))
+                if now - t_ph >= ARM_RAMP_S + ARM_HOLD_S:
+                    phase, t_ph, t_go = PH_GETUP, now, now
+                    print("[info] 方策を動かす", flush=True)
+            elif phase == PH_GETUP and now - t_go >= a.seconds:
+                phase, t_ph = PH_HOLD, now
+                print(f"[info] {a.seconds} 秒たったので最後の目標角で {a.hold} 秒保持し、そのあと脱力する", flush=True)
+            elif phase == PH_HOLD and now - t_ph >= a.hold:
+                reason, aborted = "最後まで動いた", False
+                break
+            k = int(round((now - t_start) / 0.01))
+            if k_last is None or k - k_last >= 2:                     # 20 ms ごと: 記録・飽和の判定・（起き上がり中は）方策
+                k_last = k
+                q, w, down = read(last[1])
+                err = np.abs(target - q)                              # 前に送った目標角と、いま測った角度
+                over = err > e_sat
+                sat_run = np.where(over, sat_run + 0.02, 0.0)
+                sat_cum = sat_cum + over * 0.02
+                obs = np.zeros(ob.num_obs)
+                act = np.zeros(len(JOINT_NAMES))
+                if phase == PH_GETUP:
+                    if not rows or rows[-1][1] != PH_GETUP:
+                        ob.reset(q, w, down)
+                    obs = ob.build(q, w, down)
+                    act = run_policy(policy, obs)
+                    target = ob.target(act)
+                rows.append(np.concatenate([[now - t_start, phase, (now - last[0]) * 1000.0], q, w, down, err, obs, act, target]))
+                j = int(np.argmax(np.maximum(sat_run / SAT_CONT_S, sat_cum / SAT_CUM_S)))
+                if sat_run[j] >= SAT_CONT_S or sat_cum[j] >= SAT_CUM_S:
+                    reason = (f"{JOINT_NAMES[j]} の目標角とのずれ > {a.e_sat_deg}° が "
+                              + (f"{SAT_CONT_S} 秒続いた" if sat_run[j] >= SAT_CONT_S else f"累計 {SAT_CUM_S} 秒になった"))
+                    break
+            send(target)
+            nxt = tick(nxt)
+    except (Exception, KeyboardInterrupt) as e:
+        reason = f"{type(e).__name__}: {e}"
+    finally:
+        t2 = nxt = time.monotonic()
+        while time.monotonic() - t2 < 1.0:
+            try:
+                send(None)
+            except Exception as e:
+                print(f"[error] 脱力のパケットを送れません: {e}", flush=True)
+                break
+            nxt = tick(nxt)
+        rx_all = link.since(t_start)
+    print(f"[stop] {reason} → 全サーボ脱力", flush=True)
+    out_raw.mkdir(parents=True, exist_ok=True)
+    stamp = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
+    p = out_raw / f"getup_trial_{a.label}_{stamp}.npz"
+    np.savez_compressed(p, rows=np.array(rows), exp=a.exp, ckpt=a.ckpt, label=a.label, reason=reason, aborted=aborted,
+                        e_sat_deg=a.e_sat_deg, sign=sign, joint_names=np.array(JOINT_NAMES), sat_cum=sat_cum,
+                        t_rx=np.array([t for t, _ in rx_all]) - t_start, meridim=np.array([m for _, m in rx_all]),
+                        tx=np.array(tx, dtype=np.float64) - [t_start, 0, 0] if tx else np.zeros((0, 3)),
+                        norm_mean=norm[0], norm_std=norm[1], success_cfg=json.dumps(env_cfg["success"]))
+    return p
+
+
+def analyze_trial(p: Path) -> dict:
+    """起き上がりの記録 → 要約。成功は学習環境の §3.2 の条件のうち実機で測れるもの（u・関節角・胴体高 h_est・角速度）が
+    hold_s 続いたか（端以外の接地は測れないので入れない）。"""
+    from khr_common.height_est import HeightEstimator
+    d = np.load(p, allow_pickle=False)
+    rows, n = d["rows"], len(JOINT_NAMES)
+    sc = json.loads(str(d["success_cfg"]))
+    out = {"exp": str(d["exp"]), "ckpt": int(d["ckpt"]), "label": str(d["label"]), "reason": str(d["reason"]), "aborted": bool(d["aborted"]),
+           "e_sat_deg": float(d["e_sat_deg"]), "raw": str(p.relative_to(REPO_ROOT)) if p.is_relative_to(REPO_ROOT) else str(p)}
+    if len(rows) == 0:
+        return out
+    t, ph = rows[:, 0], rows[:, 1].astype(int)
+    q, w, down = rows[:, 3:3 + n], rows[:, 3 + n:6 + n], rows[:, 6 + n:9 + n]
+    err = rows[:, 9 + n:9 + 2 * n]
+    act = rows[:, 9 + 2 * n + 184:9 + 3 * n + 184]
+    g = ph == PH_GETUP
+    q_nom = np.array([NOMINAL_QUAD[nm] for nm in JOINT_NAMES])
+    h = HeightEstimator().batch(q, down)
+    ok_now = (down[:, 0] > sc["u_min"]) & (np.abs(q - q_nom) < sc["delta_rad"]).all(1) & (h >= sc["h_thr"]) & (np.linalg.norm(w, axis=1) < sc["omega_max"])
+    run, first = 0, None
+    need = int(round(sc["hold_s"] / 0.02))
+    for i in np.nonzero(g)[0]:
+        run = run + 1 if ok_now[i] else 0
+        if run >= need and first is None:
+            first = float(t[i] - t[g][0])
+    tg = t[g]
+    per = np.diff(tg) * 1000 if g.sum() > 2 else np.zeros(1)
+    worst = np.argsort(-err[g].max(0))[:3] if g.any() else []
+    out.update({
+        "phases_s": {PHASE_NAME[k]: round(float((ph == k).sum() * 0.02), 2) for k in PHASE_NAME},
+        "success": first is not None, "success_time_s": None if first is None else round(first, 2),
+        "u_start": round(float(down[g][0, 0]), 3) if g.any() else None, "u_max": round(float(down[g][:, 0].max()), 3) if g.any() else None,
+        "u_end": round(float(down[-1, 0]), 3), "h_est_end_m": round(float(h[-1]), 3), "h_est_max_m": round(float(h[g].max()), 3) if g.any() else None,
+        "max_dev_from_nominal_end_deg": round(float(np.degrees(np.abs(q[-1] - q_nom)).max()), 1),
+        "omega_end": round(float(np.linalg.norm(w[-1])), 2),
+        "conditions_end": {"u": bool(down[-1, 0] > sc["u_min"]), "関節角": bool((np.abs(q[-1] - q_nom) < sc["delta_rad"]).all()),
+                           "胴体高": bool(h[-1] >= sc["h_thr"]), "角速度": bool(np.linalg.norm(w[-1]) < sc["omega_max"])},
+        "period_ms": {"p50": round(float(np.median(per)), 2), "p99": round(float(np.percentile(per, 99)), 2)},
+        "rx_age_ms_p99": round(float(np.percentile(rows[:, 2], 99)), 1),
+        "err_max_deg": {JOINT_NAMES[i]: round(float(np.degrees(err[g][:, i].max())), 1) for i in worst},
+        "sat_cum_s_max": {JOINT_NAMES[i]: round(float(d["sat_cum"][i]), 2) for i in np.argsort(-d["sat_cum"])[:3]},
+        "action_abs_p99": round(float(np.percentile(np.abs(act[g]), 99)), 3) if g.any() else None,
+    })
+    return out
+
+
+def write_trial_summary(s: dict) -> Path:
+    stamp = Path(s["raw"]).stem.replace("getup_trial_", "")
+    out = REPO_ROOT / "experiments" / "real" / f"{dt.date.today():%Y%m%d}_getup_r2" / f"trial_{stamp}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(s, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return out
+
+
+def print_trial(s: dict):
+    print(f"[R2 ] {s['label']}: {'成功' if s.get('success') else '成功せず'}"
+          + (f"（{s['success_time_s']} 秒で条件を 1 秒保った）" if s.get("success") else "") + f"、終わり方: {s['reason']}")
+    if "u_max" in s:
+        print(f"      u 始め {s['u_start']} → 最大 {s['u_max']} → 終わり {s['u_end']}、胴体高 h_est 最大 {s['h_est_max_m']} m・終わり {s['h_est_end_m']} m、"
+              f"終わりの条件 {s['conditions_end']}")
+        print(f"      周期 {s['period_ms']} ms、目標角とのずれの最大 {s['err_max_deg']}°、ずれ > {s['e_sat_deg']}° の累計 {s['sat_cum_s_max']} s")
+
+
+def cmd_getup(a) -> int:
+    from real.fw_check import Link, esp_ip_from_board_txt
+    esp_ip = a.esp_ip or esp_ip_from_board_txt()
+    if not esp_ip:
+        sys.exit("[error] ESP32 の IP が分かりません（--esp-ip）")
+    mount = json.loads((REPO_ROOT / "real" / "calib" / "imu_mount.json").read_text())
+    if not mount.get("pass"):
+        sys.exit("[error] IMU の取り付け回転が未校正です（real/calib/imu_mount.json が合格でない）")
+    sign = joint_sign()
+    flipped = [JOINT_NAMES[i] for i in np.nonzero(sign < 0)[0]]
+    print(f"[info] 符号を反転して読み書きする関節（{SIGN_FILE.relative_to(REPO_ROOT)}）: {flipped or 'なし'}", flush=True)
+    stop_file = TRIAL_DIR / "stop"
+    stop_file.unlink(missing_ok=True)
+    link = Link(a.recv_port, esp_ip=esp_ip, send_port=a.send_port)
+    try:
+        p = getup_run(a, link, np.array(mount["r_mount"]), TRIAL_DIR, sign, stop_file)
+    finally:
+        link.close()
+    s = analyze_trial(p)
+    print_trial(s)
+    print(f"      要約 → {write_trial_summary(s).relative_to(REPO_ROOT)}")
+    return 0
+
+
+def cmd_getup_selftest(a) -> int:
+    """偽の ESP32 で getup を通す。合格: 通電・起き上がり・保持・脱力の順に進み、最後に脱力のパケットを送っている。
+    stop ファイルで途中で止まる。符号を反転した関節は、送った角度の符号が逆になっている。"""
+    import tempfile
+    import threading
+
+    import real.step_response as sr
+    from real.fw_check import Link
+    from real.pose_session import SLOTS as HOLD_SLOTS
+    seen = []
+    parse0 = sr.parse
+
+    def parse_rec(b):
+        m = parse0(b)
+        if m is not None:
+            seen.append(m.copy())
+        return m
+    sr.parse = parse_rec
+    R = np.array(json.loads((REPO_ROOT / "real" / "calib" / "imu_mount.json").read_text())["r_mount"])
+    sign = joint_sign()
+    res = {}
+    try:
+        for case in ("full", "stop"):
+            seen.clear()
+            pc_port, esp_port = 43242, 43244
+            fake = sr.FakeServoEsp(pc_port, esp_port)
+            fake.start()
+            ns = argparse.Namespace(exp=a.exp, ckpt=a.ckpt, label="selftest", seconds=2.0, hold=1.0, e_sat_deg=a.e_sat_deg)
+            with tempfile.TemporaryDirectory() as tmp:
+                stop = Path(tmp) / "stop"
+                if case == "stop":
+                    threading.Timer(2.5, lambda: stop.write_text("x")).start()
+                link = Link(recv_port=pc_port, esp_ip="127.0.0.1", send_port=esp_port)
+                try:
+                    p = getup_run(ns, link, R, Path(tmp), sign, stop)
+                    s = analyze_trial(p)
+                finally:
+                    link.close()
+                    fake.stop()
+            pw = np.array([[int(m[s_]) == 1 for s_ in HOLD_SLOTS] for m in seen])
+            res[case] = {"reason": s["reason"], "phases_s": s.get("phases_s"), "powered_packets": int(pw.any(1).sum()),
+                         "last_limp": bool(len(pw) > 50 and not pw[-50:].any()), "all_or_none": bool((pw.all(1) | ~pw.any(1)).all())}
+            print(f"  {case}: {res[case]}", flush=True)
+    finally:
+        sr.parse = parse0
+    f, st = res["full"], res["stop"]
+    ok = (f["reason"] == "最後まで動いた" and f["last_limp"] and f["all_or_none"] and f["phases_s"]["起き上がり"] >= 1.8
+          and st["reason"] == "stop が指示された" and st["last_limp"] and st["phases_s"]["保持"] == 0.0)
+    print(f"getup_session getup-selftest: {'OK' if ok else 'NG'}")
+    return 0 if ok else 1
+
+
+# ---- 符号の確認（脱力のまま、手で回した向きと読みの正負、11/6）-------------------------------------------
+# URDF（起き上がり用）では 3 関節とも軸は +z（直立の体で上向き）。正の向きの動き（URDF から計算、11/6）:
+SIGN_HINT = {"c_head_yaw": "顔をロボット自身の左へ向ける",
+             "l_elbow_yaw": "肘を曲げて前腕を前に向け、手をロボット自身の左へ動かす",
+             "r_elbow_yaw": "肘を曲げて前腕を前に向け、手をロボット自身の左へ動かす"}
+
+
+def cmd_sign_hand(a) -> int:
+    """全サーボ脱力のまま、人が手で 1 関節を SIGN_HINT の向きに回す。読みの変化の大きい側の正負が +1 なら、PC 側の符号表（全 +1）が正しい。"""
+    from real.fw_check import Link, esp_ip_from_board_txt
+    from real.pose_session import hold_packet
+    esp_ip = a.esp_ip or esp_ip_from_board_txt()
+    if not esp_ip:
+        sys.exit("[error] ESP32 の IP が分かりません（--esp-ip）")
+    R = np.array(json.loads((REPO_ROOT / "real" / "calib" / "imu_mount.json").read_text())["r_mount"])
+    j = JOINT_NAMES.index(a.joint)
+    link = Link(a.recv_port, esp_ip=esp_ip, send_port=a.send_port)
+    vals, allq, seq = [], [], 0
+    try:
+        t0 = nxt = time.monotonic()
+        last_print = -1.0
+        print(f"[info] 脱力のまま {a.seconds} 秒。{a.joint} を「{SIGN_HINT[a.joint]}」向きに回して少し止め、戻してください", flush=True)
+        while time.monotonic() - t0 < a.seconds:
+            link.sock.sendto(hold_packet(seq, seq + 1, None), link.esp)
+            seq += 1
+            last = link.latest()
+            now = time.monotonic()
+            if last is not None and now - last[0] < RX_GAP_S and now - t0 > 0.5:
+                q = read_meridim(last[1].astype(np.int64), SLOTS, R)[0]
+                vals.append((now - t0, float(np.degrees(q[j]))))
+                allq.append(np.degrees(q))
+                if now - last_print >= 0.5:
+                    print(f"  t={now - t0:4.1f} s  {a.joint} = {vals[-1][1]:+7.2f}°", flush=True)
+                    last_print = now
+            nxt += 0.01
+            time.sleep(max(0.0, nxt - time.monotonic()))
+    finally:
+        for _ in range(20):
+            link.sock.sendto(hold_packet(seq, seq + 1, None), link.esp)
+            seq += 1
+            time.sleep(0.01)
+        link.close()
+    if len(vals) < 50:
+        sys.exit("[error] ESP32 からの受信が足りません")
+    v = np.array([x for _, x in vals])
+    base = float(np.median(v[:25]))
+    up, dn = float(v.max() - base), float(base - v.min())
+    sign = +1 if up > dn else -1
+    ok = max(up, dn) >= 10.0
+    Q = np.array(allq)
+    span = Q.max(axis=0) - Q.min(axis=0)                                # 関節ごとの動いた幅（ほかの関節を回していないかを見る）
+    moved = {JOINT_NAMES[i]: round(float(span[i]), 1) for i in np.argsort(-span)[:4]}
+    print(f"      動いた幅の大きい関節: {moved}", flush=True)
+    res = {"joint": a.joint, "hint": SIGN_HINT[a.joint], "start_deg": round(base, 2), "max_plus_deg": round(up, 2), "max_minus_deg": round(dn, 2),
+           "sign": sign if ok else None, "moved_most_deg": moved, "time": dt.datetime.now().isoformat(timespec="seconds")}
+    print(f"[sign] {a.joint}: 始め {base:+.1f}°、正の側へ最大 {up:.1f}°、負の側へ最大 {dn:.1f}° → "
+          + (f"符号 {sign:+d}（{'PC 側の表の +1 と一致' if sign == 1 else '表の +1 と逆'}）" if ok else "動きが 10° 未満で判定できない"), flush=True)
+    out = REPO_ROOT / "experiments" / "real" / f"{dt.date.today():%Y%m%d}_getup_r0" / f"sign_{a.joint}_{dt.datetime.now():%H%M%S}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"      記録 → {out.relative_to(REPO_ROOT)}")
+    return 0 if ok else 1
+
+
 def main(argv=None) -> int:
     from real.fw_check import RECV_PORT, SEND_PORT
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -483,10 +830,36 @@ def main(argv=None) -> int:
     s = sub.add_parser("selftest")
     s.add_argument("--exp", default=DEFAULT_EXP)
     s.add_argument("--ckpt", type=int, default=DEFAULT_CKPT)
+    s = sub.add_parser("getup", help="通電して起き上がらせる（R2）")
+    s.add_argument("--label", required=True, help="置いた姿勢（prone、left_down など。記録用）")
+    s.add_argument("--seconds", type=float, default=8.0, help="方策を動かす秒数（学習時のエピソードと同じ 8 秒）")
+    s.add_argument("--hold", type=float, default=3.0, help="そのあと最後の目標角で保持する秒数")
+    s.add_argument("--e-sat-deg", type=float, default=4.6, help="目標角とのずれの中止の閾値 [deg]")
+    s.add_argument("--exp", default=DEFAULT_EXP)
+    s.add_argument("--ckpt", type=int, default=DEFAULT_CKPT)
+    s.add_argument("--esp-ip", default=None)
+    s.add_argument("--recv-port", type=int, default=RECV_PORT, help=argparse.SUPPRESS)
+    s.add_argument("--send-port", type=int, default=SEND_PORT, help=argparse.SUPPRESS)
+    s = sub.add_parser("getup-selftest", help="偽の ESP32 で getup を通す")
+    s.add_argument("--exp", default=DEFAULT_EXP)
+    s.add_argument("--ckpt", type=int, default=DEFAULT_CKPT)
+    s.add_argument("--e-sat-deg", type=float, default=4.6)
+    s = sub.add_parser("analyze-trial")
+    s.add_argument("npz")
+    s = sub.add_parser("sign-hand", help="脱力のまま手で 1 関節を回して符号を見る")
+    s.add_argument("--joint", required=True, choices=sorted(SIGN_HINT))
+    s.add_argument("--seconds", type=float, default=8.0)
+    s.add_argument("--esp-ip", default=None)
+    s.add_argument("--recv-port", type=int, default=RECV_PORT, help=argparse.SUPPRESS)
+    s.add_argument("--send-port", type=int, default=SEND_PORT, help=argparse.SUPPRESS)
     a = p.parse_args(argv)
     if a.cmd == "shadow" and a.seconds > 120:
         sys.exit("[error] 1 回は 120 秒まで")
-    return {"obs-check": cmd_obs_check, "shadow": cmd_shadow, "analyze": cmd_analyze, "selftest": cmd_selftest}[a.cmd](a)
+    if a.cmd == "getup" and (a.seconds > 16 or a.hold > 10):
+        sys.exit("[error] 起き上がりは 16 秒、保持は 10 秒まで")
+    return {"obs-check": cmd_obs_check, "shadow": cmd_shadow, "analyze": cmd_analyze, "selftest": cmd_selftest, "sign-hand": cmd_sign_hand, "getup": cmd_getup,
+            "getup-selftest": cmd_getup_selftest,
+            "analyze-trial": lambda a: (print_trial(analyze_trial(Path(a.npz).resolve())), 0)[1]}[a.cmd](a)
 
 
 if __name__ == "__main__":
