@@ -1,0 +1,4 @@
+# getup-v11（experiments/getup/v11_plan.md、11/6）: getup9-sym-s1 から学習を続ける。個体差に関節ごとのトルクの上限 0.3〜1.0 倍と電源の上限 2〜8 個分
+getup11-weak-s1  1 1500 train_getup11 --ts 0.3 1.0 --pb 2.0 8.0
+getup11-weak-s2  2 1500 train_getup11 --ts 0.3 1.0 --pb 2.0 8.0
+getup11-weak-s3  3 1500 train_getup11 --ts 0.3 1.0 --pb 2.0 8.0

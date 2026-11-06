@@ -100,7 +100,9 @@ def build_scene(n_envs: int, env_cfg: dict, show_viewer: bool = False, before_bu
     scene = gs.Scene(
         sim_options=gs.options.SimOptions(dt=0.02, substeps=2),
         rigid_options=gs.options.RigidOptions(enable_collision=True, enable_neutral_collision=True, enable_joint_limit=True,
-                                              tolerance=1e-5, max_collision_pairs=env_cfg.get("max_collision_pairs", 150)),
+                                              tolerance=1e-5, max_collision_pairs=env_cfg.get("max_collision_pairs", 150),
+                                              # 弱さの個体差（getup-v11）があるときだけ、関節の設定（トルクの上限）を体ごとに持つ
+                                              batch_dofs_info=any(k in env_cfg["dr"] for k in ("torque_scale", "power_budget"))),
         viewer_options=gs.options.ViewerOptions(camera_pos=(1.0, -1.0, 0.6), camera_lookat=(0.0, 0.0, 0.1), camera_fov=40, max_FPS=50),
         vis_options=gs.options.VisOptions(rendered_envs_idx=[0]),
         show_viewer=show_viewer,
@@ -154,6 +156,8 @@ class GetupEnv:
 
         self.q_nom = torch.tensor([NOMINAL_QUAD[nm] for nm in JOINT_NAMES], dtype=gs.tc_float, device=self.device)
         lo, hi = r.get_dofs_limit(self.motors)
+        if lo.dim() == 2:                       # batch_dofs_info のときは体ごとに返る（中身は全部の体で同じ）
+            lo, hi = lo[0], hi[0]
         self.q_lo, self.q_hi = lo.to(gs.tc_float), hi.to(gs.tc_float)
         ac = env_cfg["action"]
         self.post = ActionPost(self.q_nom.cpu().numpy(), self.q_lo.cpu().numpy(), self.q_hi.cpu().numpy(),
@@ -161,14 +165,26 @@ class GetupEnv:
         # トルク（v3）: tau_spec = 仕様（URDF の effort）、tau_cap = シミュの上限（仕様 × torque_cap_scale）。
         # tau_lim は罰と検証の割合の分母で、v1・v2 と同じく仕様にする（検証の「100 %」は仕様の 100 %）
         self.tau_spec = r.get_dofs_force_range(self.motors)[1].to(gs.tc_float).clone()
+        if self.tau_spec.dim() == 2:            # batch_dofs_info のとき（中身は全部の体で同じ）
+            self.tau_spec = self.tau_spec[0].clone()
         cap_scale = float(env_cfg.get("torque_cap_scale", 1.0))
         self.tau_cap = self.tau_spec * cap_scale
         if cap_scale != 1.0:
             r.set_dofs_force_range(-self.tau_cap, self.tau_cap, self.motors)
             got = r.get_dofs_force_range(self.motors)[1].to(gs.tc_float)
-            if not torch.allclose(got, self.tau_cap, rtol=1e-5, atol=1e-6):
+            if not torch.allclose(got, self.tau_cap.expand_as(got), rtol=1e-5, atol=1e-6):
                 raise RuntimeError(f"トルクの上限を設定できていない: {got} != {self.tau_cap}")
         self.tau_lim = self.tau_spec
+        # 実機の力の不足（2026-11-06、getup-v11。experiments/real/20261106_getup_r2/README.md）: env_cfg["dr"] に
+        #   torque_scale = (lo, hi): 体ごと・エピソードごとに、全関節のトルクの上限に掛ける倍率
+        #   power_budget = (lo, hi): 電源の電流の合計の上限（全力のサーボ何個分か）。PD の推定トルクの |τ|/仕様 の合計がこれを超える分は、
+        #                            その周期だけ全関節の上限を同じ割合で下げる（電源の電圧が下がると全サーボの最大トルクが一緒に下がる）
+        # があれば使う。評価の公称（eval_getup の dr_nominal）にはこの 2 つが無いので、公称では元の強さ。
+        self.weak_on = any(k in env_cfg["dr"] for k in ("torque_scale", "power_budget"))
+        self.cap_base = (self.tau_cap if self.tau_cap.dim() == 2 else self.tau_cap.unsqueeze(0)).expand(num_envs, -1).clone()
+        self.t_scale = torch.ones(num_envs, 1, device=self.device, dtype=gs.tc_float)
+        self.p_budget = torch.full((num_envs,), float("inf"), device=self.device, dtype=gs.tc_float)
+        self.p_scale = torch.ones(num_envs, device=self.device, dtype=gs.tc_float)
 
         # 初期状態バンク
         bank = torch.load(REPO_ROOT / env_cfg["bank"], map_location="cpu")
@@ -349,6 +365,14 @@ class GetupEnv:
         else:
             exec_t = self.q_delay if self.env_cfg["simulate_action_latency"] else q_cmd
         self.q_delay = q_cmd
+        if self.weak_on:
+            # 体ごとのトルクの上限（シーンは batch_dofs_info で関節の設定を体ごとに持つ）。電源の上限は、PD の推定トルクの合計から決める
+            cap = self.cap_base * self.t_scale
+            tau = (self.env_cfg["kp"] * (exec_t + self.trim - self.q) - self.env_cfg["kd"] * self.dq).clamp(-cap, cap)
+            demand = (tau.abs() / self.cap_base * float(self.env_cfg.get("torque_cap_scale", 1.0))).sum(1)   # 全力（仕様）のサーボ何個分か
+            self.p_scale = (self.p_budget / demand.clamp(min=1e-6)).clamp(max=1.0)
+            cap = cap * self.p_scale.unsqueeze(1)
+            self.robot.set_dofs_force_range(-cap, cap, self.motors)
         self.robot.control_dofs_position(exec_t + self.trim, self.motors)   # 実際の角度 = 指令 + 0 点のずれ
         self.scene.step()
         self.q_tgt_prev = q_cmd
@@ -477,6 +501,12 @@ class GetupEnv:
             ax = torch.randn(k, 3, device=self.device, dtype=gs.tc_float)
             ax = ax / ax.norm(dim=1, keepdim=True)
             self.R_imu[ids] = axis_angle_mat(ax, rnd((0.0, math.radians(dr["imu_deg"])), k))
+        if self.weak_on:
+            if keep is not None and "t_scale" in keep:
+                self.t_scale[ids], self.p_budget[ids] = keep["t_scale"], keep["p_budget"]
+            else:
+                self.t_scale[ids] = rnd(dr["torque_scale"], k, 1) if "torque_scale" in dr else 1.0
+                self.p_budget[ids] = rnd(dr["power_budget"], k) if "power_budget" in dr else float("inf")
         # 状態を読み直し、前回の目標角・遅れのバッファ・履歴を実測から作る（公称姿勢からの跳びを防ぐ）
         self._read_state()
         q_meas = (self.q - self.trim)[ids]
@@ -528,7 +558,8 @@ class GetupEnv:
         if yaw is not None:
             fz["yaw"] = yaw.to(self.device)
         if dr_state is not None:
-            fz["dr_state"] = {k: dr_state[k].to(self.device) for k in ("friction_ratio", "mass_shift", "com_shift", "trim", "R_imu")}
+            fz["dr_state"] = {k: dr_state[k].to(self.device) for k in ("friction_ratio", "mass_shift", "com_shift", "trim", "R_imu",
+                                                                         "t_scale", "p_budget") if k in dr_state}
         self._forced = fz
         self.common_step_counter, saved = 0, self.common_step_counter   # 終わっていないエピソードを記録しない
         self._reset_idx(torch.ones(B, dtype=torch.bool, device=self.device))
@@ -541,7 +572,7 @@ class GetupEnv:
         """いまの個体差（体ごと）の写し。force_reset(dr_state=...) で再現できる。"""
         return {"friction_ratio": self.friction_ratio.clone(), "mass_shift": self.mass_shift.clone(),
                 "com_shift": self.com_shift.clone(), "trim": self.trim.clone(), "R_imu": self.R_imu.clone(),
-                "yaw": self.ep_yaw.clone()}
+                "yaw": self.ep_yaw.clone(), "t_scale": self.t_scale.clone(), "p_budget": self.p_budget.clone()}
 
     def reset(self):
         self.common_step_counter = 0

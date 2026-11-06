@@ -73,7 +73,7 @@ def sim_frames(trial: Path, kp: float, gap: float, seed: int, seconds: float) ->
     rows = np.load(trial)["rows"]
     n = 22
     q0, down = rows[0, 3:3 + n], rows[0, 6 + n:9 + n] / np.linalg.norm(rows[0, 6 + n:9 + n])
-    lo, hi = env.q_lo[0].cpu().numpy(), env.q_hi[0].cpu().numpy()
+    lo, hi = env.q_lo.reshape(-1, 22)[0].cpu().numpy(), env.q_hi.reshape(-1, 22)[0].cpu().numpy()   # 関節ごとの可動域（11/6 に直した。前は最初の関節の範囲を全関節に使っていた）
     qc = np.clip(q0, lo, hi)
     h = HeightEstimator()(qc, down)[0]
     ax = np.cross(down, [0, 0, -1.0])
