@@ -214,6 +214,12 @@ python -m getup.train_getup11 -e getup11c-mix-s{1,2,3} -B 4096 -I 1500 --seed {1
 `getup/jobs/run_v11c.sh`（ログ `logs/getup_jobs/run_v11c.log`、印 `[v11c]`）。始めに `getup/jobs/pause_whisper.sh` で whisper の cron を止め（いま走っている回は終わるのを待つ）、
 3 シードの学習 → 検証（動画）→ 判定の計算（CPU）→ まとめ（`getup/tools/summarize_v11c.py` → `experiments/getup/v11c_results.md`）→ whisper を戻す。予備の戻しは 11/7 12:00。
 
+### 7.6 結果（11/7 5:32、`v11c_results.md`）
+
+**不合格**（問い 1 を満たさない）。M1〜M3 の平均は v11c 21.0 %、v11b 41.1 %（差 −20.1 pt）。M1 13.5 対 43.7、M2 49.5 対 79.7、M3 は両方 0 %。
+問い 2（弱さなし 97.9 %）と問い 3（L3 公称 91.0 %、v11b 85.7 %）は満たした。M3 で v11b より 20 pt 以上高いシードは無く、電源が原因だったときの控えも無い。
+見立て（問い 1 は 6 割）は外れた。弱さを「電源だけ / サーボ側だけ」に分け、kp の範囲を足したことで、サーボ側の弱い条件では v11b より弱くなった。whisper はジョブが 5:32 に戻した。
+
 ## 4. 変更の記録
 
 - 11/6: 作成（学習の前）。
