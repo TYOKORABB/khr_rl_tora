@@ -118,7 +118,7 @@ ICS の USB アダプターは多分ない（ファームから読む）。プ�
 | A2 | 済。電力の形で、起き上がりの最初の 4 秒は歩行の平均の 1.3 倍、ピークで 1.8〜1.9 倍 |
 | A3 | 済（ビルドと単体テストまで）。khr-getup.5、`real/servo_tel.py` |
 | A4 | 済。`experiments/real/session3_plan.md` |
-| A5 | 済。`v11_plan.md` §7 を学習の前に固定し、getup-v11c を学習中（whisper を止めた） |
+| A5 | 済。`v11_plan.md` §7 を学習の前に固定し、getup-v11c を学習した（whisper を止めた）。結果は不合格（M1〜M3 の平均 21.0 %、v11b 41.1 %、`experiments/getup/v11c_results.md`）。次の実機も v11b のまま |
 | A6 | 済。`dr["obs_stale"]`（v11c に入れた） |
 | A7 | 済（下書き）。卒論 v10 の 10 節 |
 | 残る決定 | D1（C3 の扱い）、D4（次の実機の日）、D5（.5 の書き込みと、終わったあと梶田版に戻すか）、D8〜D11 |
