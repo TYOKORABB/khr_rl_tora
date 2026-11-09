@@ -8,7 +8,7 @@
 胴体の高さはシミュの真の値（実機は関節角と重力からの推定）。「肩ピッチが上限近くで押した割合」は 1.5 秒以降、左右の肩ピッチで |送った目標角 − 角度| > gap − 0.01 rad の割合（実機の記録と同じ見方）。
 結果の表は experiments/real/20261106_getup_r2/README.md。生データ（real/data/raw/）はこの PC にしかない。
 """
-import copy, importlib, pickle, sys, glob, math, json
+import copy, importlib, os, pickle, sys, glob, math, json
 from pathlib import Path
 import numpy as np, torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -22,7 +22,12 @@ from rsl_rl.runners import OnPolicyRunner
 per = int(sys.argv[1])
 exp = sys.argv[3] if len(sys.argv) > 3 else "getup9-sym-s1"
 configs = json.loads(sys.argv[2])
-files = sorted(glob.glob("real/data/raw/getup_trial/getup_trial_*.npz"))
+# 11/9: 記録が増えたので、既定は 11/6 の 4 回に固定（これまでの結果を変えない）。環境変数 REPRO_TRIALS でグロブか「@ファイル名の一覧」を指定できる
+_pat = os.environ.get("REPRO_TRIALS", "real/data/raw/getup_trial/getup_trial_*_20261106_*.npz")
+if _pat.startswith("@"):
+    files = [f"real/data/raw/getup_trial/{ln.strip()}" for ln in Path(_pat[1:]).read_text(encoding="utf-8").splitlines() if ln.strip()]
+else:
+    files = sorted(glob.glob(_pat))
 env_cfg0, obs_cfg, reward_cfg, train_cfg = pickle.load(open(LOG_ROOT / exp / "cfgs.pkl", "rb"))
 est = HeightEstimator()
 starts = []
@@ -34,7 +39,7 @@ Env = importlib.import_module(env_cfg0["env_module"]).GetupEnv
 top = len(env_cfg0["curriculum"]["levels"]) - 1
 results = []
 for c in configs:
-    cfg = dict(env_cfg0, episode_length_s=8.0, kp=c.get("kp", env_cfg0["kp"]), torque_cap_scale=c.get("cap", env_cfg0["torque_cap_scale"]),
+    cfg = dict(env_cfg0, episode_length_s=float(c.get("sec", 8.0)), kp=c.get("kp", env_cfg0["kp"]), torque_cap_scale=c.get("cap", env_cfg0["torque_cap_scale"]),
                dr=dict(env_cfg0["dr"], mass_kg=tuple(c["mass"]) if "mass" in c else env_cfg0["dr"]["mass_kg"]))
     cfg["dr"].pop("torque_scale", None)       # 学習の設定に弱さの個体差があっても、条件で指定しない限り入れない
     cfg["dr"].pop("power_budget", None)
@@ -85,9 +90,12 @@ for c in configs:
                 push += ((tgt - env.q)[:, SH].abs() > gap - 0.01).float().mean(1).cpu(); cnt += 1
     push = push / cnt
     dev = torch.rad2deg((env.q - env.q_nom)[:, SH].abs()).mean(1).cpu()
-    results.append({"cond": c, "success_pct": round(float(100 * succ.float().mean()), 1), "push_pct": round(float(100 * push.mean()), 1),
+    # 11/9: 実機の「終わりに四脚の条件がそろった」と同じ見方（u・全関節 0.3 rad 以内・胴体高。接地は実機で測れない。角速度は実機が保持のあとなので入れない）
+    _s = env_cfg0["success"]
+    end_pose = ((env.u > _s["u_min"]) & ((env.q - env.q_nom).abs() < _s["delta_rad"]).all(1) & (env.h_base >= _s["h_thr"])).cpu()
+    results.append({"cond": c, "success_pct": round(float(100 * succ.float().mean()), 1), "end_pose_pct": round(float(100 * end_pose.float().mean()), 1), "push_pct": round(float(100 * push.mean()), 1),
                     "shoulder_dev_deg": round(float(dev.median()), 1), "h_max_m": round(float(hmax.median()), 3), "n": B})
-    print(f"{json.dumps(c, ensure_ascii=False):45s} 成功 {100*succ.float().mean():5.1f} %  肩ピッチが上限近くで押した割合 {100*push.mean():5.1f} %  最後の肩ピッチの公称からのずれ {dev.median():5.1f}°  胴体の高さの最大（中央値） {hmax.median():.3f} m", flush=True)
+    print(f"{json.dumps(c, ensure_ascii=False):45s} 成功 {100*succ.float().mean():5.1f} %  終わりに四脚の形 {100*end_pose.float().mean():5.1f} %  肩ピッチが上限近くで押した割合 {100*push.mean():5.1f} %  最後の肩ピッチの公称からのずれ {dev.median():5.1f}°  胴体の高さの最大（中央値） {hmax.median():.3f} m", flush=True)
     del env, rn, pol
 if len(sys.argv) > 5:                         # 5 = 結果の JSON の場所
     Path(sys.argv[5]).parent.mkdir(parents=True, exist_ok=True)
