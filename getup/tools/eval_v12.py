@@ -90,6 +90,20 @@ def pct(x):
     return round(float(100 * np.mean(x)), 1) if len(x) else None
 
 
+if len(sys.argv) > 4 and sys.argv[4] == "kp-sweep":   # 参考（判定には使わない、v12_plan §3.7）: うつ伏せの 20 姿勢 × 4 回で kp を振る。A・B・C の計算は変えない
+    starts = starts_of("prone")
+    res = {"exp": exp, "ckpt": ck, "gap": GAP, "kp": {}}
+    for kp in (5, 7, 10, 12, 15, 20, 25):
+        env, pol = make(kp, 80)
+        put_starts(env, starts)
+        r = rollout(env, pol, np.arange(len(starts)).repeat(4))
+        res["kp"][str(kp)] = {"success_pct": pct(r["success"]), "end_pose_pct": pct(r["end"]), "tgt_step_deg": r["tgt_step_deg"], "omega_med": r["omega_med"], "stood": r["stood"]}
+        print("kp", kp, res["kp"][str(kp)], flush=True)
+        del env, pol
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    raise SystemExit(0)
+
 res = {"exp": exp, "ckpt": ck, "gap": GAP, "A": {}, "B": {}, "C": {}}
 starts = starts_of("prone")
 for kp in (7, 6, 8):
