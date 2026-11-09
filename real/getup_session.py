@@ -466,7 +466,7 @@ PH_LIMP, PH_ARM, PH_GETUP, PH_HOLD = 0, 1, 2, 3
 PHASE_NAME = {PH_LIMP: "脱力", PH_ARM: "通電", PH_GETUP: "起き上がり", PH_HOLD: "保持"}
 ARM_RAMP_S, ARM_HOLD_S = 1.0, 0.5        # 通電: 測った角度 → 可動域の内側へ 1 秒で寄せ、0.5 秒保持
 SAT_CONT_S, SAT_CUM_S = 1.0, 2.0         # 計画書 §5.5: 飽和が 1 秒連続、または 1 試行で累計 2 秒 → 脱力
-TRIAL_RX_GAP_S = 0.2
+TRIAL_RX_GAP_S = 0.4                     # 11/9 まで 0.2。Wi-Fi で止まった 4 回の隙間は 217〜373 ms で、ESP32 は送り続けていた（11/10 本人の了解で変更。ESP32 側の通信監視 1.2 秒はそのまま）
 
 
 def joint_sign() -> np.ndarray:
