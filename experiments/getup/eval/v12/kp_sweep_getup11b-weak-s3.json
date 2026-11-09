@@ -1,0 +1,56 @@
+{
+ "exp": "getup11b-weak-s3",
+ "ckpt": "4498",
+ "gap": 0.08,
+ "kp": {
+  "5": {
+   "success_pct": 16.2,
+   "end_pose_pct": 26.2,
+   "tgt_step_deg": 1.688,
+   "omega_med": 0.055,
+   "stood": 17
+  },
+  "7": {
+   "success_pct": 97.5,
+   "end_pose_pct": 97.5,
+   "tgt_step_deg": 1.703,
+   "omega_med": 0.062,
+   "stood": 78
+  },
+  "10": {
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "tgt_step_deg": 1.702,
+   "omega_med": 0.082,
+   "stood": 80
+  },
+  "12": {
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "tgt_step_deg": 1.701,
+   "omega_med": 0.094,
+   "stood": 80
+  },
+  "15": {
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "tgt_step_deg": 1.699,
+   "omega_med": 0.11,
+   "stood": 80
+  },
+  "20": {
+   "success_pct": 97.5,
+   "end_pose_pct": 100.0,
+   "tgt_step_deg": 1.699,
+   "omega_med": 0.143,
+   "stood": 80
+  },
+  "25": {
+   "success_pct": 97.5,
+   "end_pose_pct": 98.8,
+   "tgt_step_deg": 1.697,
+   "omega_med": 0.171,
+   "stood": 80
+  }
+ }
+}
