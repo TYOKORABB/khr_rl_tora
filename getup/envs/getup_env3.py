@@ -264,6 +264,7 @@ class GetupEnv:
         self.last_actions = f(B, n)
         self.last_last_actions = f(B, n)                 # v3: 2 階差分の罰
         self.q_tgt_prev = self.q_nom.repeat(B, 1)        # 前回送った目標角（サーボの角度）
+        self.q_tgt_step = f(B, n)                        # 今回の目標角の変化（getup-v12、11/9: 立っている間の目標角の動きの罰に使う）
         self.q_delay = self.q_nom.repeat(B, 1)           # 1 ステップ遅れのバッファ
         # 評価用（2026-10-30、実機で可能かの確かめ）: 遅れを N 周期にする。既定 1 は今までと同じ（学習の動きは変わらない）
         self.lat_n = int(env_cfg.get("action_latency_steps", 1))
@@ -420,6 +421,7 @@ class GetupEnv:
             self.robot.set_dofs_force_range(-cap, cap, self.motors)
         self.robot.control_dofs_position(exec_t + self.trim, self.motors)   # 実際の角度 = 指令 + 0 点のずれ
         self.scene.step()
+        self.q_tgt_step = q_cmd - self.q_tgt_prev
         self.q_tgt_prev = q_cmd
         self.episode_length_buf += 1
         self.common_step_counter += 1
@@ -599,6 +601,7 @@ class GetupEnv:
         self._read_state()
         q_meas = (self.q - self.trim)[ids]
         self.q_tgt_prev[ids] = q_meas.clamp(self.q_lo + 0.03, self.q_hi - 0.03)
+        self.q_tgt_step[ids] = 0.0
         self.q_delay[ids] = self.q_tgt_prev[ids]
         for buf in self.q_delay_more:
             buf[ids] = self.q_tgt_prev[ids]
@@ -713,6 +716,12 @@ class GetupEnv:
 
     def _reward_action_rate(self):
         return ((self.actions - self.last_actions) ** 2).sum(1)
+
+    def _reward_stand_smooth(self):
+        # getup-v12（11/9、experiments/getup/v12_plan.md §3）: 四脚で立っている間の目標角の動きの罰。目標角の変化を 1 周期の上限 delta で割って 2 乗した関節の平均
+        # （全関節が上限いっぱいで振ると 1）。実機では立ったあと目標角の動きで胴体が揺れた（after_stand.md）。報酬の設定に名前が無ければ使われない
+        d = float(self.env_cfg["action"]["delta"])
+        return ((self.q_tgt_step / d) ** 2).mean(1) * self._standing_now.float()
 
     def _reward_action_smoothness2(self):
         # v3: 行動の 2 階差分（毎歩の向きの反転を強く罰する。歩行 v10 以降と同じ形）

@@ -42,6 +42,10 @@ def main() -> int:
     ap.add_argument("--prot", nargs=2, type=float, default=None, metavar=("LO", "HI"), help="プロテクション（押したまま動かないのが何秒で出力 50 %%）")
     ap.add_argument("--stale", nargs=2, type=float, default=None, metavar=("LO", "HI"), help="観測を前の周期のままにする確率の範囲")
     ap.add_argument("--mix_power", type=float, default=None, help="弱いエピソードのうち電源の上限だけにする割合（残りはサーボ側だけ）")
+    # getup-v12（11/9、experiments/getup/v12_plan.md §3）: 実機に合わせた硬さ（kp 7 前後）、ずれの上限 0.08 rad、胸が上の状態、立っている間の目標角の動きの罰
+    ap.add_argument("--gap", type=float, default=None, help="目標角と測った関節角のずれの上限 [rad]（既定は親と同じ 0.05）")
+    ap.add_argument("--chest_up", action="store_true", help="いちばん上の段階に胸が上の状態（u0 < 0）を入れる")
+    ap.add_argument("--stand_smooth", type=float, default=None, help="立っている間の目標角の動きの罰の重み（負の値）")
     a, rest = ap.parse_known_args()
     import getup.train_getup6 as v6
     import getup.train_getup7 as v7
@@ -74,9 +78,23 @@ def main() -> int:
             env_cfg["dr"]["obs_stale"] = tuple(a.stale)
         if a.mix_power is not None:
             env_cfg["dr"]["weak_mix"] = {"power": a.mix_power}
+        if a.gap is not None:
+            env_cfg["action"]["gap"] = a.gap
+            env_cfg["run_version"] = "getup-v12"
+        if a.chest_up:                       # いちばん上の段階（L3）に胸が上の状態を入れる。苦手な状態の取り分も胸が上まで広げる
+            cur = env_cfg["curriculum"]
+            top = cur["levels"][-1]
+            cur["u0_min"][top] = -1.0
+            for spec in cur.get("extra", {}).get(top, []):
+                spec["u0_min"] = -1.0
+            if top in cur.get("hard", {}):
+                cur["hard"][top]["u0_min"] = -1.0
+        if a.stand_smooth is not None:
+            reward_cfg["reward_scales"]["stand_smooth"] = a.stand_smooth
         env_cfg["getup11"] = {"init": a.init, "init_ckpt": a.init_ckpt, "torque_scale": a.ts, "power_budget": a.pb,
                               "std_fix": a.std_fix, "entropy": a.entropy, "ramp": a.ramp, "full": a.full,
-                              "pm": a.pm, "kp": a.kp, "prot": a.prot, "stale": a.stale, "mix_power": a.mix_power}
+                              "pm": a.pm, "kp": a.kp, "prot": a.prot, "stale": a.stale, "mix_power": a.mix_power,
+                              "gap": a.gap, "chest_up": a.chest_up, "stand_smooth": a.stand_smooth}
         return env_cfg, obs_cfg, reward_cfg
 
     def get_train_cfg(exp):

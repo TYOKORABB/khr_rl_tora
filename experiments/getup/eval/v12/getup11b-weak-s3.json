@@ -1,0 +1,72 @@
+{
+ "exp": "getup11b-weak-s3",
+ "ckpt": "4498",
+ "gap": 0.08,
+ "A": {
+  "kp7": {
+   "success_pct": 98.8,
+   "end_pose_pct": 100.0,
+   "tgt_step_deg": 1.703,
+   "omega_med": 0.061,
+   "stood": 80
+  },
+  "kp6": {
+   "success_pct": 86.2,
+   "end_pose_pct": 97.5,
+   "tgt_step_deg": 1.699,
+   "omega_med": 0.056,
+   "stood": 77
+  },
+  "kp8": {
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "tgt_step_deg": 1.703,
+   "omega_med": 0.072,
+   "stood": 80
+  }
+ },
+ "B": {
+  "side": {
+   "n": 186,
+   "success_pct": 74.7
+  },
+  "side_left": {
+   "n": 59,
+   "success_pct": 64.4
+  },
+  "side_right": {
+   "n": 57,
+   "success_pct": 61.4
+  },
+  "chest_mid": {
+   "n": 405,
+   "success_pct": 67.7
+  },
+  "chest_mid_left": {
+   "n": 187,
+   "success_pct": 64.2
+  },
+  "chest_mid_right": {
+   "n": 184,
+   "success_pct": 72.8
+  },
+  "supine": {
+   "n": 209,
+   "success_pct": 9.6
+  }
+ },
+ "C": {
+  "loop": {
+   "success_pct": 93.8,
+   "end_pose_pct": 95.8
+  },
+  "side": {
+   "success_pct": 78.1,
+   "end_pose_pct": 87.5
+  },
+  "supine": {
+   "success_pct": 6.2,
+   "end_pose_pct": 31.2
+  }
+ }
+}
