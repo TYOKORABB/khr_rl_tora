@@ -1,0 +1,1208 @@
+{
+ "summary": {
+  "videos": 26,
+  "videos_total_s": 1176.4,
+  "trials_with_video": 39,
+  "n_shake_trials": 19,
+  "shake_torso_px_median": {
+   "A": 0.4207,
+   "B": 0.0285,
+   "C": 0.0248
+  },
+  "shake_ratio_A_over_B": {
+   "median": 17.1,
+   "min": 3.9,
+   "max": 38.9
+  },
+  "imu_w_median": {
+   "A": 0.244,
+   "B": 0.003
+  },
+  "ok_frac_median": {
+   "A": 0.89,
+   "B": 1.0
+  },
+  "ok_frac_mean": {
+   "A": 0.89,
+   "B": 1.0
+  },
+  "n_standing_at_limp": 20,
+  "after_limp_longest_observed_s": 28.0
+ },
+ "videos": [
+  {
+   "name": "IMG_0018.MOV",
+   "start": "2026-11-09T19:39:01+0900",
+   "dur_s": 13.9
+  },
+  {
+   "name": "IMG_0019.MOV",
+   "start": "2026-11-09T19:42:56+0900",
+   "dur_s": 39.0
+  },
+  {
+   "name": "IMG_0020.MOV",
+   "start": "2026-11-09T19:48:21+0900",
+   "dur_s": 25.6
+  },
+  {
+   "name": "IMG_0021.MOV",
+   "start": "2026-11-09T19:49:24+0900",
+   "dur_s": 25.7
+  },
+  {
+   "name": "IMG_0022.MOV",
+   "start": "2026-11-09T19:50:42+0900",
+   "dur_s": 25.8
+  },
+  {
+   "name": "IMG_0023.MOV",
+   "start": "2026-11-09T19:52:56+0900",
+   "dur_s": 25.6
+  },
+  {
+   "name": "IMG_0024.MOV",
+   "start": "2026-11-09T19:54:20+0900",
+   "dur_s": 15.9
+  },
+  {
+   "name": "IMG_0025.MOV",
+   "start": "2026-11-09T19:54:57+0900",
+   "dur_s": 23.7
+  },
+  {
+   "name": "IMG_0026.MOV",
+   "start": "2026-11-09T19:55:46+0900",
+   "dur_s": 21.0
+  },
+  {
+   "name": "IMG_0027.MOV",
+   "start": "2026-11-09T19:58:10+0900",
+   "dur_s": 41.3
+  },
+  {
+   "name": "IMG_0028.MOV",
+   "start": "2026-11-09T20:02:19+0900",
+   "dur_s": 15.7
+  },
+  {
+   "name": "IMG_0029.MOV",
+   "start": "2026-11-09T20:02:59+0900",
+   "dur_s": 34.1
+  },
+  {
+   "name": "IMG_0030.MOV",
+   "start": "2026-11-09T20:04:06+0900",
+   "dur_s": 31.4
+  },
+  {
+   "name": "IMG_0031.MOV",
+   "start": "2026-11-09T20:05:51+0900",
+   "dur_s": 19.1
+  },
+  {
+   "name": "IMG_0032.MOV",
+   "start": "2026-11-09T20:06:54+0900",
+   "dur_s": 26.5
+  },
+  {
+   "name": "IMG_0033.MOV",
+   "start": "2026-11-09T20:08:21+0900",
+   "dur_s": 22.1
+  },
+  {
+   "name": "IMG_0034.MOV",
+   "start": "2026-11-09T20:09:12+0900",
+   "dur_s": 16.1
+  },
+  {
+   "name": "IMG_0035.MOV",
+   "start": "2026-11-09T20:09:52+0900",
+   "dur_s": 17.1
+  },
+  {
+   "name": "IMG_0036.MOV",
+   "start": "2026-11-09T20:10:22+0900",
+   "dur_s": 14.0
+  },
+  {
+   "name": "IMG_0037.MOV",
+   "start": "2026-11-09T20:11:16+0900",
+   "dur_s": 15.6
+  },
+  {
+   "name": "IMG_0038.MOV",
+   "start": "2026-11-09T20:12:35+0900",
+   "dur_s": 18.1
+  },
+  {
+   "name": "IMG_0039.MOV",
+   "start": "2026-11-09T20:13:19+0900",
+   "dur_s": 20.3
+  },
+  {
+   "name": "IMG_0040.MOV",
+   "start": "2026-11-09T20:13:58+0900",
+   "dur_s": 16.9
+  },
+  {
+   "name": "IMG_0041.MOV",
+   "start": "2026-11-09T20:14:33+0900",
+   "dur_s": 20.4
+  },
+  {
+   "name": "IMG_0042.MOV",
+   "start": "2026-11-09T20:22:59+0900",
+   "dur_s": 184.5
+  },
+  {
+   "name": "IMG_0043.MOV",
+   "start": "2026-11-09T20:29:03+0900",
+   "dur_s": 447.0
+  }
+ ],
+ "trials": [
+  {
+   "file": "getup_trial_prone_s2_20261109_194311.npz",
+   "label": "prone_s2",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0019.MOV",
+   "offset_s": 0.84,
+   "corr": 0.52,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s2_20261109_194841.npz",
+   "label": "prone_s2",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0020.MOV",
+   "offset_s": 6.17,
+   "corr": 0.537,
+   "aligned": true,
+   "tlog_end": 14.49,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s2_20261109_194944.npz",
+   "label": "prone_s2",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0021.MOV",
+   "offset_s": 5.19,
+   "corr": 0.485,
+   "aligned": true,
+   "tlog_end": 14.52,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s2_20261109_195104.npz",
+   "label": "prone_s2",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0022.MOV",
+   "offset_s": 7.23,
+   "corr": 0.62,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s1_20261109_195314.npz",
+   "label": "prone_s1",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0023.MOV",
+   "offset_s": 3.43,
+   "corr": 0.518,
+   "aligned": true,
+   "tlog_end": 14.5,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s1_20261109_195431.npz",
+   "label": "prone_s1",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0024.MOV",
+   "offset_s": -3.48,
+   "corr": 0.464,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s1_20261109_195515.npz",
+   "label": "prone_s1",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0025.MOV",
+   "offset_s": 3.35,
+   "corr": 0.524,
+   "aligned": true,
+   "tlog_end": 14.49,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s1_20261109_195605.npz",
+   "label": "prone_s1",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0026.MOV",
+   "offset_s": 4.0,
+   "corr": 0.545,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_195839.npz",
+   "label": "prone_s1_t16",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0027.MOV",
+   "offset_s": 5.91,
+   "corr": 0.435,
+   "aligned": true,
+   "tlog_end": 22.52,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 12.66,
+   "after_limp": {
+    "first_move_s": 10.4,
+    "first_hand_s": 10.4,
+    "video_left_s": 13.9
+   },
+   "imu_w_med": {
+    "A": 0.222,
+    "B": 0.003
+   },
+   "ok_frac": {
+    "A": 0.914,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.3926,
+     "background": 0.0097
+    },
+    "B": {
+     "torso": 0.0138,
+     "background": 0.0098
+    },
+    "C": {
+     "torso": 0.0154,
+     "background": 0.0101
+    }
+   }
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_200220.npz",
+   "label": "prone_s1_t16",
+   "reason": "r_hip_yaw の目標角とのずれ > 4.6° が 1.0 秒続いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0028.MOV",
+   "offset_s": -2.23,
+   "corr": -9.0,
+   "aligned": false,
+   "tlog_end": 3.33,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_200324.npz",
+   "label": "prone_s1_t16",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0029.MOV",
+   "offset_s": 2.2,
+   "corr": 0.455,
+   "aligned": true,
+   "tlog_end": 22.52,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 9.34,
+   "after_limp": {
+    "first_move_s": 6.7,
+    "first_hand_s": 7.7,
+    "video_left_s": 10.4
+   },
+   "imu_w_med": {
+    "A": 0.243,
+    "B": 0.003
+   },
+   "ok_frac": {
+    "A": 0.899,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.5749,
+     "background": 0.0097
+    },
+    "B": {
+     "torso": 0.0151,
+     "background": 0.0094
+    },
+    "C": {
+     "torso": 0.0144,
+     "background": 0.0099
+    }
+   }
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_200432.npz",
+   "label": "prone_s1_t16",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0030.MOV",
+   "offset_s": 4.23,
+   "corr": 0.439,
+   "aligned": true,
+   "tlog_end": 22.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_200558.npz",
+   "label": "prone_s1_t16",
+   "reason": "ESP32 からの受信が 0.2 s 途絶えた",
+   "gap_rad": 0.05,
+   "video": "IMG_0031.MOV",
+   "offset_s": -3.48,
+   "corr": 0.367,
+   "aligned": false,
+   "tlog_end": 10.13,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_200715.npz",
+   "label": "prone_s1_t16",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "video": "IMG_0032.MOV",
+   "offset_s": -1.45,
+   "corr": 0.44,
+   "aligned": true,
+   "tlog_end": 22.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s1_gap08_20261109_200837.npz",
+   "label": "prone_s1_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0033.MOV",
+   "offset_s": 0.45,
+   "corr": 0.61,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 5.96,
+   "after_limp": {
+    "first_move_s": 4.3,
+    "first_hand_s": 4.3,
+    "video_left_s": 8.1
+   },
+   "imu_w_med": {
+    "A": 0.153,
+    "B": 0.002
+   },
+   "ok_frac": {
+    "A": 0.987,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.4786,
+     "background": 0.0076
+    },
+    "B": {
+     "torso": 0.1214,
+     "background": 0.0108
+    },
+    "C": {
+     "torso": 0.0144,
+     "background": 0.0096
+    }
+   }
+  },
+  {
+   "file": "getup_trial_prone_s1_gap08_20261109_200924.npz",
+   "label": "prone_s1_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0034.MOV",
+   "offset_s": -1.89,
+   "corr": 0.618,
+   "aligned": true,
+   "tlog_end": 14.5,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 7.68,
+   "after_limp": {
+    "first_move_s": null,
+    "first_hand_s": null,
+    "video_left_s": 4.5
+   }
+  },
+  {
+   "file": "getup_trial_prone_s1_gap08_20261109_200958.npz",
+   "label": "prone_s1_gap08",
+   "reason": "ESP32 からの受信が 0.2 s 途絶えた",
+   "gap_rad": 0.08,
+   "video": "IMG_0035.MOV",
+   "offset_s": 2.17,
+   "corr": -9.0,
+   "aligned": false,
+   "tlog_end": 3.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_prone_s1_gap08_20261109_201035.npz",
+   "label": "prone_s1_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0036.MOV",
+   "offset_s": -1.96,
+   "corr": 0.616,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 4.2,
+   "after_limp": {
+    "first_move_s": null,
+    "first_hand_s": null,
+    "video_left_s": 2.4
+   },
+   "imu_w_med": {
+    "A": 0.259,
+    "B": 0.003
+   },
+   "ok_frac": {
+    "A": 0.89,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.4064,
+     "background": 0.0083
+    },
+    "B": {
+     "torso": 0.0157,
+     "background": 0.0096
+    }
+   }
+  },
+  {
+   "file": "getup_trial_prone_s1_gap08_20261109_201130.npz",
+   "label": "prone_s1_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0037.MOV",
+   "offset_s": -0.16,
+   "corr": 0.623,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 5.08,
+   "after_limp": {
+    "first_move_s": null,
+    "first_hand_s": null,
+    "video_left_s": 2.2
+   },
+   "imu_w_med": {
+    "A": 0.26,
+    "B": 0.003
+   },
+   "ok_frac": {
+    "A": 0.857,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.2714,
+     "background": 0.0089
+    },
+    "B": {
+     "torso": 0.0159,
+     "background": 0.0104
+    }
+   }
+  },
+  {
+   "file": "getup_trial_prone_s2_gap08_20261109_201252.npz",
+   "label": "prone_s2_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0038.MOV",
+   "offset_s": 2.51,
+   "corr": 0.615,
+   "aligned": true,
+   "tlog_end": 14.52,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 4.42,
+   "after_limp": {
+    "first_move_s": null,
+    "first_hand_s": null,
+    "video_left_s": 2.1
+   },
+   "imu_w_med": {
+    "A": 0.221,
+    "B": 0.004
+   },
+   "ok_frac": {
+    "A": 0.947,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.3393,
+     "background": 0.0099
+    },
+    "B": {
+     "torso": 0.0351,
+     "background": 0.0098
+    }
+   }
+  },
+  {
+   "file": "getup_trial_prone_s2_gap08_20261109_201337.npz",
+   "label": "prone_s2_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0039.MOV",
+   "offset_s": 3.98,
+   "corr": 0.719,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 3.44,
+   "after_limp": {
+    "first_move_s": null,
+    "first_hand_s": null,
+    "video_left_s": 2.8
+   },
+   "imu_w_med": {
+    "A": 0.223,
+    "B": 0.006
+   },
+   "ok_frac": {
+    "A": 0.95,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.7208,
+     "background": 0.0091
+    },
+    "B": {
+     "torso": 0.0206,
+     "background": 0.0104
+    },
+    "C": {
+     "torso": 0.0143,
+     "background": 0.0109
+    }
+   }
+  },
+  {
+   "file": "getup_trial_prone_s2_gap08_20261109_201414.npz",
+   "label": "prone_s2_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0040.MOV",
+   "offset_s": 1.28,
+   "corr": 0.671,
+   "aligned": true,
+   "tlog_end": 14.5,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 4.2,
+   "after_limp": {
+    "first_move_s": null,
+    "first_hand_s": null,
+    "video_left_s": 2.1
+   },
+   "imu_w_med": {
+    "A": 0.331,
+    "B": 0.007
+   },
+   "ok_frac": {
+    "A": 0.815,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.4902,
+     "background": 0.0098
+    },
+    "B": {
+     "torso": 0.0172,
+     "background": 0.0101
+    }
+   }
+  },
+  {
+   "file": "getup_trial_prone_s2_gap08_20261109_201451.npz",
+   "label": "prone_s2_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0041.MOV",
+   "offset_s": 3.43,
+   "corr": 0.651,
+   "aligned": true,
+   "tlog_end": 14.5,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 4.46,
+   "after_limp": {
+    "first_move_s": null,
+    "first_hand_s": null,
+    "video_left_s": 3.5
+   },
+   "imu_w_med": {
+    "A": 0.264,
+    "B": 0.003
+   },
+   "ok_frac": {
+    "A": 0.847,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.4066,
+     "background": 0.0092
+    },
+    "B": {
+     "torso": 0.0219,
+     "background": 0.0097
+    },
+    "C": {
+     "torso": 0.0139,
+     "background": 0.0097
+    }
+   }
+  },
+  {
+   "file": "getup_trial_loop01_20261109_202321.npz",
+   "label": "loop01",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0042.MOV",
+   "offset_s": 6.56,
+   "corr": 0.571,
+   "aligned": true,
+   "tlog_end": 14.53,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 5.46,
+   "after_limp": {
+    "first_move_s": 3.1,
+    "first_hand_s": 41.1,
+    "video_left_s": 164.4
+   },
+   "imu_w_med": {
+    "A": 0.279,
+    "B": 0.003
+   },
+   "ok_frac": {
+    "A": 0.949,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.6459,
+     "background": 0.0095
+    },
+    "B": {
+     "torso": 0.0166,
+     "background": 0.0093
+    },
+    "C": {
+     "torso": 0.0142,
+     "background": 0.0108
+    }
+   }
+  },
+  {
+   "file": "getup_trial_loop02_20261109_202342.npz",
+   "label": "loop02",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0042.MOV",
+   "offset_s": 27.63,
+   "corr": 0.581,
+   "aligned": true,
+   "tlog_end": 14.52,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 3.24,
+   "after_limp": {
+    "first_move_s": 3.0,
+    "first_hand_s": 20.0,
+    "video_left_s": 143.3
+   },
+   "imu_w_med": {
+    "A": 0.282,
+    "B": 0.003
+   },
+   "ok_frac": {
+    "A": 0.886,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.4207,
+     "background": 0.0098
+    },
+    "B": {
+     "torso": 0.0167,
+     "background": 0.0098
+    },
+    "C": {
+     "torso": 0.0174,
+     "background": 0.0102
+    }
+   }
+  },
+  {
+   "file": "getup_trial_loop03_20261109_202358.npz",
+   "label": "loop03",
+   "reason": "ESP32 からの受信が 0.2 s 途絶えた",
+   "gap_rad": 0.08,
+   "video": "IMG_0042.MOV",
+   "offset_s": 49.17,
+   "corr": 0.661,
+   "aligned": true,
+   "tlog_end": 9.64,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_loop04_20261109_202421.npz",
+   "label": "loop04",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0042.MOV",
+   "offset_s": 67.25,
+   "corr": 0.739,
+   "aligned": true,
+   "tlog_end": 14.5,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 4.2,
+   "after_limp": {
+    "first_move_s": 3.0,
+    "first_hand_s": 27.6,
+    "video_left_s": 103.7
+   },
+   "imu_w_med": {
+    "A": 0.251,
+    "B": 0.003
+   },
+   "ok_frac": {
+    "A": 0.883,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.2749,
+     "background": 0.025
+    },
+    "B": {
+     "torso": 0.046,
+     "background": 0.0236
+    },
+    "C": {
+     "torso": 0.0248,
+     "background": 0.023
+    }
+   }
+  },
+  {
+   "file": "getup_trial_loop05_20261109_202443.npz",
+   "label": "loop05",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0042.MOV",
+   "offset_s": 88.76,
+   "corr": 0.787,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 2.68,
+   "after_limp": {
+    "first_move_s": 2.9,
+    "first_hand_s": 6.1,
+    "video_left_s": 82.2
+   },
+   "imu_w_med": {
+    "A": 0.221,
+    "B": 0.004
+   },
+   "ok_frac": {
+    "A": 0.895,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.4113,
+     "background": 0.0257
+    },
+    "B": {
+     "torso": 0.0309,
+     "background": 0.0286
+    },
+    "C": {
+     "torso": 0.0309,
+     "background": 0.0282
+    }
+   }
+  },
+  {
+   "file": "getup_trial_loop06_20261109_202458.npz",
+   "label": "loop06",
+   "reason": "ESP32 からの受信が 0.2 s 途絶えた",
+   "gap_rad": 0.08,
+   "video": "IMG_0042.MOV",
+   "offset_s": 109.64,
+   "corr": 0.44,
+   "aligned": true,
+   "tlog_end": 9.05,
+   "hand_before_arm_n": 19,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_loop07_20261109_202519.npz",
+   "label": "loop07",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0042.MOV",
+   "offset_s": 124.56,
+   "corr": 0.768,
+   "aligned": true,
+   "tlog_end": 14.5,
+   "hand_before_arm_n": 1,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 4.56,
+   "after_limp": {
+    "first_move_s": 3.1,
+    "first_hand_s": null,
+    "video_left_s": 46.4
+   },
+   "imu_w_med": {
+    "A": 0.222,
+    "B": 0.004
+   },
+   "ok_frac": {
+    "A": 0.945,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.1606,
+     "background": 0.0257
+    },
+    "B": {
+     "torso": 0.0288,
+     "background": 0.0267
+    },
+    "C": {
+     "torso": 0.0252,
+     "background": 0.0226
+    }
+   }
+  },
+  {
+   "file": "getup_trial_loop08_20261109_202541.npz",
+   "label": "loop08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0042.MOV",
+   "offset_s": 147.4,
+   "corr": 0.742,
+   "aligned": true,
+   "tlog_end": 14.52,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 4.22,
+   "after_limp": {
+    "first_move_s": null,
+    "first_hand_s": null,
+    "video_left_s": 23.6
+   },
+   "imu_w_med": {
+    "A": 0.228,
+    "B": 0.003
+   },
+   "ok_frac": {
+    "A": 0.925,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.487,
+     "background": 0.0242
+    },
+    "B": {
+     "torso": 0.0285,
+     "background": 0.0257
+    },
+    "C": {
+     "torso": 0.0288,
+     "background": 0.0267
+    }
+   }
+  },
+  {
+   "file": "getup_trial_left_down_gap08_20261109_202922.npz",
+   "label": "left_down_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0043.MOV",
+   "offset_s": 3.98,
+   "corr": 0.754,
+   "aligned": true,
+   "tlog_end": 14.52,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 4.32,
+   "after_limp": {
+    "first_move_s": 20.7,
+    "first_hand_s": 21.1,
+    "video_left_s": 429.5
+   },
+   "imu_w_med": {
+    "A": 0.309,
+    "B": 0.003
+   },
+   "ok_frac": {
+    "A": 0.828,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.2155,
+     "background": 0.0264
+    },
+    "B": {
+     "torso": 0.0393,
+     "background": 0.0263
+    },
+    "C": {
+     "torso": 0.0287,
+     "background": 0.0251
+    }
+   }
+  },
+  {
+   "file": "getup_trial_side2_gap08_20261109_203015.npz",
+   "label": "side2_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0043.MOV",
+   "offset_s": 57.11,
+   "corr": 0.8,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_side3_gap08_20261109_203117.npz",
+   "label": "side3_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0043.MOV",
+   "offset_s": 119.38,
+   "corr": 0.568,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [
+    9.8,
+    10.1,
+    10.2,
+    13.6,
+    13.7,
+    13.8,
+    13.9,
+    14.0,
+    14.1,
+    14.2,
+    14.3,
+    14.4
+   ]
+  },
+  {
+   "file": "getup_trial_side4_gap08_20261109_203213.npz",
+   "label": "side4_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0043.MOV",
+   "offset_s": 175.3,
+   "corr": 0.698,
+   "aligned": true,
+   "tlog_end": 14.52,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 5.04,
+   "after_limp": {
+    "first_move_s": 28.0,
+    "first_hand_s": 28.4,
+    "video_left_s": 258.2
+   },
+   "imu_w_med": {
+    "A": 0.244,
+    "B": 0.005
+   },
+   "ok_frac": {
+    "A": 0.828,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.4616,
+     "background": 0.0301
+    },
+    "B": {
+     "torso": 0.038,
+     "background": 0.0326
+    },
+    "C": {
+     "torso": 0.0301,
+     "background": 0.0286
+    }
+   }
+  },
+  {
+   "file": "getup_trial_supine_gap08_20261109_203323.npz",
+   "label": "supine_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0043.MOV",
+   "offset_s": 244.59,
+   "corr": 0.712,
+   "aligned": true,
+   "tlog_end": 14.53,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  },
+  {
+   "file": "getup_trial_supine_gap08_20261109_203417.npz",
+   "label": "supine_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0043.MOV",
+   "offset_s": 299.07,
+   "corr": 0.675,
+   "aligned": true,
+   "tlog_end": 14.53,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 5.8,
+   "after_limp": {
+    "first_move_s": 22.5,
+    "first_hand_s": 19.6,
+    "video_left_s": 134.4
+   },
+   "imu_w_med": {
+    "A": 0.182,
+    "B": 0.004
+   },
+   "ok_frac": {
+    "A": 0.867,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 1.0895,
+     "background": 0.0347
+    },
+    "B": {
+     "torso": 0.0432,
+     "background": 0.0291
+    },
+    "C": {
+     "torso": 0.0466,
+     "background": 0.0269
+    }
+   }
+  },
+  {
+   "file": "getup_trial_supine_gap08_20261109_203530.npz",
+   "label": "supine_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0043.MOV",
+   "offset_s": 371.79,
+   "corr": 0.76,
+   "aligned": true,
+   "tlog_end": 14.51,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": [],
+   "first_ok_after_policy_s": 4.64,
+   "after_limp": {
+    "first_move_s": 11.9,
+    "first_hand_s": 12.6,
+    "video_left_s": 61.7
+   },
+   "imu_w_med": {
+    "A": 0.279,
+    "B": 0.006
+   },
+   "ok_frac": {
+    "A": 0.803,
+    "B": 1.0
+   },
+   "shake_px": {
+    "A": {
+     "torso": 0.4495,
+     "background": 0.0248
+    },
+    "B": {
+     "torso": 0.0565,
+     "background": 0.0275
+    },
+    "C": {
+     "torso": 0.0278,
+     "background": 0.0258
+    }
+   }
+  },
+  {
+   "file": "getup_trial_supine_gap08_20261109_203615.npz",
+   "label": "supine_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "video": "IMG_0043.MOV",
+   "offset_s": 417.1,
+   "corr": 0.803,
+   "aligned": true,
+   "tlog_end": 14.52,
+   "hand_before_arm_n": 0,
+   "hand_during_action_s": []
+  }
+ ]
+}
