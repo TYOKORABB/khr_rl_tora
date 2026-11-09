@@ -827,6 +827,218 @@ def cmd_sign_hand(a) -> int:
     return 0 if ok else 1
 
 
+# ---- 連続の起き上がり（機体が自分で次の姿勢へ動き、起き上がりを繰り返す。撮影を 1 回で済ませる、本人の依頼 11/9）------------
+MOVE_RATE_DEG_S, MOVE_MIN_S = 40.0, 2.0        # 姿勢へ動かす平均の速さ（余弦の補間なのでピークは約 1.6 倍）
+MOVE_E_ABORT_DEG, MOVE_E_ABORT_S = 25.0, 0.5   # 指令と実測の差がこれを続けて超えたら、そこで動かすのをやめて脱力する（引っかかり）
+MOVE_HOLD_S, MOVE_SETTLE_S = 0.5, 1.5          # 着いたら保持 → 脱力して落ち着かせる（学習の初期状態も脱力で落ち着いた姿勢）
+LOOP_TEMP_STOP_C = 60.0                        # サーボの温度の読みがこれ以上なら、次の回へ進まず終える
+
+
+def bank_poses(exp: str, ckpt: int, n: int, seed: int) -> list[dict]:
+    """評価用の初期状態（学習に使っていない。最後の段階の範囲で、脱力で落ち着いた状態）から n 個の関節角を乱数で選ぶ。
+    実機で決められるのは関節角だけで、胴体の向きはその結果になる（バンクの向きとは一致しない）。"""
+    from getup.levels import level_mask
+    env_cfg = pickle.load(open(policy_files(exp, ckpt)[0], "rb"))[0]
+    bank = torch.load(REPO_ROOT / env_cfg["bank"], map_location="cpu", weights_only=False)
+    cur = env_cfg["curriculum"]
+    idx = torch.nonzero(level_mask(bank, cur, cur["levels"][-1], True) & bank["limp"]).flatten().numpy()
+    pick = np.random.default_rng(seed).choice(idx, size=n, replace=False)
+    return [{"bank_index": int(k), "q": bank["q"][int(k)].numpy().astype(np.float64), "u0": round(float(bank["u0"][int(k)]), 3)} for k in pick]
+
+
+def pose_move(link, R: np.ndarray, sign: np.ndarray, q_tgt: np.ndarray, stop_file: Path | None = None) -> dict:
+    """脱力のパケットで通信監視を OK にし、今の角度 → q_tgt [rad] へゆっくり動かして、少し保持してから脱力して落ち着かせる。
+    引っかかったら（差が MOVE_E_ABORT_DEG を MOVE_E_ABORT_S 続けて超えた）そこで脱力する。その場の姿勢から起き上がりへ進んでよい。"""
+    from real.pose_session import SLOTS as HOLD_SLOTS
+    from real.pose_session import hold_packet
+    order = [HOLD_SLOTS.index(s_) for s_ in SLOTS]
+    lo, hi = urdf_limits(JOINT_NAMES)
+    seq = [0]
+
+    def send(tgt_sim):
+        seq[0] += 1
+        deg = None
+        if tgt_sim is not None:
+            deg = np.zeros(22)
+            deg[order] = np.degrees(sign * tgt_sim)
+        link.sock.sendto(hold_packet(seq[0], seq[0] % 30000, deg), link.esp)
+
+    def read(m):
+        return sign * read_meridim(m.astype(np.int64), SLOTS, R)[0]
+
+    def limp(sec):
+        nxt = t = time.monotonic()
+        while time.monotonic() - t < sec:
+            send(None)
+            nxt += 0.01
+            time.sleep(max(0.0, nxt - time.monotonic()))
+
+    out = {"aborted": False, "stop": False, "reason": "着いた", "max_err_deg": 0.0, "ramp_s": 0.0}
+    try:
+        t0 = time.monotonic()
+        limp(1.0)
+        rx = link.since(t0 + 0.6)
+        if len(rx) < 20:
+            raise RuntimeError(f"ESP32 から受信できません（0.4 s で {len(rx)} パケット）")
+        st = gv.decode_status(int(rx[-1][1][gv.MRD_STATUS]))
+        if not st.patched or st.wdg_state != "OK":
+            raise RuntimeError(f"改造ファームの通信監視が OK になりません（{st}）")
+        q0 = np.median([read(m) for _, m in rx], axis=0)
+        tgt = np.clip(q_tgt, lo + 0.03, hi - 0.03)
+        T = max(MOVE_MIN_S, float(np.degrees(np.abs(tgt - q0)).max()) / MOVE_RATE_DEG_S)
+        out["ramp_s"] = round(T, 2)
+        over = np.zeros(len(JOINT_NAMES))
+        nxt = t1 = time.monotonic()
+        k = 0
+        while True:
+            now = time.monotonic()
+            el = now - t1
+            if stop_file is not None and stop_file.exists():
+                out.update(aborted=True, stop=True, reason="stop が指示された")
+                break
+            last = link.latest()
+            if last is None or now - last[0] > TRIAL_RX_GAP_S:
+                out.update(aborted=True, reason=f"ESP32 からの受信が {TRIAL_RX_GAP_S} s 途絶えた")
+                break
+            if el >= T + MOVE_HOLD_S:
+                break
+            cmd = q0 + (tgt - q0) * (0.5 - 0.5 * math.cos(math.pi * min(1.0, el / T)))
+            send(cmd)
+            k += 1
+            if k % 2 == 0:
+                err = np.degrees(np.abs(cmd - read(last[1])))
+                out["max_err_deg"] = round(max(out["max_err_deg"], float(err.max())), 1)
+                over = np.where(err > MOVE_E_ABORT_DEG, over + 0.02, 0.0)
+                j = int(np.argmax(over))
+                if over[j] >= MOVE_E_ABORT_S:
+                    out.update(aborted=True, reason=f"{JOINT_NAMES[j]} が引っかかった（差 {err[j]:.0f}°）")
+                    break
+            nxt += 0.01
+            time.sleep(max(0.0, nxt - time.monotonic()))
+    except KeyboardInterrupt:
+        out.update(aborted=True, stop=True, reason="Ctrl-C")
+    except Exception as e:
+        out.update(aborted=True, stop=True, reason=f"{type(e).__name__}: {e}")
+    finally:
+        limp(MOVE_SETTLE_S)
+    return out
+
+
+def loop_run(a, link, R: np.ndarray, sign: np.ndarray, stop_file: Path, raw_dir: Path, write: bool = True) -> dict:
+    """乱数で選んだ姿勢へ動く → 起き上がる、を a.n 回繰り返す。stop ファイル・温度・通信の異常で途中で終える。"""
+    poses = bank_poses(a.exp, a.ckpt, a.n, a.seed)
+    stamp = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_json = REPO_ROOT / "experiments" / "real" / f"{dt.date.today():%Y%m%d}_getup_r2" / f"loop_{a.label}_{stamp}.json"
+    res = {"exp": a.exp, "ckpt": a.ckpt, "label": a.label, "seed": a.seed, "n": a.n, "seconds": a.seconds, "hold": a.hold, "gap": a.gap, "e_sat_deg": a.e_sat_deg,
+           "note": "姿勢は評価用バンク（学習に未使用、脱力で落ち着いた状態）の関節角へ機体が自分で動いて作る。胴体の向きはその結果で、バンクの向きとは一致しない",
+           "end_reason": "全回おわった", "rows": []}
+    for i, ps in enumerate(poses):
+        if stop_file.exists():
+            res["end_reason"] = "stop が指示された"
+            break
+        print(f"\n===== {i + 1}/{len(poses)}: バンクの状態 {ps['bank_index']}（シミュの u0 {ps['u0']}）へ動かす", flush=True)
+        mv = pose_move(link, R, sign, ps["q"], stop_file)
+        print(f"[move] {mv['reason']}（{mv['ramp_s']} 秒、差の最大 {mv['max_err_deg']}°）", flush=True)
+        if mv["stop"]:
+            res["end_reason"] = mv["reason"]
+            break
+        ns = argparse.Namespace(**vars(a))
+        ns.label = f"{a.label}{i + 1:02d}"
+        p = getup_run(ns, link, R, raw_dir, sign, stop_file)
+        s = analyze_trial(p)
+        print_trial(s)
+        if write:
+            write_trial_summary(s)
+        ce = s.get("conditions_end")
+        res["rows"].append({"n": i + 1, "bank_index": ps["bank_index"], "bank_u0": ps["u0"], "move": mv, "raw": s.get("raw"), "reason": s["reason"], "aborted": s["aborted"],
+                            "phases_s": s.get("phases_s"), "u_start": s.get("u_start"), "u_end": s.get("u_end"), "h_est_end_m": s.get("h_est_end_m"),
+                            "max_dev_end_deg": s.get("max_dev_from_nominal_end_deg"), "conditions_end": ce, "ok_end": bool(ce) and all(ce.values()),
+                            "success": s.get("success"), "success_time_s": s.get("success_time_s"), "tmp_C": s.get("servo_tel", {}).get("tmp_C")})
+        if write:
+            out_json.parent.mkdir(parents=True, exist_ok=True)
+            out_json.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        tmp = s.get("servo_tel", {}).get("tmp_C") or {}
+        if tmp and max(v[1] for v in tmp.values()) >= LOOP_TEMP_STOP_C:
+            res["end_reason"] = f"サーボの温度が {LOOP_TEMP_STOP_C} ℃ 以上になった"
+            break
+    if write:
+        out_json.parent.mkdir(parents=True, exist_ok=True)
+        out_json.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        print(f"\n[done] {res['end_reason']} → {out_json.relative_to(REPO_ROOT)}", flush=True)
+    return res
+
+
+def cmd_getup_loop(a) -> int:
+    from real.fw_check import Link, esp_ip_from_board_txt
+    esp_ip = a.esp_ip or esp_ip_from_board_txt()
+    if not esp_ip:
+        sys.exit("[error] ESP32 の IP が分かりません（--esp-ip）")
+    mount = json.loads((REPO_ROOT / "real" / "calib" / "imu_mount.json").read_text())
+    if not mount.get("pass"):
+        sys.exit("[error] IMU の取り付け回転が未校正です（real/calib/imu_mount.json が合格でない）")
+    stop_file = TRIAL_DIR / "stop"
+    stop_file.unlink(missing_ok=True)
+    link = Link(a.recv_port, esp_ip=esp_ip, send_port=a.send_port)
+    try:
+        res = loop_run(a, link, np.array(mount["r_mount"]), joint_sign(), stop_file, TRIAL_DIR)
+    finally:
+        link.close()
+    ok = sum(r["ok_end"] for r in res["rows"])
+    print(f"終わりに四脚の条件がそろった回: {ok}/{len(res['rows'])}（{res['end_reason']}）", flush=True)
+    return 0
+
+
+def cmd_getup_loop_selftest(a) -> int:
+    """偽の ESP32 で getup-loop を 2 回通す。合格: 2 回とも姿勢へ動いて最後まで起き上がり、最後のパケットが脱力。stop ファイルで次の回へ進まない。"""
+    import tempfile
+
+    import real.step_response as sr
+    from real.fw_check import Link
+    from real.pose_session import SLOTS as HOLD_SLOTS
+    seen = []
+    parse0 = sr.parse
+
+    def parse_rec(b):
+        m = parse0(b)
+        if m is not None:
+            seen.append(m.copy())
+        return m
+    sr.parse = parse_rec
+    R = np.array(json.loads((REPO_ROOT / "real" / "calib" / "imu_mount.json").read_text())["r_mount"])
+    ns = argparse.Namespace(exp=a.exp, ckpt=a.ckpt, label="selftest", seconds=1.0, hold=0.5, e_sat_deg=7.0, gap=0.08, n=2, seed=0)
+    ok = True
+    try:
+        for case in ("full", "stop"):
+            seen.clear()
+            pc_port, esp_port = 43252, 43254
+            fake = sr.FakeServoEsp(pc_port, esp_port)
+            fake.start()
+            with tempfile.TemporaryDirectory() as tmp:
+                stop = Path(tmp) / "stop"
+                if case == "stop":
+                    stop.write_text("x")
+                link = Link(recv_port=pc_port, esp_ip="127.0.0.1", send_port=esp_port)
+                try:
+                    res = loop_run(ns, link, R, joint_sign(), stop, Path(tmp), write=False)
+                finally:
+                    link.close()
+                    fake.stop()
+            pw = np.array([[int(m[s_]) == 1 for s_ in HOLD_SLOTS] for m in seen]) if seen else np.zeros((0, 22), dtype=bool)
+            if case == "full":
+                rows = res["rows"]
+                good = (len(rows) == 2 and all(r["reason"] == "最後まで動いた" and not r["move"]["aborted"] and r["move"]["ramp_s"] >= MOVE_MIN_S for r in rows)
+                        and bool(len(pw) > 50 and not pw[-50:].any()) and bool((pw.all(1) | ~pw.any(1)).all()))
+                print(f"  full: rows {len(rows)}, move {[r['move']['reason'] for r in rows]}, 通電したパケット {int(pw.any(1).sum())}, 合格 {good}", flush=True)
+            else:
+                good = len(res["rows"]) == 0 and not pw.any()
+                print(f"  stop: rows {len(res['rows'])}, 通電したパケット {int(pw.any(1).sum())}, 合格 {good}", flush=True)
+            ok = ok and good
+    finally:
+        sr.parse = parse0
+    print(f"getup_session getup-loop-selftest: {'OK' if ok else 'NG'}")
+    return 0 if ok else 1
+
+
 def main(argv=None) -> int:
     from real.fw_check import RECV_PORT, SEND_PORT
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -866,6 +1078,22 @@ def main(argv=None) -> int:
     s.add_argument("--exp", default=DEFAULT_EXP)
     s.add_argument("--ckpt", type=int, default=DEFAULT_CKPT)
     s.add_argument("--e-sat-deg", type=float, default=4.6)
+    s = sub.add_parser("getup-loop", help="機体が自分で乱数の姿勢へ動いて起き上がるのを繰り返す（1 回の撮影で済ませる）")
+    s.add_argument("--label", default="loop")
+    s.add_argument("--n", type=int, default=8, help="繰り返す回数")
+    s.add_argument("--seed", type=int, default=20261109, help="姿勢を選ぶ乱数")
+    s.add_argument("--seconds", type=float, default=8.0)
+    s.add_argument("--hold", type=float, default=3.0)
+    s.add_argument("--e-sat-deg", type=float, default=7.0)
+    s.add_argument("--gap", type=float, default=0.08)
+    s.add_argument("--exp", default=DEFAULT_EXP)
+    s.add_argument("--ckpt", type=int, default=DEFAULT_CKPT)
+    s.add_argument("--esp-ip", default=None)
+    s.add_argument("--recv-port", type=int, default=RECV_PORT, help=argparse.SUPPRESS)
+    s.add_argument("--send-port", type=int, default=SEND_PORT, help=argparse.SUPPRESS)
+    s = sub.add_parser("getup-loop-selftest", help="偽の ESP32 で getup-loop を通す")
+    s.add_argument("--exp", default=DEFAULT_EXP)
+    s.add_argument("--ckpt", type=int, default=DEFAULT_CKPT)
     s = sub.add_parser("analyze-trial")
     s.add_argument("npz")
     s = sub.add_parser("sign-hand", help="脱力のまま手で 1 関節を回して符号を見る")
@@ -881,6 +1109,10 @@ def main(argv=None) -> int:
         sys.exit("[error] 起き上がりは 16 秒、保持は 10 秒まで")
     if a.cmd == "getup" and a.gap is not None and (a.gap > 0.12 or math.radians(a.e_sat_deg) <= a.gap):
         sys.exit("[error] --gap は 0.12 rad まで、--e-sat-deg は gap より大きく")
+    if a.cmd == "getup-loop" and (a.n > 20 or a.seconds > 16 or a.hold > 10 or a.gap > 0.12 or math.radians(a.e_sat_deg) <= a.gap):
+        sys.exit("[error] --n は 20 回まで、起き上がりは 16 秒、保持は 10 秒、--gap は 0.12 rad まで、--e-sat-deg は gap より大きく")
+    if a.cmd in ("getup-loop", "getup-loop-selftest"):
+        return {"getup-loop": cmd_getup_loop, "getup-loop-selftest": cmd_getup_loop_selftest}[a.cmd](a)
     return {"obs-check": cmd_obs_check, "shadow": cmd_shadow, "analyze": cmd_analyze, "selftest": cmd_selftest, "sign-hand": cmd_sign_hand, "getup": cmd_getup,
             "getup-selftest": cmd_getup_selftest,
             "analyze-trial": lambda a: (print_trial(analyze_trial(Path(a.npz).resolve())), 0)[1]}[a.cmd](a)

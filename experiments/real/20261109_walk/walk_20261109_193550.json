@@ -1,0 +1,16 @@
+{
+ "exp": "khr-quadruped31-s2",
+ "ckpt": 3999,
+ "reason": "12.0 分たった",
+ "schedule": null,
+ "limit_clamp_steps": 0,
+ "max_err_deg": 0.0,
+ "max_tilt_deg": 0.0,
+ "policy_steps": 0,
+ "echo_rtt_ms": {
+  "p50": 20.1,
+  "p99": 86.0
+ },
+ "raw": "real/data/raw/walk_20261109_193550.npz",
+ "time": "2026-11-09T19:35:50"
+}
