@@ -462,8 +462,8 @@ def cmd_selftest(a) -> int:
 # ---- 通電した起き上がり（計画書 §5.5 の MVP、2026-11-06）--------------------------------------------------
 TRIAL_DIR = REPO_ROOT / "real" / "data" / "raw" / "getup_trial"
 SIGN_FILE = REPO_ROOT / "real" / "calib" / "joint_sign.json"
-PH_LIMP, PH_ARM, PH_GETUP, PH_HOLD = 0, 1, 2, 3
-PHASE_NAME = {PH_LIMP: "脱力", PH_ARM: "通電", PH_GETUP: "起き上がり", PH_HOLD: "保持"}
+PH_LIMP, PH_ARM, PH_GETUP, PH_HOLD, PH_FREEZE = 0, 1, 2, 3, 4
+PHASE_NAME = {PH_LIMP: "脱力", PH_ARM: "通電", PH_GETUP: "起き上がり", PH_HOLD: "保持", PH_FREEZE: "固定"}
 ARM_RAMP_S, ARM_HOLD_S = 1.0, 0.5        # 通電: 測った角度 → 可動域の内側へ 1 秒で寄せ、0.5 秒保持
 SAT_CONT_S, SAT_CUM_S = 1.0, 2.0         # 計画書 §5.5: 飽和が 1 秒連続、または 1 試行で累計 2 秒 → 脱力
 TRIAL_RX_GAP_S = 0.4                     # 11/9 まで 0.2。Wi-Fi で止まった 4 回の隙間は 217〜373 ms で、ESP32 は送り続けていた（11/10 本人の了解で変更。ESP32 側の通信監視 1.2 秒はそのまま）
@@ -491,6 +491,11 @@ def getup_run(a, link, R: np.ndarray, out_raw: Path, sign: np.ndarray, stop_file
     seq = echo = 0
     t_start = time.monotonic()
     reason, aborted = "?", True
+    freeze_n, ok_run = int(getattr(a, "freeze", 0) or 0), 0      # 11/10: 四脚の条件（実機で測れるもの）が freeze_n 周期続いたら方策を止めて目標角を固定する。0 なら今までどおり
+    if freeze_n > 0:
+        from khr_common.height_est import HeightEstimator
+        est, sc = HeightEstimator(), env_cfg["success"]
+        q_nom = np.array([NOMINAL_QUAD[nm] for nm in JOINT_NAMES])
     sat_run = np.zeros(len(JOINT_NAMES))
     sat_cum = np.zeros(len(JOINT_NAMES))
     e_sat = math.radians(a.e_sat_deg)
@@ -553,7 +558,7 @@ def getup_run(a, link, R: np.ndarray, out_raw: Path, sign: np.ndarray, stop_file
                 if now - t_ph >= ARM_RAMP_S + ARM_HOLD_S:
                     phase, t_ph, t_go = PH_GETUP, now, now
                     print("[info] 方策を動かす", flush=True)
-            elif phase == PH_GETUP and now - t_go >= a.seconds:
+            elif phase in (PH_GETUP, PH_FREEZE) and now - t_go >= a.seconds:
                 phase, t_ph = PH_HOLD, now
                 print(f"[info] {a.seconds} 秒たったので最後の目標角で {a.hold} 秒保持し、そのあと脱力する", flush=True)
             elif phase == PH_HOLD and now - t_ph >= a.hold:
@@ -575,6 +580,13 @@ def getup_run(a, link, R: np.ndarray, out_raw: Path, sign: np.ndarray, stop_file
                     obs = ob.build(q, w, down)
                     act = run_policy(policy, obs)
                     target = ob.target(act)
+                    if freeze_n > 0:
+                        ok_now = (down[0] > sc["u_min"] and bool(np.all(np.abs(q - q_nom) < sc["delta_rad"]))
+                                  and float(est.batch(q[None], down[None])[0]) >= sc["h_thr"] and float(np.linalg.norm(w)) < sc["omega_max"])
+                        ok_run = ok_run + 1 if ok_now else 0
+                        if ok_run >= freeze_n:
+                            phase = PH_FREEZE
+                            print(f"[info] 四脚の条件が {freeze_n} 周期続いた（方策の開始から {now - t_go:.2f} 秒）。方策を止めて目標角を固定する", flush=True)
                 rows.append(np.concatenate([[now - t_start, phase, (now - last[0]) * 1000.0], q, w, down, err, obs, act, target]))
                 j = int(np.argmax(np.maximum(sat_run / SAT_CONT_S, sat_cum / SAT_CUM_S)))
                 if sat_run[j] >= SAT_CONT_S or sat_cum[j] >= SAT_CUM_S:
@@ -628,7 +640,7 @@ def analyze_trial(p: Path) -> dict:
     ok_now = (down[:, 0] > sc["u_min"]) & (np.abs(q - q_nom) < sc["delta_rad"]).all(1) & (h >= sc["h_thr"]) & (np.linalg.norm(w, axis=1) < sc["omega_max"])
     run, first = 0, None
     need = int(round(sc["hold_s"] / 0.02))
-    for i in np.nonzero(g)[0]:
+    for i in np.nonzero(g | (ph == PH_FREEZE))[0]:       # 固定の間も数える（方策を止めたあとも条件がそろい続けるか）
         run = run + 1 if ok_now[i] else 0
         if run >= need and first is None:
             first = float(t[i] - t[g][0])
@@ -732,13 +744,20 @@ def cmd_getup_selftest(a) -> int:
     R = np.array(json.loads((REPO_ROOT / "real" / "calib" / "imu_mount.json").read_text())["r_mount"])
     sign = joint_sign()
     res = {}
+    load0 = globals()["load_policy"]
+
+    def load_ok_always(exp, ckpt):                      # 固定の経路を通すため、四脚の条件をいつでも満たす形にする
+        policy, norm, env_cfg, obs_cfg = load0(exp, ckpt)
+        return policy, norm, dict(env_cfg, success=dict(env_cfg["success"], u_min=-2.0, delta_rad=10.0, h_thr=-1.0, omega_max=1e3)), obs_cfg
+    frozen_constant = None
     try:
-        for case in ("full", "stop"):
+        for case in ("full", "stop", "freeze"):
             seen.clear()
+            globals()["load_policy"] = load_ok_always if case == "freeze" else load0
             pc_port, esp_port = 43242, 43244
             fake = sr.FakeServoEsp(pc_port, esp_port)
             fake.start()
-            ns = argparse.Namespace(exp=a.exp, ckpt=a.ckpt, label="selftest", seconds=2.0, hold=1.0, e_sat_deg=a.e_sat_deg)
+            ns = argparse.Namespace(exp=a.exp, ckpt=a.ckpt, label="selftest", seconds=2.0, hold=1.0, e_sat_deg=a.e_sat_deg, freeze=5 if case == "freeze" else 0)
             with tempfile.TemporaryDirectory() as tmp:
                 stop = Path(tmp) / "stop"
                 if case == "stop":
@@ -747,6 +766,10 @@ def cmd_getup_selftest(a) -> int:
                 try:
                     p = getup_run(ns, link, R, Path(tmp), sign, stop)
                     s = analyze_trial(p)
+                    if case == "freeze":
+                        rr = np.load(p, allow_pickle=False)["rows"]
+                        tgt = rr[rr[:, 1].astype(int) == PH_FREEZE, -len(JOINT_NAMES):]
+                        frozen_constant = bool(len(tgt) > 10 and np.ptp(tgt, axis=0).max() == 0.0)
                 finally:
                     link.close()
                     fake.stop()
@@ -756,9 +779,12 @@ def cmd_getup_selftest(a) -> int:
             print(f"  {case}: {res[case]}", flush=True)
     finally:
         sr.parse = parse0
-    f, st = res["full"], res["stop"]
-    ok = (f["reason"] == "最後まで動いた" and f["last_limp"] and f["all_or_none"] and f["phases_s"]["起き上がり"] >= 1.8
-          and st["reason"] == "stop が指示された" and st["last_limp"] and st["phases_s"]["保持"] == 0.0)
+        globals()["load_policy"] = load0
+    f, st, fz = res["full"], res["stop"], res["freeze"]
+    ok = (f["reason"] == "最後まで動いた" and f["last_limp"] and f["all_or_none"] and f["phases_s"]["起き上がり"] >= 1.8 and f["phases_s"]["固定"] == 0.0
+          and st["reason"] == "stop が指示された" and st["last_limp"] and st["phases_s"]["保持"] == 0.0
+          and fz["reason"] == "最後まで動いた" and fz["last_limp"] and fz["phases_s"]["起き上がり"] < 0.5 and fz["phases_s"]["固定"] >= 1.5 and frozen_constant is True)
+    print(f"  freeze: 固定の間の目標角が一定 = {frozen_constant}", flush=True)
     print(f"getup_session getup-selftest: {'OK' if ok else 'NG'}")
     return 0 if ok else 1
 
@@ -1069,6 +1095,7 @@ def main(argv=None) -> int:
     s.add_argument("--hold", type=float, default=3.0, help="そのあと最後の目標角で保持する秒数")
     s.add_argument("--e-sat-deg", type=float, default=4.6, help="目標角とのずれの中止の閾値 [deg]（--gap を広げたら上げる）")
     s.add_argument("--gap", type=float, default=None, help="目標角と測った角度のずれの上限 [rad]（既定は学習時の値）")
+    s.add_argument("--freeze", type=int, default=0, help="四脚の条件が何周期（1 周期 20 ms）続いたら方策を止めて目標角を固定するか（0 は固定しない）")
     s.add_argument("--exp", default=DEFAULT_EXP)
     s.add_argument("--ckpt", type=int, default=DEFAULT_CKPT)
     s.add_argument("--esp-ip", default=None)
@@ -1086,6 +1113,7 @@ def main(argv=None) -> int:
     s.add_argument("--hold", type=float, default=3.0)
     s.add_argument("--e-sat-deg", type=float, default=7.0)
     s.add_argument("--gap", type=float, default=0.08)
+    s.add_argument("--freeze", type=int, default=0, help="四脚の条件が何周期（1 周期 20 ms）続いたら方策を止めて目標角を固定するか（0 は固定しない）")
     s.add_argument("--exp", default=DEFAULT_EXP)
     s.add_argument("--ckpt", type=int, default=DEFAULT_CKPT)
     s.add_argument("--esp-ip", default=None)
