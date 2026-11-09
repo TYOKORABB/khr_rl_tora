@@ -1,0 +1,133 @@
+{
+ "exp": "getup12-real-s2",
+ "ckpt": "5997",
+ "kp": 7,
+ "gap": 0.08,
+ "n_freeze": 5,
+ "prone": {
+  "off": {
+   "n": 80,
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "frozen_pct": 0.0,
+   "fell_after_freeze_pct": null,
+   "t_frozen_med_s": null
+  },
+  "freeze": {
+   "n": 80,
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "frozen_pct": 100.0,
+   "fell_after_freeze_pct": 0.0,
+   "t_frozen_med_s": 3.91
+  }
+ },
+ "loop": {
+  "off": {
+   "n": 48,
+   "success_pct": 97.9,
+   "end_pose_pct": 97.9,
+   "frozen_pct": 0.0,
+   "fell_after_freeze_pct": null,
+   "t_frozen_med_s": null
+  },
+  "freeze": {
+   "n": 48,
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "frozen_pct": 100.0,
+   "fell_after_freeze_pct": 0.0,
+   "t_frozen_med_s": 4.63
+  }
+ },
+ "side": {
+  "off": {
+   "n": 32,
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "frozen_pct": 0.0,
+   "fell_after_freeze_pct": null,
+   "t_frozen_med_s": null
+  },
+  "freeze": {
+   "n": 32,
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "frozen_pct": 100.0,
+   "fell_after_freeze_pct": 0.0,
+   "t_frozen_med_s": 3.97
+  }
+ },
+ "supine": {
+  "off": {
+   "n": 32,
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "frozen_pct": 0.0,
+   "fell_after_freeze_pct": null,
+   "t_frozen_med_s": null
+  },
+  "freeze": {
+   "n": 32,
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "frozen_pct": 100.0,
+   "fell_after_freeze_pct": 0.0,
+   "t_frozen_med_s": 4.94
+  }
+ },
+ "bank": {
+  "off": {
+   "side": {
+    "n": 186,
+    "success_pct": 96.8,
+    "end_pose_pct": 99.5,
+    "frozen_pct": 0.0,
+    "fell_after_freeze_pct": null,
+    "t_frozen_med_s": null
+   },
+   "chest_mid": {
+    "n": 405,
+    "success_pct": 96.8,
+    "end_pose_pct": 99.8,
+    "frozen_pct": 0.0,
+    "fell_after_freeze_pct": null,
+    "t_frozen_med_s": null
+   },
+   "supine": {
+    "n": 209,
+    "success_pct": 89.0,
+    "end_pose_pct": 98.1,
+    "frozen_pct": 0.0,
+    "fell_after_freeze_pct": null,
+    "t_frozen_med_s": null
+   }
+  },
+  "freeze": {
+   "side": {
+    "n": 186,
+    "success_pct": 97.3,
+    "end_pose_pct": 99.5,
+    "frozen_pct": 99.5,
+    "fell_after_freeze_pct": 0.0,
+    "t_frozen_med_s": 3.92
+   },
+   "chest_mid": {
+    "n": 405,
+    "success_pct": 97.5,
+    "end_pose_pct": 99.0,
+    "frozen_pct": 99.3,
+    "fell_after_freeze_pct": 0.2,
+    "t_frozen_med_s": 3.7
+   },
+   "supine": {
+    "n": 209,
+    "success_pct": 88.0,
+    "end_pose_pct": 96.2,
+    "frozen_pct": 96.2,
+    "fell_after_freeze_pct": 0.0,
+    "t_frozen_med_s": 5.12
+   }
+  }
+ }
+}
