@@ -1,0 +1,6 @@
+getup_trial_loop01_20261109_202321.npz
+getup_trial_loop02_20261109_202342.npz
+getup_trial_loop04_20261109_202421.npz
+getup_trial_loop05_20261109_202443.npz
+getup_trial_loop07_20261109_202519.npz
+getup_trial_loop08_20261109_202541.npz

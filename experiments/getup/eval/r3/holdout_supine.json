@@ -1,0 +1,54 @@
+{
+ "exp": "getup11b-weak-s2",
+ "ckpt": "4498",
+ "per_start": 8,
+ "starts": [
+  "getup_trial_supine_gap08_20261109_203323.npz",
+  "getup_trial_supine_gap08_20261109_203417.npz",
+  "getup_trial_supine_gap08_20261109_203530.npz",
+  "getup_trial_supine_gap08_20261109_203615.npz"
+ ],
+ "results": [
+  {
+   "cond": {
+    "kp": 7,
+    "gap": 0.08,
+    "sec": 8,
+    "m": "kp 7"
+   },
+   "success_pct": 3.1,
+   "end_pose_pct": 28.1,
+   "push_pct": 13.7,
+   "shoulder_dev_deg": 13.5,
+   "h_max_m": 0.192,
+   "n": 32
+  },
+  {
+   "cond": {
+    "kp": 7,
+    "gap": 0.05,
+    "sec": 8,
+    "m": "kp 7 gap05"
+   },
+   "success_pct": 0.0,
+   "end_pose_pct": 0.0,
+   "push_pct": 22.8,
+   "shoulder_dev_deg": 35.2,
+   "h_max_m": 0.069,
+   "n": 32
+  },
+  {
+   "cond": {
+    "gap": 0.08,
+    "sec": 8,
+    "m": "公称"
+   },
+   "success_pct": 87.5,
+   "end_pose_pct": 93.8,
+   "push_pct": 0.6,
+   "shoulder_dev_deg": 3.2,
+   "h_max_m": 0.198,
+   "n": 32
+  }
+ ]
+}

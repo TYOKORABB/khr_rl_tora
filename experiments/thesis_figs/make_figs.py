@@ -730,7 +730,50 @@ def fig_getup_gap(out: Path):
     save(fig, out, "getup_gap")
 
 
-FIGS = {"allver": fig_allver, "progress": fig_progress, "push": fig_push, "ablation": fig_ablation,
+def fig_getup_r3(out: Path):
+    """実機の起き上がり（11/9、うつ伏せ、手足まっすぐ）: 目標関節角の範囲 ±0.05 rad と ±0.08 rad の 8 回ずつ（シード 1・2、8 秒）。
+    出典: real/data/raw/getup_trial/（git 外）の方策の周期の関節角。どの試行を使うかは experiments/real/20261109_getup_r2/summary.json の valid・group。"""
+    import json
+    import sys
+    import numpy as np
+    sys.path.insert(0, str(ROOT))
+    from khr_common.joint_map import JOINT_NAMES, NOMINAL_QUAD
+    summ = json.loads((ROOT / "experiments" / "real" / "20261109_getup_r2" / "summary.json").read_text(encoding="utf-8"))
+    groups = [(("prone_s1", "prone_s2"), "範囲 $\\pm$0.05 rad", SEED_COLORS[2], "--"), (("prone_s1_gap08", "prone_s2_gap08"), "範囲 $\\pm$0.08 rad", SEED_COLORS[1], "-")]
+    nom = np.array([NOMINAL_QUAD[k] for k in JOINT_NAMES])
+    j = JOINT_NAMES.index("r_shoulder_pitch")
+    n = len(JOINT_NAMES)
+    fig, axes = plt.subplots(1, 2, figsize=(150 * MM, 62 * MM), sharex=True, gridspec_kw={"wspace": 0.27})
+    for keys, lab, col, ls in groups:
+        first = True
+        for r in summ["trials"]:
+            if r["group"] not in keys or not r["valid"]:
+                continue
+            d = np.load(ROOT / "real" / "data" / "raw" / "getup_trial" / r["file"], allow_pickle=False)
+            R = d["rows"]
+            g = R[:, 1].astype(int) == 2
+            t = R[g, 0] - R[g, 0][0]
+            q = R[g, 3:3 + n]
+            axes[0].plot(t, np.degrees(q[:, j]), color=col, lw=1.0, ls=ls, alpha=0.85, label=lab if first else None)
+            axes[1].plot(t, np.degrees(np.abs(q - nom)).max(1), color=col, lw=1.0, ls=ls, alpha=0.85)
+            first = False
+    axes[0].axhline(np.degrees(nom[j]), color=MUTED, lw=0.8)
+    axes[0].text(0.15, np.degrees(nom[j]) + 3, "四脚の姿勢の角度", fontsize=7, color=INK2)
+    axes[1].axhline(np.degrees(0.3), color=MUTED, lw=0.8)
+    axes[1].text(0.15, np.degrees(0.3) + 3, "成功の条件（0.3 rad）", fontsize=7, color=INK2)
+    axes[0].set_title("(a) 右肩ピッチの関節角 [$^\\circ$]", loc="left")
+    axes[1].set_title("(b) 全関節の公称姿勢からのずれの最大 [$^\\circ$]", loc="left")
+    for ax in axes:
+        ax.set_xlabel("方策を動かし始めてからの時間 [s]")
+        ax.grid(axis="y", color=GRID, lw=0.6)
+        for sp in ("top", "right"):
+            ax.spines[sp].set_visible(False)
+    h, lab = axes[0].get_legend_handles_labels()
+    fig.legend(h, lab, loc="upper center", bbox_to_anchor=(0.5, 1.04), ncol=2, frameon=False, fontsize=8)
+    save(fig, out, "getup_r3")
+
+
+FIGS = {"getup_r3": fig_getup_r3, "allver": fig_allver, "progress": fig_progress, "push": fig_push, "ablation": fig_ablation,
         "learncurve": fig_learncurve, "jointtrack": fig_jointtrack, "gait": fig_gait, "basestate": fig_basestate,
         "torquejoint": fig_torquejoint, "clearance": fig_clearance, "heading": fig_heading, "simreal": fig_simreal,
         "torquecmp": fig_torquecmp, "jointerr": fig_jointerr, "getup_seq": fig_getup_seq, "getup_gap": fig_getup_gap, "getup_realsim": fig_getup_realsim}

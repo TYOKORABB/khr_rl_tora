@@ -1,0 +1,197 @@
+{
+ "exp": "getup11b-weak-s1",
+ "ckpt": "4498",
+ "per_start": 4,
+ "starts": [
+  "getup_trial_prone_s1_20261109_195314.npz",
+  "getup_trial_prone_s1_20261109_195431.npz",
+  "getup_trial_prone_s1_20261109_195515.npz",
+  "getup_trial_prone_s1_20261109_195605.npz",
+  "getup_trial_prone_s1_gap08_20261109_200837.npz",
+  "getup_trial_prone_s1_gap08_20261109_200924.npz",
+  "getup_trial_prone_s1_gap08_20261109_201035.npz",
+  "getup_trial_prone_s1_gap08_20261109_201130.npz",
+  "getup_trial_prone_s1_t16_20261109_195839.npz",
+  "getup_trial_prone_s1_t16_20261109_200324.npz",
+  "getup_trial_prone_s1_t16_20261109_200432.npz",
+  "getup_trial_prone_s1_t16_20261109_200715.npz",
+  "getup_trial_prone_s2_20261109_194311.npz",
+  "getup_trial_prone_s2_20261109_194841.npz",
+  "getup_trial_prone_s2_20261109_194944.npz",
+  "getup_trial_prone_s2_20261109_195104.npz",
+  "getup_trial_prone_s2_gap08_20261109_201252.npz",
+  "getup_trial_prone_s2_gap08_20261109_201337.npz",
+  "getup_trial_prone_s2_gap08_20261109_201414.npz",
+  "getup_trial_prone_s2_gap08_20261109_201451.npz"
+ ],
+ "results": [
+  {
+   "cond": {
+    "gap": 0.05,
+    "sec": 8,
+    "m": "公称（kp 25）"
+   },
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "push_pct": 0.4,
+   "shoulder_dev_deg": 2.1,
+   "h_max_m": 0.194,
+   "n": 80
+  },
+  {
+   "cond": {
+    "gap": 0.05,
+    "sec": 16,
+    "m": "公称（kp 25）"
+   },
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "push_pct": 0.2,
+   "shoulder_dev_deg": 2.2,
+   "h_max_m": 0.194,
+   "n": 80
+  },
+  {
+   "cond": {
+    "gap": 0.08,
+    "sec": 8,
+    "m": "公称（kp 25）"
+   },
+   "success_pct": 97.5,
+   "end_pose_pct": 100.0,
+   "push_pct": 0.0,
+   "shoulder_dev_deg": 3.3,
+   "h_max_m": 0.197,
+   "n": 80
+  },
+  {
+   "cond": {
+    "kp": 7,
+    "gap": 0.05,
+    "sec": 8,
+    "m": "kp 7"
+   },
+   "success_pct": 0.0,
+   "end_pose_pct": 0.0,
+   "push_pct": 52.4,
+   "shoulder_dev_deg": 33.3,
+   "h_max_m": 0.141,
+   "n": 80
+  },
+  {
+   "cond": {
+    "kp": 7,
+    "gap": 0.05,
+    "sec": 16,
+    "m": "kp 7"
+   },
+   "success_pct": 41.2,
+   "end_pose_pct": 47.5,
+   "push_pct": 38.2,
+   "shoulder_dev_deg": 3.2,
+   "h_max_m": 0.192,
+   "n": 80
+  },
+  {
+   "cond": {
+    "kp": 7,
+    "gap": 0.08,
+    "sec": 8,
+    "m": "kp 7"
+   },
+   "success_pct": 96.2,
+   "end_pose_pct": 97.5,
+   "push_pct": 6.2,
+   "shoulder_dev_deg": 1.7,
+   "h_max_m": 0.193,
+   "n": 80
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "gap": 0.05,
+    "sec": 8,
+    "m": "kp 12"
+   },
+   "success_pct": 98.8,
+   "end_pose_pct": 100.0,
+   "push_pct": 8.9,
+   "shoulder_dev_deg": 1.9,
+   "h_max_m": 0.194,
+   "n": 80
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "gap": 0.05,
+    "sec": 16,
+    "m": "kp 12"
+   },
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0,
+   "push_pct": 4.6,
+   "shoulder_dev_deg": 1.7,
+   "h_max_m": 0.194,
+   "n": 80
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "gap": 0.08,
+    "sec": 8,
+    "m": "kp 12"
+   },
+   "success_pct": 98.8,
+   "end_pose_pct": 100.0,
+   "push_pct": 0.2,
+   "shoulder_dev_deg": 2.3,
+   "h_max_m": 0.194,
+   "n": 80
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "cap": 0.3,
+    "gap": 0.05,
+    "sec": 8,
+    "m": "M2: kp 12 ＋ 上限 30 %"
+   },
+   "success_pct": 73.8,
+   "end_pose_pct": 87.5,
+   "push_pct": 18.1,
+   "shoulder_dev_deg": 2.0,
+   "h_max_m": 0.194,
+   "n": 80
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "cap": 0.3,
+    "gap": 0.05,
+    "sec": 16,
+    "m": "M2: kp 12 ＋ 上限 30 %"
+   },
+   "success_pct": 96.2,
+   "end_pose_pct": 96.2,
+   "push_pct": 8.1,
+   "shoulder_dev_deg": 1.9,
+   "h_max_m": 0.194,
+   "n": 80
+  },
+  {
+   "cond": {
+    "kp": 12,
+    "cap": 0.3,
+    "gap": 0.08,
+    "sec": 8,
+    "m": "M2: kp 12 ＋ 上限 30 %"
+   },
+   "success_pct": 88.8,
+   "end_pose_pct": 92.5,
+   "push_pct": 4.3,
+   "shoulder_dev_deg": 2.4,
+   "h_max_m": 0.194,
+   "n": 80
+  }
+ ]
+}

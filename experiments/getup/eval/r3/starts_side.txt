@@ -1,0 +1,4 @@
+getup_trial_left_down_gap08_20261109_202922.npz
+getup_trial_side2_gap08_20261109_203015.npz
+getup_trial_side3_gap08_20261109_203117.npz
+getup_trial_side4_gap08_20261109_203213.npz

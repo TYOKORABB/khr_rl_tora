@@ -1,0 +1,4 @@
+getup_trial_supine_gap08_20261109_203323.npz
+getup_trial_supine_gap08_20261109_203417.npz
+getup_trial_supine_gap08_20261109_203530.npz
+getup_trial_supine_gap08_20261109_203615.npz
