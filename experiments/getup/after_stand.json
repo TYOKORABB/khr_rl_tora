@@ -1,0 +1,78 @@
+{
+ "real": {
+  "first_s": 4.317,
+  "ok": 0.88,
+  "u_bad": 0.0,
+  "j_bad": 0.0,
+  "h_bad": 0.0,
+  "w_bad": 0.12,
+  "w_med": 0.252,
+  "w_p90": 0.543,
+  "tgt_step": 1.692,
+  "n": 13,
+  "top_joints": [
+   [
+    "l_shoulder_pitch",
+    0.0
+   ],
+   [
+    "l_shoulder_roll",
+    0.0
+   ],
+   [
+    "l_elbow_yaw",
+    0.0
+   ],
+   [
+    "l_elbow_pitch",
+    0.0
+   ]
+  ]
+ },
+ "sim_kp7": {
+  "first_s": 4.62,
+  "ok": 0.997,
+  "u_bad": 0.0,
+  "j_bad": 0.002,
+  "h_bad": 0.0,
+  "w_bad": 0.0,
+  "w_med": 0.057,
+  "w_p90": 0.088,
+  "tgt_step": 1.705,
+  "n": 54,
+  "top_joints": [
+   [
+    "l_shoulder_roll",
+    0.002
+   ],
+   [
+    "l_shoulder_pitch",
+    0.0
+   ],
+   [
+    "l_elbow_yaw",
+    0.0
+   ],
+   [
+    "l_elbow_pitch",
+    0.0
+   ]
+  ]
+ },
+ "real_files": [
+  "getup_trial_loop01_20261109_202321.npz",
+  "getup_trial_loop02_20261109_202342.npz",
+  "getup_trial_loop04_20261109_202421.npz",
+  "getup_trial_loop05_20261109_202443.npz",
+  "getup_trial_loop07_20261109_202519.npz",
+  "getup_trial_loop08_20261109_202541.npz",
+  "getup_trial_prone_s1_gap08_20261109_200837.npz",
+  "getup_trial_prone_s1_gap08_20261109_200924.npz",
+  "getup_trial_prone_s1_gap08_20261109_201035.npz",
+  "getup_trial_prone_s1_gap08_20261109_201130.npz",
+  "getup_trial_prone_s2_gap08_20261109_201252.npz",
+  "getup_trial_prone_s2_gap08_20261109_201337.npz",
+  "getup_trial_prone_s2_gap08_20261109_201414.npz",
+  "getup_trial_prone_s2_gap08_20261109_201451.npz"
+ ]
+}

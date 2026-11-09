@@ -115,13 +115,33 @@ def main() -> int:
             e = [r["stall"][name] for r in rows if r.get("valid") and abs(r["gap_rad"] - gapv) < 1e-6 and name in r.get("stall", {})]
             if e:
                 st_rows.append({"gap": gapv, "joint": name, "trials": len(e), "total_s": round(sum(x["s"] for x in e), 1), "err_deg": round(st.median(x["err_deg"] for x in e), 2), "cur_A": round(st.median(x["cur_A"] for x in e), 2)})
+    # 受信の隙間（Wi-Fi）: 日ごとの頻度と、150 ms を超える隙間の前後（順 6、11/9）
+    gaps, big = {}, []
+    for day in ("20261106", "20261109"):
+        dd = []
+        for p in sorted(RAW.glob(f"getup_trial_*_{day}_*.npz")):
+            z = np.load(p, allow_pickle=False)
+            if "meridim" not in z.files or len(z["t_rx"]) < 50:
+                continue
+            dt = np.diff(z["t_rx"]) * 1000
+            dd.append(dt)
+            M = z["meridim"].astype(int)
+            for i in np.nonzero(dt > 150)[0]:
+                big.append({"file": p.name, "gap_ms": int(dt[i]), "esp_frame_delta": int(((M[i + 1, 42] & 0xFF) - (M[i, 42] & 0xFF)) % 256),
+                            "esp_time_delta_ms": int(M[i + 1, 80] - M[i, 80]), "next_dt_ms": [int(x) for x in dt[i + 1:i + 6]]})
+        a = np.concatenate(dd)
+        gaps[day] = {"trials": len(dd), "frames": int(len(a)), "p50_ms": round(float(np.median(a)), 1), "p99_ms": round(float(np.percentile(a, 99)), 1), "over_100ms": int((a > 100).sum()),
+                     "over_200ms": int((a > 200).sum()), "over_100ms_per_min": round(float((a > 100).sum() / (a.sum() / 60000)), 2)}
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "summary.json").write_text(json.dumps({"groups": stat, "stall": st_rows, "trials": rows}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    (OUT / "summary.json").write_text(json.dumps({"groups": stat, "stall": st_rows, "rx_gaps": gaps, "rx_big_gaps": big, "trials": rows}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     md = ["# 実機の起き上がり 2 回目（11/9）の集計", "", "自動生成（`python -m real.summarize_r3`）。定義は `real/summarize_r3.py` の冒頭。全試行の値は `summary.json`。", "",
           "| 始めの姿勢 | 方策・ずれの上限・時間 | 有効な回数 | 終わりに四脚の条件がそろった | 8 秒以内に 1 秒続いた | そろい始めの中央値 [秒] | 無効（Wi-Fi） | 無効（方策の前に停止） |",
           "|---|---|---|---|---|---|---|---|", *table, "", "## 止まっている間の肩（方策の間、0.2 秒で 1° も動かず、ずれが上限の 8 割以上）", "",
           "| ずれの上限 [rad] | 関節 | 試行数 | 合計の時間 [秒] | ずれの中央値 [°] | 電流の中央値 [A、仮の換算] |", "|---|---|---|---|---|---|"]
     md += [f"| {r['gap']} | {r['joint']} | {r['trials']} | {r['total_s']} | {r['err_deg']} | {r['cur_A']} |" for r in st_rows]
+    md += ["", "## 受信の隙間（ESP32 → PC の Wi-Fi）", "", "| 日 | 試行数 | パケット間隔の数 | 中央値 [ms] | 99 % 点 [ms] | 100 ms 超 | 200 ms 超 | 100 ms 超の頻度 [回/分] |", "|---|---|---|---|---|---|---|---|"]
+    md += [f"| {d} | {v['trials']} | {v['frames']} | {v['p50_ms']} | {v['p99_ms']} | {v['over_100ms']} | {v['over_200ms']} | {v['over_100ms_per_min']} |" for d, v in gaps.items()]
+    md += ["", f"150 ms を超える隙間 {len(big)} 個のうち、前後の ESP32 のフレーム番号の差が 1 だったのは {sum(b['esp_frame_delta'] == 1 for b in big)} 個、直後の 5 間隔がすべて 15 ms 以下（まとめて届いた）のは {sum(max(b['next_dt_ms'], default=99) <= 15 for b in big)} 個。"]
     (OUT / "summary.md").write_text("\n".join(md) + "\n", encoding="utf-8")
     print("\n".join(md))
     return 0
