@@ -154,7 +154,7 @@ def make_env(n_envs: int, exp: str, env_module: str = "khr_quad_env21", urdf: st
 
 def run(schedule: list[tuple[np.ndarray, float]], conds: list[Cond], exp: str = "khr-quadruped31-s2", ckpt: int = 3999,
         kp_scale: float = 1.0, kd_scale: float = 1.0, force_scale: float = 1.0, env_module: str = "khr_quad_env21",
-        urdf: str | None = None) -> dict:
+        urdf: str | None = None, floor_tilt_deg: tuple[float, float] | None = None) -> dict:
     """指令の列を全員同時に動かす。戻り値:
       rows   (B, T, 列)  walk_session の policy_log と同じ列（重力・角速度は方策が見た値＝IMU の誤差込み）
       down_true (B, T, 3)  本当の重力の向き（base 座標）
@@ -175,6 +175,14 @@ def run(schedule: list[tuple[np.ndarray, float]], conds: list[Cond], exp: str = 
         env.robot.set_dofs_force_range(lo_f * force_scale, hi_f * force_scale, env.motors_dof_idx)
     nl = env.robot.n_links
     t_ = lambda x: torch.as_tensor(np.asarray(x), dtype=gs.tc_float, device=gs.device)
+    if floor_tilt_deg is not None:
+        # 11/11: 床の傾き = 重力の向きの傾き。(下り坂が +x の向きの角度, 下り坂が +y の向きの角度) [deg]、世界座標（始めの前が +x、左が +y）。
+        # 方策が見る重力（projected_gravity、実機の IMU に当たる）も同じ向きにする。
+        ax, ay = (math.radians(v) for v in floor_tilt_deg)
+        gdir = np.array([math.sin(ax), math.sin(ay), -1.0])
+        gdir[2] = -math.sqrt(max(1e-9, 1.0 - gdir[0] ** 2 - gdir[1] ** 2))
+        env.scene.sim.set_gravity(tuple(float(v) * 9.81 for v in gdir))
+        env.global_gravity = t_(gdir)
     # Genesis の接触の摩擦は max(床, 機体)。床 0.5 のままだと機体の比率 < 1 が効かないので、床を 0.01 にして
     # 機体の摩擦（0.5 × 比率）で決める（GetUpSim2RealPlan.md F12）。比率 1.0 なら学習環境の評価と同じ 0.5。
     env.ground.set_friction(0.01)

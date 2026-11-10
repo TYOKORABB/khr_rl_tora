@@ -15,12 +15,14 @@ from sysid.closed_loop import run, Cond
 kp_scale = float(sys.argv[1])
 sched_s = sys.argv[2]          # 例 "0:2,0.3:7,0:2"
 out = sys.argv[3]
+# 4 番目（省略可）: 床の傾き "ax,ay" [deg]（下り坂が +x / +y の向き、世界座標で始めの前が +x・左が +y）。11/11
+tilt = tuple(float(v) for v in sys.argv[4].split(",")) if len(sys.argv) > 4 else None
 schedule = []
 for part in sched_s.split(","):
     v, s = part.split(":")
     c = [float(x) for x in v.split("/")] + [0.0, 0.0]               # walk_session と同じ書き方（vx/vy/wz）
     schedule.append((np.array(c[:3]), float(s)))
-r = run(schedule, [Cond("nominal")], kp_scale=kp_scale)
+r = run(schedule, [Cond("nominal")], kp_scale=kp_scale, floor_tilt_deg=tilt)
 pos = r["pos"][0]                   # (T, 3) 世界座標
 rows = r["rows"][0]
 t = rows[:, 0]
@@ -30,7 +32,7 @@ cmdv = rows[:, 1 + 22 * 2 + 3 + 3:1 + 22 * 2 + 3 + 3 + 3]
 mv = np.flatnonzero(np.abs(cmdv).max(1) > 1e-6)
 seg = pos[mv[-1], :2] - pos[mv[0], :2]
 heading_deg = float(np.degrees(rows[-1, -2] - rows[0, -2]))
-res = {"kp_scale": kp_scale, "schedule": sched_s, "fell_t": None if np.isnan(r["fell_t"][0]) else float(r["fell_t"][0]),
+res = {"kp_scale": kp_scale, "schedule": sched_s, "floor_tilt_deg": tilt, "fell_t": None if np.isnan(r["fell_t"][0]) else float(r["fell_t"][0]),
        "disp_total_m": round(float(np.linalg.norm(d)), 3), "disp_walk_segment_m": round(float(np.linalg.norm(seg)), 3),
        "walk_s": round(float(len(mv) * 0.02), 2), "mean_speed_walk_mps": round(float(np.linalg.norm(seg)) / (len(mv) * 0.02), 3),
        "heading_change_deg": round(heading_deg, 1), "dxy_total_m": [round(float(x), 3) for x in d]}
