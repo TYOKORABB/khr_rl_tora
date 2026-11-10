@@ -1,0 +1,5026 @@
+{
+ "by_period": {
+  "11/6": {
+   "trials": 4,
+   "powered_s": 50.0,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 18.1,
+    "r_shoulder_pitch": 33.7,
+    "l_shoulder_roll": 7.6,
+    "r_shoulder_roll": 15.9,
+    "l_elbow_pitch": 16.0,
+    "r_elbow_pitch": 11.2
+   },
+   "weak_trials": 0,
+   "cur_p95_max": {},
+   "temp_max_below_glitch": {}
+  },
+  "11/9": {
+   "trials": 39,
+   "powered_s": 482.7,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 80.2,
+    "r_shoulder_pitch": 121.2,
+    "l_shoulder_roll": 111.6,
+    "r_shoulder_roll": 73.8,
+    "l_elbow_pitch": 41.5,
+    "r_elbow_pitch": 43.3
+   },
+   "weak_trials": 0,
+   "cur_p95_max": {
+    "l_shoulder_pitch": 0.5,
+    "l_elbow_pitch": 0.3,
+    "r_shoulder_pitch": 0.5,
+    "r_elbow_pitch": 0.4
+   },
+   "temp_max_below_glitch": {
+    "l_shoulder_pitch": 44.2,
+    "l_elbow_pitch": 43.3,
+    "r_shoulder_pitch": 44.2,
+    "r_elbow_pitch": 43.3
+   }
+  },
+  "11/10 故障の前": {
+   "trials": 7,
+   "powered_s": 87.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 4.7,
+    "r_shoulder_pitch": 8.2,
+    "l_shoulder_roll": 6.6,
+    "r_shoulder_roll": 6.7,
+    "l_elbow_pitch": 1.8,
+    "r_elbow_pitch": 2.3
+   },
+   "weak_trials": 0,
+   "cur_p95_max": {
+    "l_shoulder_pitch": 0.3,
+    "l_elbow_pitch": 0.2,
+    "r_shoulder_pitch": 0.5,
+    "r_elbow_pitch": 0.4
+   },
+   "temp_max_below_glitch": {
+    "l_shoulder_pitch": 42.5,
+    "l_elbow_pitch": 42.5,
+    "r_shoulder_pitch": 42.5,
+    "r_elbow_pitch": 41.7
+   }
+  },
+  "11/10 故障のあと": {
+   "trials": 22,
+   "powered_s": 261.7,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 25.4,
+    "r_shoulder_pitch": 40.5,
+    "l_shoulder_roll": 36.3,
+    "r_shoulder_roll": 52.0,
+    "l_elbow_pitch": 81.5,
+    "r_elbow_pitch": 19.4
+   },
+   "weak_trials": 7,
+   "cur_p95_max": {
+    "l_shoulder_pitch": 0.5,
+    "l_elbow_pitch": 0.3,
+    "r_shoulder_pitch": 0.5,
+    "r_elbow_pitch": 0.5
+   },
+   "temp_max_below_glitch": {
+    "l_shoulder_pitch": 44.2,
+    "l_elbow_pitch": 43.3,
+    "r_shoulder_pitch": 44.2,
+    "r_elbow_pitch": 43.3
+   }
+  }
+ },
+ "getup_trials": [
+  {
+   "file": "getup_trial_prone_20261106_144516.npz",
+   "start": "2026-11-06T14:45:02",
+   "label": "prone",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 2.1,
+    "r_shoulder_pitch": 9.5,
+    "l_shoulder_roll": 2.2,
+    "r_shoulder_roll": 1.8,
+    "l_elbow_pitch": 1.3,
+    "r_elbow_pitch": 5.5
+   }
+  },
+  {
+   "file": "getup_trial_prone_20261106_145011.npz",
+   "start": "2026-11-06T14:49:57",
+   "label": "prone",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 5.1,
+    "r_shoulder_pitch": 8.1,
+    "l_shoulder_roll": 2.1,
+    "r_shoulder_roll": 5.3,
+    "l_elbow_pitch": 4.8,
+    "r_elbow_pitch": 2.6
+   }
+  },
+  {
+   "file": "getup_trial_prone_mat_20261106_145940.npz",
+   "start": "2026-11-06T14:59:25",
+   "label": "prone_mat",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 9.1,
+    "r_shoulder_pitch": 7.8,
+    "l_shoulder_roll": 2.2,
+    "r_shoulder_roll": 2.6,
+    "l_elbow_pitch": 9.3,
+    "r_elbow_pitch": 1.6
+   }
+  },
+  {
+   "file": "getup_trial_prone_mat_gap08_20261106_150153.npz",
+   "start": "2026-11-06T15:01:38",
+   "label": "prone_mat_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.8,
+    "r_shoulder_pitch": 8.3,
+    "l_shoulder_roll": 1.1,
+    "r_shoulder_roll": 6.2,
+    "l_elbow_pitch": 0.6,
+    "r_elbow_pitch": 1.5
+   }
+  },
+  {
+   "file": "getup_trial_prone_s2_20261109_194311.npz",
+   "start": "2026-11-09T19:42:56",
+   "label": "prone_s2",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 3.4,
+    "r_shoulder_pitch": 8.6,
+    "l_shoulder_roll": 6.8,
+    "r_shoulder_roll": 0.7,
+    "l_elbow_pitch": 1.7,
+    "r_elbow_pitch": 1.9
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.22,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.3,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": -57.1
+  },
+  {
+   "file": "getup_trial_prone_s2_20261109_194841.npz",
+   "start": "2026-11-09T19:48:27",
+   "label": "prone_s2",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 2.8,
+    "r_shoulder_pitch": 9.0,
+    "l_shoulder_roll": 6.9,
+    "r_shoulder_roll": 1.3,
+    "l_elbow_pitch": 0.9,
+    "r_elbow_pitch": 1.0
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.23,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": -57.1
+  },
+  {
+   "file": "getup_trial_prone_s2_20261109_194944.npz",
+   "start": "2026-11-09T19:49:30",
+   "label": "prone_s2",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 6.9,
+    "r_shoulder_pitch": 5.2,
+    "l_shoulder_roll": 3.1,
+    "r_shoulder_roll": 1.5,
+    "l_elbow_pitch": 1.1,
+    "r_elbow_pitch": 1.7
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.19,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": -37.6
+  },
+  {
+   "file": "getup_trial_prone_s2_20261109_195104.npz",
+   "start": "2026-11-09T19:50:49",
+   "label": "prone_s2",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 2.6,
+    "r_shoulder_pitch": 8.4,
+    "l_shoulder_roll": 6.5,
+    "r_shoulder_roll": 1.0,
+    "l_elbow_pitch": 0.3,
+    "r_elbow_pitch": 1.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.22,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": -57.7
+  },
+  {
+   "file": "getup_trial_prone_s1_20261109_195314.npz",
+   "start": "2026-11-09T19:52:59",
+   "label": "prone_s1",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 4.2,
+    "r_shoulder_pitch": 4.5,
+    "l_shoulder_roll": 3.6,
+    "r_shoulder_roll": 1.6,
+    "l_elbow_pitch": 2.4,
+    "r_elbow_pitch": 1.6
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.18,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": -37.6
+  },
+  {
+   "file": "getup_trial_prone_s1_20261109_195431.npz",
+   "start": "2026-11-09T19:54:17",
+   "label": "prone_s1",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 3.2,
+    "r_shoulder_pitch": 7.0,
+    "l_shoulder_roll": 6.2,
+    "r_shoulder_roll": 4.6,
+    "l_elbow_pitch": 1.4,
+    "r_elbow_pitch": 1.5
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "l_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.2,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.2,
+     "max": 0.4
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": 2.7
+  },
+  {
+   "file": "getup_trial_prone_s1_20261109_195515.npz",
+   "start": "2026-11-09T19:55:01",
+   "label": "prone_s1",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 4.3,
+    "r_shoulder_pitch": 5.8,
+    "l_shoulder_roll": 6.2,
+    "r_shoulder_roll": 0.9,
+    "l_elbow_pitch": 1.5,
+    "r_elbow_pitch": 2.1
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.3
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.19,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.2,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": -22.8
+  },
+  {
+   "file": "getup_trial_prone_s1_20261109_195605.npz",
+   "start": "2026-11-09T19:55:50",
+   "label": "prone_s1",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 6.8,
+    "r_shoulder_pitch": 4.4,
+    "l_shoulder_roll": 6.5,
+    "r_shoulder_roll": 5.5,
+    "l_elbow_pitch": 1.6,
+    "r_elbow_pitch": 2.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.19,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": -26.4
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_195839.npz",
+   "start": "2026-11-09T19:58:16",
+   "label": "prone_s1_t16",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 20.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 4.4,
+    "r_shoulder_pitch": 5.9,
+    "l_shoulder_roll": 5.8,
+    "r_shoulder_roll": 5.9,
+    "l_elbow_pitch": 2.7,
+    "r_elbow_pitch": 3.0
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.2,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": 12.6
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_200220.npz",
+   "start": "2026-11-09T20:02:17",
+   "label": "prone_s1_t16",
+   "reason": "r_hip_yaw の目標角とのずれ > 4.6° が 1.0 秒続いた",
+   "gap_rad": 0.05,
+   "powered_s": 1.3,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.0,
+    "r_shoulder_pitch": 0.0,
+    "l_shoulder_roll": 0.0,
+    "r_shoulder_roll": 0.0,
+    "l_elbow_pitch": 0.0,
+    "r_elbow_pitch": 0.0
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.04,
+     "p95": 0.1,
+     "max": 0.2
+    },
+    "l_elbow_pitch": {
+     "mean": 0.04,
+     "p95": 0.1,
+     "max": 0.1
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.04,
+     "p95": 0.1,
+     "max": 0.1
+    },
+    "r_elbow_pitch": {
+     "mean": 0.04,
+     "p95": 0.1,
+     "max": 0.2
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": 28.4
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_200324.npz",
+   "start": "2026-11-09T20:03:02",
+   "label": "prone_s1_t16",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 20.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 4.3,
+    "r_shoulder_pitch": 4.4,
+    "l_shoulder_roll": 4.3,
+    "r_shoulder_roll": 3.0,
+    "l_elbow_pitch": 3.2,
+    "r_elbow_pitch": 1.8
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.16,
+     "p95": 0.2,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 25
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": 7.3
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_200432.npz",
+   "start": "2026-11-09T20:04:10",
+   "label": "prone_s1_t16",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 20.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 4.3,
+    "r_shoulder_pitch": 10.0,
+    "l_shoulder_roll": 11.3,
+    "r_shoulder_roll": 6.2,
+    "l_elbow_pitch": 4.9,
+    "r_elbow_pitch": 7.8
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.19,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.2,
+     "p95": 0.4,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": -4.0
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_200558.npz",
+   "start": "2026-11-09T20:05:48",
+   "label": "prone_s1_t16",
+   "reason": "ESP32 からの受信が 0.2 s 途絶えた",
+   "gap_rad": 0.05,
+   "powered_s": 8.1,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 3.4,
+    "r_shoulder_pitch": 3.7,
+    "l_shoulder_roll": 2.4,
+    "r_shoulder_roll": 1.1,
+    "l_elbow_pitch": 2.4,
+    "r_elbow_pitch": 1.7
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.2,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": -51.8
+  },
+  {
+   "file": "getup_trial_prone_s1_t16_20261109_200715.npz",
+   "start": "2026-11-09T20:06:52",
+   "label": "prone_s1_t16",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.05,
+   "powered_s": 20.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 6.2,
+    "r_shoulder_pitch": 9.0,
+    "l_shoulder_roll": 8.4,
+    "r_shoulder_roll": 6.9,
+    "l_elbow_pitch": 4.1,
+    "r_elbow_pitch": 4.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.18,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.16,
+     "p95": 0.3,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.1,
+   "l_elbow_end_deg": 15.5
+  },
+  {
+   "file": "getup_trial_prone_s1_gap08_20261109_200837.npz",
+   "start": "2026-11-09T20:08:22",
+   "label": "prone_s1_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.3,
+    "r_shoulder_pitch": 2.9,
+    "l_shoulder_roll": 3.5,
+    "r_shoulder_roll": 2.9,
+    "l_elbow_pitch": 0.9,
+    "r_elbow_pitch": 0.9
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.18,
+     "p95": 0.5,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.5,
+   "l_elbow_end_deg": 11.6
+  },
+  {
+   "file": "getup_trial_prone_s1_gap08_20261109_200924.npz",
+   "start": "2026-11-09T20:09:10",
+   "label": "prone_s1_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.8,
+    "r_shoulder_pitch": 3.5,
+    "l_shoulder_roll": 4.0,
+    "r_shoulder_roll": 3.7,
+    "l_elbow_pitch": 1.5,
+    "r_elbow_pitch": 1.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.3,
+     "max": 0.7
+    },
+    "l_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.18,
+     "p95": 0.5,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.16,
+     "p95": 0.4,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.6,
+   "l_elbow_end_deg": 11.3
+  },
+  {
+   "file": "getup_trial_prone_s1_gap08_20261109_200958.npz",
+   "start": "2026-11-09T20:09:54",
+   "label": "prone_s1_gap08",
+   "reason": "ESP32 からの受信が 0.2 s 途絶えた",
+   "gap_rad": 0.08,
+   "powered_s": 1.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.0,
+    "r_shoulder_pitch": 0.0,
+    "l_shoulder_roll": 0.0,
+    "r_shoulder_roll": 0.0,
+    "l_elbow_pitch": 0.0,
+    "r_elbow_pitch": 0.0
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.05,
+     "p95": 0.1,
+     "max": 0.4
+    },
+    "l_elbow_pitch": {
+     "mean": 0.05,
+     "p95": 0.1,
+     "max": 0.1
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.05,
+     "p95": 0.1,
+     "max": 0.2
+    },
+    "r_elbow_pitch": {
+     "mean": 0.05,
+     "p95": 0.1,
+     "max": 0.2
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.0,
+   "l_elbow_end_deg": -5.3
+  },
+  {
+   "file": "getup_trial_prone_s1_gap08_20261109_201035.npz",
+   "start": "2026-11-09T20:10:20",
+   "label": "prone_s1_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.0,
+    "r_shoulder_pitch": 2.1,
+    "l_shoulder_roll": 1.9,
+    "r_shoulder_roll": 1.1,
+    "l_elbow_pitch": 0.4,
+    "r_elbow_pitch": 0.5
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.3
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.5,
+     "max": 0.7
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.2,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.2,
+   "l_elbow_end_deg": 15.9
+  },
+  {
+   "file": "getup_trial_prone_s1_gap08_20261109_201130.npz",
+   "start": "2026-11-09T20:11:15",
+   "label": "prone_s1_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.2,
+    "r_shoulder_pitch": 2.5,
+    "l_shoulder_roll": 2.1,
+    "r_shoulder_roll": 1.6,
+    "l_elbow_pitch": 0.6,
+    "r_elbow_pitch": 0.4
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.5,
+     "max": 0.7
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.3,
+   "l_elbow_end_deg": 13.6
+  },
+  {
+   "file": "getup_trial_prone_s2_gap08_20261109_201252.npz",
+   "start": "2026-11-09T20:12:38",
+   "label": "prone_s2_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.9,
+    "r_shoulder_pitch": 1.6,
+    "l_shoulder_roll": 2.2,
+    "r_shoulder_roll": 2.1,
+    "l_elbow_pitch": 1.0,
+    "r_elbow_pitch": 1.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.3,
+   "l_elbow_end_deg": 12.6
+  },
+  {
+   "file": "getup_trial_prone_s2_gap08_20261109_201337.npz",
+   "start": "2026-11-09T20:13:23",
+   "label": "prone_s2_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.7,
+    "r_shoulder_pitch": 1.4,
+    "l_shoulder_roll": 0.9,
+    "r_shoulder_roll": 1.5,
+    "l_elbow_pitch": 0.7,
+    "r_elbow_pitch": 0.5
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.5,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.3,
+   "l_elbow_end_deg": 11.6
+  },
+  {
+   "file": "getup_trial_prone_s2_gap08_20261109_201414.npz",
+   "start": "2026-11-09T20:13:59",
+   "label": "prone_s2_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.7,
+    "r_shoulder_pitch": 1.3,
+    "l_shoulder_roll": 1.8,
+    "r_shoulder_roll": 1.6,
+    "l_elbow_pitch": 0.9,
+    "r_elbow_pitch": 1.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.16,
+     "p95": 0.4,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.6,
+   "l_elbow_end_deg": 15.5
+  },
+  {
+   "file": "getup_trial_prone_s2_gap08_20261109_201451.npz",
+   "start": "2026-11-09T20:14:37",
+   "label": "prone_s2_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.9,
+    "r_shoulder_pitch": 2.5,
+    "l_shoulder_roll": 1.6,
+    "r_shoulder_roll": 1.1,
+    "l_elbow_pitch": 0.8,
+    "r_elbow_pitch": 0.6
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.7
+    },
+    "l_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.19,
+     "p95": 0.5,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.2,
+   "l_elbow_end_deg": 10.9
+  },
+  {
+   "file": "getup_trial_loop01_20261109_202321.npz",
+   "start": "2026-11-09T20:23:06",
+   "label": "loop01",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 2.4,
+    "r_shoulder_pitch": 1.2,
+    "l_shoulder_roll": 0.8,
+    "r_shoulder_roll": 0.6,
+    "l_elbow_pitch": 1.4,
+    "r_elbow_pitch": 0.4
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.5,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.1,
+   "l_elbow_end_deg": 10.6
+  },
+  {
+   "file": "getup_trial_loop02_20261109_202342.npz",
+   "start": "2026-11-09T20:23:27",
+   "label": "loop02",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.7,
+    "r_shoulder_pitch": 2.0,
+    "l_shoulder_roll": 1.3,
+    "r_shoulder_roll": 0.8,
+    "l_elbow_pitch": 0.4,
+    "r_elbow_pitch": 0.4
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.7
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.3,
+   "l_elbow_end_deg": 15.2
+  },
+  {
+   "file": "getup_trial_loop03_20261109_202358.npz",
+   "start": "2026-11-09T20:23:48",
+   "label": "loop03",
+   "reason": "ESP32 からの受信が 0.2 s 途絶えた",
+   "gap_rad": 0.08,
+   "powered_s": 7.7,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.6,
+    "r_shoulder_pitch": 0.9,
+    "l_shoulder_roll": 0.7,
+    "r_shoulder_roll": 0.9,
+    "l_elbow_pitch": 0.3,
+    "r_elbow_pitch": 0.1
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.3
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.4,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.4
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.1,
+   "l_elbow_end_deg": 9.9
+  },
+  {
+   "file": "getup_trial_loop04_20261109_202421.npz",
+   "start": "2026-11-09T20:24:07",
+   "label": "loop04",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.7,
+    "r_shoulder_pitch": 1.3,
+    "l_shoulder_roll": 0.9,
+    "r_shoulder_roll": 0.4,
+    "l_elbow_pitch": 0.2,
+    "r_elbow_pitch": 0.1
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.5,
+     "max": 0.7
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.3
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.3,
+   "l_elbow_end_deg": 12.2
+  },
+  {
+   "file": "getup_trial_loop05_20261109_202443.npz",
+   "start": "2026-11-09T20:24:28",
+   "label": "loop05",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.8,
+    "r_shoulder_pitch": 0.6,
+    "l_shoulder_roll": 0.7,
+    "r_shoulder_roll": 0.5,
+    "l_elbow_pitch": 0.3,
+    "r_elbow_pitch": 0.0
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.4,
+     "max": 0.7
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.1,
+   "l_elbow_end_deg": 10.2
+  },
+  {
+   "file": "getup_trial_loop06_20261109_202458.npz",
+   "start": "2026-11-09T20:24:49",
+   "label": "loop06",
+   "reason": "ESP32 からの受信が 0.2 s 途絶えた",
+   "gap_rad": 0.08,
+   "powered_s": 7.1,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.2,
+    "r_shoulder_pitch": 1.4,
+    "l_shoulder_roll": 1.2,
+    "r_shoulder_roll": 1.9,
+    "l_elbow_pitch": 0.5,
+    "r_elbow_pitch": 0.7
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.4,
+     "max": 0.9
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.4,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.4,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.4,
+   "l_elbow_end_deg": -13.9
+  },
+  {
+   "file": "getup_trial_loop07_20261109_202519.npz",
+   "start": "2026-11-09T20:25:04",
+   "label": "loop07",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.4,
+    "r_shoulder_pitch": 0.8,
+    "l_shoulder_roll": 1.8,
+    "r_shoulder_roll": 2.7,
+    "l_elbow_pitch": 0.6,
+    "r_elbow_pitch": 0.3
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.3,
+   "l_elbow_end_deg": 9.9
+  },
+  {
+   "file": "getup_trial_loop08_20261109_202541.npz",
+   "start": "2026-11-09T20:25:27",
+   "label": "loop08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.6,
+    "r_shoulder_pitch": 1.1,
+    "l_shoulder_roll": 0.8,
+    "r_shoulder_roll": 0.5,
+    "l_elbow_pitch": 0.1,
+    "r_elbow_pitch": 0.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.1,
+   "l_elbow_end_deg": 16.5
+  },
+  {
+   "file": "getup_trial_left_down_gap08_20261109_202922.npz",
+   "start": "2026-11-09T20:29:08",
+   "label": "left_down_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.8,
+    "r_shoulder_pitch": 1.3,
+    "l_shoulder_roll": 1.0,
+    "r_shoulder_roll": 1.3,
+    "l_elbow_pitch": 0.3,
+    "r_elbow_pitch": 0.3
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.4,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.2,
+     "max": 0.4
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.2,
+   "l_elbow_end_deg": 8.9
+  },
+  {
+   "file": "getup_trial_side2_gap08_20261109_203015.npz",
+   "start": "2026-11-09T20:30:01",
+   "label": "side2_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.0,
+    "r_shoulder_pitch": 0.6,
+    "l_shoulder_roll": 1.0,
+    "r_shoulder_roll": 0.3,
+    "l_elbow_pitch": 0.3,
+    "r_elbow_pitch": 0.1
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.09,
+     "p95": 0.1,
+     "max": 0.4
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.3
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.09,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.6,
+   "l_elbow_end_deg": 6.3
+  },
+  {
+   "file": "getup_trial_side3_gap08_20261109_203117.npz",
+   "start": "2026-11-09T20:31:03",
+   "label": "side3_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.0,
+    "r_shoulder_pitch": 0.9,
+    "l_shoulder_roll": 0.4,
+    "r_shoulder_roll": 2.2,
+    "l_elbow_pitch": 0.5,
+    "r_elbow_pitch": 0.4
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.18,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.18,
+     "p95": 0.3,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.4,
+   "l_elbow_end_deg": -3.3
+  },
+  {
+   "file": "getup_trial_side4_gap08_20261109_203213.npz",
+   "start": "2026-11-09T20:31:59",
+   "label": "side4_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.2,
+    "r_shoulder_pitch": 2.2,
+    "l_shoulder_roll": 2.6,
+    "r_shoulder_roll": 2.4,
+    "l_elbow_pitch": 0.3,
+    "r_elbow_pitch": 0.6
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.4,
+     "max": 0.9
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.5,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.1,
+   "l_elbow_end_deg": 13.2
+  },
+  {
+   "file": "getup_trial_supine_gap08_20261109_203323.npz",
+   "start": "2026-11-09T20:33:08",
+   "label": "supine_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.3,
+    "r_shoulder_pitch": 0.8,
+    "l_shoulder_roll": 0.3,
+    "r_shoulder_roll": 0.3,
+    "l_elbow_pitch": 0.3,
+    "r_elbow_pitch": 0.3
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.8,
+   "l_elbow_end_deg": -8.6
+  },
+  {
+   "file": "getup_trial_supine_gap08_20261109_203417.npz",
+   "start": "2026-11-09T20:34:03",
+   "label": "supine_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.0,
+    "r_shoulder_pitch": 1.3,
+    "l_shoulder_roll": 0.9,
+    "r_shoulder_roll": 1.4,
+    "l_elbow_pitch": 0.6,
+    "r_elbow_pitch": 0.7
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.4,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.3,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.5,
+   "l_elbow_end_deg": 12.6
+  },
+  {
+   "file": "getup_trial_supine_gap08_20261109_203530.npz",
+   "start": "2026-11-09T20:35:15",
+   "label": "supine_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.7,
+    "r_shoulder_pitch": 0.6,
+    "l_shoulder_roll": 0.8,
+    "r_shoulder_roll": 1.5,
+    "l_elbow_pitch": 0.2,
+    "r_elbow_pitch": 0.3
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.7
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.4,
+   "l_elbow_end_deg": 11.6
+  },
+  {
+   "file": "getup_trial_supine_gap08_20261109_203615.npz",
+   "start": "2026-11-09T20:36:01",
+   "label": "supine_gap08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.5,
+    "r_shoulder_pitch": 0.5,
+    "l_shoulder_roll": 0.4,
+    "r_shoulder_roll": 0.3,
+    "l_elbow_pitch": 0.2,
+    "r_elbow_pitch": 0.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.7,
+   "l_elbow_end_deg": -46.5
+  },
+  {
+   "file": "getup_trial_supine_v12_20261110_180420.npz",
+   "start": "2026-11-10T18:04:05",
+   "label": "supine_v12",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.7,
+    "r_shoulder_pitch": 1.3,
+    "l_shoulder_roll": 0.6,
+    "r_shoulder_roll": 0.5,
+    "l_elbow_pitch": 0.3,
+    "r_elbow_pitch": 0.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.5,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.2,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 40.8,
+     "max_below_glitch": 40.8,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 40.8,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.1,
+   "l_elbow_end_deg": 13.6
+  },
+  {
+   "file": "getup_trial_supine_v12_20261110_180546.npz",
+   "start": "2026-11-10T18:05:32",
+   "label": "supine_v12",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.4,
+    "r_shoulder_pitch": 0.5,
+    "l_shoulder_roll": 0.2,
+    "r_shoulder_roll": 0.2,
+    "l_elbow_pitch": 0.1,
+    "r_elbow_pitch": 0.0
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.2,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 40.8,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 41.2,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.2,
+   "l_elbow_end_deg": 17.9
+  },
+  {
+   "file": "getup_trial_supine_v12_fz_20261110_180733.npz",
+   "start": "2026-11-10T18:07:18",
+   "label": "supine_v12_fz",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.7,
+    "r_shoulder_pitch": 0.6,
+    "l_shoulder_roll": 0.4,
+    "r_shoulder_roll": 0.2,
+    "l_elbow_pitch": 0.0,
+    "r_elbow_pitch": 0.1
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.11,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.1,
+   "l_elbow_end_deg": 15.5
+  },
+  {
+   "file": "getup_trial_side_L_v12_fz_20261110_180945.npz",
+   "start": "2026-11-10T18:09:30",
+   "label": "side_L_v12_fz",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.6,
+    "r_shoulder_pitch": 1.2,
+    "l_shoulder_roll": 0.5,
+    "r_shoulder_roll": 0.9,
+    "l_elbow_pitch": 0.2,
+    "r_elbow_pitch": 0.6
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.11,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.4,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.2,
+   "l_elbow_end_deg": 13.9
+  },
+  {
+   "file": "getup_trial_side_R_v12_fz_20261110_181114.npz",
+   "start": "2026-11-10T18:10:59",
+   "label": "side_R_v12_fz",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.5,
+    "r_shoulder_pitch": 2.7,
+    "l_shoulder_roll": 2.3,
+    "r_shoulder_roll": 1.6,
+    "l_elbow_pitch": 0.4,
+    "r_elbow_pitch": 0.4
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.5,
+     "max": 0.7
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.3,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.6,
+   "l_elbow_end_deg": 12.6
+  },
+  {
+   "file": "getup_trial_supine_v12_fz_demo_20261110_182205.npz",
+   "start": "2026-11-10T18:21:50",
+   "label": "supine_v12_fz_demo",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.9,
+    "r_shoulder_pitch": 1.1,
+    "l_shoulder_roll": 0.9,
+    "r_shoulder_roll": 1.4,
+    "l_elbow_pitch": 0.5,
+    "r_elbow_pitch": 0.8
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.3,
+     "max": 0.7
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.4,
+     "max": 0.8
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.2,
+   "l_elbow_end_deg": 15.9
+  },
+  {
+   "file": "getup_trial_prone_v12_fz_demo_20261110_182348.npz",
+   "start": "2026-11-10T18:23:33",
+   "label": "prone_v12_fz_demo",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.9,
+    "r_shoulder_pitch": 0.8,
+    "l_shoulder_roll": 1.7,
+    "r_shoulder_roll": 1.9,
+    "l_elbow_pitch": 0.3,
+    "r_elbow_pitch": 0.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.3,
+   "l_elbow_end_deg": 13.2
+  },
+  {
+   "file": "getup_trial_getup_walk1_prone_20261110_192316.npz",
+   "start": "2026-11-10T19:23:01",
+   "label": "getup_walk1_prone",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.4,
+    "r_shoulder_pitch": 2.6,
+    "l_shoulder_roll": 2.9,
+    "r_shoulder_roll": 3.8,
+    "l_elbow_pitch": 10.7,
+    "r_elbow_pitch": 1.5
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.08,
+     "p95": 0.1,
+     "max": 0.2
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 10.6,
+   "l_elbow_end_deg": 29.4
+  },
+  {
+   "file": "getup_trial_getup_walk2_prone_20261110_192427.npz",
+   "start": "2026-11-10T19:24:12",
+   "label": "getup_walk2_prone",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.2,
+    "r_shoulder_pitch": 2.0,
+    "l_shoulder_roll": 3.0,
+    "r_shoulder_roll": 4.0,
+    "l_elbow_pitch": 10.9,
+    "r_elbow_pitch": 1.3
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.08,
+     "p95": 0.1,
+     "max": 0.2
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 25
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 10.8,
+   "l_elbow_end_deg": 29.4
+  },
+  {
+   "file": "getup_trial_getup_walk4_prone_20261110_192748.npz",
+   "start": "2026-11-10T19:27:33",
+   "label": "getup_walk4_prone",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.8,
+    "r_shoulder_pitch": 1.2,
+    "l_shoulder_roll": 0.8,
+    "r_shoulder_roll": 0.2,
+    "l_elbow_pitch": 0.5,
+    "r_elbow_pitch": 0.4
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.4,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.1,
+   "l_elbow_end_deg": 13.6
+  },
+  {
+   "file": "getup_trial_getup_walk5_prone_20261110_192953.npz",
+   "start": "2026-11-10T19:29:38",
+   "label": "getup_walk5_prone",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.3,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.0,
+    "r_shoulder_pitch": 1.5,
+    "l_shoulder_roll": 1.1,
+    "r_shoulder_roll": 0.8,
+    "l_elbow_pitch": 0.4,
+    "r_elbow_pitch": 0.7
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.5,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.3,
+   "l_elbow_end_deg": 12.9
+  },
+  {
+   "file": "getup_trial_getup_walk6_supine_20261110_193410.npz",
+   "start": "2026-11-10T19:33:55",
+   "label": "getup_walk6_supine",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.3,
+    "r_shoulder_pitch": 1.4,
+    "l_shoulder_roll": 1.1,
+    "r_shoulder_roll": 0.8,
+    "l_elbow_pitch": 1.4,
+    "r_elbow_pitch": 1.0
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.4,
+     "max": 0.7
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.4,
+     "max": 0.8
+    },
+    "r_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.9
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.7,
+   "l_elbow_end_deg": 12.9
+  },
+  {
+   "file": "getup_trial_getup_walk7_supine_fast_20261110_194223.npz",
+   "start": "2026-11-10T19:42:11",
+   "label": "getup_walk7_supine_fast",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 9.1,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.8,
+    "r_shoulder_pitch": 2.0,
+    "l_shoulder_roll": 1.4,
+    "r_shoulder_roll": 2.4,
+    "l_elbow_pitch": 1.3,
+    "r_elbow_pitch": 2.1
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.5,
+     "max": 0.7
+    },
+    "l_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.4,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.17,
+     "p95": 0.5,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.7,
+   "l_elbow_end_deg": 11.3
+  },
+  {
+   "file": "getup_trial_getup_walk8_supine_fast_20261110_194341.npz",
+   "start": "2026-11-10T19:43:30",
+   "label": "getup_walk8_supine_fast",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 8.0,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.8,
+    "r_shoulder_pitch": 1.4,
+    "l_shoulder_roll": 0.9,
+    "r_shoulder_roll": 1.0,
+    "l_elbow_pitch": 0.5,
+    "r_elbow_pitch": 0.5
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.09,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.4
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.7,
+   "l_elbow_end_deg": 14.2
+  },
+  {
+   "file": "getup_trial_getup_walk9_prone_fast_20261110_194609.npz",
+   "start": "2026-11-10T19:46:00",
+   "label": "getup_walk9_prone_fast",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 7.3,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.9,
+    "r_shoulder_pitch": 1.9,
+    "l_shoulder_roll": 1.3,
+    "r_shoulder_roll": 0.4,
+    "l_elbow_pitch": 0.5,
+    "r_elbow_pitch": 0.7
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.11,
+     "p95": 0.3,
+     "max": 0.4
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.5,
+     "max": 0.7
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.4,
+   "l_elbow_end_deg": 11.3
+  },
+  {
+   "file": "getup_trial_loop_v12_fz01_20261110_195431.npz",
+   "start": "2026-11-10T19:54:16",
+   "label": "loop_v12_fz01",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.6,
+    "r_shoulder_pitch": 0.6,
+    "l_shoulder_roll": 1.3,
+    "r_shoulder_roll": 2.0,
+    "l_elbow_pitch": 0.6,
+    "r_elbow_pitch": 0.4
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.4,
+     "max": 0.7
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.11,
+     "p95": 0.3,
+     "max": 0.7
+    },
+    "r_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.4
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.6,
+   "l_elbow_end_deg": 11.3
+  },
+  {
+   "file": "getup_trial_loop_v12_fz02_20261110_195452.npz",
+   "start": "2026-11-10T19:54:38",
+   "label": "loop_v12_fz02",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.3,
+    "r_shoulder_pitch": 0.9,
+    "l_shoulder_roll": 1.7,
+    "r_shoulder_roll": 2.0,
+    "l_elbow_pitch": 0.6,
+    "r_elbow_pitch": 0.8
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.4,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.6,
+   "l_elbow_end_deg": 14.6
+  },
+  {
+   "file": "getup_trial_loop_v12_fz03_20261110_195514.npz",
+   "start": "2026-11-10T19:54:59",
+   "label": "loop_v12_fz03",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.0,
+    "r_shoulder_pitch": 2.5,
+    "l_shoulder_roll": 1.9,
+    "r_shoulder_roll": 3.0,
+    "l_elbow_pitch": 1.0,
+    "r_elbow_pitch": 0.8
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.7
+    },
+    "l_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.4,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.15,
+     "p95": 0.3,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.6,
+   "l_elbow_end_deg": 15.2
+  },
+  {
+   "file": "getup_trial_loop_v12_fz04_20261110_195536.npz",
+   "start": "2026-11-10T19:55:21",
+   "label": "loop_v12_fz04",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.4,
+    "r_shoulder_pitch": 0.5,
+    "l_shoulder_roll": 0.8,
+    "r_shoulder_roll": 1.2,
+    "l_elbow_pitch": 0.4,
+    "r_elbow_pitch": 0.1
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.15,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.2,
+   "l_elbow_end_deg": 14.2
+  },
+  {
+   "file": "getup_trial_loop_v12_fz05_20261110_195557.npz",
+   "start": "2026-11-10T19:55:42",
+   "label": "loop_v12_fz05",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.8,
+    "r_shoulder_pitch": 1.4,
+    "l_shoulder_roll": 0.9,
+    "r_shoulder_roll": 0.6,
+    "l_elbow_pitch": 0.4,
+    "r_elbow_pitch": 0.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.4,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.3,
+   "l_elbow_end_deg": 9.9
+  },
+  {
+   "file": "getup_trial_loop_v12_fz06_20261110_195619.npz",
+   "start": "2026-11-10T19:56:05",
+   "label": "loop_v12_fz06",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.8,
+    "r_shoulder_pitch": 0.3,
+    "l_shoulder_roll": 1.6,
+    "r_shoulder_roll": 1.2,
+    "l_elbow_pitch": 0.3,
+    "r_elbow_pitch": 0.3
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.2,
+   "l_elbow_end_deg": 13.9
+  },
+  {
+   "file": "getup_trial_loop_v12_fz07_20261110_195641.npz",
+   "start": "2026-11-10T19:56:26",
+   "label": "loop_v12_fz07",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 0.6,
+    "r_shoulder_pitch": 0.8,
+    "l_shoulder_roll": 0.5,
+    "r_shoulder_roll": 2.5,
+    "l_elbow_pitch": 0.5,
+    "r_elbow_pitch": 0.3
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.11,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.3,
+     "max": 0.7
+    },
+    "r_elbow_pitch": {
+     "mean": 0.11,
+     "p95": 0.2,
+     "max": 0.6
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.3,
+   "l_elbow_end_deg": 11.3
+  },
+  {
+   "file": "getup_trial_loop_v12_fz08_20261110_195704.npz",
+   "start": "2026-11-10T19:56:50",
+   "label": "loop_v12_fz08",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.4,
+    "r_shoulder_pitch": 2.1,
+    "l_shoulder_roll": 1.3,
+    "r_shoulder_roll": 0.9,
+    "l_elbow_pitch": 0.2,
+    "r_elbow_pitch": 0.5
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.4,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.14,
+     "p95": 0.5,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 41.7,
+     "max_below_glitch": 41.7,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.2,
+   "l_elbow_end_deg": 11.6
+  },
+  {
+   "file": "getup_trial_rep_prone1_20261110_195847.npz",
+   "start": "2026-11-10T19:58:32",
+   "label": "rep_prone1",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.1,
+    "r_shoulder_pitch": 1.5,
+    "l_shoulder_roll": 0.6,
+    "r_shoulder_roll": 1.8,
+    "l_elbow_pitch": 0.6,
+    "r_elbow_pitch": 1.0
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.7
+    },
+    "l_elbow_pitch": {
+     "mean": 0.1,
+     "p95": 0.2,
+     "max": 0.5
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.17,
+     "p95": 0.4,
+     "max": 0.5
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 1.0
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 0.4,
+   "l_elbow_end_deg": 13.9
+  },
+  {
+   "file": "getup_trial_rep_prone2_20261110_195940.npz",
+   "start": "2026-11-10T19:59:25",
+   "label": "rep_prone2",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.0,
+    "r_shoulder_pitch": 3.2,
+    "l_shoulder_roll": 3.2,
+    "r_shoulder_roll": 7.6,
+    "l_elbow_pitch": 10.9,
+    "r_elbow_pitch": 1.2
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.5
+    },
+    "l_elbow_pitch": {
+     "mean": 0.08,
+     "p95": 0.1,
+     "max": 0.2
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.18,
+     "p95": 0.5,
+     "max": 0.7
+    },
+    "r_elbow_pitch": {
+     "mean": 0.17,
+     "p95": 0.3,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 10.8,
+   "l_elbow_end_deg": 29.4
+  },
+  {
+   "file": "getup_trial_rep_prone3_20261110_200042.npz",
+   "start": "2026-11-10T20:00:27",
+   "label": "rep_prone3",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.3,
+    "r_shoulder_pitch": 3.7,
+    "l_shoulder_roll": 3.2,
+    "r_shoulder_roll": 3.8,
+    "l_elbow_pitch": 10.9,
+    "r_elbow_pitch": 0.8
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.7
+    },
+    "l_elbow_pitch": {
+     "mean": 0.08,
+     "p95": 0.1,
+     "max": 0.2
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.18,
+     "p95": 0.5,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.14,
+     "p95": 0.3,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 10.8,
+   "l_elbow_end_deg": 29.4
+  },
+  {
+   "file": "getup_trial_rep_prone4_20261110_200147.npz",
+   "start": "2026-11-10T20:01:32",
+   "label": "rep_prone4",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 2.4,
+    "r_shoulder_pitch": 3.6,
+    "l_shoulder_roll": 3.7,
+    "r_shoulder_roll": 7.7,
+    "l_elbow_pitch": 10.9,
+    "r_elbow_pitch": 1.9
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.18,
+     "p95": 0.3,
+     "max": 0.8
+    },
+    "l_elbow_pitch": {
+     "mean": 0.08,
+     "p95": 0.1,
+     "max": 0.2
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.18,
+     "p95": 0.4,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.16,
+     "p95": 0.3,
+     "max": 0.5
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 10.9,
+   "l_elbow_end_deg": 29.8
+  },
+  {
+   "file": "getup_trial_rep_supine1_20261110_200338.npz",
+   "start": "2026-11-10T20:03:23",
+   "label": "rep_supine1",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.1,
+    "r_shoulder_pitch": 2.2,
+    "l_shoulder_roll": 2.0,
+    "r_shoulder_roll": 1.2,
+    "l_elbow_pitch": 7.3,
+    "r_elbow_pitch": 1.1
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.2,
+     "max": 0.4
+    },
+    "l_elbow_pitch": {
+     "mean": 0.08,
+     "p95": 0.1,
+     "max": 0.2
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.16,
+     "p95": 0.47,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.13,
+     "p95": 0.3,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 42.5,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 10.3,
+   "l_elbow_end_deg": 29.4
+  },
+  {
+   "file": "getup_trial_rep_supine2_20261110_200546.npz",
+   "start": "2026-11-10T20:05:31",
+   "label": "rep_supine2",
+   "reason": "最後まで動いた",
+   "gap_rad": 0.08,
+   "powered_s": 12.5,
+   "at_gap_limit_s": {
+    "l_shoulder_pitch": 1.4,
+    "r_shoulder_pitch": 3.2,
+    "l_shoulder_roll": 1.1,
+    "r_shoulder_roll": 3.1,
+    "l_elbow_pitch": 10.7,
+    "r_elbow_pitch": 1.8
+   },
+   "current_A": {
+    "l_shoulder_pitch": {
+     "mean": 0.12,
+     "p95": 0.3,
+     "max": 0.6
+    },
+    "l_elbow_pitch": {
+     "mean": 0.08,
+     "p95": 0.1,
+     "max": 0.2
+    },
+    "r_shoulder_pitch": {
+     "mean": 0.19,
+     "p95": 0.5,
+     "max": 0.6
+    },
+    "r_elbow_pitch": {
+     "mean": 0.18,
+     "p95": 0.4,
+     "max": 0.7
+    }
+   },
+   "temp_C": {
+    "l_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "l_elbow_pitch": {
+     "median": 43.3,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    },
+    "r_shoulder_pitch": {
+     "median": 44.2,
+     "max_below_glitch": 44.2,
+     "n_glitch": 0
+    },
+    "r_elbow_pitch": {
+     "median": 42.5,
+     "max_below_glitch": 43.3,
+     "n_glitch": 0
+    }
+   },
+   "l_elbow_weak_drive_s": 10.9,
+   "l_elbow_end_deg": -120.6
+  }
+ ],
+ "walk_sessions": [
+  {
+   "file": "walk_20261013_200254.npz",
+   "start": "2026-10-13T20:02:52",
+   "end": "2026-10-13T20:02:54",
+   "seconds": 2.2,
+   "stance_hold_err_deg_per_min": []
+  },
+  {
+   "file": "walk_20261013_201837.npz",
+   "start": "2026-10-13T20:07:16",
+   "end": "2026-10-13T20:18:38",
+   "seconds": 681.8,
+   "walk_track_err_deg": {
+    "l_elbow_pitch": 1.02,
+    "r_elbow_pitch": 1.01
+   },
+   "stance_hold_err_deg_per_min": [
+    [
+     0,
+     0.1,
+     0.2
+    ],
+    [
+     60,
+     0.1,
+     0.2
+    ],
+    [
+     120,
+     -0.2,
+     0.2
+    ],
+    [
+     180,
+     0.1,
+     0.2
+    ],
+    [
+     240,
+     0.1,
+     0.2
+    ],
+    [
+     300,
+     0.1,
+     0.2
+    ],
+    [
+     360,
+     0.1,
+     0.2
+    ],
+    [
+     420,
+     0.1,
+     -0.1
+    ],
+    [
+     480,
+     0.1,
+     0.2
+    ],
+    [
+     540,
+     0.1,
+     0.2
+    ],
+    [
+     600,
+     0.1,
+     0.2
+    ],
+    [
+     660,
+     0.1,
+     0.2
+    ]
+   ]
+  },
+  {
+   "file": "walk_20261028_183829.npz",
+   "start": "2026-10-28T18:38:04",
+   "end": "2026-10-28T18:38:29",
+   "seconds": 24.6,
+   "walk_track_err_deg": {
+    "l_elbow_pitch": 2.48,
+    "r_elbow_pitch": 0.48
+   },
+   "stance_hold_err_deg_per_min": [
+    [
+     0,
+     2.4,
+     1.5
+    ]
+   ]
+  },
+  {
+   "file": "walk_20261109_193550.npz",
+   "start": "2026-11-09T19:23:49",
+   "end": "2026-11-09T19:35:50",
+   "seconds": 721.2,
+   "stance_hold_err_deg_per_min": [
+    [
+     0,
+     0.1,
+     0.5
+    ],
+    [
+     60,
+     0.1,
+     0.5
+    ],
+    [
+     120,
+     0.1,
+     0.5
+    ],
+    [
+     180,
+     0.4,
+     0.5
+    ],
+    [
+     240,
+     0.4,
+     0.5
+    ],
+    [
+     300,
+     0.4,
+     0.5
+    ],
+    [
+     360,
+     0.1,
+     0.2
+    ],
+    [
+     420,
+     0.1,
+     0.2
+    ],
+    [
+     480,
+     0.1,
+     0.2
+    ],
+    [
+     540,
+     0.1,
+     -0.1
+    ],
+    [
+     600,
+     0.1,
+     0.2
+    ],
+    [
+     660,
+     0.1,
+     0.2
+    ],
+    [
+     720,
+     0.4,
+     -0.1
+    ]
+   ],
+   "current_A_mean_p95": {
+    "l_shoulder_pitch": [
+     0.12,
+     0.2
+    ],
+    "l_elbow_pitch": [
+     0.1,
+     0.1
+    ],
+    "r_shoulder_pitch": [
+     0.19,
+     0.3
+    ],
+    "r_elbow_pitch": [
+     0.15,
+     0.2
+    ]
+   }
+  },
+  {
+   "file": "walk_20261109_193950.npz",
+   "start": "2026-11-09T19:36:05",
+   "end": "2026-11-09T19:39:51",
+   "seconds": 225.8,
+   "walk_track_err_deg": {
+    "l_elbow_pitch": 1.64,
+    "r_elbow_pitch": 1.61
+   },
+   "stance_hold_err_deg_per_min": [
+    [
+     0,
+     0.1,
+     -0.1
+    ],
+    [
+     60,
+     0.1,
+     0.2
+    ],
+    [
+     120,
+     0.1,
+     0.2
+    ],
+    [
+     180,
+     0.1,
+     -0.1
+    ]
+   ],
+   "current_A_mean_p95": {
+    "l_shoulder_pitch": [
+     0.11,
+     0.2
+    ],
+    "l_elbow_pitch": [
+     0.1,
+     0.1
+    ],
+    "r_shoulder_pitch": [
+     0.14,
+     0.2
+    ],
+    "r_elbow_pitch": [
+     0.11,
+     0.2
+    ]
+   }
+  },
+  {
+   "file": "walk_20261110_185802.npz",
+   "start": "2026-11-10T18:37:22",
+   "end": "2026-11-10T18:58:02",
+   "seconds": 1240.5,
+   "walk_track_err_deg": {
+    "l_elbow_pitch": 1.61,
+    "r_elbow_pitch": 1.28
+   },
+   "stance_hold_err_deg_per_min": [
+    [
+     0,
+     0.1,
+     0.2
+    ],
+    [
+     60,
+     0.1,
+     0.2
+    ],
+    [
+     120,
+     0.1,
+     0.2
+    ],
+    [
+     180,
+     0.1,
+     0.2
+    ],
+    [
+     240,
+     0.1,
+     0.2
+    ],
+    [
+     300,
+     0.1,
+     0.2
+    ],
+    [
+     360,
+     0.1,
+     0.2
+    ],
+    [
+     420,
+     -0.2,
+     -0.1
+    ],
+    [
+     480,
+     -0.2,
+     -0.1
+    ],
+    [
+     540,
+     -0.2,
+     -0.1
+    ],
+    [
+     600,
+     0.1,
+     -0.1
+    ],
+    [
+     660,
+     0.1,
+     -0.1
+    ],
+    [
+     720,
+     0.1,
+     0.2
+    ],
+    [
+     780,
+     0.1,
+     0.2
+    ],
+    [
+     840,
+     0.1,
+     0.2
+    ],
+    [
+     900,
+     -0.2,
+     0.2
+    ],
+    [
+     960,
+     0.1,
+     -0.1
+    ],
+    [
+     1020,
+     0.1,
+     -0.1
+    ],
+    [
+     1080,
+     0.1,
+     -0.1
+    ],
+    [
+     1140,
+     0.1,
+     -0.1
+    ],
+    [
+     1200,
+     0.1,
+     -0.1
+    ]
+   ],
+   "current_A_mean_p95": {
+    "l_shoulder_pitch": [
+     0.1,
+     0.1
+    ],
+    "l_elbow_pitch": [
+     0.1,
+     0.1
+    ],
+    "r_shoulder_pitch": [
+     0.11,
+     0.2
+    ],
+    "r_elbow_pitch": [
+     0.1,
+     0.1
+    ]
+   }
+  },
+  {
+   "file": "walk_20261110_191945.npz",
+   "start": "2026-11-10T19:09:46",
+   "end": "2026-11-10T19:19:46",
+   "seconds": 599.9,
+   "walk_track_err_deg": {
+    "l_elbow_pitch": 8.33,
+    "r_elbow_pitch": 0.56
+   },
+   "stance_hold_err_deg_per_min": [
+    [
+     0,
+     18.0,
+     0.2
+    ],
+    [
+     60,
+     18.0,
+     0.2
+    ],
+    [
+     120,
+     18.0,
+     0.2
+    ],
+    [
+     180,
+     18.0,
+     0.2
+    ],
+    [
+     240,
+     18.0,
+     -0.1
+    ],
+    [
+     300,
+     18.0,
+     -0.1
+    ],
+    [
+     360,
+     18.0,
+     0.2
+    ],
+    [
+     420,
+     18.0,
+     0.2
+    ],
+    [
+     480,
+     18.0,
+     -0.1
+    ],
+    [
+     540,
+     18.0,
+     -0.1
+    ]
+   ],
+   "current_A_mean_p95": {
+    "l_shoulder_pitch": [
+     0.1,
+     0.1
+    ],
+    "l_elbow_pitch": [
+     0.1,
+     0.1
+    ],
+    "r_shoulder_pitch": [
+     0.11,
+     0.2
+    ],
+    "r_elbow_pitch": [
+     0.1,
+     0.1
+    ]
+   }
+  },
+  {
+   "file": "walk_20261110_192852.npz",
+   "start": "2026-11-10T19:27:53",
+   "end": "2026-11-10T19:28:52",
+   "seconds": 58.7,
+   "stance_hold_err_deg_per_min": [
+    [
+     0,
+     0.1,
+     0.5
+    ]
+   ],
+   "current_A_mean_p95": {
+    "l_shoulder_pitch": [
+     0.14,
+     0.2
+    ],
+    "l_elbow_pitch": [
+     0.1,
+     0.1
+    ],
+    "r_shoulder_pitch": [
+     0.19,
+     0.2
+    ],
+    "r_elbow_pitch": [
+     0.12,
+     0.2
+    ]
+   }
+  },
+  {
+   "file": "walk_20261110_193308.npz",
+   "start": "2026-11-10T19:29:59",
+   "end": "2026-11-10T19:33:09",
+   "seconds": 189.9,
+   "walk_track_err_deg": {
+    "l_elbow_pitch": 1.32,
+    "r_elbow_pitch": 1.34
+   },
+   "stance_hold_err_deg_per_min": [
+    [
+     0,
+     0.1,
+     0.2
+    ],
+    [
+     60,
+     0.1,
+     0.2
+    ],
+    [
+     120,
+     0.1,
+     0.2
+    ],
+    [
+     180,
+     0.1,
+     0.2
+    ]
+   ],
+   "current_A_mean_p95": {
+    "l_shoulder_pitch": [
+     0.1,
+     0.1
+    ],
+    "l_elbow_pitch": [
+     0.1,
+     0.1
+    ],
+    "r_shoulder_pitch": [
+     0.1,
+     0.1
+    ],
+    "r_elbow_pitch": [
+     0.1,
+     0.1
+    ]
+   }
+  },
+  {
+   "file": "walk_20261110_193445.npz",
+   "start": "2026-11-10T19:34:15",
+   "end": "2026-11-10T19:34:45",
+   "seconds": 30.4,
+   "walk_track_err_deg": {
+    "l_elbow_pitch": 1.38,
+    "r_elbow_pitch": 1.4
+   },
+   "stance_hold_err_deg_per_min": [
+    [
+     0,
+     0.1,
+     -0.1
+    ]
+   ],
+   "current_A_mean_p95": {
+    "l_shoulder_pitch": [
+     0.12,
+     0.2
+    ],
+    "l_elbow_pitch": [
+     0.1,
+     0.1
+    ],
+    "r_shoulder_pitch": [
+     0.13,
+     0.2
+    ],
+    "r_elbow_pitch": [
+     0.11,
+     0.2
+    ]
+   }
+  },
+  {
+   "file": "walk_20261110_194448.npz",
+   "start": "2026-11-10T19:43:42",
+   "end": "2026-11-10T19:44:48",
+   "seconds": 66.4,
+   "walk_track_err_deg": {
+    "l_elbow_pitch": 1.29,
+    "r_elbow_pitch": 1.59
+   },
+   "stance_hold_err_deg_per_min": [
+    [
+     0,
+     0.1,
+     -0.1
+    ],
+    [
+     60,
+     0.1,
+     0.2
+    ]
+   ],
+   "current_A_mean_p95": {
+    "l_shoulder_pitch": [
+     0.11,
+     0.2
+    ],
+    "l_elbow_pitch": [
+     0.1,
+     0.1
+    ],
+    "r_shoulder_pitch": [
+     0.16,
+     0.2
+    ],
+    "r_elbow_pitch": [
+     0.11,
+     0.2
+    ]
+   }
+  },
+  {
+   "file": "walk_20261110_194743.npz",
+   "start": "2026-11-10T19:46:10",
+   "end": "2026-11-10T19:47:43",
+   "seconds": 93.0,
+   "walk_track_err_deg": {
+    "l_elbow_pitch": 1.31,
+    "r_elbow_pitch": 1.36
+   },
+   "stance_hold_err_deg_per_min": [
+    [
+     0,
+     0.1,
+     0.2
+    ],
+    [
+     60,
+     0.1,
+     0.2
+    ]
+   ],
+   "current_A_mean_p95": {
+    "l_shoulder_pitch": [
+     0.1,
+     0.1
+    ],
+    "l_elbow_pitch": [
+     0.1,
+     0.1
+    ],
+    "r_shoulder_pitch": [
+     0.11,
+     0.2
+    ],
+    "r_elbow_pitch": [
+     0.1,
+     0.2
+    ]
+   }
+  }
+ ]
+}
