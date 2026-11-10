@@ -1,0 +1,19 @@
+{
+ "exp": "khr-quadruped31-s2",
+ "ckpt": 3999,
+ "reason": "stop が指示された",
+ "schedule": "0:2,0/-0.15:8,0:2",
+ "limit_clamp_steps": 536,
+ "max_err_deg": 17.282935074584405,
+ "max_tilt_deg": 15.308885236008145,
+ "policy_steps": 3600,
+ "echo_rtt_ms": {
+  "p50": 18.7,
+  "p99": 59.2
+ },
+ "raw": "real/data/raw/walk_20261110_191945.npz",
+ "time": "2026-11-10T19:19:46",
+ "walk_seconds": 11.99,
+ "mean_abs_action": 1.374,
+ "mean_tilt_deg": 9.4
+}

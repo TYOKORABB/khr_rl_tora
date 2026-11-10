@@ -1,0 +1,101 @@
+{
+ "exp": "getup12-real-s3",
+ "ckpt": 5997,
+ "label": "rep_supine2",
+ "reason": "最後まで動いた",
+ "aborted": false,
+ "e_sat_deg": 7.0,
+ "gap_rad": 0.08,
+ "raw": "real/data/raw/getup_trial/getup_trial_rep_supine2_20261110_200546.npz",
+ "phases_s": {
+  "脱力": 0.0,
+  "通電": 1.52,
+  "起き上がり": 8.0,
+  "保持": 3.0,
+  "固定": 0.0
+ },
+ "success": false,
+ "success_time_s": null,
+ "u_start": -0.809,
+ "u_max": 0.996,
+ "u_end": 0.981,
+ "h_est_end_m": 0.214,
+ "h_est_max_m": 0.204,
+ "max_dev_from_nominal_end_deg": 132.0,
+ "omega_end": 0.0,
+ "conditions_end": {
+  "u": true,
+  "関節角": false,
+  "胴体高": true,
+  "角速度": true
+ },
+ "period_ms": {
+  "p50": 20.0,
+  "p99": 20.32
+ },
+ "rx_age_ms_p99": 55.4,
+ "err_max_deg": {
+  "l_elbow_pitch": 13.4,
+  "r_ankle_pitch": 6.7,
+  "l_shoulder_roll": 5.9
+ },
+ "sat_cum_s_max": {
+  "l_elbow_pitch": 0.78,
+  "l_shoulder_pitch": 0.0,
+  "l_shoulder_roll": 0.0
+ },
+ "action_abs_p99": 2.134,
+ "servo_tel": {
+  "rows": 1509,
+  "fail": 0,
+  "read_us_p50": 454.0,
+  "read_us_max": 601,
+  "cur_abs_A_getup": {
+   "l_shoulder_pitch": {
+    "mean": 0.17,
+    "p95": 0.3,
+    "max": 0.6
+   },
+   "l_elbow_pitch": {
+    "mean": 0.1,
+    "p95": 0.1,
+    "max": 0.2
+   },
+   "r_shoulder_pitch": {
+    "mean": 0.27,
+    "p95": 0.5,
+    "max": 0.6
+   },
+   "r_elbow_pitch": {
+    "mean": 0.25,
+    "p95": 0.5,
+    "max": 0.7
+   }
+  },
+  "tmp_C": {
+   "l_shoulder_pitch": [
+    43.3,
+    44.2
+   ],
+   "l_elbow_pitch": [
+    43.3,
+    43.3
+   ],
+   "r_shoulder_pitch": [
+    44.2,
+    44.2
+   ],
+   "r_elbow_pitch": [
+    42.5,
+    43.3
+   ]
+  },
+  "tmp_C_median": {
+   "l_shoulder_pitch": 44.2,
+   "l_elbow_pitch": 43.3,
+   "r_shoulder_pitch": 44.2,
+   "r_elbow_pitch": 42.5
+  },
+  "note": "電流は仮の換算（1 = 0.1 A）。起き上がりの 8 秒。生の値は Meridim の列（real/servo_tel.py）"
+ }
+}

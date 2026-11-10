@@ -1,0 +1,28 @@
+{
+  "servo": "L4",
+  "amp_deg": 10.0,
+  "ramp_s": 1.5,
+  "esp_ip": "192.168.11.21",
+  "aborted": "指令と実測の差 5.0° が 0.3 s 続いた（ぶつかった・追従しない）",
+  "theta0_deg": -22.15,
+  "max_track_err_deg": 2.312795804743523,
+  "lag_ms": 400,
+  "rms_after_lag_deg": 2.0827090325762656,
+  "measured_range_deg": [
+    -22.49,
+    -22.15
+  ],
+  "powered_frames": 187,
+  "after_limp_range_deg": [
+    -22.49,
+    -22.15
+  ],
+  "echo_rtt_ms": {
+    "p50": 22.60703849606216,
+    "p90": 44.21015502884984,
+    "max": 120.52725767716765
+  },
+  "rx_packets": 405,
+  "tx_packets": 388,
+  "raw": "real/data/raw/servo_jog_20261110_200946.npz"
+}

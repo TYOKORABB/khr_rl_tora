@@ -1,0 +1,19 @@
+{
+ "exp": "khr-quadruped31-s2",
+ "ckpt": 3999,
+ "reason": "転倒（四脚の向きから 95° 傾いた状態が 0.3 s 続いた）",
+ "schedule": "0:1,0.1:1,0:1",
+ "limit_clamp_steps": 0,
+ "max_err_deg": 14.090587515195535,
+ "max_tilt_deg": 94.61759373263146,
+ "policy_steps": 16,
+ "echo_rtt_ms": {
+  "p50": 0.8,
+  "p99": 10.3
+ },
+ "raw": "real/data/raw/walk_20261110_193743.npz",
+ "time": "2026-11-10T19:37:43",
+ "walk_seconds": 0.31,
+ "mean_abs_action": 0.886,
+ "mean_tilt_deg": 94.6
+}

@@ -31,6 +31,7 @@ from real.fw_check import MRDM_LEN, L_CMD, R_CMD, RECV_PORT, SEND_PORT, Link, ch
 
 ECHO = 86            # PC が番号を入れ、ESP32 がそのまま返してくる空きスロット
 MAX_AMP_DEG = 10.0   # これより大きい振幅は受け付けない
+MAX_AMP_LARGE_DEG = 30.0   # --large のとき（機体を宙に浮かせて 1 個だけ確かめる、11/10 の左肘の故障の確認）
 ABORT_HOLD_S = 0.3
 
 
@@ -120,6 +121,7 @@ def main() -> int:
     ap.add_argument("--abort-deg", type=float, default=2.0, help="指令と実測の差がこれを 0.3 s 超えたら止める")
     ap.add_argument("--esp-ip", default=None, help="省略時は Meridian_consoleS/board_ip.txt から読む")
     ap.add_argument("--yes", action="store_true")
+    ap.add_argument("--large", action="store_true", help=f"振幅を {MAX_AMP_LARGE_DEG}° まで許す（機体を宙に浮かせたときだけ）")
     ap.add_argument("--reanalyze", metavar="NPZ", help="動かさずに、記録した生データから要約を出し直す")
     ap.add_argument("--recv-port", type=int, default=RECV_PORT, help=argparse.SUPPRESS)   # 偽 ESP32 での試験用
     ap.add_argument("--send-port", type=int, default=SEND_PORT, help=argparse.SUPPRESS)
@@ -128,8 +130,9 @@ def main() -> int:
         d = np.load(a.reanalyze)
         print(json.dumps(analyze(d["t_rx"], d["meridim"], d["tx"], int(d["slot"])), ensure_ascii=False, indent=2))
         return 0
-    if not 0 < a.amp <= MAX_AMP_DEG:
-        sys.exit(f"[error] 振幅は 0〜{MAX_AMP_DEG}° で指定")
+    lim = MAX_AMP_LARGE_DEG if a.large else MAX_AMP_DEG
+    if not 0 < a.amp <= lim:
+        sys.exit(f"[error] 振幅は 0〜{lim}° で指定（--large で {MAX_AMP_LARGE_DEG}° まで）")
     if not 0 <= a.idx <= 14:
         sys.exit("[error] idx は 0〜14")
     esp_ip = a.esp_ip or esp_ip_from_board_txt()
