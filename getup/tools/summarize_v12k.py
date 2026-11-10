@@ -34,6 +34,10 @@ def main() -> int:
     diffs = {}
     for name, p in {**Q, **EXTRA}.items():
         va, vb = [get(x, p) for x in da], [get(x, p) for x in db]
+        if name in EXTRA and None in va + vb:       # 立った体が無いと None（11/10: v12k は kp 7 でほぼ立たない）
+            f = lambda vs: ", ".join("—" if v is None else f"{v:g}" for v in vs)
+            lines.append(f"| {name} | {f(va)} | {f(vb)} | — | — | — |")
+            continue
         ma, mb = st.mean(va), st.mean(vb)
         if name in Q:
             diffs[name] = ma - mb
