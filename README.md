@@ -3,12 +3,13 @@
 近藤科学 KHR-3HV を Genesis で強化学習（rsl-rl の PPO）し、Meridian 経由で実機に載せる卒業研究のリポジトリ。
 もとは `khr_rl_sample`（Reinforcement Learning sample for Kondo's KHR-3HV robot. Based on code by Taishi Kataoka.）の fork。
 
-## 今の状態（2026-11-10）
+## 今の状態（2026-11-11）
 
-- **四脚歩行**: v31 が最良。実機で 108 秒、全方向の指令で転倒せずに歩いた（10/13）。
-- **起き上がり**: 11/9 に実機で初めて四脚の姿勢まで起き上がった（getup-v11b、うつ伏せから 8 回中 8 回）。実機の弱さの原因はサーボ内の硬さ（シミュの kp 7 が再現）。最新の版は getup-v12（kp 5〜10 で学習）で、次の実機で試す。まとめは `docs/GetUpOverview.md`。
-- **卒論**: `../soturon_ban/`（git の外）。最新は v12。
-- 次の実機の手順は `experiments/real/session4_plan.md`、決めることの整理は `docs/NextSteps_20261107.md`。
+- **四脚歩行**: v31 が最良。実機で 108 秒、全方向の指令で転倒せずに歩いた（10/13）。11/10 に前後の速さを外から測った（前進の一定の速さ 18.3〜18.8 cm/s、シミュの約 80 %、`experiments/real/20261110_walk/README.md`）。
+- **起き上がり**: 11/9 に実機で初めて四脚まで起き上がった（getup-v11b）。11/10 は getup-v12（実機の硬さ kp 5〜10 で学習）＋ 目標角の固定で、仰向け・仰向け寄りの横向き・連続 8 回・起き上がってそのまま歩くが成功（動作確認）。教授の了承で卒論に含める（11/11）。まとめは `docs/GetUpOverview.md`。
+- **機体**: 11/10 に左肘のピッチのサーボが故障し、交換まで実機は使えない（原因の分析 `experiments/real/20261110_getup_r2/servo_failure.md`）。
+- **卒論**: `../soturon_ban/`（git の外）。最新は v12。11/10 の結果は v13 で入れる。
+- 今の整理と日程は `docs/NextSteps_20261111.md`、次の実機の手順は `experiments/real/session5_plan.md`。
 
 ## どこに何があるか
 
