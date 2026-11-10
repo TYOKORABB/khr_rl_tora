@@ -492,6 +492,8 @@ def getup_run(a, link, R: np.ndarray, out_raw: Path, sign: np.ndarray, stop_file
     t_start = time.monotonic()
     reason, aborted = "?", True
     freeze_n, ok_run = int(getattr(a, "freeze", 0) or 0), 0      # 11/10: 四脚の条件（実機で測れるもの）が freeze_n 周期続いたら方策を止めて目標角を固定する。0 なら今までどおり
+    freeze_exit = float(getattr(a, "freeze_exit", 0.0) or 0.0)   # 11/10: 固定からこの秒数で起き上がりを終える（保持なしで脱力、歩行へすぐ渡すため）。0 なら a.seconds まで
+    hold_s, t_fz = a.hold, None
     if freeze_n > 0:
         from khr_common.height_est import HeightEstimator
         est, sc = HeightEstimator(), env_cfg["success"]
@@ -558,10 +560,13 @@ def getup_run(a, link, R: np.ndarray, out_raw: Path, sign: np.ndarray, stop_file
                 if now - t_ph >= ARM_RAMP_S + ARM_HOLD_S:
                     phase, t_ph, t_go = PH_GETUP, now, now
                     print("[info] 方策を動かす", flush=True)
+            elif phase == PH_FREEZE and freeze_exit > 0 and now - t_fz >= freeze_exit:
+                phase, t_ph, hold_s = PH_HOLD, now, 0.0
+                print(f"[info] 固定から {freeze_exit} 秒たったので起き上がりを終える（保持なしで脱力）", flush=True)
             elif phase in (PH_GETUP, PH_FREEZE) and now - t_go >= a.seconds:
                 phase, t_ph = PH_HOLD, now
                 print(f"[info] {a.seconds} 秒たったので最後の目標角で {a.hold} 秒保持し、そのあと脱力する", flush=True)
-            elif phase == PH_HOLD and now - t_ph >= a.hold:
+            elif phase == PH_HOLD and now - t_ph >= hold_s:
                 reason, aborted = "最後まで動いた", False
                 break
             k = int(round((now - t_start) / 0.01))
@@ -585,7 +590,7 @@ def getup_run(a, link, R: np.ndarray, out_raw: Path, sign: np.ndarray, stop_file
                                   and float(est.batch(q[None], down[None])[0]) >= sc["h_thr"] and float(np.linalg.norm(w)) < sc["omega_max"])
                         ok_run = ok_run + 1 if ok_now else 0
                         if ok_run >= freeze_n:
-                            phase = PH_FREEZE
+                            phase, t_fz = PH_FREEZE, now
                             print(f"[info] 四脚の条件が {freeze_n} 周期続いた（方策の開始から {now - t_go:.2f} 秒）。方策を止めて目標角を固定する", flush=True)
                 rows.append(np.concatenate([[now - t_start, phase, (now - last[0]) * 1000.0], q, w, down, err, obs, act, target]))
                 j = int(np.argmax(np.maximum(sat_run / SAT_CONT_S, sat_cum / SAT_CUM_S)))
@@ -674,6 +679,8 @@ def analyze_trial(p: Path) -> dict:
                                                          "max": round(float(np.nanmax(np.abs(cg[:, j]))), 2)} for j, nm in enumerate(TEL_NAMES)} if len(cg) else {},
                                 "tmp_C": {nm: [round(min(v for _, v in st["tmp"][nm]), 1), round(max(v for _, v in st["tmp"][nm]), 1)]
                                           for nm in TEL_NAMES if st["tmp"][nm]},
+                                # 11/10: 41〜43 ℃ の中に 0.25 秒だけ 60 ℃ と読める読み違いがあったので、止める判断は中央値で
+                                "tmp_C_median": {nm: round(float(np.median([v for _, v in st["tmp"][nm]])), 1) for nm in TEL_NAMES if st["tmp"][nm]},
                                 "note": "電流は仮の換算（1 = 0.1 A）。起き上がりの 8 秒。生の値は Meridim の列（real/servo_tel.py）"}
     return out
 
@@ -751,13 +758,14 @@ def cmd_getup_selftest(a) -> int:
         return policy, norm, dict(env_cfg, success=dict(env_cfg["success"], u_min=-2.0, delta_rad=10.0, h_thr=-1.0, omega_max=1e3)), obs_cfg
     frozen_constant = None
     try:
-        for case in ("full", "stop", "freeze"):
+        for case in ("full", "stop", "freeze", "freeze_exit"):
             seen.clear()
-            globals()["load_policy"] = load_ok_always if case == "freeze" else load0
+            globals()["load_policy"] = load_ok_always if case.startswith("freeze") else load0
             pc_port, esp_port = 43242, 43244
             fake = sr.FakeServoEsp(pc_port, esp_port)
             fake.start()
-            ns = argparse.Namespace(exp=a.exp, ckpt=a.ckpt, label="selftest", seconds=2.0, hold=1.0, e_sat_deg=a.e_sat_deg, freeze=5 if case == "freeze" else 0)
+            ns = argparse.Namespace(exp=a.exp, ckpt=a.ckpt, label="selftest", seconds=2.0 if case != "freeze_exit" else 6.0, hold=1.0,
+                                    e_sat_deg=a.e_sat_deg, freeze=5 if case.startswith("freeze") else 0, freeze_exit=1.0 if case == "freeze_exit" else 0.0)
             with tempfile.TemporaryDirectory() as tmp:
                 stop = Path(tmp) / "stop"
                 if case == "stop":
@@ -774,16 +782,18 @@ def cmd_getup_selftest(a) -> int:
                     link.close()
                     fake.stop()
             pw = np.array([[int(m[s_]) == 1 for s_ in HOLD_SLOTS] for m in seen])
-            res[case] = {"reason": s["reason"], "phases_s": s.get("phases_s"), "powered_packets": int(pw.any(1).sum()),
+            res[case] = {"reason": s["reason"], "phases_s": s.get("phases_s"), "success": s.get("success"), "powered_packets": int(pw.any(1).sum()),
                          "last_limp": bool(len(pw) > 50 and not pw[-50:].any()), "all_or_none": bool((pw.all(1) | ~pw.any(1)).all())}
             print(f"  {case}: {res[case]}", flush=True)
     finally:
         sr.parse = parse0
         globals()["load_policy"] = load0
-    f, st, fz = res["full"], res["stop"], res["freeze"]
+    f, st, fz, fx = res["full"], res["stop"], res["freeze"], res["freeze_exit"]
     ok = (f["reason"] == "最後まで動いた" and f["last_limp"] and f["all_or_none"] and f["phases_s"]["起き上がり"] >= 1.8 and f["phases_s"]["固定"] == 0.0
           and st["reason"] == "stop が指示された" and st["last_limp"] and st["phases_s"]["保持"] == 0.0
-          and fz["reason"] == "最後まで動いた" and fz["last_limp"] and fz["phases_s"]["起き上がり"] < 0.5 and fz["phases_s"]["固定"] >= 1.5 and frozen_constant is True)
+          and fz["reason"] == "最後まで動いた" and fz["last_limp"] and fz["phases_s"]["起き上がり"] < 0.5 and fz["phases_s"]["固定"] >= 1.5 and frozen_constant is True
+          # 固定から 1 秒で終える: 6 秒を待たず、保持なしで脱力し、成功（1 秒続く）に数えられる
+          and fx["reason"] == "最後まで動いた" and fx["last_limp"] and 0.9 <= fx["phases_s"]["固定"] <= 1.2 and fx["phases_s"]["保持"] <= 0.04 and fx["success"] is True)
     print(f"  freeze: 固定の間の目標角が一定 = {frozen_constant}", flush=True)
     print(f"getup_session getup-selftest: {'OK' if ok else 'NG'}")
     return 0 if ok else 1
@@ -983,9 +993,9 @@ def loop_run(a, link, R: np.ndarray, sign: np.ndarray, stop_file: Path, raw_dir:
         if write:
             out_json.parent.mkdir(parents=True, exist_ok=True)
             out_json.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-        tmp = s.get("servo_tel", {}).get("tmp_C") or {}
-        if tmp and max(v[1] for v in tmp.values()) >= LOOP_TEMP_STOP_C:
-            res["end_reason"] = f"サーボの温度が {LOOP_TEMP_STOP_C} ℃ 以上になった"
+        tmp = s.get("servo_tel", {}).get("tmp_C_median") or {}       # 1 回の読みの中央値（一瞬の読み違いで止めない）
+        if tmp and max(tmp.values()) >= LOOP_TEMP_STOP_C:
+            res["end_reason"] = f"サーボの温度（1 回の中央値）が {LOOP_TEMP_STOP_C} ℃ 以上になった"
             break
     if write:
         out_json.parent.mkdir(parents=True, exist_ok=True)
@@ -1096,6 +1106,8 @@ def main(argv=None) -> int:
     s.add_argument("--e-sat-deg", type=float, default=4.6, help="目標角とのずれの中止の閾値 [deg]（--gap を広げたら上げる）")
     s.add_argument("--gap", type=float, default=None, help="目標角と測った角度のずれの上限 [rad]（既定は学習時の値）")
     s.add_argument("--freeze", type=int, default=0, help="四脚の条件が何周期（1 周期 20 ms）続いたら方策を止めて目標角を固定するか（0 は固定しない）")
+    s.add_argument("--freeze-exit", type=float, default=0.0,
+                   help="固定からこの秒数で起き上がりを終え、保持なしで脱力する（歩行へすぐ渡すとき。成功の判定に 1 秒要るので 1.0 以上。0 は --seconds まで）")
     s.add_argument("--exp", default=DEFAULT_EXP)
     s.add_argument("--ckpt", type=int, default=DEFAULT_CKPT)
     s.add_argument("--esp-ip", default=None)
@@ -1135,6 +1147,8 @@ def main(argv=None) -> int:
         sys.exit("[error] 1 回は 120 秒まで")
     if a.cmd == "getup" and (a.seconds > 16 or a.hold > 10):
         sys.exit("[error] 起き上がりは 16 秒、保持は 10 秒まで")
+    if a.cmd == "getup" and a.freeze_exit > 0 and (a.freeze <= 0 or a.freeze_exit < 1.0):
+        sys.exit("[error] --freeze-exit は --freeze と一緒に、1.0 秒以上で（成功の判定に 1 秒続くことが要る）")
     if a.cmd == "getup" and a.gap is not None and (a.gap > 0.12 or math.radians(a.e_sat_deg) <= a.gap):
         sys.exit("[error] --gap は 0.12 rad まで、--e-sat-deg は gap より大きく")
     if a.cmd == "getup-loop" and (a.n > 20 or a.seconds > 16 or a.hold > 10 or a.gap > 0.12 or math.radians(a.e_sat_deg) <= a.gap):

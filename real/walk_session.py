@@ -220,6 +220,22 @@ def cmd_serve(a) -> int:
     for f in RUN_DIR.glob("*.json"):
         f.unlink()
     (RUN_DIR / "stop").unlink(missing_ok=True)
+    auto_go = getattr(a, "auto_go", None)
+    if auto_go:
+        parse_schedule(auto_go)                                       # 指令の列の誤りは待つ前に知らせる
+    wait_file = Path(a.wait_file) if getattr(a, "wait_file", None) else None
+    if wait_file is not None:
+        # 11/10: 起き上がりのあとすぐ引き継ぐため、方策の読み込みまで済ませてから合図のファイルを待つ。
+        # 待っている間は受信のポートを開かず、何も送らない（起き上がりの道具と同時に動かせる）。
+        write_json(RUN_DIR / "server.json", {"phase": "waiting", "pid": os.getpid(), "exp": a.exp})
+        print(f"[info] 合図 {wait_file} を待つ（受信のポートはまだ開かない）", flush=True)
+        t_w = time.monotonic()
+        while not wait_file.exists():
+            if (RUN_DIR / "stop").exists() or time.monotonic() - t_w > a.max_minutes * 60:
+                write_json(RUN_DIR / "server.json", {"phase": "stopped", "pid": os.getpid(), "exp": a.exp, "reason": "合図の前に止めた"})
+                print("[ok  ] 合図の前に止めた（何も送っていない）", flush=True)
+                return 0
+            time.sleep(0.005)
     link = Link(a.recv_port, esp_ip=esp_ip, send_port=a.send_port)
     tx, log = [], []
     seq = echo = 0
@@ -258,13 +274,14 @@ def cmd_serve(a) -> int:
 
     try:
         status()
-        # 1) 脱力パケット 1 s: DISARMED/LIMP を解き、今の関節角を読む
+        # 1) 脱力パケット（既定 1 s）: DISARMED/LIMP を解き、今の関節角を読む
         t0 = time.monotonic()
         nxt = t0
-        while time.monotonic() - t0 < 1.0:
+        limp_s = min(1.0, max(0.5, float(getattr(a, "limp_s", 1.0))))   # 受信の確認に 0.4 s 分のパケットが要る
+        while time.monotonic() - t0 < limp_s:
             send(None)
             nxt = tick(nxt)
-        rx = link.since(t0 + 0.6)
+        rx = link.since(t0 + limp_s - 0.4)
         if len(rx) < 20:
             raise RuntimeError(f"ESP32 から受信できません（0.4 s で {len(rx)} パケット）")
         st = gv.decode_status(int(rx[-1][1][gv.MRD_STATUS]))
@@ -278,6 +295,7 @@ def cmd_serve(a) -> int:
         nxt = t1
         last_status = 0.0
         sched = None
+        cmd = np.zeros(3)      # 歩き出したのと同じ周期に状態を書くと、まだ指令が無い（11/10 に --auto-go で表に出た）
         while True:
             now = time.monotonic()
             if (RUN_DIR / "stop").exists():
@@ -308,9 +326,12 @@ def cmd_serve(a) -> int:
                 else:
                     target = ob.default
                 rq = RUN_DIR / "request.json"
-                if state["phase"] == "stance" and rq.exists():
-                    req = json.loads(rq.read_text())
-                    rq.unlink()
+                if state["phase"] == "stance" and (rq.exists() or auto_go):
+                    if rq.exists():
+                        req = json.loads(rq.read_text())
+                        rq.unlink()
+                    else:                                             # 初めて初期姿勢に着いたら、指定の列をすぐ始める（1 回だけ）
+                        req, auto_go = {"id": "auto", "schedule": auto_go}, None
                     sched = parse_schedule(req["schedule"], float(req.get("max_s", MAX_SCHEDULE_S)))
                     ob.reset(q)
                     t_go = now
@@ -569,6 +590,9 @@ def main(argv=None) -> int:
     s.add_argument("--esp-ip", default=None)
     s.add_argument("--ramp-s", type=float, default=3.0, help="今の角度から四脚の初期姿勢へ動かす秒数")
     s.add_argument("--max-minutes", type=float, default=15.0)
+    s.add_argument("--wait-file", default=None, help="方策を読み込んだあと、このファイルができるまで待ってから始める（受信のポートも開かない）")
+    s.add_argument("--limp-s", type=float, default=1.0, help="始めの脱力パケットの秒数（0.5〜1.0）")
+    s.add_argument("--auto-go", default=None, help="初期姿勢に着いたらすぐ始める指令の列（go と同じ書き方、1 回だけ）")
     s.add_argument("--recv-port", type=int, default=RECV_PORT, help=argparse.SUPPRESS)
     s.add_argument("--send-port", type=int, default=SEND_PORT, help=argparse.SUPPRESS)
     s = sub.add_parser("go")
