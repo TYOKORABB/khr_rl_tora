@@ -1,0 +1,57 @@
+{
+ "note": "時刻は起き上がりの方策の始めから（秒）。ファイルの保存時刻とログの長さから求めた壁時計。serve の始めは ±0.3 s。歩行の道具は始めに 0.5 s（長い版は 1 s）脱力のパケットを送るので、機体の脱力はさらにその分続く",
+ "runs": [
+  {
+   "getup": "getup_walk5_prone",
+   "serve": "walk_20261110_193308.npz",
+   "kind": "長い",
+   "freeze_s": 3.82,
+   "limp_s": 11.02,
+   "serve_start_s": 16.84,
+   "stepping_s": 23.44,
+   "forward_cmd_s": 25.45,
+   "freeze_to_stepping_s": 19.6,
+   "freeze_to_forward_s": 21.6,
+   "limp_to_serve_s": 5.8
+  },
+  {
+   "getup": "getup_walk6_supine",
+   "serve": "walk_20261110_193445.npz",
+   "kind": "長い",
+   "freeze_s": 5.0,
+   "limp_s": 11.0,
+   "serve_start_s": 16.76,
+   "stepping_s": 23.33,
+   "forward_cmd_s": 25.34,
+   "freeze_to_stepping_s": 18.3,
+   "freeze_to_forward_s": 20.3,
+   "limp_to_serve_s": 5.8
+  },
+  {
+   "getup": "getup_walk8_supine_fast",
+   "serve": "walk_20261110_194448.npz",
+   "kind": "短い",
+   "freeze_s": 4.98,
+   "limp_s": 6.5,
+   "serve_start_s": 8.26,
+   "stepping_s": 9.76,
+   "forward_cmd_s": 10.77,
+   "freeze_to_stepping_s": 4.8,
+   "freeze_to_forward_s": 5.8,
+   "limp_to_serve_s": 1.8
+  },
+  {
+   "getup": "getup_walk9_prone_fast",
+   "serve": "walk_20261110_194743.npz",
+   "kind": "短い",
+   "freeze_s": 4.22,
+   "limp_s": 5.74,
+   "serve_start_s": 7.51,
+   "stepping_s": 9.01,
+   "forward_cmd_s": 10.02,
+   "freeze_to_stepping_s": 4.8,
+   "freeze_to_forward_s": 5.8,
+   "limp_to_serve_s": 1.8
+  }
+ ]
+}

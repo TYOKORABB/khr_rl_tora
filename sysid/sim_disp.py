@@ -34,5 +34,8 @@ res = {"kp_scale": kp_scale, "schedule": sched_s, "fell_t": None if np.isnan(r["
        "disp_total_m": round(float(np.linalg.norm(d)), 3), "disp_walk_segment_m": round(float(np.linalg.norm(seg)), 3),
        "walk_s": round(float(len(mv) * 0.02), 2), "mean_speed_walk_mps": round(float(np.linalg.norm(seg)) / (len(mv) * 0.02), 3),
        "heading_change_deg": round(heading_deg, 1), "dxy_total_m": [round(float(x), 3) for x in d]}
-print(json.dumps(res, ensure_ascii=False))
+# 11/11: 動画の比べ方と同じ「始めの位置からの道に沿った距離」の時系列（0.1 s ごと、歩いた区間の向きへ射影）
+u = seg / max(np.linalg.norm(seg), 1e-9)
+res["s_t"] = [[round(float(t[i]), 2), round(float((pos[i, :2] - pos[0, :2]) @ u), 4)] for i in range(0, len(t), 5)]
+print(json.dumps({k: v for k, v in res.items() if k != "s_t"}, ensure_ascii=False))
 json.dump(res, open(out, "w"), ensure_ascii=False, indent=1)
