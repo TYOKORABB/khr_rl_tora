@@ -1,0 +1,1345 @@
+{
+ "npz": "real/data/raw/walk_20261110_185802.npz",
+ "exp": "khr-quadruped31-s2",
+ "runs": [
+  {
+   "index": 1,
+   "seconds": 11.01,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -1.53,
+     "yaw_total_deg": -2.3,
+     "roll_mean_deg": 0.9,
+     "roll_sd_deg": 0.63,
+     "pitch_mean_deg": -5.43,
+     "pitch_sd_deg": 0.58,
+     "tilt_max_deg": 6.8,
+     "joint_err_mean_deg": 1.25,
+     "joint_err_p95_deg": 3.82,
+     "joint_err_max_deg": 7.9,
+     "joint_err_worst": "l_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 4.0,
+     "at_limit_joints": {
+      "r_hip_pitch": 4.0
+     },
+     "abs_action_mean": 0.747
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "seconds": 7.0,
+     "yaw_rate_mean_dps": -10.17,
+     "yaw_total_deg": -66.1,
+     "roll_mean_deg": 2.63,
+     "roll_sd_deg": 1.8,
+     "pitch_mean_deg": -7.89,
+     "pitch_sd_deg": 2.53,
+     "tilt_max_deg": 12.0,
+     "joint_err_mean_deg": 2.22,
+     "joint_err_p95_deg": 5.85,
+     "joint_err_max_deg": 9.9,
+     "joint_err_worst": "l_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 26.2,
+     "at_limit_joints": {
+      "r_hip_roll": 14.2,
+      "r_hip_pitch": 26.2
+     },
+     "abs_action_mean": 1.515
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 5.52,
+     "yaw_total_deg": 8.2,
+     "roll_mean_deg": 2.93,
+     "roll_sd_deg": 1.11,
+     "pitch_mean_deg": -11.38,
+     "pitch_sd_deg": 0.5,
+     "tilt_max_deg": 12.5,
+     "joint_err_mean_deg": 1.39,
+     "joint_err_p95_deg": 4.41,
+     "joint_err_max_deg": 8.5,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.55
+    }
+   ],
+   "sim_segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.44,
+     "yaw_total_deg": 0.7,
+     "roll_mean_deg": -2.12,
+     "roll_sd_deg": 0.43,
+     "pitch_mean_deg": -2.63,
+     "pitch_sd_deg": 0.68,
+     "tilt_max_deg": 4.6,
+     "joint_err_mean_deg": 1.0,
+     "joint_err_p95_deg": 3.13,
+     "joint_err_max_deg": 5.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 0.809,
+     "sim_world_vel_xy_mps": [
+      0.001,
+      -0.0
+     ]
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "seconds": 7.0,
+     "yaw_rate_mean_dps": 0.09,
+     "yaw_total_deg": 0.6,
+     "roll_mean_deg": 0.98,
+     "roll_sd_deg": 0.66,
+     "pitch_mean_deg": -8.84,
+     "pitch_sd_deg": 1.79,
+     "tilt_max_deg": 11.0,
+     "joint_err_mean_deg": 1.87,
+     "joint_err_p95_deg": 4.63,
+     "joint_err_max_deg": 7.6,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 22.8,
+     "at_limit_joints": {
+      "r_elbow_pitch": 6.8,
+      "l_hip_pitch": 15.1
+     },
+     "abs_action_mean": 1.552,
+     "sim_world_vel_xy_mps": [
+      0.227,
+      0.001
+     ]
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -0.46,
+     "yaw_total_deg": -0.7,
+     "roll_mean_deg": -0.93,
+     "roll_sd_deg": 0.38,
+     "pitch_mean_deg": -9.66,
+     "pitch_sd_deg": 0.53,
+     "tilt_max_deg": 11.1,
+     "joint_err_mean_deg": 1.03,
+     "joint_err_p95_deg": 3.61,
+     "joint_err_max_deg": 6.5,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.552,
+     "sim_world_vel_xy_mps": [
+      -0.003,
+      0.004
+     ]
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "seconds": 11.01,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -3.96,
+     "yaw_total_deg": -5.9,
+     "roll_mean_deg": 2.11,
+     "roll_sd_deg": 0.82,
+     "pitch_mean_deg": -4.99,
+     "pitch_sd_deg": 0.72,
+     "tilt_max_deg": 6.7,
+     "joint_err_mean_deg": 1.25,
+     "joint_err_p95_deg": 3.85,
+     "joint_err_max_deg": 6.6,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 9.3,
+     "at_limit_joints": {
+      "r_hip_pitch": 9.3
+     },
+     "abs_action_mean": 0.738
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "seconds": 7.0,
+     "yaw_rate_mean_dps": -0.67,
+     "yaw_total_deg": -4.3,
+     "roll_mean_deg": 2.83,
+     "roll_sd_deg": 1.34,
+     "pitch_mean_deg": -10.81,
+     "pitch_sd_deg": 2.22,
+     "tilt_max_deg": 14.8,
+     "joint_err_mean_deg": 2.11,
+     "joint_err_p95_deg": 5.32,
+     "joint_err_max_deg": 11.0,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.01,
+     "at_limit_pct": 15.4,
+     "at_limit_joints": {
+      "l_elbow_pitch": 2.5,
+      "l_hip_pitch": 12.0,
+      "r_hip_pitch": 2.2
+     },
+     "abs_action_mean": 1.606
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.19,
+     "yaw_total_deg": 0.3,
+     "roll_mean_deg": 2.16,
+     "roll_sd_deg": 0.64,
+     "pitch_mean_deg": -12.8,
+     "pitch_sd_deg": 0.73,
+     "tilt_max_deg": 14.3,
+     "joint_err_mean_deg": 1.27,
+     "joint_err_p95_deg": 4.24,
+     "joint_err_max_deg": 7.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 1.3,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.604
+    }
+   ],
+   "sim_segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.44,
+     "yaw_total_deg": 0.7,
+     "roll_mean_deg": -2.12,
+     "roll_sd_deg": 0.43,
+     "pitch_mean_deg": -2.63,
+     "pitch_sd_deg": 0.68,
+     "tilt_max_deg": 4.6,
+     "joint_err_mean_deg": 1.0,
+     "joint_err_p95_deg": 3.13,
+     "joint_err_max_deg": 5.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 0.809,
+     "sim_world_vel_xy_mps": [
+      0.001,
+      -0.0
+     ]
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "seconds": 7.0,
+     "yaw_rate_mean_dps": 0.09,
+     "yaw_total_deg": 0.6,
+     "roll_mean_deg": 0.98,
+     "roll_sd_deg": 0.66,
+     "pitch_mean_deg": -8.84,
+     "pitch_sd_deg": 1.79,
+     "tilt_max_deg": 11.0,
+     "joint_err_mean_deg": 1.87,
+     "joint_err_p95_deg": 4.63,
+     "joint_err_max_deg": 7.6,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 22.8,
+     "at_limit_joints": {
+      "r_elbow_pitch": 6.8,
+      "l_hip_pitch": 15.1
+     },
+     "abs_action_mean": 1.552,
+     "sim_world_vel_xy_mps": [
+      0.227,
+      0.001
+     ]
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -0.46,
+     "yaw_total_deg": -0.7,
+     "roll_mean_deg": -0.93,
+     "roll_sd_deg": 0.38,
+     "pitch_mean_deg": -9.66,
+     "pitch_sd_deg": 0.53,
+     "tilt_max_deg": 11.1,
+     "joint_err_mean_deg": 1.03,
+     "joint_err_p95_deg": 3.61,
+     "joint_err_max_deg": 6.5,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.552,
+     "sim_world_vel_xy_mps": [
+      -0.003,
+      0.004
+     ]
+    }
+   ]
+  },
+  {
+   "index": 3,
+   "seconds": 11.01,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -2.59,
+     "yaw_total_deg": -3.9,
+     "roll_mean_deg": 1.79,
+     "roll_sd_deg": 0.76,
+     "pitch_mean_deg": -5.0,
+     "pitch_sd_deg": 0.61,
+     "tilt_max_deg": 6.3,
+     "joint_err_mean_deg": 1.28,
+     "joint_err_p95_deg": 4.04,
+     "joint_err_max_deg": 6.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 8.0,
+     "at_limit_joints": {
+      "r_hip_pitch": 8.0
+     },
+     "abs_action_mean": 0.74
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "seconds": 7.0,
+     "yaw_rate_mean_dps": -0.1,
+     "yaw_total_deg": -0.7,
+     "roll_mean_deg": 1.61,
+     "roll_sd_deg": 1.33,
+     "pitch_mean_deg": -10.64,
+     "pitch_sd_deg": 2.11,
+     "tilt_max_deg": 14.0,
+     "joint_err_mean_deg": 2.18,
+     "joint_err_p95_deg": 5.52,
+     "joint_err_max_deg": 9.7,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.01,
+     "at_limit_pct": 14.5,
+     "at_limit_joints": {
+      "l_hip_pitch": 12.0,
+      "r_hip_pitch": 2.5
+     },
+     "abs_action_mean": 1.592
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.12,
+     "yaw_total_deg": 0.2,
+     "roll_mean_deg": 0.75,
+     "roll_sd_deg": 0.65,
+     "pitch_mean_deg": -12.52,
+     "pitch_sd_deg": 0.58,
+     "tilt_max_deg": 13.6,
+     "joint_err_mean_deg": 1.34,
+     "joint_err_p95_deg": 4.38,
+     "joint_err_max_deg": 9.1,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 1.4,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.595
+    }
+   ],
+   "sim_segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.44,
+     "yaw_total_deg": 0.7,
+     "roll_mean_deg": -2.12,
+     "roll_sd_deg": 0.43,
+     "pitch_mean_deg": -2.63,
+     "pitch_sd_deg": 0.68,
+     "tilt_max_deg": 4.6,
+     "joint_err_mean_deg": 1.0,
+     "joint_err_p95_deg": 3.13,
+     "joint_err_max_deg": 5.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 0.809,
+     "sim_world_vel_xy_mps": [
+      0.001,
+      -0.0
+     ]
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "seconds": 7.0,
+     "yaw_rate_mean_dps": 0.09,
+     "yaw_total_deg": 0.6,
+     "roll_mean_deg": 0.98,
+     "roll_sd_deg": 0.66,
+     "pitch_mean_deg": -8.84,
+     "pitch_sd_deg": 1.79,
+     "tilt_max_deg": 11.0,
+     "joint_err_mean_deg": 1.87,
+     "joint_err_p95_deg": 4.63,
+     "joint_err_max_deg": 7.6,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 22.8,
+     "at_limit_joints": {
+      "r_elbow_pitch": 6.8,
+      "l_hip_pitch": 15.1
+     },
+     "abs_action_mean": 1.552,
+     "sim_world_vel_xy_mps": [
+      0.227,
+      0.001
+     ]
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -0.46,
+     "yaw_total_deg": -0.7,
+     "roll_mean_deg": -0.93,
+     "roll_sd_deg": 0.38,
+     "pitch_mean_deg": -9.66,
+     "pitch_sd_deg": 0.53,
+     "tilt_max_deg": 11.1,
+     "joint_err_mean_deg": 1.03,
+     "joint_err_p95_deg": 3.61,
+     "joint_err_max_deg": 6.5,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.552,
+     "sim_world_vel_xy_mps": [
+      -0.003,
+      0.004
+     ]
+    }
+   ]
+  },
+  {
+   "index": 4,
+   "seconds": 11.01,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -3.58,
+     "yaw_total_deg": -5.4,
+     "roll_mean_deg": 1.45,
+     "roll_sd_deg": 0.83,
+     "pitch_mean_deg": -5.32,
+     "pitch_sd_deg": 0.62,
+     "tilt_max_deg": 6.6,
+     "joint_err_mean_deg": 1.28,
+     "joint_err_p95_deg": 3.97,
+     "joint_err_max_deg": 7.9,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 6.7,
+     "at_limit_joints": {
+      "r_hip_pitch": 6.7
+     },
+     "abs_action_mean": 0.744
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "seconds": 7.0,
+     "yaw_rate_mean_dps": -0.65,
+     "yaw_total_deg": -4.2,
+     "roll_mean_deg": 1.24,
+     "roll_sd_deg": 1.3,
+     "pitch_mean_deg": -11.04,
+     "pitch_sd_deg": 2.14,
+     "tilt_max_deg": 14.6,
+     "joint_err_mean_deg": 2.17,
+     "joint_err_p95_deg": 5.55,
+     "joint_err_max_deg": 10.9,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 14.8,
+     "at_limit_joints": {
+      "l_hip_pitch": 12.3
+     },
+     "abs_action_mean": 1.595
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 1.75,
+     "yaw_total_deg": 2.6,
+     "roll_mean_deg": 0.12,
+     "roll_sd_deg": 0.81,
+     "pitch_mean_deg": -12.7,
+     "pitch_sd_deg": 0.75,
+     "tilt_max_deg": 14.0,
+     "joint_err_mean_deg": 1.29,
+     "joint_err_p95_deg": 4.26,
+     "joint_err_max_deg": 8.4,
+     "joint_err_worst": "l_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.599
+    }
+   ],
+   "sim_segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.44,
+     "yaw_total_deg": 0.7,
+     "roll_mean_deg": -2.12,
+     "roll_sd_deg": 0.43,
+     "pitch_mean_deg": -2.63,
+     "pitch_sd_deg": 0.68,
+     "tilt_max_deg": 4.6,
+     "joint_err_mean_deg": 1.0,
+     "joint_err_p95_deg": 3.13,
+     "joint_err_max_deg": 5.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 0.809,
+     "sim_world_vel_xy_mps": [
+      0.001,
+      -0.0
+     ]
+    },
+    {
+     "cmd": [
+      0.3,
+      0.0,
+      0.0
+     ],
+     "seconds": 7.0,
+     "yaw_rate_mean_dps": 0.09,
+     "yaw_total_deg": 0.6,
+     "roll_mean_deg": 0.98,
+     "roll_sd_deg": 0.66,
+     "pitch_mean_deg": -8.84,
+     "pitch_sd_deg": 1.79,
+     "tilt_max_deg": 11.0,
+     "joint_err_mean_deg": 1.87,
+     "joint_err_p95_deg": 4.63,
+     "joint_err_max_deg": 7.6,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 22.8,
+     "at_limit_joints": {
+      "r_elbow_pitch": 6.8,
+      "l_hip_pitch": 15.1
+     },
+     "abs_action_mean": 1.552,
+     "sim_world_vel_xy_mps": [
+      0.227,
+      0.001
+     ]
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -0.46,
+     "yaw_total_deg": -0.7,
+     "roll_mean_deg": -0.93,
+     "roll_sd_deg": 0.38,
+     "pitch_mean_deg": -9.66,
+     "pitch_sd_deg": 0.53,
+     "tilt_max_deg": 11.1,
+     "joint_err_mean_deg": 1.03,
+     "joint_err_p95_deg": 3.61,
+     "joint_err_max_deg": 6.5,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.552,
+     "sim_world_vel_xy_mps": [
+      -0.003,
+      0.004
+     ]
+    }
+   ]
+  },
+  {
+   "index": 5,
+   "seconds": 12.01,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -5.72,
+     "yaw_total_deg": -8.6,
+     "roll_mean_deg": 0.86,
+     "roll_sd_deg": 0.77,
+     "pitch_mean_deg": -5.5,
+     "pitch_sd_deg": 0.85,
+     "tilt_max_deg": 7.2,
+     "joint_err_mean_deg": 1.33,
+     "joint_err_p95_deg": 4.01,
+     "joint_err_max_deg": 10.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 13.3,
+     "at_limit_joints": {
+      "r_hip_pitch": 13.3
+     },
+     "abs_action_mean": 0.754
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "seconds": 8.0,
+     "yaw_rate_mean_dps": -4.11,
+     "yaw_total_deg": -30.8,
+     "roll_mean_deg": 0.32,
+     "roll_sd_deg": 2.34,
+     "pitch_mean_deg": -9.27,
+     "pitch_sd_deg": 2.29,
+     "tilt_max_deg": 13.2,
+     "joint_err_mean_deg": 1.8,
+     "joint_err_p95_deg": 4.97,
+     "joint_err_max_deg": 10.6,
+     "joint_err_worst": "l_knee_pitch",
+     "gait_freq_hz": 2.01,
+     "at_limit_pct": 54.5,
+     "at_limit_joints": {
+      "r_shoulder_roll": 13.6,
+      "l_hip_pitch": 14.2,
+      "r_hip_pitch": 40.4
+     },
+     "abs_action_mean": 1.196
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.85,
+     "yaw_total_deg": 1.3,
+     "roll_mean_deg": 0.99,
+     "roll_sd_deg": 0.97,
+     "pitch_mean_deg": -12.76,
+     "pitch_sd_deg": 0.51,
+     "tilt_max_deg": 14.1,
+     "joint_err_mean_deg": 1.37,
+     "joint_err_p95_deg": 4.58,
+     "joint_err_max_deg": 8.1,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.543
+    }
+   ],
+   "sim_segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.44,
+     "yaw_total_deg": 0.7,
+     "roll_mean_deg": -2.12,
+     "roll_sd_deg": 0.43,
+     "pitch_mean_deg": -2.63,
+     "pitch_sd_deg": 0.68,
+     "tilt_max_deg": 4.6,
+     "joint_err_mean_deg": 1.0,
+     "joint_err_p95_deg": 3.13,
+     "joint_err_max_deg": 5.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 0.809,
+     "sim_world_vel_xy_mps": [
+      0.001,
+      -0.0
+     ]
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "seconds": 8.0,
+     "yaw_rate_mean_dps": -0.69,
+     "yaw_total_deg": -5.2,
+     "roll_mean_deg": -2.78,
+     "roll_sd_deg": 1.76,
+     "pitch_mean_deg": -5.12,
+     "pitch_sd_deg": 2.46,
+     "tilt_max_deg": 9.3,
+     "joint_err_mean_deg": 1.45,
+     "joint_err_p95_deg": 3.8,
+     "joint_err_max_deg": 6.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 46.7,
+     "at_limit_joints": {
+      "l_hip_pitch": 21.3,
+      "r_hip_pitch": 25.3
+     },
+     "abs_action_mean": 1.233,
+     "sim_world_vel_xy_mps": [
+      -0.196,
+      0.012
+     ]
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 1.3,
+     "yaw_total_deg": 1.9,
+     "roll_mean_deg": -0.96,
+     "roll_sd_deg": 0.32,
+     "pitch_mean_deg": -9.38,
+     "pitch_sd_deg": 0.57,
+     "tilt_max_deg": 11.0,
+     "joint_err_mean_deg": 1.05,
+     "joint_err_p95_deg": 3.55,
+     "joint_err_max_deg": 6.5,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.512,
+     "sim_world_vel_xy_mps": [
+      -0.004,
+      0.007
+     ]
+    }
+   ]
+  },
+  {
+   "index": 6,
+   "seconds": 12.01,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -5.76,
+     "yaw_total_deg": -8.6,
+     "roll_mean_deg": 0.62,
+     "roll_sd_deg": 0.54,
+     "pitch_mean_deg": -5.75,
+     "pitch_sd_deg": 0.55,
+     "tilt_max_deg": 6.8,
+     "joint_err_mean_deg": 1.23,
+     "joint_err_p95_deg": 3.66,
+     "joint_err_max_deg": 7.4,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 10.7,
+     "at_limit_joints": {
+      "r_hip_pitch": 10.7
+     },
+     "abs_action_mean": 0.749
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "seconds": 8.0,
+     "yaw_rate_mean_dps": -1.92,
+     "yaw_total_deg": -14.4,
+     "roll_mean_deg": 1.27,
+     "roll_sd_deg": 2.19,
+     "pitch_mean_deg": -10.22,
+     "pitch_sd_deg": 2.41,
+     "tilt_max_deg": 14.3,
+     "joint_err_mean_deg": 1.75,
+     "joint_err_p95_deg": 4.67,
+     "joint_err_max_deg": 9.5,
+     "joint_err_worst": "l_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 54.9,
+     "at_limit_joints": {
+      "r_shoulder_roll": 13.3,
+      "l_hip_pitch": 17.6,
+      "r_hip_pitch": 37.3
+     },
+     "abs_action_mean": 1.174
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.66,
+     "yaw_total_deg": 1.0,
+     "roll_mean_deg": 2.18,
+     "roll_sd_deg": 0.88,
+     "pitch_mean_deg": -13.63,
+     "pitch_sd_deg": 0.82,
+     "tilt_max_deg": 15.0,
+     "joint_err_mean_deg": 1.39,
+     "joint_err_p95_deg": 4.49,
+     "joint_err_max_deg": 10.9,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.535
+    }
+   ],
+   "sim_segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.44,
+     "yaw_total_deg": 0.7,
+     "roll_mean_deg": -2.12,
+     "roll_sd_deg": 0.43,
+     "pitch_mean_deg": -2.63,
+     "pitch_sd_deg": 0.68,
+     "tilt_max_deg": 4.6,
+     "joint_err_mean_deg": 1.0,
+     "joint_err_p95_deg": 3.13,
+     "joint_err_max_deg": 5.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 0.809,
+     "sim_world_vel_xy_mps": [
+      0.001,
+      -0.0
+     ]
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "seconds": 8.0,
+     "yaw_rate_mean_dps": -0.69,
+     "yaw_total_deg": -5.2,
+     "roll_mean_deg": -2.78,
+     "roll_sd_deg": 1.76,
+     "pitch_mean_deg": -5.12,
+     "pitch_sd_deg": 2.46,
+     "tilt_max_deg": 9.3,
+     "joint_err_mean_deg": 1.45,
+     "joint_err_p95_deg": 3.8,
+     "joint_err_max_deg": 6.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 46.7,
+     "at_limit_joints": {
+      "l_hip_pitch": 21.3,
+      "r_hip_pitch": 25.3
+     },
+     "abs_action_mean": 1.233,
+     "sim_world_vel_xy_mps": [
+      -0.196,
+      0.012
+     ]
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 1.3,
+     "yaw_total_deg": 1.9,
+     "roll_mean_deg": -0.96,
+     "roll_sd_deg": 0.32,
+     "pitch_mean_deg": -9.38,
+     "pitch_sd_deg": 0.57,
+     "tilt_max_deg": 11.0,
+     "joint_err_mean_deg": 1.05,
+     "joint_err_p95_deg": 3.55,
+     "joint_err_max_deg": 6.5,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.512,
+     "sim_world_vel_xy_mps": [
+      -0.004,
+      0.007
+     ]
+    }
+   ]
+  },
+  {
+   "index": 7,
+   "seconds": 12.01,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -2.66,
+     "yaw_total_deg": -4.0,
+     "roll_mean_deg": 1.47,
+     "roll_sd_deg": 0.85,
+     "pitch_mean_deg": -5.31,
+     "pitch_sd_deg": 0.62,
+     "tilt_max_deg": 6.5,
+     "joint_err_mean_deg": 1.27,
+     "joint_err_p95_deg": 3.85,
+     "joint_err_max_deg": 9.0,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 9.3,
+     "at_limit_joints": {
+      "r_hip_pitch": 9.3
+     },
+     "abs_action_mean": 0.746
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "seconds": 8.0,
+     "yaw_rate_mean_dps": -3.58,
+     "yaw_total_deg": -26.8,
+     "roll_mean_deg": 1.65,
+     "roll_sd_deg": 2.43,
+     "pitch_mean_deg": -8.56,
+     "pitch_sd_deg": 2.07,
+     "tilt_max_deg": 13.0,
+     "joint_err_mean_deg": 1.78,
+     "joint_err_p95_deg": 4.82,
+     "joint_err_max_deg": 13.3,
+     "joint_err_worst": "l_knee_pitch",
+     "gait_freq_hz": 2.01,
+     "at_limit_pct": 53.7,
+     "at_limit_joints": {
+      "r_shoulder_roll": 17.1,
+      "l_hip_pitch": 13.9,
+      "r_hip_pitch": 39.8
+     },
+     "abs_action_mean": 1.13
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 1.83,
+     "yaw_total_deg": 2.7,
+     "roll_mean_deg": 2.12,
+     "roll_sd_deg": 1.02,
+     "pitch_mean_deg": -11.69,
+     "pitch_sd_deg": 0.59,
+     "tilt_max_deg": 13.1,
+     "joint_err_mean_deg": 1.38,
+     "joint_err_p95_deg": 4.46,
+     "joint_err_max_deg": 8.7,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.524
+    }
+   ],
+   "sim_segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.44,
+     "yaw_total_deg": 0.7,
+     "roll_mean_deg": -2.12,
+     "roll_sd_deg": 0.43,
+     "pitch_mean_deg": -2.63,
+     "pitch_sd_deg": 0.68,
+     "tilt_max_deg": 4.6,
+     "joint_err_mean_deg": 1.0,
+     "joint_err_p95_deg": 3.13,
+     "joint_err_max_deg": 5.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 0.809,
+     "sim_world_vel_xy_mps": [
+      0.001,
+      -0.0
+     ]
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "seconds": 8.0,
+     "yaw_rate_mean_dps": -0.69,
+     "yaw_total_deg": -5.2,
+     "roll_mean_deg": -2.78,
+     "roll_sd_deg": 1.76,
+     "pitch_mean_deg": -5.12,
+     "pitch_sd_deg": 2.46,
+     "tilt_max_deg": 9.3,
+     "joint_err_mean_deg": 1.45,
+     "joint_err_p95_deg": 3.8,
+     "joint_err_max_deg": 6.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 46.7,
+     "at_limit_joints": {
+      "l_hip_pitch": 21.3,
+      "r_hip_pitch": 25.3
+     },
+     "abs_action_mean": 1.233,
+     "sim_world_vel_xy_mps": [
+      -0.196,
+      0.012
+     ]
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 1.3,
+     "yaw_total_deg": 1.9,
+     "roll_mean_deg": -0.96,
+     "roll_sd_deg": 0.32,
+     "pitch_mean_deg": -9.38,
+     "pitch_sd_deg": 0.57,
+     "tilt_max_deg": 11.0,
+     "joint_err_mean_deg": 1.05,
+     "joint_err_p95_deg": 3.55,
+     "joint_err_max_deg": 6.5,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.512,
+     "sim_world_vel_xy_mps": [
+      -0.004,
+      0.007
+     ]
+    }
+   ]
+  },
+  {
+   "index": 8,
+   "seconds": 12.01,
+   "segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -4.65,
+     "yaw_total_deg": -7.0,
+     "roll_mean_deg": 1.69,
+     "roll_sd_deg": 0.81,
+     "pitch_mean_deg": -5.59,
+     "pitch_sd_deg": 0.71,
+     "tilt_max_deg": 7.0,
+     "joint_err_mean_deg": 1.34,
+     "joint_err_p95_deg": 4.08,
+     "joint_err_max_deg": 7.7,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 10.7,
+     "at_limit_joints": {
+      "r_hip_pitch": 10.7
+     },
+     "abs_action_mean": 0.738
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "seconds": 8.0,
+     "yaw_rate_mean_dps": -1.93,
+     "yaw_total_deg": -14.5,
+     "roll_mean_deg": 1.02,
+     "roll_sd_deg": 2.24,
+     "pitch_mean_deg": -10.05,
+     "pitch_sd_deg": 2.34,
+     "tilt_max_deg": 14.1,
+     "joint_err_mean_deg": 1.8,
+     "joint_err_p95_deg": 4.94,
+     "joint_err_max_deg": 14.7,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 52.5,
+     "at_limit_joints": {
+      "r_shoulder_roll": 12.5,
+      "l_hip_pitch": 15.5,
+      "r_hip_pitch": 37.1
+     },
+     "abs_action_mean": 1.15
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": -0.46,
+     "yaw_total_deg": -0.7,
+     "roll_mean_deg": 1.46,
+     "roll_sd_deg": 0.82,
+     "pitch_mean_deg": -13.25,
+     "pitch_sd_deg": 0.74,
+     "tilt_max_deg": 14.4,
+     "joint_err_mean_deg": 1.37,
+     "joint_err_p95_deg": 4.46,
+     "joint_err_max_deg": 9.7,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.536
+    }
+   ],
+   "sim_segments": [
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 0.44,
+     "yaw_total_deg": 0.7,
+     "roll_mean_deg": -2.12,
+     "roll_sd_deg": 0.43,
+     "pitch_mean_deg": -2.63,
+     "pitch_sd_deg": 0.68,
+     "tilt_max_deg": 4.6,
+     "joint_err_mean_deg": 1.0,
+     "joint_err_p95_deg": 3.13,
+     "joint_err_max_deg": 5.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 0.809,
+     "sim_world_vel_xy_mps": [
+      0.001,
+      -0.0
+     ]
+    },
+    {
+     "cmd": [
+      -0.2,
+      0.0,
+      0.0
+     ],
+     "seconds": 8.0,
+     "yaw_rate_mean_dps": -0.69,
+     "yaw_total_deg": -5.2,
+     "roll_mean_deg": -2.78,
+     "roll_sd_deg": 1.76,
+     "pitch_mean_deg": -5.12,
+     "pitch_sd_deg": 2.46,
+     "tilt_max_deg": 9.3,
+     "joint_err_mean_deg": 1.45,
+     "joint_err_p95_deg": 3.8,
+     "joint_err_max_deg": 6.8,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.0,
+     "at_limit_pct": 46.7,
+     "at_limit_joints": {
+      "l_hip_pitch": 21.3,
+      "r_hip_pitch": 25.3
+     },
+     "abs_action_mean": 1.233,
+     "sim_world_vel_xy_mps": [
+      -0.196,
+      0.012
+     ]
+    },
+    {
+     "cmd": [
+      0.0,
+      0.0,
+      0.0
+     ],
+     "seconds": 2.0,
+     "yaw_rate_mean_dps": 1.3,
+     "yaw_total_deg": 1.9,
+     "roll_mean_deg": -0.96,
+     "roll_sd_deg": 0.32,
+     "pitch_mean_deg": -9.38,
+     "pitch_sd_deg": 0.57,
+     "tilt_max_deg": 11.0,
+     "joint_err_mean_deg": 1.05,
+     "joint_err_p95_deg": 3.55,
+     "joint_err_max_deg": 6.5,
+     "joint_err_worst": "r_knee_pitch",
+     "gait_freq_hz": 2.03,
+     "at_limit_pct": 0.0,
+     "at_limit_joints": {},
+     "abs_action_mean": 1.512,
+     "sim_world_vel_xy_mps": [
+      -0.004,
+      0.007
+     ]
+    }
+   ]
+  }
+ ],
+ "policy_period_ms": {
+  "p50": 20.0,
+  "p99": 20.21,
+  "max": 21.21
+ },
+ "servo_error_frames": 0,
+ "rx_packets": 124045
+}

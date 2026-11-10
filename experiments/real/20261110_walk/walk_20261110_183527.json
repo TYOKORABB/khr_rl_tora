@@ -1,0 +1,13 @@
+{
+ "exp": "khr-quadruped31-s2",
+ "ckpt": 3999,
+ "reason": "RuntimeError: ESP32 から受信できません（0.4 s で 0 パケット）",
+ "schedule": null,
+ "limit_clamp_steps": 0,
+ "max_err_deg": 0.0,
+ "max_tilt_deg": 0.0,
+ "policy_steps": 0,
+ "echo_rtt_ms": null,
+ "raw": "real/data/raw/walk_20261110_183527.npz",
+ "time": "2026-11-10T18:35:27"
+}

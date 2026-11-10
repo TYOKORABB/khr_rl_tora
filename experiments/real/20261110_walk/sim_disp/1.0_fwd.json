@@ -1,0 +1,14 @@
+{
+ "kp_scale": 1.0,
+ "schedule": "0:2,0.3:7,0:2",
+ "fell_t": null,
+ "disp_total_m": 1.573,
+ "disp_walk_segment_m": 1.561,
+ "walk_s": 7.0,
+ "mean_speed_walk_mps": 0.223,
+ "heading_change_deg": -0.1,
+ "dxy_total_m": [
+  1.572,
+  0.018
+ ]
+}
