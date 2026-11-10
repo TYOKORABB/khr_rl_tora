@@ -2,6 +2,8 @@
 
 四足学習(khr_train_quad.py)の実行ごとに1行追記される台帳。詳細は `experiments/<exp>/report.md`。
 
+起き上がりの学習（`getup*`）と実機はこの台帳に載らない（2026-11-10 追記）。起き上がりは版ごとの記録 `getup/DIARY.md`、計画と結果 `experiments/getup/`、全体のまとめ `docs/GetUpOverview.md`。実機は `experiments/real/`。フォルダの地図は `experiments/README.md`。
+
 | 生成日時 | 実験名 | iter | git | 最終報酬 | 最終ep長 | 最大ep長 | 最終前進追従 |
 |---|---|---|---|---|---|---|---|
 | 2026-07-21T17:27:41 | khr-quadruped | 2999 | `e87a5e0` | 69.819 | 1001.000 | 1001.0 | 1.449 |

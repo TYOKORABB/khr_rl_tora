@@ -25,7 +25,20 @@
 | `train_getup9.py`・`sym_aug.py` | getup-v9（v7 の B ＋ `--add canon`（左右反転のスイッチを入れて学習）または `--add sym`（rsl-rl の対称性のデータ拡張））。部品は `khr_common/mirror.py`、環境の `mirror_switch`、学習済みの方策には `eval_getup --mirror` |
 | `tools/pick_mirror_dir.py` | 左右反転のスイッチの向き（left / right）を、評価に使わない転んだ状態で方策ごとに選ぶ（getup-v10 §10）。`eval_getup --mirror --mirror_dir right` |
 | `train_getup10.py`・`envs/getup_env4.py` | getup-v10（`--base none/canon/sym` に `--add still pose fliplim replay` を足す）。使わない項は getup_env3 と同じ |
-| `train_getup11.py` | getup-v11（11/6）: `getup9-sym-s1` から学習を続け、個体差に `--ts`（関節ごとのトルクの上限の倍率）と `--pb`（電源の電流の合計の上限、全力のサーボ何個分か）を足す（`envs/getup_env3.py` の `env_cfg["dr"]`、使うときはシーンを `batch_dofs_info` で作る）。計画 `experiments/getup/v11_plan.md` |
+| `train_getup11.py` | getup-v11〜v12k の学習（前の版のモデルから続ける。`--init`・`--init_ckpt`）。v11（11/6）: 個体差に `--ts`（関節ごとのトルクの上限の倍率）と `--pb`（電源の電流の合計の上限、全力のサーボ何個分か）を足す（`envs/getup_env3.py` の `env_cfg["dr"]`、使うときはシーンを `batch_dofs_info` で作る）。v11b: `--std_fix`・`--entropy`・`--ramp`・`--full`。v11c: `--kp`・`--pm`・`--prot`・`--stale`・`--mix_power`。**v12（11/9）: `--kp 5 10`（硬さの範囲）、`--gap 0.08`（ずれの上限）、`--chest_up`（L3 に仰向けまで）、`--stand_smooth`（立っている間の目標角の動きの罰）**。計画 `experiments/getup/v11_plan.md`・`v12_plan.md` |
+| `levels.py` | カリキュラムの段階ごとに、初期状態バンクのどの状態を使うかを決める（環境と評価で共用） |
+| `tools/make_bank_v2.py` | 初期状態バンク v2: bank_v1 に、歩行中に転んだ状態（kind 2）を足す（v6 から） |
+| `tools/fall_survey.py`・`tools/summarize_falls.py` | 四脚歩行の方策を押して転ばせ、どの向きで止まるかを数える → `experiments/getup/falls/falls.md`（10/30） |
+| `tools/real_vs_sim_traj.py`・`tools/plot_real_vs_sim_traj.py`・`tools/summarize_traj_fit.py` | 実機の起き上がりの関節角と、同じ始めの姿勢からのシミュ（弱さの模型ごと）を時間の変化で比べる（11/6） |
+| `tools/current_power_form.py` | 電源の電流を電力の形でも見積もり、起き上がりと四脚歩行を同じ式で比べる（11/7） |
+| `tools/run_r3_fit.py` | シミュの弱さの模型（kp、トルクの上限、電源）を実機の 11/9 の結果に合わせる。kp 7 が最も合う（`experiments/getup/v12_plan.md` §1） |
+| `tools/side_split.py` | 左右の体側ごとの起き上がりの成功（左右反転のスイッチの要否、11/9） |
+| `tools/after_stand.py` | 起き上がったあと、方策が動いている間に成功の条件がどう外れるかを実機とシミュで比べる → `experiments/getup/after_stand.md` |
+| `tools/eval_v12.py` | 実機に合わせた条件（kp 7、ずれの上限 0.08 rad）での判定の量: 実機のうつ伏せ 20 姿勢、評価用バンクの向きごと、実機の乱数・横倒し・仰向けの始めの姿勢。`kp-sweep` で硬さの余裕（CPU） |
+| `tools/eval_freeze.py` | 四脚の条件がそろったら目標角を固定する仕組みをシミュで確かめる（11/10、CPU） |
+| `tools/summarize_v11c.py`・`tools/summarize_v12.py`・`tools/summarize_v12k.py` | v11c・v12・v12k の判定（学習の前に固定）を `experiments/getup/v11c_results.md`・`v12_results.md`・`v12k_results.md` に書く |
+| `jobs/run_v11c.sh`・`jobs/run_v12.sh`・`jobs/run_v12k.sh` | v11c・v12・v12k の 3 シードを学習 → 検証（動画）→ 判定の計算（CPU）→ まとめ。whisper を止めて、終わったら戻す |
+| `jobs/pause_whisper.sh`・`jobs/gpu_gate.sh` | whisper の cron を一時止める（戻しは `logs/getup_jobs/whisper_pause/restore.sh`。本人の決定 11/7「研究第一」）、GPU が空くまで待つ |
 | `tools/real_repro_sweep.py` | 実機の起き上がりの試行の始めの姿勢（`real/data/raw/getup_trial/`）から、トルクの上限・硬さ・重さ・弱さの個体差を変えてシミュで動かし、実機と同じ失敗が出るかを見る（CPU）。getup-v11 の判定の計算にも使う |
 | `tools/current_estimate.py`・`tools/plot_current.py` | 同じ始めの姿勢から方策を動かし、全関節の トルクの絶対値 ÷ 仕様の合計から電源の電流を見積もる（待機 1 A ＋ 1.3 A × 合計、CPU）。図は `media/getup_plots/current_estimate_v11b.png`（11/6） |
 | `tools/real_vs_sim_video.py` | 実機の動画と、同じ始めの姿勢から動かしたシミュ 2 本（学習と同じ・kp 6）を時刻をそろえて並べる → `media/videos/getup/real_vs_sim_<試行>.mp4`（CPU） |
@@ -67,7 +80,14 @@ python -m getup.tools.hold_analysis -e getup2-s1 --cpu -n 64          # 立っ�
 python -m getup.tools.hold_video -e getup2-s1                         # 揺れの比較動画（GPU、約 1.5 分）
 python -m getup.tools.sat_breakdown -e getup2-s1 --level 2             # トルク 100 % の内訳（GPU）
 python -m getup.tools.check_success -e getup1-s1 --ckpt 1499           # 成功判定の内訳（GPU）
+
+# 今の版（getup-v12、11/9）
+nohup bash getup/jobs/run_v12.sh > logs/getup_jobs/run_v12.log 2>&1 &  # 3 シードを学習 → 検証（動画）→ 判定（約 2.6 時間）
+python getup/tools/eval_v12.py getup12-real-s3 5997 experiments/getup/eval/v12/getup12-real-s3.json   # kp 7 での判定の量（CPU）
+python getup/tools/summarize_v12.py                                     # 判定のまとめ → experiments/getup/v12_results.md
 ```
+
+起き上がりの全体のまとめ（手法、報酬、各版の結果、実機）は `docs/GetUpOverview.md`。実機で動かす道具は `real/getup_session.py`（`real/README.md`）。
 
 - `logs/<exp>/` は同じ名前で学習し直すと消える（歩行と同じ）。
 - 上流の URDF・メッシュは非公開なので、別名 URDF と部品のメッシュはリポジトリに入れない（生成スクリプトと記録だけ）。
