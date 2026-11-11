@@ -48,6 +48,7 @@ def main():
     parser.add_argument("--vx", type=float, default=None, help="前進速度コマンド[m/s]を固定（未指定はランダム再サンプル）")
     parser.add_argument("--vy", type=float, default=None, help="横速度コマンド[m/s]を固定")
     parser.add_argument("--wz", type=float, default=None, help="旋回角速度コマンド[rad/s]を固定")
+    parser.add_argument("--kp", type=float, default=None, help="比例ゲインを上書きする [N·m/rad]（省略時は学習時の値）")
     parser.add_argument("--noise", action="store_true", help="観測ノイズ/ドメインランダム化を有効化（既定は無効）")
     args = parser.parse_args()
 
@@ -58,6 +59,8 @@ def main():
     with open(f"{log_dir}/cfgs.pkl", "rb") as f:
         env_cfg, obs_cfg, reward_cfg, command_cfg, train_cfg = pickle.load(f)
     reward_cfg["reward_scales"] = {}
+    if args.kp is not None:                # [2026-11-11] 比例ゲインを学習時と変えて撮る
+        env_cfg["kp"] = float(args.kp)
 
     if not args.noise:
         obs_cfg["add_noise"] = False

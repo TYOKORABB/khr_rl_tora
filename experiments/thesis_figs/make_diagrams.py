@@ -148,8 +148,8 @@ def fig_phase(out: Path):
     t = np.linspace(0, 1.0, 1001)
     phi = (t % period) / period
     fig, (a1, a2) = plt.subplots(2, 1, figsize=(140 * MM, 70 * MM), sharex=True, gridspec_kw={"height_ratios": [1, 1.2]})
-    a1.plot(t, np.cos(2 * np.pi * phi), color=SEED_COLORS[1], linewidth=1.0, label="$\\cos 2\\pi\\phi$")
-    a1.plot(t, np.sin(2 * np.pi * phi), color=SEED_COLORS[2], linewidth=1.0, linestyle=(0, (3, 1.5)), label="$\\sin 2\\pi\\phi$")
+    a1.plot(t, np.cos(2 * np.pi * phi), color=SEED_COLORS[1], linewidth=1.0, label="$\\cos 2\\pi\\psi$")
+    a1.plot(t, np.sin(2 * np.pi * phi), color=SEED_COLORS[2], linewidth=1.0, linestyle=(0, (3, 1.5)), label="$\\sin 2\\pi\\psi$")
     a1.set_title("(a) 方策に与える位相（周期 0.5 s）", loc="left", color=INK)
     a1.legend(loc="upper right", frameon=False, ncol=2, bbox_to_anchor=(1.0, 1.25))
     a1.set_ylim(-1.2, 1.2)

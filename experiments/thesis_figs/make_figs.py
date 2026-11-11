@@ -376,7 +376,7 @@ def fig_basestate(out: Path):
     axes[0].set_ylabel("[m/s]")
     axes[0].set_ylim(-0.15, 0.45)
     axes[0].set_title("(a) 胴体の速度（破線は前進の指令 0.3 m/s）", loc="left", color=INK)
-    axes[0].legend(loc="upper right", frameon=False, ncol=2)
+    axes[0].legend(loc="lower right", bbox_to_anchor=(1.0, 0.98), frameon=False, ncol=2)  # v14: データと重ならないよう軸の上へ
     axes[1].plot(t, w[:, 2], color=SEED_COLORS[1], linewidth=0.9)
     axes[1].set_ylabel("[°/s]")
     axes[1].set_title("(b) ヨー角速度", loc="left", color=INK)
@@ -385,7 +385,7 @@ def fig_basestate(out: Path):
     axes[2].set_ylabel("[°]")
     axes[2].set_ylim(-15, 12)
     axes[2].set_title("(c) 胴体の傾き（公称姿勢から）", loc="left", color=INK)
-    axes[2].legend(loc="upper right", frameon=False, ncol=2)
+    axes[2].legend(loc="lower right", bbox_to_anchor=(1.0, 0.98), frameon=False, ncol=2)  # v14: 軸の上へ
     axes[2].set_xlabel("時刻 [s]")
     fig.tight_layout(h_pad=0.8)
     save(fig, out, "basestate")
@@ -758,7 +758,7 @@ def fig_getup_r3(out: Path):
             axes[1].plot(t, np.degrees(np.abs(q - nom)).max(1), color=col, lw=1.0, ls=ls, alpha=0.85)
             first = False
     axes[0].axhline(np.degrees(nom[j]), color=MUTED, lw=0.8)
-    axes[0].text(0.15, np.degrees(nom[j]) + 3, "四脚の姿勢の角度", fontsize=7, color=INK2)
+    axes[0].text(0.15, np.degrees(nom[j]) - 10, "四脚の姿勢の角度", fontsize=7, color=INK2)  # v14: 線と重ならないよう下へ
     axes[1].axhline(np.degrees(0.3), color=MUTED, lw=0.8)
     axes[1].text(0.15, np.degrees(0.3) + 3, "成功の条件（0.3 rad）", fontsize=7, color=INK2)
     axes[0].set_title("(a) 右肩ピッチの関節角 [$^\\circ$]", loc="left")
@@ -769,7 +769,7 @@ def fig_getup_r3(out: Path):
         for sp in ("top", "right"):
             ax.spines[sp].set_visible(False)
     h, lab = axes[0].get_legend_handles_labels()
-    fig.legend(h, lab, loc="upper center", bbox_to_anchor=(0.5, 1.04), ncol=2, frameon=False, fontsize=8)
+    fig.legend(h, lab, loc="upper center", bbox_to_anchor=(0.5, 1.14), ncol=2, frameon=False, fontsize=8)  # v14: 題と重ならないよう上へ
     save(fig, out, "getup_r3")
 
 
