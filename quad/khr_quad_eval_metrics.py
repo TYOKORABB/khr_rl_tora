@@ -31,7 +31,7 @@ EFFORT_LIMIT = 1.373  # URDF の effort limit [Nm]。トルクはこれに対す
 
 
 def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, joint_offset,
-            rng_seed=0, push=False):
+            rng_seed=0, push=False, kp=None):
     """1 条件ぶんの測定。戻り値は指標の dict。
 
     rng_seed: 測定そのものの乱数種。**プロセスをまたいで再現させるために必須**。
@@ -55,6 +55,8 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
     for k in ("randomize_friction", "randomize_base_mass", "randomize_com", "randomize_kp"):
         env_cfg[k] = False                    # DR off
     env_cfg["randomize_joint_offset"] = joint_offset  # 個体差だけは明示的に切り替える
+    if kp is not None:                        # [2026-11-11] 比例ゲインを学習時と変えて動かす（kd はそのまま）
+        env_cfg["kp"] = float(kp)
     # [2026-10-04] push 外乱。既定の push_curriculum_steps=50000 のままだと評価の 600 step では
     #   push_scale = 600/50000 = 0.012 となり**外乱がほぼ掛からない**。
     #   転倒耐性を測るときは curriculum を 0 にして最初から全強度で押す。
@@ -239,6 +241,8 @@ def main():
                     help="測定の繰り返し回数（乱数種 0..N-1）。測定ばらつきを分離するため既定3")
     ap.add_argument("--push", action="store_true",
                     help="push 外乱を最初から全強度で与える（転倒耐性の測定用）")
+    ap.add_argument("--kp", type=float, default=None, help="比例ゲインを上書きする [N·m/rad]（省略時は学習時の値）")
+    ap.add_argument("--with-offset-only", action="store_true", help="個体差ありの測定だけ行う")
     ap.add_argument("-o", "--out", default=None)
     args = ap.parse_args()
 
@@ -247,10 +251,11 @@ def main():
 
     result = {"exp_name": args.exp_name, "env_module": args.env, "ckpt": args.ckpt,
               "num_robots": args.num_robots, "measure_seconds": args.seconds - args.warmup,
-              "command": args.cmd, "repeats": args.repeats, "push": bool(args.push)}
-    for label, offset in (("no_offset", False), ("with_offset", True)):
+              "command": args.cmd, "repeats": args.repeats, "push": bool(args.push), "kp": args.kp}
+    labels = (("no_offset", False), ("with_offset", True))[1 if args.with_offset_only else 0:]
+    for label, offset in labels:
         runs = [measure(args.exp_name, args.env, args.ckpt, args.num_robots,
-                        args.seconds, args.warmup, args.cmd, offset, rng_seed=r, push=args.push)
+                        args.seconds, args.warmup, args.cmd, offset, rng_seed=r, push=args.push, kp=args.kp)
                 for r in range(args.repeats)]
         agg = {}
         for key in runs[0]:
