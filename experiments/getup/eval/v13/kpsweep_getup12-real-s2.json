@@ -1,0 +1,63 @@
+{
+ "exp": "getup12-real-s2",
+ "ckpt": "5997",
+ "gap": 0.08,
+ "kp_sweep": {
+  "3.0": {
+   "supine": {
+    "success_pct": 0.0,
+    "end_pose_pct": 0.0,
+    "t_up_med_s": null,
+    "reached_up_pct": 0.0
+   },
+   "prone": {
+    "success_pct": 0.0,
+    "end_pose_pct": 0.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0
+   }
+  },
+  "4.0": {
+   "supine": {
+    "success_pct": 0.0,
+    "end_pose_pct": 0.0,
+    "t_up_med_s": 7.29,
+    "reached_up_pct": 44.1
+   },
+   "prone": {
+    "success_pct": 0.0,
+    "end_pose_pct": 0.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0
+   }
+  },
+  "5.0": {
+   "supine": {
+    "success_pct": 12.5,
+    "end_pose_pct": 36.8,
+    "t_up_med_s": 5.3,
+    "reached_up_pct": 97.8
+   },
+   "prone": {
+    "success_pct": 36.2,
+    "end_pose_pct": 65.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0
+   }
+  },
+  "6.0": {
+   "supine": {
+    "success_pct": 86.0,
+    "end_pose_pct": 97.1,
+    "t_up_med_s": 3.85,
+    "reached_up_pct": 100.0
+   },
+   "prone": {
+    "success_pct": 98.8,
+    "end_pose_pct": 100.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0
+   }
+  }
+ }
+}

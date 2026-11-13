@@ -46,6 +46,9 @@ def main() -> int:
     ap.add_argument("--gap", type=float, default=None, help="目標角と測った関節角のずれの上限 [rad]（既定は親と同じ 0.05）")
     ap.add_argument("--chest_up", action="store_true", help="いちばん上の段階に胸が上の状態（u0 < 0）を入れる")
     ap.add_argument("--stand_smooth", type=float, default=None, help="立っている間の目標角の動きの罰の重み（負の値）")
+    # getup-v13（11/13、experiments/getup/v13_plan.md）: v12 から 1 つずつ変える。本人の案「カリキュラムの L4 に仰向けからの起き上がりを入れる」
+    ap.add_argument("--l4", type=float, default=None, metavar="U0_MAX",
+                    help="L3 の上に、胴体の向き u0 < U0_MAX の状態（主の状態と歩行中の転倒）だけの段階 L4 を足し、そこから学習を続ける")
     a, rest = ap.parse_known_args()
     import getup.train_getup6 as v6
     import getup.train_getup7 as v7
@@ -91,10 +94,17 @@ def main() -> int:
                 cur["hard"][top]["u0_min"] = -1.0
         if a.stand_smooth is not None:
             reward_cfg["reward_scales"]["stand_smooth"] = a.stand_smooth
+        if a.l4 is not None:                 # L4: 仰向け寄りだけ。リセットは L0 15 %・L0〜L3 15 %・L4 70 %（mix はそのまま）
+            cur = env_cfg["curriculum"]
+            cur["levels"] = list(cur["levels"]) + ["L4"]
+            cur["u0_min"] = dict(cur["u0_min"], L4=-1.0)
+            cur["u0_max"] = dict(cur.get("u0_max", {}), L4=a.l4)
+            cur["extra"] = dict(cur.get("extra", {}), L4=[{"kind": 2, "u0_min": -1.0, "u0_max": a.l4}])
+            env_cfg["run_version"] = "getup-v13"
         env_cfg["getup11"] = {"init": a.init, "init_ckpt": a.init_ckpt, "torque_scale": a.ts, "power_budget": a.pb,
                               "std_fix": a.std_fix, "entropy": a.entropy, "ramp": a.ramp, "full": a.full,
                               "pm": a.pm, "kp": a.kp, "prot": a.prot, "stale": a.stale, "mix_power": a.mix_power,
-                              "gap": a.gap, "chest_up": a.chest_up, "stand_smooth": a.stand_smooth}
+                              "gap": a.gap, "chest_up": a.chest_up, "stand_smooth": a.stand_smooth, "l4": a.l4}
         return env_cfg, obs_cfg, reward_cfg
 
     def get_train_cfg(exp):

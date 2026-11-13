@@ -16,6 +16,11 @@ def level_mask(bank: dict, cur: dict, name: str, eval_split: bool):
         m = (bank["kind"] == 1) & split
     else:
         m = (bank["kind"] == 0) & split & (bank["u0"] >= cur["u0_min"][name])
+        if name in cur.get("u0_max", {}):              # getup-v13（11/13）: 仰向けだけの段階 L4 のための上限。無ければ前と同じ
+            m = m & (bank["u0"] < cur["u0_max"][name])
     for spec in cur.get("extra", {}).get(name, []):
-        m = m | ((bank["kind"] == spec["kind"]) & split & (bank["u0"] >= spec.get("u0_min", -2.0)))
+        e = (bank["kind"] == spec["kind"]) & split & (bank["u0"] >= spec.get("u0_min", -2.0))
+        if "u0_max" in spec:
+            e = e & (bank["u0"] < spec["u0_max"])
+        m = m | e
     return m
