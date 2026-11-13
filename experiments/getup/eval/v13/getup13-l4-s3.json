@@ -1,0 +1,88 @@
+{
+ "exp": "getup13-l4-s3",
+ "ckpt": "7496",
+ "gap": 0.08,
+ "kp": 7.0,
+ "stale_eval": 0.2,
+ "A": {
+  "success_pct": 98.8,
+  "end_pose_pct": 100.0,
+  "tgt_step_deg": 1.403,
+  "omega_med": 0.108,
+  "stood": 80
+ },
+ "B": {
+  "side": {
+   "n": 186,
+   "success_pct": 96.2
+  },
+  "chest_mid": {
+   "n": 405,
+   "success_pct": 96.3
+  },
+  "supine": {
+   "n": 209,
+   "success_pct": 94.7,
+   "t_up_med_s": 3.43
+  }
+ },
+ "D": {
+  "n_starts": 17,
+  "success_pct": 100.0,
+  "end_pose_pct": 100.0,
+  "t_up_med_s": 2.98,
+  "reached_up_pct": 100.0,
+  "chest_yaw_end_med_deg": 0.71,
+  "per_start_success_pct": [
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0,
+   100.0
+  ]
+ },
+ "E": {
+  "supine": {
+   "success_pct": 98.5,
+   "end_pose_pct": 100.0,
+   "t_up_med_s": 3.12,
+   "reached_up_pct": 100.0,
+   "chest_yaw_end_med_deg": 0.65,
+   "per_start_success_pct": [
+    100.0,
+    100.0,
+    100.0,
+    100.0,
+    100.0,
+    75.0,
+    100.0,
+    100.0,
+    100.0,
+    100.0,
+    100.0,
+    100.0,
+    100.0,
+    100.0,
+    100.0,
+    100.0,
+    100.0
+   ]
+  },
+  "prone": {
+   "success_pct": 100.0,
+   "end_pose_pct": 100.0
+  }
+ }
+}

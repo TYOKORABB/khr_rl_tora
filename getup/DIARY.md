@@ -1809,3 +1809,9 @@ v12 シード 3（getup12-real-s3 model_5997、`--gap 0.08 --e-sat-deg 7`）で 
 - 待ち行列（`getup/jobs/queue_v13.txt`）: l4（本人の案）→ ctl（対照）→ kplow（比例ゲイン 4〜9）→ smooth（立ったあとの罰 −6）→ stale（観測の古さ）。判定の基準は案で、本人が確かめてから固定する。
 - 道具: 段階に u0 の上限を足した（`getup/levels.py`、前の cfgs はそのまま動く）、`train_getup11.py --l4`、`getup/tools/eval_v13.py`（実機の仰向け 17 姿勢、古い観測、`kp-sweep`）、`getup/tools/summarize_v13.py`、`getup/jobs/run_v13.sh`・`v13_kp_eval.sh`。
 
+### 11/13 22 時: getup-v13 の l4・ctl の判定（`experiments/getup/v13_plan.md` §6）
+
+- 判定の基準は本人が確かめて固定してから結果を開いた。l4（本人の案、仰向けだけの段階 L4）も ctl（対照）も**採用しない**（悪くしないは満たすが、比例ゲイン 5 の成功が v12 より 20 pt 上がらない）。
+- l4 は比例ゲイン 7・6 の仰向けでは ctl より成功が高く寝返りも速い（参考）。比例ゲイン 5 では ctl と同じで、うつ伏せは ctl より低い。
+- 待ち行列は kplow（学習中）→ smooth → stale と続く（明日の朝 4 時ごろに終わる見込み）。
+

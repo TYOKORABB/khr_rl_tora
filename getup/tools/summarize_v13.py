@@ -83,14 +83,16 @@ def judge_all(groups, table):
             print(f"- {g}: まだそろっていない")
             continue
         nonreg = {c: ok(t[k], op, th) for c, (k, op, th) in CRIT.items()}
-        res = []
+        res, improved = [], []
         for m, key in (("M1", "比例ゲイン 5 実機の仰向け 成功 %"), ("M2", "比例ゲイン 5 うつ伏せ 成功 %")):
             v12, ctl, me = table[key]["v12"], table[key].get("ctl"), t[key]
             per = all(a is not None and b is not None and a > b for a, b in zip(seeds(g, key), seeds("v12", key)))
             good = me >= v12 + GAIN_V12 and per and (g == "ctl" or (ctl is not None and me >= ctl + GAIN_CTL))
+            improved.append(good)
             res.append(f"{m} {'改善' if good else '改善なし'}（{me}、v12 {v12}、ctl {ctl}、3 シードとも v12 より上 {per}）")
         m4 = ok(t["立ったあとの目標角の変化 deg/周期"], "<=", TGT_MAX)
-        verdict = "採用候補" if all(nonreg.values()) and (any(r.startswith(("M1 改善", "M2 改善")) for r in res) or (g == "smooth" and m4)) else "採用しない"
+        # 11/13 22 時に直した: 前は「M1 改善なし」も「M1 改善」で始まるので採用候補と出ていた（基準の数値は変えていない）
+        verdict = "採用候補" if all(nonreg.values()) and (any(improved) or (g == "smooth" and m4)) else "採用しない"
         bad = [c for c, v in nonreg.items() if not v]
         print(f"- {g}: **{verdict}**。悪くしない {'すべて満たす' if not bad else '満たさない: ' + '、'.join(bad)}。" + "。".join(res)
               + f"。M4（目標角の変化 ≤ {TGT_MAX}）{'満たす' if m4 else '満たさない'}（{t['立ったあとの目標角の変化 deg/周期']}）")

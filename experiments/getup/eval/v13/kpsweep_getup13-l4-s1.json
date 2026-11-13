@@ -1,0 +1,35 @@
+{
+ "exp": "getup13-l4-s1",
+ "ckpt": "7496",
+ "gap": 0.08,
+ "kp_sweep": {
+  "5.0": {
+   "supine": {
+    "success_pct": 13.2,
+    "end_pose_pct": 36.0,
+    "t_up_med_s": 5.38,
+    "reached_up_pct": 91.9
+   },
+   "prone": {
+    "success_pct": 41.2,
+    "end_pose_pct": 68.8,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0
+   }
+  },
+  "6.0": {
+   "supine": {
+    "success_pct": 79.4,
+    "end_pose_pct": 94.1,
+    "t_up_med_s": 3.7,
+    "reached_up_pct": 99.3
+   },
+   "prone": {
+    "success_pct": 97.5,
+    "end_pose_pct": 100.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0
+   }
+  }
+ }
+}
