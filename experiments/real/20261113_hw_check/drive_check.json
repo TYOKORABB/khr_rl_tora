@@ -1,0 +1,497 @@
+[
+ {
+  "file": "getup_trial_supine_v12_20261110_180546.npz",
+  "label": "supine_v12",
+  "reason": "最後まで動いた",
+  "elbows": {
+   "l_elbow_pitch": {
+    "lag_s": 1.38,
+    "weak_s": 0.18,
+    "weak_frac": 0.13,
+    "longest_weak_s": 0.02,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.4
+   },
+   "r_elbow_pitch": {
+    "lag_s": 0.56,
+    "weak_s": 0.08,
+    "weak_frac": 0.143,
+    "longest_weak_s": 0.02,
+    "fail_pattern": false,
+    "max_err_deg": 3.9,
+    "max_cur_A": 0.6
+   }
+  },
+  "getup": {
+   "u_start": -0.824,
+   "u_max": 1.0,
+   "first_s": {
+    "u": 2.54,
+    "joints": 3.16,
+    "height": 2.48,
+    "all4": 3.24
+   },
+   "chest_yaw_end_deg": -2.6,
+   "start_deg": {
+    "l_shoulder_roll": -0.3,
+    "r_shoulder_roll": -10.6,
+    "l_hip_pitch": -67.1,
+    "r_hip_pitch": -67.5,
+    "l_knee_pitch": 21.5,
+    "r_knee_pitch": 22.2,
+    "c_chest_yaw": 0.7
+   }
+  }
+ },
+ {
+  "file": "getup_trial_supine_v12_fz_20261110_180733.npz",
+  "label": "supine_v12_fz",
+  "reason": "最後まで動いた",
+  "elbows": {
+   "l_elbow_pitch": {
+    "lag_s": 1.26,
+    "weak_s": 0.14,
+    "weak_frac": 0.111,
+    "longest_weak_s": 0.02,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.5
+   },
+   "r_elbow_pitch": {
+    "lag_s": 0.86,
+    "weak_s": 0.02,
+    "weak_frac": 0.023,
+    "longest_weak_s": 0.02,
+    "fail_pattern": false,
+    "max_err_deg": 4.3,
+    "max_cur_A": 0.6
+   }
+  },
+  "getup": {
+   "u_start": -0.807,
+   "u_max": 1.0,
+   "first_s": {
+    "u": 2.28,
+    "joints": 3.34,
+    "height": 2.34,
+    "all4": 3.38
+   },
+   "chest_yaw_end_deg": -1.3,
+   "start_deg": {
+    "l_shoulder_roll": 3.9,
+    "r_shoulder_roll": -0.0,
+    "l_hip_pitch": -83.9,
+    "r_hip_pitch": -105.4,
+    "l_knee_pitch": 46.2,
+    "r_knee_pitch": 68.4,
+    "c_chest_yaw": 3.4
+   }
+  }
+ },
+ {
+  "file": "getup_trial_supine_v12_fz_demo_20261110_182205.npz",
+  "label": "supine_v12_fz_demo",
+  "reason": "最後まで動いた",
+  "elbows": {
+   "l_elbow_pitch": {
+    "lag_s": 1.7,
+    "weak_s": 0.2,
+    "weak_frac": 0.118,
+    "longest_weak_s": 0.04,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.4
+   },
+   "r_elbow_pitch": {
+    "lag_s": 1.98,
+    "weak_s": 0.08,
+    "weak_frac": 0.04,
+    "longest_weak_s": 0.04,
+    "fail_pattern": false,
+    "max_err_deg": 4.9,
+    "max_cur_A": 0.8
+   }
+  },
+  "getup": {
+   "u_start": -0.819,
+   "u_max": 0.995,
+   "first_s": {
+    "u": 2.36,
+    "joints": 4.2,
+    "height": 2.26,
+    "all4": 4.2
+   },
+   "chest_yaw_end_deg": 2.4,
+   "start_deg": {
+    "l_shoulder_roll": 1.3,
+    "r_shoulder_roll": 1.6,
+    "l_hip_pitch": -89.1,
+    "r_hip_pitch": -92.8,
+    "l_knee_pitch": 65.4,
+    "r_knee_pitch": 67.1,
+    "c_chest_yaw": -1.3
+   }
+  }
+ },
+ {
+  "file": "getup_trial_prone_v12_fz_demo_20261110_182348.npz",
+  "label": "prone_v12_fz_demo",
+  "reason": "最後まで動いた",
+  "elbows": {
+   "l_elbow_pitch": {
+    "lag_s": 1.74,
+    "weak_s": 0.32,
+    "weak_frac": 0.184,
+    "longest_weak_s": 0.06,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.5
+   },
+   "r_elbow_pitch": {
+    "lag_s": 1.26,
+    "weak_s": 0.06,
+    "weak_frac": 0.048,
+    "longest_weak_s": 0.02,
+    "fail_pattern": false,
+    "max_err_deg": 5.2,
+    "max_cur_A": 0.5
+   }
+  },
+  "getup": {
+   "u_start": 0.99,
+   "u_max": 0.999,
+   "first_s": {
+    "u": 0.0,
+    "joints": 4.04,
+    "height": 0.98,
+    "all4": 4.26
+   },
+   "chest_yaw_end_deg": -2.9,
+   "start_deg": {
+    "l_shoulder_roll": 14.5,
+    "r_shoulder_roll": -152.5,
+    "l_hip_pitch": -11.4,
+    "r_hip_pitch": -2.5,
+    "l_knee_pitch": 9.2,
+    "r_knee_pitch": 1.1,
+    "c_chest_yaw": -0.3
+   }
+  }
+ },
+ {
+  "file": "getup_trial_rep_prone3_20261110_200042.npz",
+  "label": "rep_prone3",
+  "reason": "最後まで動いた",
+  "elbows": {
+   "l_elbow_pitch": {
+    "lag_s": 10.96,
+    "weak_s": 10.8,
+    "weak_frac": 0.985,
+    "longest_weak_s": 3.44,
+    "fail_pattern": true,
+    "max_err_deg": 6.2,
+    "max_cur_A": 0.2
+   },
+   "r_elbow_pitch": {
+    "lag_s": 2.74,
+    "weak_s": 0.2,
+    "weak_frac": 0.073,
+    "longest_weak_s": 0.06,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.5
+   }
+  },
+  "getup": {
+   "u_start": 0.996,
+   "u_max": 1.0,
+   "first_s": {
+    "u": 0.0,
+    "joints": null,
+    "height": 1.62,
+    "all4": null
+   },
+   "chest_yaw_end_deg": -0.9,
+   "start_deg": {
+    "l_shoulder_roll": 2.0,
+    "r_shoulder_roll": -11.9,
+    "l_hip_pitch": -21.7,
+    "r_hip_pitch": -7.5,
+    "l_knee_pitch": 47.5,
+    "r_knee_pitch": 50.9,
+    "c_chest_yaw": -9.1
+   }
+  }
+ },
+ {
+  "file": "getup_trial_prone_20261113_141113.npz",
+  "label": "prone",
+  "reason": "最後まで動いた",
+  "elbows": {
+   "l_elbow_pitch": {
+    "lag_s": 2.12,
+    "weak_s": 0.22,
+    "weak_frac": 0.104,
+    "longest_weak_s": 0.02,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.5
+   },
+   "r_elbow_pitch": {
+    "lag_s": 2.76,
+    "weak_s": 0.06,
+    "weak_frac": 0.022,
+    "longest_weak_s": 0.02,
+    "fail_pattern": false,
+    "max_err_deg": 4.9,
+    "max_cur_A": 0.7
+   }
+  },
+  "getup": {
+   "u_start": 0.984,
+   "u_max": 1.0,
+   "first_s": {
+    "u": 0.0,
+    "joints": 5.2,
+    "height": 1.08,
+    "all4": 5.34
+   },
+   "chest_yaw_end_deg": 0.3,
+   "start_deg": {
+    "l_shoulder_roll": 12.2,
+    "r_shoulder_roll": -16.5,
+    "l_hip_pitch": 9.7,
+    "r_hip_pitch": 18.2,
+    "l_knee_pitch": 50.9,
+    "r_knee_pitch": 30.2,
+    "c_chest_yaw": -1.3
+   }
+  }
+ },
+ {
+  "file": "getup_trial_supine_20261113_141331.npz",
+  "label": "supine",
+  "reason": "最後まで動いた",
+  "elbows": {
+   "l_elbow_pitch": {
+    "lag_s": 2.58,
+    "weak_s": 1.0,
+    "weak_frac": 0.388,
+    "longest_weak_s": 0.06,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.5
+   },
+   "r_elbow_pitch": {
+    "lag_s": 2.4,
+    "weak_s": 0.18,
+    "weak_frac": 0.075,
+    "longest_weak_s": 0.04,
+    "fail_pattern": false,
+    "max_err_deg": 5.5,
+    "max_cur_A": 0.4
+   }
+  },
+  "getup": {
+   "u_start": -0.797,
+   "u_max": -0.427,
+   "first_s": {
+    "u": null,
+    "joints": null,
+    "height": 3.72,
+    "all4": null
+   },
+   "chest_yaw_end_deg": -2.3,
+   "start_deg": {
+    "l_shoulder_roll": 7.4,
+    "r_shoulder_roll": -20.1,
+    "l_hip_pitch": -71.7,
+    "r_hip_pitch": -45.2,
+    "l_knee_pitch": 48.9,
+    "r_knee_pitch": 3.5,
+    "c_chest_yaw": 0.3
+   }
+  }
+ },
+ {
+  "file": "getup_trial_supine_20261113_141450.npz",
+  "label": "supine",
+  "reason": "最後まで動いた",
+  "elbows": {
+   "l_elbow_pitch": {
+    "lag_s": 1.8,
+    "weak_s": 0.74,
+    "weak_frac": 0.411,
+    "longest_weak_s": 0.06,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.4
+   },
+   "r_elbow_pitch": {
+    "lag_s": 1.32,
+    "weak_s": 0.08,
+    "weak_frac": 0.061,
+    "longest_weak_s": 0.02,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.4
+   }
+  },
+  "getup": {
+   "u_start": -0.811,
+   "u_max": -0.768,
+   "first_s": {
+    "u": null,
+    "joints": null,
+    "height": null,
+    "all4": null
+   },
+   "chest_yaw_end_deg": -2.3,
+   "start_deg": {
+    "l_shoulder_roll": 11.3,
+    "r_shoulder_roll": -25.6,
+    "l_hip_pitch": -58.1,
+    "r_hip_pitch": -47.2,
+    "l_knee_pitch": 24.2,
+    "r_knee_pitch": 1.5,
+    "c_chest_yaw": -7.1
+   }
+  }
+ },
+ {
+  "file": "getup_trial_supine_20261113_142042.npz",
+  "label": "supine",
+  "reason": "最後まで動いた",
+  "elbows": {
+   "l_elbow_pitch": {
+    "lag_s": 3.2,
+    "weak_s": 1.8,
+    "weak_frac": 0.562,
+    "longest_weak_s": 0.16,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.3
+   },
+   "r_elbow_pitch": {
+    "lag_s": 2.7,
+    "weak_s": 0.34,
+    "weak_frac": 0.126,
+    "longest_weak_s": 0.06,
+    "fail_pattern": false,
+    "max_err_deg": 6.1,
+    "max_cur_A": 0.5
+   }
+  },
+  "getup": {
+   "u_start": -0.809,
+   "u_max": -0.784,
+   "first_s": {
+    "u": null,
+    "joints": null,
+    "height": null,
+    "all4": null
+   },
+   "chest_yaw_end_deg": -12.2,
+   "start_deg": {
+    "l_shoulder_roll": 11.3,
+    "r_shoulder_roll": -3.6,
+    "l_hip_pitch": -94.1,
+    "r_hip_pitch": -89.8,
+    "l_knee_pitch": 80.1,
+    "r_knee_pitch": 66.8,
+    "c_chest_yaw": 2.0
+   }
+  }
+ },
+ {
+  "file": "getup_trial_supine_20261113_143925.npz",
+  "label": "supine",
+  "reason": "最後まで動いた",
+  "elbows": {
+   "l_elbow_pitch": {
+    "lag_s": 2.0,
+    "weak_s": 0.48,
+    "weak_frac": 0.24,
+    "longest_weak_s": 0.04,
+    "fail_pattern": false,
+    "max_err_deg": 5.2,
+    "max_cur_A": 0.5
+   },
+   "r_elbow_pitch": {
+    "lag_s": 2.88,
+    "weak_s": 0.08,
+    "weak_frac": 0.028,
+    "longest_weak_s": 0.02,
+    "fail_pattern": false,
+    "max_err_deg": 5.1,
+    "max_cur_A": 0.7
+   }
+  },
+  "getup": {
+   "u_start": -0.879,
+   "u_max": 0.998,
+   "first_s": {
+    "u": 5.24,
+    "joints": null,
+    "height": 4.52,
+    "all4": null
+   },
+   "chest_yaw_end_deg": -17.8,
+   "start_deg": {
+    "l_shoulder_roll": 2.6,
+    "r_shoulder_roll": 1.3,
+    "l_hip_pitch": -90.1,
+    "r_hip_pitch": -93.1,
+    "l_knee_pitch": 63.7,
+    "r_knee_pitch": 65.5,
+    "c_chest_yaw": -0.6
+   }
+  }
+ },
+ {
+  "file": "getup_trial_supine_20261113_144159.npz",
+  "label": "supine",
+  "reason": "最後まで動いた",
+  "elbows": {
+   "l_elbow_pitch": {
+    "lag_s": 1.82,
+    "weak_s": 0.32,
+    "weak_frac": 0.176,
+    "longest_weak_s": 0.04,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.5
+   },
+   "r_elbow_pitch": {
+    "lag_s": 1.76,
+    "weak_s": 0.18,
+    "weak_frac": 0.102,
+    "longest_weak_s": 0.02,
+    "fail_pattern": false,
+    "max_err_deg": 4.6,
+    "max_cur_A": 0.5
+   }
+  },
+  "getup": {
+   "u_start": -0.941,
+   "u_max": 1.0,
+   "first_s": {
+    "u": 7.22,
+    "joints": null,
+    "height": 7.28,
+    "all4": null
+   },
+   "chest_yaw_end_deg": 19.2,
+   "start_deg": {
+    "l_shoulder_roll": 40.3,
+    "r_shoulder_roll": -23.4,
+    "l_hip_pitch": -34.6,
+    "r_hip_pitch": -31.9,
+    "l_knee_pitch": 0.8,
+    "r_knee_pitch": 0.2,
+    "c_chest_yaw": -17.1
+   }
+  }
+ }
+]
