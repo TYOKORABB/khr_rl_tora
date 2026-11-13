@@ -195,7 +195,9 @@ class GetupEnv:
         self.p_scale = torch.ones(num_envs, device=self.device, dtype=gs.tc_float)
         #   kp_range = (lo, hi)（11/7）: 体ごと・エピソードごとのサーボの硬さ kp [N·m/rad]（実機の 4 回に近いのは kp 10〜12 ＋ 上限 30 %、
         #              experiments/real/20261106_getup_r2/traj_fit.md）。元の強さのエピソードは env_cfg["kp"]
-        self.kp_env = torch.full((num_envs, 1), float(env_cfg["kp"]), device=self.device, dtype=gs.tc_float)
+        #   kp_per_joint = True（getup-v13、11/13）: 硬さを関節ごとに別々に引く（実機の左肘や腰のヨー軸のように関節ごとに強さが違う）。無ければ前と同じ（全関節で 1 つ）
+        self.kp_cols = len(JOINT_NAMES) if env_cfg["dr"].get("kp_per_joint") else 1
+        self.kp_env = torch.full((num_envs, self.kp_cols), float(env_cfg["kp"]), device=self.device, dtype=gs.tc_float)
         self.kp_dr = "kp_range" in env_cfg["dr"]
         self.prot = env_cfg["dr"].get("protection")
         self.prot_T = torch.full((num_envs,), float("inf"), device=self.device, dtype=gs.tc_float)
@@ -290,6 +292,8 @@ class GetupEnv:
         self.contacts_max = torch.zeros((), dtype=torch.long, device=self.device)   # 1 体の接触点の数の最大（§4.2-5 で記録）
         self.extras = {"episode": {}}
         self.reward_scales = {k: v * self.dt for k, v in reward_cfg["reward_scales"].items()}
+        self.arm_idx = torch.tensor([JOINT_NAMES.index(f"{s}_{j}") for s in ("l", "r") for j in ("shoulder_pitch", "shoulder_roll", "elbow_yaw", "elbow_pitch")],
+                                    device=self.device)      # _reward_arm_stall（getup-v13）で使う腕の 8 関節
         self.reward_functions = {k: getattr(self, "_reward_" + k) for k in self.reward_scales}
         self.episode_sums = {k: f(B) for k in self.reward_scales}
         self.num_obs = obs_cfg["num_obs"]
@@ -576,8 +580,8 @@ class GetupEnv:
                 # プロテクションの時間は、いまの dr にあるときだけ（eval_getup の公称は dr を差し替えるので、そのときは効かない）
                 inf_k = torch.full((k,), float("inf"), device=self.device, dtype=gs.tc_float)
                 self.prot_T[ids] = torch.where(full, inf_k, rnd(rng(dr["protection"]["t"]), k)) if "protection" in dr else inf_k
-                kp0 = torch.full((k, 1), float(self.env_cfg["kp"]), device=self.device, dtype=gs.tc_float)
-                self.kp_env[ids] = torch.where(full.unsqueeze(1), kp0, rnd(rng(dr["kp_range"]), k, 1)) if "kp_range" in dr else kp0
+                kp0 = torch.full((k, self.kp_cols), float(self.env_cfg["kp"]), device=self.device, dtype=gs.tc_float)
+                self.kp_env[ids] = torch.where(full.unsqueeze(1), kp0, rnd(rng(dr["kp_range"]), k, self.kp_cols)) if "kp_range" in dr else kp0
                 # weak_mix = {"power": p}（11/7、getup-v11c）: 弱いエピソードの割合 p を「電源の上限だけ」、残りを「サーボ側（硬さ・上限）だけ」にする
                 # （実機の弱さの原因は 1 つの見込みで、全部を同時に弱くした体は実機に無い）。プロテクションと観測の古さはどちらにも入れる。無ければ全部を同時に引く
                 mix = dr.get("weak_mix")
@@ -722,6 +726,14 @@ class GetupEnv:
         # （全関節が上限いっぱいで振ると 1）。実機では立ったあと目標角の動きで胴体が揺れた（after_stand.md）。報酬の設定に名前が無ければ使われない
         d = float(self.env_cfg["action"]["delta"])
         return ((self.q_tgt_step / d) ** 2).mean(1) * self._standing_now.float()
+
+    def _reward_arm_stall(self):
+        # getup-v13（11/13、experiments/getup/v13_plan.md §2）: 腕の 8 関節（肩のピッチ・ロール、肘のヨー・ピッチ）が、送った目標角とのずれの上限の
+        # 9 割以上で押したまま動かない（|関節速度| < 0.3 rad/s）割合。実機では肩がずれの上限で押し続けた時間が 1 関節 96〜163 s あった（サーボの負担）。
+        # 実機の記録の数え方（real/servo_failure_analysis.py の「ずれの上限に張り付いた時間」）にそろえた。報酬の設定に名前が無ければ使われない
+        g = self.post.gap if self.post.gap is not None else 0.05
+        e = (self.q_delay - self.q).abs()[:, self.arm_idx]
+        return ((e > 0.9 * g) & (self.dq.abs()[:, self.arm_idx] < 0.3)).float().mean(1)
 
     def _reward_action_smoothness2(self):
         # v3: 行動の 2 階差分（毎歩の向きの反転を強く罰する。歩行 v10 以降と同じ形）
