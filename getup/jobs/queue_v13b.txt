@@ -1,0 +1,6 @@
+# getup-v13 の 2 回目（11/16、experiments/getup/v13_plan.md §7）。1 行 1 案: <案の名前> <シード（, 区切り）> [train_getup11 に足す引数]。上から順に回す。
+# 本人「１と３を進めて欲しい」: 1 = kpjoint にシード 4〜6 を足して確かめる、3 = kpjoint に案を 1 つ重ねる（v12 から同じ 1500 イテレーション）。
+# シード s は getup12-real-s{(s−1)%3+1} の model_5997 から続ける（v12 はシード 1〜3 しか無いので、シード 4〜6 は 1〜3 と同じ方策から別の乱数で始める）。
+kpjoint 4,5,6 --kp_joint                                     # 1: 採用候補 kpjoint の確かめ（シードの差が大きかった）
+kpj-armstall 1,2,3 --kp_joint --arm_stall -2.0               # 3a: kpjoint ＋ 腕が押し続ける罰（armstall はうつ伏せ M2 が 52.5 % で単独の案でいちばん高い）
+kpj-kplow 1,2,3 --kp_joint --kp 4 9 --ramp 600               # 3b: kpjoint ＋ 硬さの範囲 4〜9（kplow は仰向け M1 が 21.8 % で kpjoint の次に高い）
