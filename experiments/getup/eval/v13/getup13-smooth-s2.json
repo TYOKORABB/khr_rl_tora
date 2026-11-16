@@ -1,0 +1,91 @@
+{
+ "exp": "getup13-smooth-s2",
+ "ckpt": "7496",
+ "gap": 0.08,
+ "kp": 7.0,
+ "stale_eval": 0.2,
+ "A": {
+  "success_pct": 0.0,
+  "end_pose_pct": 0.0,
+  "tgt_step_deg": 1.344,
+  "omega_med": 0.169,
+  "stood": 2,
+  "arm_stall_pct": 5.36
+ },
+ "B": {
+  "side": {
+   "n": 186,
+   "success_pct": 0.0
+  },
+  "chest_mid": {
+   "n": 405,
+   "success_pct": 0.0
+  },
+  "supine": {
+   "n": 209,
+   "success_pct": 0.0,
+   "t_up_med_s": 3.56
+  }
+ },
+ "D": {
+  "n_starts": 17,
+  "success_pct": 0.0,
+  "end_pose_pct": 0.0,
+  "t_up_med_s": 2.86,
+  "arm_stall_pct": 4.51,
+  "reached_up_pct": 100.0,
+  "chest_yaw_end_med_deg": 4.48,
+  "per_start_success_pct": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "E": {
+  "supine": {
+   "success_pct": 0.0,
+   "end_pose_pct": 0.0,
+   "t_up_med_s": 2.95,
+   "arm_stall_pct": 4.91,
+   "reached_up_pct": 100.0,
+   "chest_yaw_end_med_deg": 4.42,
+   "per_start_success_pct": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  "prone": {
+   "success_pct": 0.0,
+   "end_pose_pct": 0.0
+  }
+ }
+}

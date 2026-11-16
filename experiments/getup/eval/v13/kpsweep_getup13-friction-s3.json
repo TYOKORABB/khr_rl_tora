@@ -1,0 +1,39 @@
+{
+ "exp": "getup13-friction-s3",
+ "ckpt": "7496",
+ "gap": 0.08,
+ "kp_sweep": {
+  "5.0": {
+   "supine": {
+    "success_pct": 11.8,
+    "end_pose_pct": 35.3,
+    "t_up_med_s": 4.87,
+    "reached_up_pct": 86.8,
+    "arm_stall_pct": 9.71
+   },
+   "prone": {
+    "success_pct": 38.8,
+    "end_pose_pct": 70.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 19.17
+   }
+  },
+  "6.0": {
+   "supine": {
+    "success_pct": 75.7,
+    "end_pose_pct": 89.0,
+    "t_up_med_s": 3.82,
+    "reached_up_pct": 91.9,
+    "arm_stall_pct": 5.99
+   },
+   "prone": {
+    "success_pct": 98.8,
+    "end_pose_pct": 100.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 10.34
+   }
+  }
+ }
+}

@@ -92,7 +92,13 @@ def judge_all(groups, table):
         need = [k for k, _, _ in CRIT.values()] + [k for _, k in M] + ["立ったあとの目標角の変化 deg/周期"] + (list(STALL) if g == "armstall" else [])
         t = {k: table[k][g] for k in table}
         if any(t[k] is None for k in need):
-            print(f"- {g}: まだそろっていない")
+            # 立った体が無いと目標角の変化は測れない（smooth のシード 3）。悪くしないが測れて満たさないなら、それだけで採用しない（基準は同じ）
+            bad = [c for c, (k, op, th) in CRIT.items() if t[k] is not None and not ok(t[k], op, th)]
+            if bad:
+                print(f"- {g}: **採用しない**。悪くしない 満たさない: " + "、".join(f"{c}（{CRIT[c][0]} {t[CRIT[c][0]]}）" for c in bad)
+                      + "。測れない量: " + "、".join(k for k in need if t[k] is None))
+            else:
+                print(f"- {g}: まだそろっていない")
             continue
         base = "v12@0.10" if g == "gap10" else "v12"      # gap10 は、v12 を学習し直さずに 0.10 で動かした値と比べる
         nonreg = {c: ok(t[k], op, th) for c, (k, op, th) in CRIT.items()}

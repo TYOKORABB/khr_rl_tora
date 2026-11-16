@@ -1,0 +1,27 @@
+{
+ "exp": "getup13-smooth-s1",
+ "ckpt": 7496,
+ "level": "L2",
+ "num_states": 256,
+ "episode_s": 12.0,
+ "window_s": [
+  8.0,
+  12.0
+ ],
+ "backend": "gpu",
+ "date": "2026-11-14T00:04:14",
+ "conds": {
+  "dr": {
+   "n_standing_all_window": 0
+  },
+  "no_noise": {
+   "n_standing_all_window": 0
+  },
+  "nominal": {
+   "n_standing_all_window": 0
+  },
+  "freeze": {
+   "n_standing_all_window": 0
+  }
+ }
+}

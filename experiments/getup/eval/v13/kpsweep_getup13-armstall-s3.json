@@ -1,0 +1,39 @@
+{
+ "exp": "getup13-armstall-s3",
+ "ckpt": "7496",
+ "gap": 0.08,
+ "kp_sweep": {
+  "5.0": {
+   "supine": {
+    "success_pct": 14.0,
+    "end_pose_pct": 43.4,
+    "t_up_med_s": 5.26,
+    "reached_up_pct": 94.9,
+    "arm_stall_pct": 9.1
+   },
+   "prone": {
+    "success_pct": 43.8,
+    "end_pose_pct": 80.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 18.89
+   }
+  },
+  "6.0": {
+   "supine": {
+    "success_pct": 82.4,
+    "end_pose_pct": 93.4,
+    "t_up_med_s": 3.91,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 5.71
+   },
+   "prone": {
+    "success_pct": 100.0,
+    "end_pose_pct": 100.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 9.46
+   }
+  }
+ }
+}
