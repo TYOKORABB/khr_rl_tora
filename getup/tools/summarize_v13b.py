@@ -52,6 +52,8 @@ def main():
     groups["kpjoint 6"] = groups["kpjoint s1-3"] + groups["kpjoint s4-6"]
     for n in STACKS:
         groups[n] = load(f"getup13-{n}", (1, 2, 3))
+    groups["kpj-kplow s4-6"] = load("getup13-kpj-kplow", (4, 5, 6))      # 11/17 に足した確かめ
+    groups["kpj-kplow 6"] = groups["kpj-kplow"] + groups["kpj-kplow s4-6"]
     print("## 量（シードの平均。比例ゲイン 7・ずれの上限 0.08 rad）\n")
     print("| 量 | " + " | ".join(groups) + " |")
     print("|---|" + "---|" * len(groups))
@@ -61,7 +63,7 @@ def main():
         print(f"| {key} | " + " | ".join("—" if T[key][g] is None else str(T[key][g]) for g in groups) + " |")
     print("\n## シードごとの主な問い\n")
     for g, rs in groups.items():
-        if g == "kpjoint 6":
+        if g in ("kpjoint 6", "kpj-kplow 6"):
             continue
         print(f"- {g}: " + "、".join(f"{m} {vals(rs, key)}" for m, key in M))
 
@@ -100,6 +102,21 @@ def main():
         main_ok = any(u and keep[1 - i] for i, u in enumerate(up))
         verdict = "採用候補（kpjoint より良い）" if not bad and main_ok else "採用しない（kpjoint のまま）"
         print(f"- S（{g}）: **{verdict}**。悪くしない {'すべて満たす' if not bad else '満たさない: ' + '、'.join(bad)}。" + "。".join(res))
+    # K2（11/17 に本人が確かめて固定、結果の前）: kpj-kplow の 6 シードを kpjoint の 6 シードと比べる。
+    # M1 が kpjoint の 6 シードの平均より 10 pt 以上上で、シード 4〜6 がどれも同じ番号の kpjoint より上。M2 は 10 pt を超えて下がらない。N1〜N4 も満たす
+    g, base = "kpj-kplow 6", "kpjoint 6"
+    if any(T[k][g] is None for k in need):
+        print(f"- K2（kpj-kplow の 6 シード）: まだそろっていない")
+    else:
+        bad = [c for c, (k, op, th) in CRIT.items() if not ok(T[k][g], op, th)]
+        (m1, k1), (m2, k2) = M
+        per = all(x > y for x, y in zip(vals(groups["kpj-kplow s4-6"], k1), vals(groups["kpjoint s4-6"], k1)))
+        up = T[k1][g] >= T[k1][base] + GAIN_STACK and per
+        keep = T[k2][g] >= T[k2][base] - DROP_STACK
+        verdict = "確かめられた（kpjoint より良い）" if not bad and up and keep else "確かめられない"
+        print(f"- K2（kpj-kplow の 6 シード）: **{verdict}**。悪くしない {'すべて満たす' if not bad else '満たさない: ' + '、'.join(bad)}。"
+              f"{m1} {T[k1][g]}（kpjoint 6 シード {T[k1][base]}、+{GAIN_STACK} pt 以上 {T[k1][g] >= T[k1][base] + GAIN_STACK}、シード 4〜6 とも同じ番号の kpjoint より上 {per}）。"
+              f"{m2} {T[k2][g]}（kpjoint 6 シード {T[k2][base]}、−{DROP_STACK} pt より下がらない {keep}）")
     return 0
 
 

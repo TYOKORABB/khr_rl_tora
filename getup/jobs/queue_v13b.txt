@@ -4,3 +4,5 @@
 kpjoint 4,5,6 --kp_joint                                     # 1: 採用候補 kpjoint の確かめ（シードの差が大きかった）
 kpj-armstall 1,2,3 --kp_joint --arm_stall -2.0               # 3a: kpjoint ＋ 腕が押し続ける罰（armstall はうつ伏せ M2 が 52.5 % で単独の案でいちばん高い）
 kpj-kplow 1,2,3 --kp_joint --kp 4 9 --ramp 600               # 3b: kpjoint ＋ 硬さの範囲 4〜9（kplow は仰向け M1 が 21.8 % で kpjoint の次に高い）
+# 11/17 に足した: 採用候補 kpj-kplow の確かめ（kpjoint はシード 4〜6 を足すと M1 が 33.6 → 22.3 % に下がったため）
+kpj-kplow 4,5,6 --kp_joint --kp 4 9 --ramp 600
