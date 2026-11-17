@@ -1,0 +1,7 @@
+# getup-v13 の 3 回目（11/17、experiments/getup/v13_plan.md §8）。1 行 1 案: <案の名前> <シード（, 区切り）> [train_getup11 に足す引数]。上から順に回す。
+# 本人「2で、実機なしでやれることをやって欲しい」: 確かめられた kpj-kplow（--kp_joint --kp 4 9 --ramp 600）に案を 1 つずつ重ねる。
+# シード s は getup12-real-s{(s−1)%3+1} の model_5997 から続ける。引数の {s} はシードの番号に置き換える（kpjk-long が kpj-kplow の同じシードから続けるため）。
+kpjk-l4 1,2,3 --kp_joint --kp 4 9 --ramp 600 --l4 -0.5                              # 本人の案 L4（仰向け寄りだけの段階）。単独の l4 は比例ゲイン 6・7 の仰向けと寝返りの速さが良かった
+kpjk-kp3 1,2,3 --kp_joint --kp 3 9 --ramp 600                                       # 硬さの下限をさらに 4 → 3（kpjoint に下限 4 を重ねて大きく上がったので、もう一段）
+kpjk-stale 1,2,3 --kp_joint --kp 4 9 --ramp 600 --stale 0.0 0.3                     # 観測を前の周期のままにする確率 0〜0.3（実機の起き上がりの最中は約 2 割）
+kpjk-long 1,2,3 --kp_joint --kp 4 9 --init getup13-kpj-kplow-s{s} --init_ckpt 7496  # kpj-kplow をさらに 1500 続ける（ctl では続けただけで比例ゲイン 5 の成功が上がった）

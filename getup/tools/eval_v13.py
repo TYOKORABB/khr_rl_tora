@@ -131,6 +131,32 @@ if len(sys.argv) > 4 and sys.argv[4] == "kp-sweep":   # 物差しを探す（v13
     out.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     raise SystemExit(0)
 
+if len(sys.argv) > 4 and sys.argv[4] == "joint-weak":
+    # 11/17（v13_plan §8.2、参考の量）: 関節を 1 つだけ弱くする（ほかは kp 7）。実機の左肘のピッチ（断続的に力が出ない）や腰のヨー軸のように、
+    # 1 個のサーボだけ弱い日への強さ。評価では体ごとの関節の設定を持たないので、作ったあと全体の kp を関節ごとの値に置き直す（リセットでは戻らない）
+    #   python getup/tools/eval_v13.py <exp> <ckpt> <out.json> joint-weak 3.5,1.0 [関節名,...]
+    kws = [float(x) for x in (sys.argv[5].split(",") if len(sys.argv) > 5 else ["3.5", "1.0"])]
+    joints = sys.argv[6].split(",") if len(sys.argv) > 6 else [JOINT_NAMES[i] for i in ARM] + ["c_chest_yaw"]
+    res = {"exp": exp, "ckpt": ck, "gap": GAP, "kp_others": KP, "joint_weak": {}}
+    for kw in kws:
+        res["joint_weak"][str(kw)] = {}
+        for jn in joints:
+            row = {}
+            for name, st, reps in (("supine", supine, 8), ("prone", prone, 4)):
+                env, pol = make(reps * len(st))
+                kv = [KP] * n
+                kv[JOINT_NAMES.index(jn)] = kw
+                env.robot.set_dofs_kp(kv, env.motors)
+                put_starts(env, st)
+                r = rollout(env, pol, np.arange(len(st)).repeat(reps))
+                row[name] = {"success_pct": pct(r["success"]), "t_up_med_s": med(r["t_up"]), "reached_up_pct": pct(np.isfinite(r["t_up"]))}
+                del env, pol
+            res["joint_weak"][str(kw)][jn] = row
+            print("kp", kw, jn, row, flush=True)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    raise SystemExit(0)
+
 res = {"exp": exp, "ckpt": ck, "gap": GAP, "kp": KP, "stale_eval": STALE, "A": {}, "B": {}, "D": {}, "E": {}}
 res["D"]["n_starts"] = len(supine)
 
