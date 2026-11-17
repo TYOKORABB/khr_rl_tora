@@ -1,0 +1,39 @@
+{
+ "exp": "getup13-kpj-kplow-s2",
+ "ckpt": "7496",
+ "gap": 0.08,
+ "kp_sweep": {
+  "5.0": {
+   "supine": {
+    "success_pct": 57.4,
+    "end_pose_pct": 86.8,
+    "t_up_med_s": 3.84,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 11.24
+   },
+   "prone": {
+    "success_pct": 31.2,
+    "end_pose_pct": 83.8,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 19.62
+   }
+  },
+  "6.0": {
+   "supine": {
+    "success_pct": 99.3,
+    "end_pose_pct": 100.0,
+    "t_up_med_s": 3.27,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 5.85
+   },
+   "prone": {
+    "success_pct": 98.8,
+    "end_pose_pct": 100.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 9.73
+   }
+  }
+ }
+}

@@ -1,0 +1,39 @@
+{
+ "exp": "getup13-kpj-armstall-s2",
+ "ckpt": "7496",
+ "gap": 0.08,
+ "kp_sweep": {
+  "5.0": {
+   "supine": {
+    "success_pct": 30.9,
+    "end_pose_pct": 65.4,
+    "t_up_med_s": 3.85,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 12.89
+   },
+   "prone": {
+    "success_pct": 48.8,
+    "end_pose_pct": 90.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 18.34
+   }
+  },
+  "6.0": {
+   "supine": {
+    "success_pct": 99.3,
+    "end_pose_pct": 100.0,
+    "t_up_med_s": 3.29,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 5.18
+   },
+   "prone": {
+    "success_pct": 100.0,
+    "end_pose_pct": 100.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 8.24
+   }
+  }
+ }
+}
