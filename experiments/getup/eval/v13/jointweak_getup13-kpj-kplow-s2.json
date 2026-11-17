@@ -1,0 +1,228 @@
+{
+ "exp": "getup13-kpj-kplow-s2",
+ "ckpt": "7496",
+ "gap": 0.08,
+ "kp_others": 7.0,
+ "joint_weak": {
+  "3.5": {
+   "l_shoulder_pitch": {
+    "supine": {
+     "success_pct": 95.6,
+     "t_up_med_s": 3.2,
+     "reached_up_pct": 100.0
+    },
+    "prone": {
+     "success_pct": 97.5,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "l_shoulder_roll": {
+    "supine": {
+     "success_pct": 99.3,
+     "t_up_med_s": 2.91,
+     "reached_up_pct": 100.0
+    },
+    "prone": {
+     "success_pct": 98.8,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "l_elbow_yaw": {
+    "supine": {
+     "success_pct": 100.0,
+     "t_up_med_s": 2.71,
+     "reached_up_pct": 100.0
+    },
+    "prone": {
+     "success_pct": 100.0,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "l_elbow_pitch": {
+    "supine": {
+     "success_pct": 99.3,
+     "t_up_med_s": 2.87,
+     "reached_up_pct": 100.0
+    },
+    "prone": {
+     "success_pct": 100.0,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "r_shoulder_pitch": {
+    "supine": {
+     "success_pct": 95.6,
+     "t_up_med_s": 3.13,
+     "reached_up_pct": 100.0
+    },
+    "prone": {
+     "success_pct": 98.8,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "r_shoulder_roll": {
+    "supine": {
+     "success_pct": 99.3,
+     "t_up_med_s": 2.85,
+     "reached_up_pct": 100.0
+    },
+    "prone": {
+     "success_pct": 98.8,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "r_elbow_yaw": {
+    "supine": {
+     "success_pct": 100.0,
+     "t_up_med_s": 2.78,
+     "reached_up_pct": 100.0
+    },
+    "prone": {
+     "success_pct": 100.0,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "r_elbow_pitch": {
+    "supine": {
+     "success_pct": 98.5,
+     "t_up_med_s": 2.82,
+     "reached_up_pct": 100.0
+    },
+    "prone": {
+     "success_pct": 100.0,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "c_chest_yaw": {
+    "supine": {
+     "success_pct": 99.3,
+     "t_up_med_s": 3.08,
+     "reached_up_pct": 100.0
+    },
+    "prone": {
+     "success_pct": 100.0,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   }
+  },
+  "0.0": {
+   "l_shoulder_pitch": {
+    "supine": {
+     "success_pct": 0.0,
+     "t_up_med_s": 6.16,
+     "reached_up_pct": 50.0
+    },
+    "prone": {
+     "success_pct": 0.0,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "l_shoulder_roll": {
+    "supine": {
+     "success_pct": 50.0,
+     "t_up_med_s": 3.2,
+     "reached_up_pct": 96.3
+    },
+    "prone": {
+     "success_pct": 42.5,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "l_elbow_yaw": {
+    "supine": {
+     "success_pct": 70.6,
+     "t_up_med_s": 2.78,
+     "reached_up_pct": 100.0
+    },
+    "prone": {
+     "success_pct": 61.3,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "l_elbow_pitch": {
+    "supine": {
+     "success_pct": 5.1,
+     "t_up_med_s": 3.6,
+     "reached_up_pct": 89.0
+    },
+    "prone": {
+     "success_pct": 20.0,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "r_shoulder_pitch": {
+    "supine": {
+     "success_pct": 0.0,
+     "t_up_med_s": 5.52,
+     "reached_up_pct": 53.7
+    },
+    "prone": {
+     "success_pct": 0.0,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "r_shoulder_roll": {
+    "supine": {
+     "success_pct": 48.5,
+     "t_up_med_s": 3.07,
+     "reached_up_pct": 94.1
+    },
+    "prone": {
+     "success_pct": 52.5,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "r_elbow_yaw": {
+    "supine": {
+     "success_pct": 66.2,
+     "t_up_med_s": 2.89,
+     "reached_up_pct": 100.0
+    },
+    "prone": {
+     "success_pct": 68.8,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "r_elbow_pitch": {
+    "supine": {
+     "success_pct": 14.7,
+     "t_up_med_s": 3.74,
+     "reached_up_pct": 84.6
+    },
+    "prone": {
+     "success_pct": 25.0,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   },
+   "c_chest_yaw": {
+    "supine": {
+     "success_pct": 8.8,
+     "t_up_med_s": 4.59,
+     "reached_up_pct": 32.4
+    },
+    "prone": {
+     "success_pct": 96.2,
+     "t_up_med_s": 0.02,
+     "reached_up_pct": 100.0
+    }
+   }
+  }
+ }
+}
