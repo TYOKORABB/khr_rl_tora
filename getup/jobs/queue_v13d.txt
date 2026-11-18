@@ -1,0 +1,7 @@
+# getup-v13 の 4 回目（11/18、experiments/getup/v13_plan.md §9）。1 行 1 案: <案の名前> <シード（, 区切り）> [train_getup11 に足す引数]。上から順に回す。
+# 本人「4 案ともシード 4〜6」: 3 回目（S2）で採用候補になった 4 案にシード 4〜6 を足して確かめる（K3）。有望な順。引数は queue_v13c.txt と同じ。
+# シード s は getup12-real-s{(s−1)%3+1} の model_5997 から続ける（kpj-kplow のシード 4〜6 と同じ）。kpjk-long は kpj-kplow の同じシードの model_7496 から。
+kpjk-long 4,5,6 --kp_joint --kp 4 9 --init getup13-kpj-kplow-s{s} --init_ckpt 7496
+kpjk-kp3 4,5,6 --kp_joint --kp 3 9 --ramp 600
+kpjk-l4 4,5,6 --kp_joint --kp 4 9 --ramp 600 --l4 -0.5
+kpjk-stale 4,5,6 --kp_joint --kp 4 9 --ramp 600 --stale 0.0 0.3
