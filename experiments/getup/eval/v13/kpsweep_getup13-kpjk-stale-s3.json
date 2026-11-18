@@ -1,0 +1,39 @@
+{
+ "exp": "getup13-kpjk-stale-s3",
+ "ckpt": "7496",
+ "gap": 0.08,
+ "kp_sweep": {
+  "5.0": {
+   "supine": {
+    "success_pct": 72.8,
+    "end_pose_pct": 92.6,
+    "t_up_med_s": 3.76,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 10.81
+   },
+   "prone": {
+    "success_pct": 37.5,
+    "end_pose_pct": 72.5,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 21.48
+   }
+  },
+  "6.0": {
+   "supine": {
+    "success_pct": 97.8,
+    "end_pose_pct": 100.0,
+    "t_up_med_s": 3.14,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 5.56
+   },
+   "prone": {
+    "success_pct": 100.0,
+    "end_pose_pct": 100.0,
+    "t_up_med_s": 0.02,
+    "reached_up_pct": 100.0,
+    "arm_stall_pct": 10.41
+   }
+  }
+ }
+}

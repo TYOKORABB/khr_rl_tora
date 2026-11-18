@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# getup-v13 の 3 回目（2026-11-17、experiments/getup/v13_plan.md §8）。run_v13c.sh と同じで、引数の {s} をシードの番号に置き換える。
+# getup-v13 の 3 回目（2026-11-17、experiments/getup/v13_plan.md §8）。run_v13b.sh と同じで、引数の {s} をシードの番号に置き換える。
 # 本人の決定（11/17）:「2で、実機なしでやれることをやって欲しい」（確かめられた kpj-kplow に案を 1 つずつ重ねる）。
 #
 #   nohup bash getup/jobs/run_v13c.sh > logs/getup_jobs/run_v13c.log 2>&1 &

@@ -1848,3 +1848,11 @@ v12 シード 3（getup12-real-s3 model_5997、`--gap 0.08 --e-sat-deg 7`）で 
 - 本人「2で、実機なしでやれることをやって欲しい」。GPU: kpj-kplow に 1 案ずつ重ねる 4 案（kpjk-l4・kpjk-kp3・kpjk-stale・kpjk-long）を 17:01 に開始。判定 S2 は本人が確かめて結果の前に固定。
 - CPU（参考）: kpj-kplow をずれの上限 0.10 rad で測った（比例ゲイン 5 で仰向け 99.6 %）、関節を 1 つだけ弱くする試験、比例ゲイン 4・3 まで下げた比較。実機に載せる準備（偽の ESP32 の selftest は OK）と次の実機の手順の案（`experiments/real/session6_plan.md`）。
 - 17:47: 参考の結果（§8.2）。成功は「比例ゲイン × ずれの上限」でほぼ決まる（比例ゲイン 4 × 0.10 rad で v12 15.0 %、kpj-kplow 60.4 %）。関節 1 つが半分の強さなら kpj-kplow はどの関節でも 93 % 以上（v12 は肩ピッチで 52〜64 %）。1 つが脱力だとどちらも起き上がれない（11/10 の左肘、11/13 の腰のヨー軸の実機と同じ傾向）。
+
+### 11/18: getup-v13 の 3 回目 S2 の判定（`experiments/getup/v13_plan.md` §8.3）
+
+- 待ち行列は 03:36 に終わり、whisper の cron も戻った（有効な行 4）。
+- **4 案とも「採用候補（kpj-kplow より良い）」。** 比例ゲイン 5 の仰向け（M1）は kpj-kplow 48.1 % に対し kpjk-long 74.3 %、kpjk-kp3 72.3 %、kpjk-l4 72.1 %、kpjk-stale 64.2 %。うつ伏せ（M2）は kpjk-long 67.9 %、kpjk-kp3 61.3 %、kpjk-stale 52.5 %、kpjk-l4 45.0 %（kpj-kplow 53.3 %）。悪くしないはすべて満たす。
+- 比べた kpj-kplow のシード 1〜3 は低い組（6 シードの平均は 53.9 %）。kpjk-stale は 6 シードの平均と比べると +10.3 pt しかない。kpjk-long は学習を長くしただけなので、kpj-kplow がまだ伸びきっていなかったことになる。
+- 動画は 12 本とも `media/videos/getup/getup13-kpjk-*` に撮れている（git には入れない）。
+- `run_v13c.sh` の先頭のコメントの書き間違い（「run_v13c.sh と同じで」→ run_v13b.sh）を、終わったあとに直した。
