@@ -1,0 +1,99 @@
+diff -ruN drain_base/Meridian_LITE_for_ESP32/src/config.h drainonly/Meridian_LITE_for_ESP32/src/config.h
+--- drain_base/Meridian_LITE_for_ESP32/src/config.h	2026-04-21 11:33:46.000000000 +0900
++++ drainonly/Meridian_LITE_for_ESP32/src/config.h	2026-11-20 16:52:54.190317332 +0900
+@@ -131,6 +131,9 @@
+ #define MODE_ESP32_STANDALONE 0 // ESP32をボードに挿さず動作確認(0:NO, 1:YES)
+ #define MODE_UDP_RECEIVE      1 // PCからのデータ受信(0:OFF, 1:ON, 通常は1)
+ #define MODE_UDP_SEND         1 // PCへのデータ送信(0:OFF, 1:ON, 通常は1)
++// 受信: 1 だと, 受けたあとに受信バッファに溜まっている古い通常パケットを読み捨てて最新だけを使う(PC の指令の遅れを減らす).
++// 特殊コマンド(脱力・トリム設定など)は読み捨てない. 0 だと改造前と同じく毎フレーム一番古いパケットを1つ読む.
++#define KHR_UDP_DRAIN 1
+ 
+ // Wifiの設定(SSID,パスワード等は別途keys.hで指定)
+ #define MODE_FIXED_IP 0 // IPアドレスを固定するか(0:NO, 1:YES)
+diff -ruN drain_base/Meridian_LITE_for_ESP32/src/khr_udp_drain.h drainonly/Meridian_LITE_for_ESP32/src/khr_udp_drain.h
+--- drain_base/Meridian_LITE_for_ESP32/src/khr_udp_drain.h	1970-01-01 09:00:00.000000000 +0900
++++ drainonly/Meridian_LITE_for_ESP32/src/khr_udp_drain.h	2026-11-20 16:52:54.173174533 +0900
+@@ -0,0 +1,53 @@
++#ifndef __KHR_UDP_DRAIN_H__
++#define __KHR_UDP_DRAIN_H__
++
++/// @file    khr_udp_drain.h
++/// @brief   受信バッファに溜まった古い通常パケットを読み捨て, 最新だけを使う (khr_rl_tora, 2026-10-13 / 単独パッチ 2026-11-20).
++/// @details メインループは 1 フレーム (10 ms) に受信バッファから一番古いパケットを 1 つだけ読む.
++///          PC が 100 Hz で送ると, 無線の都合で束になって届いた分が溜まったまま減らず, 指令が数フレーム遅れて使われる
++///          (実測: 往復の遅れ 中央値 52〜61 ms). 受けたあとに溜まっている通常パケットを読み捨て, 最新だけを残す.
++///          特殊コマンド (マスターコマンド [0] が Meridim の長さ 90 以外: 脱力・トリム設定など) は読み捨てない.
++///          Arduino に依存しないので, ホストの g++ で単体テストできる (test/test_udp_drain.cpp).
++
++#include <stdint.h>
++#include <string.h>
++
++#define KHR_MRDM_LEN  90 // Meridim の長さ (= 通常パケットのマスターコマンド [0])
++#define KHR_DRAIN_MAX 16 // 1 フレームに読み捨てる上限
++
++/// @brief Meridian のチェックサム (Meridian::cksm_rslt と同じ計算) が合っているか.
++inline bool khr_cksm_ok(const int16_t *a_m) {
++  int sum = 0;
++  for (int i = 0; i < KHR_MRDM_LEN - 1; i++) {
++    sum += (int)a_m[i];
++  }
++  return (int16_t)(~sum) == a_m[KHR_MRDM_LEN - 1];
++}
++
++/// @brief 受信バッファに溜まった通常パケットを読み捨て, a_cur を最新にする.
++/// @param a_cur いま受けたパケット (int16 の Meridim). 最新のパケットで上書きされる.
++/// @param a_recv 次のパケットを引数の配列に読めたら true を返す受信関数 (無ければ false).
++/// @param a_prev_seq 読み捨てたとき, 残したパケットの 1 つ前に持っていたパケットのシーケンス番号 [1].
++///        呼び出し側はこれをシーケンス番号の予想値に入れ, 読み捨てた分をスキップとして数えないようにする.
++/// @return 読み捨てた数 (0 なら a_cur も a_prev_seq も変えない).
++/// @details a_cur が特殊コマンドなら何もしない. 特殊コマンドが来たらそれを a_cur にしてそこで止める (後ろは次のフレーム).
++///          チェックサムが合わないパケットは捨てて続ける (その番号は飛びとして残る).
++template <class Recv>
++int khr_udp_drain(int16_t *a_cur, Recv a_recv, uint16_t &a_prev_seq, int a_max = KHR_DRAIN_MAX) {
++  int drained = 0;
++  int16_t next[KHR_MRDM_LEN];
++  for (int k = 0; k < a_max && a_cur[0] == KHR_MRDM_LEN; k++) {
++    if (!a_recv(next)) {
++      break;
++    }
++    if (!khr_cksm_ok(next)) {
++      continue;
++    }
++    a_prev_seq = (uint16_t)a_cur[1];
++    memcpy(a_cur, next, sizeof(next));
++    drained++;
++  }
++  return drained;
++}
++
++#endif // __KHR_UDP_DRAIN_H__
+diff -ruN drain_base/Meridian_LITE_for_ESP32/src/main.cpp drainonly/Meridian_LITE_for_ESP32/src/main.cpp
+--- drain_base/Meridian_LITE_for_ESP32/src/main.cpp	2026-04-21 11:33:46.000000000 +0900
++++ drainonly/Meridian_LITE_for_ESP32/src/main.cpp	2026-11-20 16:52:54.190545218 +0900
+@@ -28,6 +28,7 @@
+ #include "mrd_servo.h"
+ #include "mrd_util.h"
+ #include "mrd_wifi.h"
++#include "khr_udp_drain.h" // 受信バッファの古いパケットの読み捨て
+ #include "mrd_wire0.h"
+ 
+ MERIDIANFLOW::Meridian mrd;
+@@ -272,6 +273,17 @@
+       }
+       delay(1);
+     }
++#if KHR_UDP_DRAIN
++    // 受信バッファに溜まった古い通常パケットを読み捨て, 最新だけを使う(PC の指令の遅れを減らす)
++    if (flg.udp_rcvd) {
++      uint16_t khr_prev_seq = 0;
++      if (khr_udp_drain(
++              r_udp_meridim.sval, [&](int16_t *a_dst) { return mrd_wifi_udp_receive((byte *)a_dst, MRDM_BYTE, udp); },
++              khr_prev_seq) > 0) {
++        mrdsq.r_expect = khr_prev_seq; // 読み捨てた分は [2-5] でシーケンス番号の飛び(スキップ)として数えない
++      }
++    }
++#endif
+   }
+   flg.udp_busy = false; // UDP使用中フラグをサゲる
+ 
