@@ -1,5 +1,8 @@
 # 次の実機の手順（11/17 作成、案）: kpj-kplow と v12 を並べて試す
 
+**11/20 更新: 候補を `getup13-kpjk-long-s6` の model_8995 に入れ替えた**（`../getup/v13_plan.md` §9.1。kpj-kplow-s6 を 1500 イテレーション長く学習したもの。比例ゲイン 5 の仰向け 63.2 → 91.9 %、うつ伏せ 68.8 → 68.8 %、ほかの量は同じ程度。偽の ESP32 の selftest は OK）。以下の「kpj-kplow」は、この候補に読み替える。コマンドの `--exp` と `--ckpt` も直した。
+
+
 シミュの結果は `experiments/getup/v13_plan.md` §7.6・§8。前回（11/13）は `20261113_hw_check/README.md`。
 物理の操作（BOOT・置く・持つ・配線）は、そのつど直前に確認を取る。**動かす直前に撮影するかを本人に確かめる**（11/10 の本人の指示）。
 サーボの設定は読むだけで書き換えない（プロテクションは外さない）。扱わないこと: 重りの試験・ステップ応答（同期のテーマ）。
@@ -43,7 +46,7 @@ AC アダプター（12 V・5 A）、スマホと三脚。床は 11/10・11/13 �
 
 コマンド（各回。置いたあと、本人の確認のあと）:
 
-    python -m real.getup_session getup --label supine --exp getup13-kpj-kplow-s6 --ckpt 7496 --seconds 8 --gap 0.08 --e-sat-deg 7 --freeze 5
+    python -m real.getup_session getup --label supine --exp getup13-kpjk-long-s6 --ckpt 8995 --seconds 8 --gap 0.08 --e-sat-deg 7 --freeze 5
     python -m real.getup_session getup --label supine --exp getup12-real-s3 --ckpt 5997 --seconds 8 --gap 0.08 --e-sat-deg 7 --freeze 5
 
 - 中止: 道具の中止（目標角とのずれ 7° 超えが続く・受信の途切れ）、本人の判断、`servo_drive_check` で左肘に 11/10 の形（ずれ 3° 超えで電流 0.1 A 以下が 2 秒以上）が出たとき。

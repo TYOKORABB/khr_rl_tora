@@ -1857,3 +1857,6 @@ v12 シード 3（getup12-real-s3 model_5997、`--gap 0.08 --e-sat-deg 7`）で 
 - 動画は 12 本とも `media/videos/getup/getup13-kpjk-*` に撮れている（git には入れない）。
 - `run_v13c.sh` の先頭のコメントの書き間違い（「run_v13c.sh と同じで」→ run_v13b.sh）を、終わったあとに直した。
 - 13:19: 本人「4 案ともシード 4〜6」。4 案にシード 4〜6 を足して確かめる学習を始めた（K3、`run_v13d.sh`、11/19 の 0 時ごろに終わる見込み）。判定の基準は K2 と同じ形で、本人が確かめて結果の前に固定（M1 の 6 シード平均 63.9 % 以上、シード 4〜6 が同じ番号の kpj-kplow より上、M2 の 6 シード平均 49.8 % 以上、N1〜N4、§9）。
+- 11/18 23:51: 4 回目（K3）が終わった。kpjk-long（M1 78.8 %、M2 67.3 %）と kpjk-kp3（67.9 %、54.0 %）が確かめられた。kpjk-l4 は M2 45.2 %、kpjk-stale は M1 59.0 % で確かめられない。whisper の cron は戻った（`experiments/getup/v13_plan.md` §9.1）。
+- 11/20: 次の実機の候補を getup13-kpjk-long-s6 model_8995 に入れ替えた（kpj-kplow-s6 を 1500 長く学習したもの、M1 91.9 %・M2 68.8 %）。偽の ESP32 の selftest は OK。`experiments/real/session6_plan.md` を直した。
+
