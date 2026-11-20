@@ -7,6 +7,10 @@
   python -m unified.train_unified0 -e unified0-kp25-s1 --seed 1 --kp_fixed 25    # 対照: 硬さ 25 で固定（v31 と同じ硬さ。行動の写像などの違いだけを見る）
   python -m unified.train_unified0 -e unified0-smoke -B 32 -I 2 --cpu            # 動作確認（CPU）
 
+11/20 の段階 0 の 1 本目（unified0-kplow-s1、std を学習・エントロピー 0.005）は、行動の std が 0.5 → 58 に発散して崩れた
+（行動は ±1 で切るので、std を上げても罰がなくエントロピーだけ得をする。起き上がりの v11 と同じ崩れ方）。そこで段階 0b からは
+起き上がり（getup-v11b〜v13）と同じく std を 0.5 に固定し、エントロピーを 0 にした（--std_fix、--entropy、既定がそれ）。
+
 **同じ exp 名の logs/<exp>/ は消して作り直す**。測定と動画は python -m unified.eval_walk -e <exp>。
 """
 
@@ -73,7 +77,7 @@ def get_cfgs(kp_low=(4.0, 9.0), kp_fixed=None, delta=0.06, gap=0.08):
     return env_cfg, obs_cfg, reward_cfg
 
 
-def get_train_cfg(exp_name: str, entropy: float = 0.005):
+def get_train_cfg(exp_name: str, entropy: float = 0.0):
     """起き上がりの学習（getup/train_getup2.py、ゼロから学習するときの設定）＋ 左右対称のデータ拡張（getup-v9 の sym）。"""
     return {
         "algorithm": {"class_name": "getup.ppo_bound:PPOBound", "bound_loss_coef": 0.01, "bound": 1.0,
@@ -101,6 +105,8 @@ def main() -> int:
     ap.add_argument("-I", "--max_iterations", type=int, default=ITERS)
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--kp_fixed", type=float, default=None, help="硬さ kp をこの値で固定（対照）。省略で関節ごとに 4〜9 の乱数")
+    ap.add_argument("--std_fix", type=float, default=0.5, help="行動の std をこの値に固定（起き上がり v11b〜v13 と同じ）。負の値で学習する")
+    ap.add_argument("--entropy", type=float, default=0.0, help="エントロピーの係数（段階 0 の 1 本目は 0.005 で std が発散した）")
     ap.add_argument("--cpu", action="store_true", help="CPU で動かす（動作確認用）")
     ap.add_argument("--view", action="store_true")
     a = ap.parse_args()
@@ -110,7 +116,7 @@ def main() -> int:
     from rsl_rl.runners import OnPolicyRunner
 
     env_cfg, obs_cfg, reward_cfg = get_cfgs(kp_fixed=a.kp_fixed)
-    train_cfg = get_train_cfg(a.exp_name)
+    train_cfg = get_train_cfg(a.exp_name, entropy=a.entropy)
     log_dir = LOG_ROOT / a.exp_name
     if log_dir.exists():
         shutil.rmtree(log_dir)
@@ -124,7 +130,8 @@ def main() -> int:
             return subprocess.check_output(["git", *args], text=True, cwd=REPO_ROOT, stderr=subprocess.DEVNULL).strip()
         except Exception:
             return None
-    info = {"exp_name": a.exp_name, "version": env_cfg["run_version"], "kp_fixed": a.kp_fixed, "dr": {k: str(v) for k, v in env_cfg["dr"].items()},
+    info = {"exp_name": a.exp_name, "version": env_cfg["run_version"], "kp_fixed": a.kp_fixed,
+            "std_fix": a.std_fix if a.std_fix >= 0 else None, "entropy": a.entropy, "dr": {k: str(v) for k, v in env_cfg["dr"].items()},
             "num_envs": a.num_envs, "max_iterations": a.max_iterations, "seed": a.seed,
             "backend": "cpu" if a.cpu else "gpu", "started_at": dt.datetime.now().isoformat(timespec="seconds"),
             "git_sha": git("rev-parse", "--short", "HEAD"), "git_dirty": bool(git("status", "--porcelain")),
@@ -137,6 +144,11 @@ def main() -> int:
     gs.init(backend=gs.cpu if a.cpu else gs.gpu, precision="32", logging_level="warning", seed=a.seed, performance_mode=not a.cpu)
     env = UnifiedEnv(a.num_envs, env_cfg, obs_cfg, reward_cfg, show_viewer=a.view)
     runner = OnPolicyRunner(env, train_cfg, str(log_dir), device=gs.device)
+    if a.std_fix >= 0:                       # getup/train_getup11.py の --std_fix と同じやり方
+        sp = runner.alg.actor.distribution.std_param
+        sp.data.fill_(a.std_fix)
+        sp.requires_grad_(False)
+        print(f"[unified0] 行動の std を {a.std_fix} に固定、エントロピー {a.entropy}", flush=True)
     import time
     t0 = time.time()
     runner.learn(num_learning_iterations=a.max_iterations, init_at_random_ep_len=True)

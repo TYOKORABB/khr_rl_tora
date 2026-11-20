@@ -7,18 +7,21 @@
 # 本命 kplow（硬さ 4〜9 の乱数）と対照 kp25（硬さ 25 固定）を、シード 1 → 2 → 3 の順に交互に 4000 イテレーション学習し、
 # そのつど測定と動画（unified.eval_walk、kp 25/15/10/7 の前進 0.3 m/s、動画は kp 7 と 25）。学習済みは飛ばす。
 # 最後にまとめ（unified/tools/summarize_stage0.py）と whisper を戻す。
+# 11/20 20:04: 1 本目 unified0-kplow-s1 は行動の std が 0.5 → 58 に発散して崩れたので、std を 0.5 に固定（起き上がりと同じ）して
+# 名前の頭を unified0b に変えてやり直す（P=unified0 で前の名前。学習の既定は train_unified0.py の --std_fix 0.5 --entropy 0）。
 set -u
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"; cd "$REPO" || exit 1
 PY="${GETUP_PYTHON:-/home/tora/gsw4/bin/python}"
 export PATH="/home/tora/gsw4/bin:/usr/local/bin:/usr/bin:/bin"; export HOME="${HOME:-/home/tora}"; export PYTHONUNBUFFERED=1
 L=logs/unified_jobs; mkdir -p "$L"
+P="${P:-unified0b}"
 source getup/jobs/gpu_gate.sh
 RUNS=("kplow 1" "kp25 1" "kplow 2" "kp25 2" "kplow 3" "kp25 3")
 echo "[stage0] $(date '+%F %T') 開始"
-bash getup/jobs/pause_whisper.sh "0 12" unified0
+bash getup/jobs/pause_whisper.sh "0 12" "$P"
 for r in "${RUNS[@]}"; do
   read -r v s <<< "$r"
-  exp=unified0-$v-s$s
+  exp=$P-$v-s$s
   extra=(); [ "$v" = kp25 ] && extra=(--kp_fixed 25)
   if [ -f "logs/$exp/model_3999.pt" ]; then
     echo "[skip  ] $exp（学習済み）"
@@ -36,7 +39,7 @@ for r in "${RUNS[@]}"; do
     grep -E "^\[(kp|記録|動画)" "$L/$exp.eval.log"
   fi
 done
-"$PY" -m unified.tools.summarize_stage0 > "$L/summarize_stage0.log" 2>&1 || echo "[warn  ] まとめに失敗"
+"$PY" -m unified.tools.summarize_stage0 --prefix "$P" > "$L/summarize_stage0.log" 2>&1 || echo "[warn  ] まとめに失敗"
 tail -40 "$L/summarize_stage0.log"
 echo "[stage0] $(date '+%F %T') すべて終わった。whisper を戻す"
 /bin/bash "$REPO/logs/getup_jobs/whisper_pause/restore.sh" >> "$REPO/logs/getup_jobs/whisper_pause/restore.log" 2>&1

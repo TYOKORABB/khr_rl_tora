@@ -1,10 +1,12 @@
 """段階 0 のまとめ（experiments/unified/stage0_plan.md §4 の基準）。結果は experiments/unified/stage0_results.md。
 
-  python -m unified.tools.summarize_stage0
+  python -m unified.tools.summarize_stage0 --prefix unified0b     # 段階 0b（std を固定、11/20 20:04 から）
+  python -m unified.tools.summarize_stage0 --prefix unified0      # 1 本目（std が発散した）
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 
 import numpy as np
@@ -18,10 +20,10 @@ SEEDS = (1, 2, 3)
 KEYS = ("speed_mps", "falls", "lateral_pct", "gait_match_pct", "torque_p99_pct", "rate_bind_pct", "gap_bind_pct", "tgt_step_p99")
 
 
-def load_unified(v):
+def load_unified(prefix, v):
     out = {}
     for s in SEEDS:
-        p = EV / f"unified0-{v}-s{s}_3999.json"
+        p = EV / f"{prefix}-{v}-s{s}_3999.json"
         if p.exists():
             d = json.loads(p.read_text())
             out[s] = {kp: d["kp"][str(float(kp))] for kp in KPS if str(float(kp)) in d["kp"]}
@@ -48,8 +50,11 @@ def fmt(xs, nd=3):
 
 
 def main() -> int:
-    u, c, v = load_unified("kplow"), load_unified("kp25"), load_v31()
-    L = ["# 段階 0 の結果（`stage0_plan.md` §4 の基準、`unified/tools/summarize_stage0.py` が生成）", ""]
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--prefix", default="unified0b")
+    a = ap.parse_args()
+    u, c, v = load_unified(a.prefix, "kplow"), load_unified(a.prefix, "kp25"), load_v31()
+    L = [f"# 段階 0 の結果（{a.prefix}、`stage0_plan.md` §4 の基準、`unified/tools/summarize_stage0.py` が生成）", ""]
     L += [f"本命 kplow のシード: {sorted(u)}、対照 kp25 のシード: {sorted(c)}", ""]
     L += ["## 前進 0.3 m/s の速さ [m/s]（3 回反復の平均、シードごと）", "",
           "| 比例ゲイン | v31 | 本命 kplow | 対照 kp25 |", "|---|---|---|---|"]
@@ -79,7 +84,7 @@ def main() -> int:
                 vals.append(f"{np.mean(xs):.3f}" if xs else "—")
             L.append(f"| {kp} | {name} | " + " | ".join(vals) + " |")
     txt = "\n".join(L) + "\n"
-    (EXPERIMENT_ROOT / "unified" / "stage0_results.md").write_text(txt)
+    (EXPERIMENT_ROOT / "unified" / f"stage0_results_{a.prefix}.md").write_text(txt)
     print(txt)
     return 0
 
