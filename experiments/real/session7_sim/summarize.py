@@ -2,6 +2,7 @@
 
   python experiments/real/session7_sim/summarize.py > experiments/real/session7_sim/summary.md
 
+向きの変化は角速度を積分した yaw_change_deg（heading_change_deg は累積ヨー角誤差の変化なので使わない）。
 dxy_total_m は始めの向きを +x・左を +y にした世界座標なので、x が進んだ距離、y が横のずれ（左が正）。
 """
 import json
@@ -20,4 +21,4 @@ for k in KINDS:
             print(f"| {NAMES[k]} | {kp} | — | — | — | — |"); continue
         r = json.loads(p.read_text())
         dx, dy = r["dxy_total_m"]
-        print(f"| {NAMES[k]} | {kp} | {dx:+.3f} | {dy:+.3f} | {r['heading_change_deg']:+.1f} | {'なし' if r['fell_t'] is None else r['fell_t']} |")
+        print(f"| {NAMES[k]} | {kp} | {dx:+.3f} | {dy:+.3f} | {r['yaw_change_deg']:+.1f} | {'なし' if r['fell_t'] is None else r['fell_t']} |")

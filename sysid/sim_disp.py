@@ -32,10 +32,13 @@ cmdv = rows[:, 1 + 22 * 2 + 3 + 3:1 + 22 * 2 + 3 + 3 + 3]
 mv = np.flatnonzero(np.abs(cmdv).max(1) > 1e-6)
 seg = pos[mv[-1], :2] - pos[mv[0], :2]
 heading_deg = float(np.degrees(rows[-1, -2] - rows[0, -2]))
+# 11/20: rows の最後から 2 列目は累積ヨー角誤差（指令とのずれのリーク付き積分）で、向きそのものではない（旋回では約 0 になる）。
+#   本当の向きの変化は、歩行座標系の鉛直の角速度（= −胴体の x 軸まわりの角速度、rows の 45 列目）を積分して出す
+yaw_deg = float(np.degrees(np.sum(-rows[:, 45]) * 0.02))
 res = {"kp_scale": kp_scale, "schedule": sched_s, "floor_tilt_deg": tilt, "fell_t": None if np.isnan(r["fell_t"][0]) else float(r["fell_t"][0]),
        "disp_total_m": round(float(np.linalg.norm(d)), 3), "disp_walk_segment_m": round(float(np.linalg.norm(seg)), 3),
        "walk_s": round(float(len(mv) * 0.02), 2), "mean_speed_walk_mps": round(float(np.linalg.norm(seg)) / (len(mv) * 0.02), 3),
-       "heading_change_deg": round(heading_deg, 1), "dxy_total_m": [round(float(x), 3) for x in d]}
+       "heading_change_deg": round(heading_deg, 1), "yaw_change_deg": round(yaw_deg, 1), "dxy_total_m": [round(float(x), 3) for x in d]}
 # 11/11: 動画の比べ方と同じ「始めの位置からの道に沿った距離」の時系列（0.1 s ごと、歩いた区間の向きへ射影）
 u = seg / max(np.linalg.norm(seg), 1e-9)
 res["s_t"] = [[round(float(t[i]), 2), round(float((pos[i, :2] - pos[0, :2]) @ u), 4)] for i in range(0, len(t), 5)]
