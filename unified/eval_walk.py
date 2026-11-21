@@ -14,6 +14,7 @@ quad/khr_quad_eval_metrics.py）と同じ条件にそろえた:
 
   python -m unified.eval_walk -e unified0-kplow-s1                       # 最後のチェックポイント、kp 25/15/10/7、動画（kp 7 と 25 の前進）
   python -m unified.eval_walk -e unified0-kplow-s1 --kp 7 --cmd 0 0 0.5 --tag _turnL
+  python -m unified.eval_walk -e unified0c-kplow-s1 --kp 7 25 --stochastic --tag _stoch --video_kp   # 学習中と同じゆらぎ（std）を入れて動かす（11/21 追加）
 結果は experiments/unified/eval/<exp>_<ckpt><tag>.json、動画は media/videos/unified/<exp>_<ckpt>_kp<K><tag>.mp4（git に入れない）。
 """
 
@@ -55,6 +56,7 @@ def main() -> int:
     ap.add_argument("--video_kp", type=float, nargs="*", default=[7.0, 25.0], help="動画を撮る硬さ（空なら撮らない）")
     ap.add_argument("--tag", default="")
     ap.add_argument("--cpu", action="store_true")
+    ap.add_argument("--stochastic", action="store_true", help="方策の平均ではなく、学習中と同じ分布から行動を引いて動かす（ゆらぎがあると歩くかを見る）")
     a = ap.parse_args()
     chdir_repo_root()
     import genesis as gs
@@ -92,6 +94,9 @@ def main() -> int:
     runner = OnPolicyRunner(env, copy.deepcopy(train_cfg), str(log_dir), device=gs.device)
     runner.load(str(log_dir / f"model_{ckpt}.pt"), map_location=str(gs.device))
     policy = runner.get_inference_policy(device=gs.device)
+    if a.stochastic:
+        actor = runner.alg.actor
+        policy = lambda o: actor(o, stochastic_output=True)  # noqa: E731
     dt = env.dt
     n_steps, n_warm = int(round(a.seconds / dt)), int(round(a.warmup / dt))
     delta, gap = float(env.post.delta), env.post.gap
@@ -151,7 +156,7 @@ def main() -> int:
                 "rate_bind_pct": float(np.mean(rate_b) * 100), "gap_bind_pct": float(np.mean(gap_b) * 100) if gap_b else None}
 
     out = {"exp_name": a.exp_name, "ckpt": ckpt, "cmd": a.cmd, "push": a.push, "num_robots": a.num_robots, "seconds": a.seconds,
-           "warmup": a.warmup, "repeats": a.repeats, "delta": delta, "gap": gap, "kp": {}}
+           "warmup": a.warmup, "repeats": a.repeats, "stochastic": a.stochastic, "delta": delta, "gap": gap, "kp": {}}
     for kp in a.kp:
         reps = [run(kp, s) for s in range(a.repeats)]
         agg = {k: float(np.mean([r[k] for r in reps])) for k in reps[0] if reps[0][k] is not None}
