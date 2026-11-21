@@ -13,6 +13,9 @@
 
 11/21: --env unified.envs.unified_env0r で、行動の変化の罰 2 項を制限の前の目標角で測る変種（張りつきの調べ、experiments/unified/saturation/）。
   python -m unified.train_unified0 -e unified0r-kplow-s1 --seed 1 --env unified.envs.unified_env0r
+  （0r は探索のゆらぎが罰に入って崩れたので 11/21 に止めた）
+11/21: --caps 0.1 で、方策の平均の目標角が周期ごとに跳ぶことを損失で罰する（unified/ppo_caps.py、CAPS の時間の項）。環境は段階 0b と同じ。
+  python -m unified.train_unified0 -e unified0c-kplow-s1 --seed 1 --caps 0.1
 
 **同じ exp 名の logs/<exp>/ は消して作り直す**。測定と動画は python -m unified.eval_walk -e <exp>。
 """
@@ -80,10 +83,12 @@ def get_cfgs(kp_low=(4.0, 9.0), kp_fixed=None, delta=0.06, gap=0.08, env_module=
     return env_cfg, obs_cfg, reward_cfg
 
 
-def get_train_cfg(exp_name: str, entropy: float = 0.0):
+def get_train_cfg(exp_name: str, entropy: float = 0.0, caps: float = 0.0):
     """起き上がりの学習（getup/train_getup2.py、ゼロから学習するときの設定）＋ 左右対称のデータ拡張（getup-v9 の sym）。"""
+    algo = {"class_name": "unified.ppo_caps:PPOCaps", "caps_coef": caps, "caps_delta": 0.06, "caps_pairs": 8192} if caps > 0 \
+        else {"class_name": "getup.ppo_bound:PPOBound"}
     return {
-        "algorithm": {"class_name": "getup.ppo_bound:PPOBound", "bound_loss_coef": 0.01, "bound": 1.0,
+        "algorithm": {**algo, "bound_loss_coef": 0.01, "bound": 1.0,
                       "clip_param": 0.2, "desired_kl": 0.01, "entropy_coef": entropy, "gamma": 0.99, "lam": 0.95,
                       "learning_rate": 0.001, "max_grad_norm": 1.0, "num_learning_epochs": 5, "num_mini_batches": 4,
                       "schedule": "adaptive", "use_clipped_value_loss": True, "value_loss_coef": 1.0,
@@ -110,6 +115,7 @@ def main() -> int:
     ap.add_argument("--kp_fixed", type=float, default=None, help="硬さ kp をこの値で固定（対照）。省略で関節ごとに 4〜9 の乱数")
     ap.add_argument("--std_fix", type=float, default=0.5, help="行動の std をこの値に固定（起き上がり v11b〜v13 と同じ）。負の値で学習する")
     ap.add_argument("--entropy", type=float, default=0.0, help="エントロピーの係数（段階 0 の 1 本目は 0.005 で std が発散した）")
+    ap.add_argument("--caps", type=float, default=0.0, help="方策の平均の目標角の跳びの罰の係数（unified/ppo_caps.py）。0 で使わない")
     ap.add_argument("--env", default=ENV_MODULE, help="環境のモジュール（観測の並びが unified_env0 と同じもの）")
     ap.add_argument("--cpu", action="store_true", help="CPU で動かす（動作確認用）")
     ap.add_argument("--view", action="store_true")
@@ -120,7 +126,7 @@ def main() -> int:
     from rsl_rl.runners import OnPolicyRunner
 
     env_cfg, obs_cfg, reward_cfg = get_cfgs(kp_fixed=a.kp_fixed, env_module=a.env)
-    train_cfg = get_train_cfg(a.exp_name, entropy=a.entropy)
+    train_cfg = get_train_cfg(a.exp_name, entropy=a.entropy, caps=a.caps)
     log_dir = LOG_ROOT / a.exp_name
     if log_dir.exists():
         shutil.rmtree(log_dir)
@@ -137,7 +143,7 @@ def main() -> int:
         except Exception:
             return None
     info = {"exp_name": a.exp_name, "version": env_cfg["run_version"], "env_module": a.env, "kp_fixed": a.kp_fixed,
-            "std_fix": a.std_fix if a.std_fix >= 0 else None, "entropy": a.entropy, "dr": {k: str(v) for k, v in env_cfg["dr"].items()},
+            "std_fix": a.std_fix if a.std_fix >= 0 else None, "entropy": a.entropy, "caps": a.caps, "dr": {k: str(v) for k, v in env_cfg["dr"].items()},
             "num_envs": a.num_envs, "max_iterations": a.max_iterations, "seed": a.seed,
             "backend": "cpu" if a.cpu else "gpu", "started_at": dt.datetime.now().isoformat(timespec="seconds"),
             "git_sha": git("rev-parse", "--short", "HEAD"), "git_dirty": bool(git("status", "--porcelain")),
@@ -155,6 +161,9 @@ def main() -> int:
         sp.data.fill_(a.std_fix)
         sp.requires_grad_(False)
         print(f"[unified0] 行動の std を {a.std_fix} に固定、エントロピー {a.entropy}", flush=True)
+    if a.caps > 0:
+        runner.alg.set_caps_post(env.post)
+        print(f"[unified0] 方策の平均の目標角の跳びの罰（CAPS の時間の項）係数 {a.caps}", flush=True)
     import time
     t0 = time.time()
     runner.learn(num_learning_iterations=a.max_iterations, init_at_random_ep_len=True)
