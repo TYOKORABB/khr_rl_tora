@@ -56,6 +56,7 @@ def main() -> int:
     ap.add_argument("--video_kp", type=float, nargs="*", default=[7.0, 25.0], help="動画を撮る硬さ（空なら撮らない）")
     ap.add_argument("--tag", default="")
     ap.add_argument("--cpu", action="store_true")
+    ap.add_argument("--delta", type=float, default=None, help="速さの制限を学習と違う値で動かす（段階 1 の設計の確かめ、11/22）。省略で学習と同じ")
     ap.add_argument("--stochastic", action="store_true", help="方策の平均ではなく、学習中と同じ分布から行動を引いて動かす（ゆらぎがあると歩くかを見る）")
     a = ap.parse_args()
     chdir_repo_root()
@@ -97,6 +98,8 @@ def main() -> int:
     if a.stochastic:
         actor = runner.alg.actor
         policy = lambda o: actor(o, stochastic_output=True)  # noqa: E731
+    if a.delta is not None:
+        env.post.delta = float(a.delta)
     dt = env.dt
     n_steps, n_warm = int(round(a.seconds / dt)), int(round(a.warmup / dt))
     delta, gap = float(env.post.delta), env.post.gap
