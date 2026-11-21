@@ -16,6 +16,10 @@
   （0r は探索のゆらぎが罰に入って崩れたので 11/21 に止めた）
 11/21: --caps 0.1 で、方策の平均の目標角が周期ごとに跳ぶことを損失で罰する（unified/ppo_caps.py、CAPS の時間の項）。環境は段階 0b と同じ。
   python -m unified.train_unified0 -e unified0c-kplow-s1 --seed 1 --caps 0.1
+  （0c は歩きを覚えず、11/21 にシード 1 で速さの条件の不合格が決まって止めた）
+11/21: --std_end 0.05 で、固定した std を 1000〜3000 イテレーションで 0.5 → 0.05 に下げる（0d、張りつきの元は探索のゆらぎが速さの制限より
+ずっと大きいこと、experiments/unified/saturation/README.md §6.1・§7）。罰・環境は段階 0b と同じ。
+  python -m unified.train_unified0 -e unified0d-kplow-s1 --seed 1 --std_end 0.05
 
 **同じ exp 名の logs/<exp>/ は消して作り直す**。測定と動画は python -m unified.eval_walk -e <exp>。
 """
@@ -116,6 +120,10 @@ def main() -> int:
     ap.add_argument("--std_fix", type=float, default=0.5, help="行動の std をこの値に固定（起き上がり v11b〜v13 と同じ）。負の値で学習する")
     ap.add_argument("--entropy", type=float, default=0.0, help="エントロピーの係数（段階 0 の 1 本目は 0.005 で std が発散した）")
     ap.add_argument("--caps", type=float, default=0.0, help="方策の平均の目標角の跳びの罰の係数（unified/ppo_caps.py）。0 で使わない")
+    ap.add_argument("--std_end", type=float, default=-1.0,
+                    help="std を --std_from〜--std_to イテレーションで --std_fix からこの値へ下げる（対数で等間隔、0d）。負の値で下げない")
+    ap.add_argument("--std_from", type=int, default=1000)
+    ap.add_argument("--std_to", type=int, default=3000)
     ap.add_argument("--env", default=ENV_MODULE, help="環境のモジュール（観測の並びが unified_env0 と同じもの）")
     ap.add_argument("--cpu", action="store_true", help="CPU で動かす（動作確認用）")
     ap.add_argument("--view", action="store_true")
@@ -143,7 +151,8 @@ def main() -> int:
         except Exception:
             return None
     info = {"exp_name": a.exp_name, "version": env_cfg["run_version"], "env_module": a.env, "kp_fixed": a.kp_fixed,
-            "std_fix": a.std_fix if a.std_fix >= 0 else None, "entropy": a.entropy, "caps": a.caps, "dr": {k: str(v) for k, v in env_cfg["dr"].items()},
+            "std_fix": a.std_fix if a.std_fix >= 0 else None, "entropy": a.entropy, "caps": a.caps,
+            "std_sched": {"end": a.std_end, "from": a.std_from, "to": a.std_to} if a.std_end >= 0 else None, "dr": {k: str(v) for k, v in env_cfg["dr"].items()},
             "num_envs": a.num_envs, "max_iterations": a.max_iterations, "seed": a.seed,
             "backend": "cpu" if a.cpu else "gpu", "started_at": dt.datetime.now().isoformat(timespec="seconds"),
             "git_sha": git("rev-parse", "--short", "HEAD"), "git_dirty": bool(git("status", "--porcelain")),
@@ -161,6 +170,20 @@ def main() -> int:
         sp.data.fill_(a.std_fix)
         sp.requires_grad_(False)
         print(f"[unified0] 行動の std を {a.std_fix} に固定、エントロピー {a.entropy}", flush=True)
+    if a.std_end >= 0:                       # unified-0d: 探索のゆらぎを後半で小さくする（experiments/unified/saturation/README.md §7）
+        assert a.std_fix > 0 and a.std_end > 0 and a.std_to > a.std_from, "std の予定は std_fix > 0、std_end > 0、std_to > std_from"
+        sp = runner.alg.actor.distribution.std_param
+        _update, _n = runner.alg.update, [0]
+
+        def update_with_std_sched():
+            out = _update()
+            _n[0] += 1                       # 次の集め（イテレーション _n）で使う std
+            f = min(max((_n[0] - a.std_from) / (a.std_to - a.std_from), 0.0), 1.0)
+            sp.data.fill_(a.std_fix * (a.std_end / a.std_fix) ** f)
+            out["std_sched"] = float(sp.data.mean().item())
+            return out
+        runner.alg.update = update_with_std_sched
+        print(f"[unified0] std を {a.std_from}〜{a.std_to} イテレーションで {a.std_fix} → {a.std_end} に下げる（対数で等間隔）", flush=True)
     if a.caps > 0:
         runner.alg.set_caps_post(env.post)
         print(f"[unified0] 方策の平均の目標角の跳びの罰（CAPS の時間の項）係数 {a.caps}", flush=True)
