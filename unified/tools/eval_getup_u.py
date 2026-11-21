@@ -14,7 +14,10 @@
   python -m unified.tools.eval_getup_u -e unified1-s1 --ckpt 3999
   python -m unified.tools.eval_getup_u -e getup13-kpjk-long-s1 --ckpt 8995           # 比べる相手を同じ判定で
 結果は experiments/unified/getup_eval/<exp>_<ckpt>.json。動画（A・D の 1 本目、T の 1 本目）は media/videos/unified/（git に入れない）。
-既定は CPU（GPU の学習と並べて回すため）。--gpu で GPU。
+既定は CPU（GPU の学習と並べて回すため）。--gpu で GPU。CPU では動画 3 本を 1 つのプロセスで撮れないので、
+  python -m unified.tools.eval_getup_u -e unified1-s1 --ckpt 3999 --videos prone0,supine0
+  python -m unified.tools.eval_getup_u -e unified1-s1 --ckpt 3999 --parts "" --videos supine0_walk   # 動画だけ
+のように分ける。
 """
 
 from __future__ import annotations
@@ -53,6 +56,8 @@ def main() -> int:
     ap.add_argument("--kp", type=float, default=7.0)
     ap.add_argument("--kp_sweep", default="6,5")
     ap.add_argument("--no_video", action="store_true")
+    ap.add_argument("--videos", default="prone0,supine0,supine0_walk",
+                    help="撮る動画（CPU では 1 つのプロセスでカメラつきの場面を 3 つ作ると OpenGL の文脈が切れるので、分けて回す）")
     ap.add_argument("--gpu", action="store_true")
     a = ap.parse_args()
     chdir_repo_root()
@@ -73,7 +78,7 @@ def main() -> int:
     n = len(JOINT_NAMES)
     est = HeightEstimator()
     s_cfg = env_cfg0["success"]
-    parts = set(a.parts.split(","))
+    parts = set(a.parts.split(",")) - {""}
     if not unified:
         parts.discard("T")
 
@@ -211,15 +216,16 @@ def main() -> int:
                     "stand_pct": pct(r["stand"])}
         print("T", res["T"], flush=True)
         del env, pol
-    dst = EXPERIMENT_ROOT / "unified" / "getup_eval" / f"{exp}_{ck}.json"
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    dst.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    print(f"[記録] {dst.relative_to(REPO_ROOT)}", flush=True)
+    if parts:                                     # --parts "" は動画だけ（記録を上書きしない）
+        dst = EXPERIMENT_ROOT / "unified" / "getup_eval" / f"{exp}_{ck}.json"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        dst.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        print(f"[記録] {dst.relative_to(REPO_ROOT)}", flush=True)
 
     if not a.no_video:
         for tag, starts, cmd, secs in (("prone0", prone[:1], (0.0, 0.0, 0.0), 8.0), ("supine0", supine[:1], (0.0, 0.0, 0.0), 8.0),
                                        ("supine0_walk", supine[:1], (0.3, 0.0, 0.0), 20.0)):
-            if tag.endswith("_walk") and not unified:
+            if tag not in a.videos.split(",") or (tag.endswith("_walk") and not unified):
                 continue
             env, pol = make(1, a.kp, seconds=secs, cmd=cmd, camera=True)
             put_starts(env, starts)
