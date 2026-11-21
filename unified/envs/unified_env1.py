@@ -9,6 +9,7 @@
     四脚の公称姿勢（v31 の初期姿勢）を env_cfg["unified1"]["nominal_share"]（既定 0.5）の割合で混ぜる。
     "nominal"（全部公称姿勢）と "bank"（全部バンク）は段階 0 と同じ（測定の道具で使う）。
   - 転倒で終わらない（env_cfg["walk"]["terminate_on_fall"] = False。倒れたら起き上がりの練習になる）。これは設定だけで、段階 0 のコードのまま。
+  - 累積ヨー角誤差（観測と w_heading_error に使う）は α 倍でためる（倒れている間はためない。11/22、_walk_update の説明）。
 観測（190 次元）・行動・左右対称のデータ拡張は段階 0 と同じ。学習に使った版（unified_env0.py）は書き換えていない。
 """
 
@@ -51,8 +52,21 @@ class UnifiedEnv(_Base):
         return torch.nan_to_num(a_u * a_h, nan=0.0)
 
     def _walk_update(self):
-        super()._walk_update()
+        """unified_env0._walk_update を写し、累積ヨー角誤差のたまり方だけ α 倍にした（11/22、1 回目の学習で見つけた誤り）。
+        段階 0 のままだと、倒れて転がる間のヨー角速度が誤差にたまり（減り方は 1 周期 0.002、時定数 10 秒）、立ったあとの
+        歩行の罰 w_heading_error（−10 × 誤差²）が大きく残る。すると立たないほう（α = 0）が得になり、起き上がりを忘れていく
+        （150 イテレーションで w_heading_error −9.8/秒、起き上がりの成功 0.94 → 0.62）。立っている間は段階 0 と同じ。"""
         self.alpha = self._alpha()           # 報酬の前（親の step の順: 状態 → _walk_update → 報酬）
+        self.phase = (self.episode_length_buf.to(self.alpha.dtype) * self.dt) % self.gait_period / self.gait_period
+        self.leg_phase = (self.phase.unsqueeze(1) + self.gait_offsets.unsqueeze(0)) % 1.0
+        if self.foot_ref_z is None:
+            self.foot_ref_z = self.feet_pos[:, :, 2].mean(0, keepdim=True).clone()
+        knee = self.q[:, self.knee_idx]
+        stance = (self.leg_phase[:, 2:4] < 0.55).to(self.alpha.dtype)
+        a = self.wc["knee_stance_ema_alpha"] * stance
+        self.knee_stance_ema = (1.0 - a) * self.knee_stance_ema + a * knee
+        wz_err = self.loco_ang_vel[:, 2] - self.commands[:, 2]
+        self.heading_err = self.heading_err * (1.0 - self.heading_decay) + self.alpha * wz_err * self.dt
 
     # ---- 初期状態 ---------------------------------------------------------------------------------------
     def _nominal_row(self) -> int:
