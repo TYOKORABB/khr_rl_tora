@@ -14,6 +14,7 @@
     → v31 が同じ制限の下にあったら、どれだけ当たるか（0.06 と 0.08 を超える割合）
 
   python -m unified.tools.analyze_saturation                       # 本命 3 シード・対照なし・v31 3 シード、比例ゲイン 7 と 25
+  python -m unified.tools.analyze_saturation --unified unified0r-kplow-s1 unified0r-kplow-s2 unified0r-kplow-s3 --v31 --out analysis_0r.json
 結果は experiments/unified/saturation/analysis.json と、標準出力の表。
 """
 
@@ -155,6 +156,7 @@ def main() -> int:
     ap.add_argument("-n", "--num_robots", type=int, default=128)
     ap.add_argument("-t", "--seconds", type=float, default=12.0)
     ap.add_argument("--warmup", type=float, default=2.0)
+    ap.add_argument("--out", default="analysis.json", help="experiments/unified/saturation/ の下の名前")
     a = ap.parse_args()
     chdir_repo_root()
     import genesis as gs
@@ -170,7 +172,7 @@ def main() -> int:
     for e in a.v31:
         out["v31"][e] = run_v31(e, a.kp, a.num_robots, a.seconds, a.warmup, delta, gap)
         print(f"[v31] {e} 済み", flush=True)
-    dst = EXPERIMENT_ROOT / "unified" / "saturation" / "analysis.json"
+    dst = EXPERIMENT_ROOT / "unified" / "saturation" / a.out
     dst.parent.mkdir(parents=True, exist_ok=True)
     dst.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n")
     for kp in a.kp:
