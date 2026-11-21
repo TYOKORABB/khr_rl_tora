@@ -11,6 +11,9 @@
 （行動は ±1 で切るので、std を上げても罰がなくエントロピーだけ得をする。起き上がりの v11 と同じ崩れ方）。そこで段階 0b からは
 起き上がり（getup-v11b〜v13）と同じく std を 0.5 に固定し、エントロピーを 0 にした（--std_fix、--entropy、既定がそれ）。
 
+11/21: --env unified.envs.unified_env0r で、行動の変化の罰 2 項を制限の前の目標角で測る変種（張りつきの調べ、experiments/unified/saturation/）。
+  python -m unified.train_unified0 -e unified0r-kplow-s1 --seed 1 --env unified.envs.unified_env0r
+
 **同じ exp 名の logs/<exp>/ は消して作り直す**。測定と動画は python -m unified.eval_walk -e <exp>。
 """
 
@@ -41,13 +44,13 @@ V31_SCALES = {"tracking_lin_vel": 5.0, "tracking_ang_vel": 1.0, "lin_vel_z": -0.
               "knee_swing_flexion": 1.8, "orientation": -5.0, "torque_limits": -12.0}
 
 
-def get_cfgs(kp_low=(4.0, 9.0), kp_fixed=None, delta=0.06, gap=0.08):
+def get_cfgs(kp_low=(4.0, 9.0), kp_fixed=None, delta=0.06, gap=0.08, env_module=ENV_MODULE):
     """起き上がり getup13-kpjk-long の設定（logs/getup13-kpjk-long-s6/cfgs.pkl）から、起き上がりの課題に固有のもの（段階・報酬）を外し、歩行を足した。"""
     dr = {"com_m": (-0.01, 0.01), "friction_ratio": (0.6, 1.4), "imu_deg": 3.0, "mass_kg": (-0.08, 0.08), "trim_rad": (-0.02, 0.02)}
     if kp_fixed is None:
         dr.update({"kp_range": tuple(kp_low), "kp_per_joint": True})
     env_cfg = {
-        "env_module": ENV_MODULE, "run_version": "unified-v0",
+        "env_module": env_module, "run_version": "unified-v0" if env_module == ENV_MODULE else "unified-" + env_module.rsplit("_", 1)[-1],
         "action": {"delta": delta, "gap": gap, "margin": 0.03, "s_max": 1.2},
         "armature": 0.01, "kp": float(kp_fixed if kp_fixed is not None else 25.0), "kd": 0.5, "torque_cap_scale": 0.9,
         "friction": 0.5, "max_collision_pairs": 150, "simulate_action_latency": True, "sim_error_penalty": -20.0,
@@ -107,6 +110,7 @@ def main() -> int:
     ap.add_argument("--kp_fixed", type=float, default=None, help="硬さ kp をこの値で固定（対照）。省略で関節ごとに 4〜9 の乱数")
     ap.add_argument("--std_fix", type=float, default=0.5, help="行動の std をこの値に固定（起き上がり v11b〜v13 と同じ）。負の値で学習する")
     ap.add_argument("--entropy", type=float, default=0.0, help="エントロピーの係数（段階 0 の 1 本目は 0.005 で std が発散した）")
+    ap.add_argument("--env", default=ENV_MODULE, help="環境のモジュール（観測の並びが unified_env0 と同じもの）")
     ap.add_argument("--cpu", action="store_true", help="CPU で動かす（動作確認用）")
     ap.add_argument("--view", action="store_true")
     a = ap.parse_args()
@@ -115,7 +119,7 @@ def main() -> int:
     import torch
     from rsl_rl.runners import OnPolicyRunner
 
-    env_cfg, obs_cfg, reward_cfg = get_cfgs(kp_fixed=a.kp_fixed)
+    env_cfg, obs_cfg, reward_cfg = get_cfgs(kp_fixed=a.kp_fixed, env_module=a.env)
     train_cfg = get_train_cfg(a.exp_name, entropy=a.entropy)
     log_dir = LOG_ROOT / a.exp_name
     if log_dir.exists():
@@ -123,14 +127,16 @@ def main() -> int:
     log_dir.mkdir(parents=True)
     with open(log_dir / "cfgs.pkl", "wb") as f:
         pickle.dump([env_cfg, obs_cfg, reward_cfg, train_cfg], f)
-    from unified.envs.unified_env0 import URDF_GETUP, UnifiedEnv
+    import importlib
+    from unified.envs.unified_env0 import URDF_GETUP
+    UnifiedEnv = importlib.import_module(a.env).UnifiedEnv
 
     def git(*args):
         try:
             return subprocess.check_output(["git", *args], text=True, cwd=REPO_ROOT, stderr=subprocess.DEVNULL).strip()
         except Exception:
             return None
-    info = {"exp_name": a.exp_name, "version": env_cfg["run_version"], "kp_fixed": a.kp_fixed,
+    info = {"exp_name": a.exp_name, "version": env_cfg["run_version"], "env_module": a.env, "kp_fixed": a.kp_fixed,
             "std_fix": a.std_fix if a.std_fix >= 0 else None, "entropy": a.entropy, "dr": {k: str(v) for k, v in env_cfg["dr"].items()},
             "num_envs": a.num_envs, "max_iterations": a.max_iterations, "seed": a.seed,
             "backend": "cpu" if a.cpu else "gpu", "started_at": dt.datetime.now().isoformat(timespec="seconds"),
