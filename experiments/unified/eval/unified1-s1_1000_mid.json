@@ -1,0 +1,127 @@
+{
+ "exp_name": "unified1-s1",
+ "ckpt": 1000,
+ "cmd": [
+  0.3,
+  0.0,
+  0.0
+ ],
+ "push": false,
+ "num_robots": 128,
+ "seconds": 12.0,
+ "warmup": 2.0,
+ "repeats": 3,
+ "stochastic": false,
+ "delta": 0.03,
+ "gap": 0.08,
+ "kp": {
+  "7.0": {
+   "speed_mps": 0.06924167191609741,
+   "lateral_pct": 6.811825299158829,
+   "yaw_rate_mean": 0.009030213889976343,
+   "falls": 0.0,
+   "falls_warmup": 0.0,
+   "gait_match_pct": 63.374348958333336,
+   "torque_p99_pct": 54.48309834798177,
+   "torque_mean_pct": 12.82436498006185,
+   "tgt_step_p99": 0.030000001192092896,
+   "rate_bind_pct": 82.27313231627147,
+   "gap_bind_pct": 44.37128445307414,
+   "repeats": [
+    {
+     "speed_mps": 0.06990115442313255,
+     "lateral_pct": 6.853775464347519,
+     "yaw_rate_mean": 0.008533565327525139,
+     "falls": 0,
+     "falls_warmup": 0,
+     "gait_match_pct": 63.119921874999996,
+     "torque_p99_pct": 54.453338623046875,
+     "torque_mean_pct": 12.825357437133789,
+     "tgt_step_p99": 0.030000001192092896,
+     "rate_bind_pct": 82.28352525234223,
+     "gap_bind_pct": 44.55262917280197
+    },
+    {
+     "speed_mps": 0.06925226878374816,
+     "lateral_pct": 6.145151506800207,
+     "yaw_rate_mean": 0.009761597961187363,
+     "falls": 0,
+     "falls_warmup": 0,
+     "gait_match_pct": 63.64921875,
+     "torque_p99_pct": 54.506473541259766,
+     "torque_mean_pct": 12.818227767944336,
+     "tgt_step_p99": 0.030000001192092896,
+     "rate_bind_pct": 82.30362482070923,
+     "gap_bind_pct": 44.35440468788147
+    },
+    {
+     "speed_mps": 0.06857159254141151,
+     "lateral_pct": 7.43654892632876,
+     "yaw_rate_mean": 0.008795478381216526,
+     "falls": 0,
+     "falls_warmup": 0,
+     "gait_match_pct": 63.35390625,
+     "torque_p99_pct": 54.48948287963867,
+     "torque_mean_pct": 12.829509735107422,
+     "tgt_step_p99": 0.030000001192092896,
+     "rate_bind_pct": 82.23224687576294,
+     "gap_bind_pct": 44.20681949853897
+    }
+   ]
+  },
+  "25.0": {
+   "speed_mps": 0.1263223729096353,
+   "lateral_pct": 11.619975089982825,
+   "yaw_rate_mean": 0.0029982922909160457,
+   "falls": 0.0,
+   "falls_warmup": 0.0,
+   "gait_match_pct": 51.66315104166667,
+   "torque_p99_pct": 90.0,
+   "torque_mean_pct": 35.456366221110024,
+   "tgt_step_p99": 0.030000001192092896,
+   "rate_bind_pct": 91.32848283847174,
+   "gap_bind_pct": 20.998958980043728,
+   "repeats": [
+    {
+     "speed_mps": 0.12728797160089017,
+     "lateral_pct": 11.591273956193447,
+     "yaw_rate_mean": 0.0036736507900059223,
+     "falls": 0,
+     "falls_warmup": 0,
+     "gait_match_pct": 51.63828125,
+     "torque_p99_pct": 90.0,
+     "torque_mean_pct": 35.497581481933594,
+     "tgt_step_p99": 0.030000001192092896,
+     "rate_bind_pct": 91.29169315099716,
+     "gap_bind_pct": 20.998083022236823
+    },
+    {
+     "speed_mps": 0.12570671513676643,
+     "lateral_pct": 11.411740320112687,
+     "yaw_rate_mean": 0.0018782266415655613,
+     "falls": 0,
+     "falls_warmup": 0,
+     "gait_match_pct": 51.848046874999994,
+     "torque_p99_pct": 90.0,
+     "torque_mean_pct": 35.45854949951172,
+     "tgt_step_p99": 0.030000001192092896,
+     "rate_bind_pct": 91.3594486474991,
+     "gap_bind_pct": 21.031392708420753
+    },
+    {
+     "speed_mps": 0.1259724319912493,
+     "lateral_pct": 11.856910993642341,
+     "yaw_rate_mean": 0.003442999441176653,
+     "falls": 0,
+     "falls_warmup": 0,
+     "gait_match_pct": 51.503125000000004,
+     "torque_p99_pct": 90.0,
+     "torque_mean_pct": 35.412967681884766,
+     "tgt_step_p99": 0.030000001192092896,
+     "rate_bind_pct": 91.33430671691895,
+     "gap_bind_pct": 20.96740120947361
+    }
+   ]
+  }
+ }
+}
