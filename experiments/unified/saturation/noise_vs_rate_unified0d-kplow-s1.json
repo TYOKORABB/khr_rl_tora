@@ -1,0 +1,60 @@
+{
+ "exp_name": "unified0d-kplow-s1",
+ "ckpt": 3999,
+ "kp": 7.0,
+ "std": 0.05000000074505806,
+ "delta": 0.06,
+ "bins": [
+  {
+   "lo": 0.0,
+   "hi": 0.03,
+   "frac_pct": 30.28302556818182,
+   "along_over_delta": 0.15403561294078827,
+   "agree_pct": 70.67126345126275,
+   "det_along_over_delta": 0.19530418515205383
+  },
+  {
+   "lo": 0.03,
+   "hi": 0.06,
+   "frac_pct": 13.064038825757576,
+   "along_over_delta": 0.40316838026046753,
+   "agree_pct": 90.59303221129888,
+   "det_along_over_delta": 0.7252651453018188
+  },
+  {
+   "lo": 0.06,
+   "hi": 0.12,
+   "frac_pct": 14.08392518939394,
+   "along_over_delta": 0.3837997317314148,
+   "agree_pct": 94.42431984938771,
+   "det_along_over_delta": 1.0
+  },
+  {
+   "lo": 0.12,
+   "hi": 0.3,
+   "frac_pct": 17.550426136363637,
+   "along_over_delta": 0.39877018332481384,
+   "agree_pct": 95.39408900219875,
+   "det_along_over_delta": 1.0
+  },
+  {
+   "lo": 0.3,
+   "hi": 0.6,
+   "frac_pct": 17.762784090909093,
+   "along_over_delta": 0.241413876414299,
+   "agree_pct": 89.58749833399973,
+   "det_along_over_delta": 1.0
+  },
+  {
+   "lo": 0.6,
+   "hi": 10.0,
+   "frac_pct": 7.2558001893939394,
+   "along_over_delta": 0.20979580283164978,
+   "agree_pct": 94.45649868672203,
+   "det_along_over_delta": 1.0
+  }
+ ],
+ "mu_diff_abs_p50": 0.08383047580718994,
+ "mu_diff_abs_p90": 0.5417851209640503,
+ "step_abs_eq_delta_pct": 10.674242424242424
+}
