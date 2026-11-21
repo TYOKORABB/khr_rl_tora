@@ -2,7 +2,8 @@
 
 本人の決定（11/22）: 張りつきは受け入れて段階 1 へ・起き上がり getup13 の重みから始める・基準は「歩行は段階 0 と同じ＋N1・N4」。
 
-  - 環境 unified/envs/unified_env1.py: 段階 0 の環境 ＋ 報酬を立っている度合い α で混ぜる ＋ 初期状態を半分バンク・半分四脚 ＋ 転倒で終わらない。
+  - 環境 unified/envs/unified_env1.py: 段階 0 の環境 ＋ 報酬を立っている度合い α で混ぜる（always・getup・walk の 3 組、11/22 の直し）
+    ＋ 初期状態を半分バンク・半分四脚 ＋ 転倒で終わらない。
   - 設定: 起き上がり（--init_exp の cfgs.pkl、getup13-kpjk-long）の設定をそのまま使い（段階・個体差・速さの制限 0.03・ずれの上限 0.08・
     起き上がりの報酬 10 項など）、段階 0 の歩行の設定（指令・位相・押し・v31 の報酬 18 項、観測 190 次元）を足した。エピソード 20 秒。
   - 始まりの重み: --init_exp の model_<--init_ckpt>。方策・価値の入力を 184 → 190 次元（価値は 283 → 290）に広げ、足した入力
@@ -40,7 +41,7 @@ N_WALK_PRIV = 1               # 段階 0 で足した特権観測（ノイズな
 
 def get_cfgs(init_exp: str, nominal_share: float = 0.5, alpha=None):
     """起き上がり（init_exp）の設定 ＋ 段階 0 の歩行の設定。"""
-    from unified.envs.unified_env1 import ALPHA_DEFAULT
+    from unified.envs.unified_env1 import ALPHA_DEFAULT, MIX_DEFAULT
     from unified.train_unified0 import get_cfgs as get_cfgs0
     g_env, g_obs, g_rew, _ = pickle.load(open(LOG_ROOT / init_exp / "cfgs.pkl", "rb"))
     u_env, u_obs, u_rew = get_cfgs0(delta=float(g_env["action"]["delta"]), env_module=ENV_MODULE)
@@ -48,7 +49,8 @@ def get_cfgs(init_exp: str, nominal_share: float = 0.5, alpha=None):
     env_cfg.update({"env_module": ENV_MODULE, "run_version": "unified-v1", "episode_length_s": 20.0,
                     "walk": copy.deepcopy(u_env["walk"])})
     env_cfg["walk"].update({"init": "mix", "terminate_on_fall": False})
-    env_cfg["unified1"] = {"init_exp": init_exp, "alpha": copy.deepcopy(alpha or ALPHA_DEFAULT), "nominal_share": float(nominal_share)}
+    env_cfg["unified1"] = {"init_exp": init_exp, "alpha": copy.deepcopy(alpha or ALPHA_DEFAULT), "nominal_share": float(nominal_share),
+                           "mix": copy.deepcopy(MIX_DEFAULT)}
     obs_cfg = copy.deepcopy(g_obs)
     obs_cfg["num_obs"] = u_obs["num_obs"]
     if {k: v for k, v in g_obs.items() if k != "num_obs"} != {k: v for k, v in u_obs.items() if k != "num_obs"}:
