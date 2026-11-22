@@ -1,0 +1,61 @@
+{
+ "exp": "unified0b-kplow-s1",
+ "delta": 0.06,
+ "cmd": [
+  0.3,
+  0.0,
+  0.0
+ ],
+ "ckpt": {
+  "3999": {
+   "kp": {
+    "7": {
+     "speed_mps": 0.183,
+     "falls": 0,
+     "alpha_mean": 1.0,
+     "alpha_lt099_pct": 0.0,
+     "alpha_lt07_pct": 0.0,
+     "h_med": 0.1885,
+     "h_p10": 0.1856,
+     "u_med": 0.9987,
+     "stand_smooth_q": 0.247,
+     "swing_lift_mean_mm": [
+      2.9,
+      2.5,
+      15.0,
+      17.1
+     ],
+     "swing_lift_peak_mm": [
+      4.5,
+      4.4,
+      16.6,
+      18.8
+     ]
+    },
+    "train": {
+     "speed_mps": 0.155,
+     "falls": 0,
+     "alpha_mean": 0.995,
+     "alpha_lt099_pct": 1.0,
+     "alpha_lt07_pct": 0.5,
+     "h_med": 0.1866,
+     "h_p10": 0.1805,
+     "u_med": 0.9971,
+     "stand_smooth_q": 0.242,
+     "swing_lift_mean_mm": [
+      2.5,
+      2.2,
+      12.0,
+      13.7
+     ],
+     "swing_lift_peak_mm": [
+      4.1,
+      4.0,
+      13.7,
+      15.4
+     ]
+    }
+   }
+  }
+ }
+}

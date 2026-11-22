@@ -14,6 +14,10 @@
 
   python -m unified.train_unified1 -e unified1-s1 --seed 1                      # getup13-kpjk-long-s1 の model_8995 から
   python -m unified.train_unified1 -e unified1-smoke -B 32 -I 2 --cpu --seed 1  # 動作確認
+11/22 の分析（experiments/unified/stage1_analysis.md）のあとに足した選択（既定は段階 1 と同じ）:
+  --env unified.envs.unified_env2   足の基準の高さの直し（既定で入る）と --heading alpha_err（累積ヨー角誤差を立っている間だけためる）
+  --alpha_h 0.08,0.14               α の高さの範囲（既定 0.12,0.175）
+  python -m unified.train_unified1 -e unified1b-s1 --seed 1 --env unified.envs.unified_env2     # 段階 1b（直しだけ）
 **同じ exp 名の logs/<exp>/ は消して作り直す**。歩行の測定は python -m unified.eval_walk -e <exp>。
 """
 
@@ -39,18 +43,23 @@ N_WALK_OBS = 6                # 段階 0 で足した観測（指令 3、cos・s
 N_WALK_PRIV = 1               # 段階 0 で足した特権観測（ノイズなしの累積ヨー角誤差）
 
 
-def get_cfgs(init_exp: str, nominal_share: float = 0.5, alpha=None):
-    """起き上がり（init_exp）の設定 ＋ 段階 0 の歩行の設定。"""
+def get_cfgs(init_exp: str, nominal_share: float = 0.5, alpha=None, env_module: str = ENV_MODULE, unified2=None):
+    """起き上がり（init_exp）の設定 ＋ 段階 0 の歩行の設定。env_module が unified_env2 なら unified2 の設定を足す。"""
     from unified.envs.unified_env1 import ALPHA_DEFAULT, MIX_DEFAULT
     from unified.train_unified0 import get_cfgs as get_cfgs0
     g_env, g_obs, g_rew, _ = pickle.load(open(LOG_ROOT / init_exp / "cfgs.pkl", "rb"))
-    u_env, u_obs, u_rew = get_cfgs0(delta=float(g_env["action"]["delta"]), env_module=ENV_MODULE)
+    u_env, u_obs, u_rew = get_cfgs0(delta=float(g_env["action"]["delta"]), env_module=env_module)
     env_cfg = copy.deepcopy(g_env)
-    env_cfg.update({"env_module": ENV_MODULE, "run_version": "unified-v1", "episode_length_s": 20.0,
+    env_cfg.update({"env_module": env_module, "run_version": "unified-v2" if env_module.endswith("unified_env2") else "unified-v1",
+                    "episode_length_s": 20.0,
                     "walk": copy.deepcopy(u_env["walk"])})
     env_cfg["walk"].update({"init": "mix", "terminate_on_fall": False})
     env_cfg["unified1"] = {"init_exp": init_exp, "alpha": copy.deepcopy(alpha or ALPHA_DEFAULT), "nominal_share": float(nominal_share),
                            "mix": copy.deepcopy(MIX_DEFAULT)}
+    if env_module.endswith("unified_env2"):
+        env_cfg["unified2"] = {"foot_ref": "nominal", "heading": "alpha_wz", **(unified2 or {})}
+    elif unified2:
+        raise ValueError("unified2 の設定は unified_env2 でだけ使える")
     obs_cfg = copy.deepcopy(g_obs)
     obs_cfg["num_obs"] = u_obs["num_obs"]
     if {k: v for k, v in g_obs.items() if k != "num_obs"} != {k: v for k, v in u_obs.items() if k != "num_obs"}:
@@ -135,6 +144,10 @@ def main() -> int:
     ap.add_argument("--nominal_share", type=float, default=0.5, help="初期状態のうち四脚の公称姿勢の割合（残りは起き上がりのバンク）")
     ap.add_argument("--std_fix", type=float, default=0.5)
     ap.add_argument("--cpu", action="store_true", help="CPU で動かす（動作確認用）")
+    ap.add_argument("--env", default=ENV_MODULE, choices=[ENV_MODULE, "unified.envs.unified_env2"])
+    ap.add_argument("--foot_ref", default=None, choices=["nominal", "first_step"], help="unified_env2 の足の基準の高さ（既定 nominal）")
+    ap.add_argument("--heading", default=None, choices=["alpha_wz", "alpha_err"], help="unified_env2 の累積ヨー角誤差のため方（既定 alpha_wz）")
+    ap.add_argument("--alpha_h", default=None, help="α の高さの範囲 h0,h1 [m]（既定 0.12,0.175）")
     a = ap.parse_args()
     chdir_repo_root()
     import genesis as gs
@@ -146,9 +159,14 @@ def main() -> int:
     stats_exp = a.walk_stats_exp or f"unified0b-kplow-s{a.seed}"
     init_path = LOG_ROOT / init_exp / f"model_{a.init_ckpt}.pt"
     stats_path = LOG_ROOT / stats_exp / "model_3999.pt"
-    env_cfg, obs_cfg, reward_cfg = get_cfgs(init_exp, nominal_share=a.nominal_share)
+    from unified.envs.unified_env1 import ALPHA_DEFAULT
+    alpha = copy.deepcopy(ALPHA_DEFAULT)
+    if a.alpha_h:
+        alpha["h"] = tuple(float(x) for x in a.alpha_h.split(","))
+    u2 = {k: v for k, v in (("foot_ref", a.foot_ref), ("heading", a.heading)) if v is not None}
+    env_cfg, obs_cfg, reward_cfg = get_cfgs(init_exp, nominal_share=a.nominal_share, alpha=alpha, env_module=a.env, unified2=u2)
     train_cfg = get_train_cfg(a.exp_name)
-    train_cfg["algorithm"]["symmetry_cfg"]["data_augmentation_func"] = ENV_MODULE + ":data_augmentation"
+    train_cfg["algorithm"]["symmetry_cfg"]["data_augmentation_func"] = a.env + ":data_augmentation"
     log_dir = LOG_ROOT / a.exp_name
     if log_dir.exists():
         shutil.rmtree(log_dir)
@@ -156,14 +174,15 @@ def main() -> int:
     with open(log_dir / "cfgs.pkl", "wb") as f:
         pickle.dump([env_cfg, obs_cfg, reward_cfg, train_cfg], f)
     from unified.envs.unified_env0 import URDF_GETUP
-    from unified.envs.unified_env1 import UnifiedEnv
+    import importlib
+    UnifiedEnv = importlib.import_module(a.env).UnifiedEnv
 
     def git(*args):
         try:
             return subprocess.check_output(["git", *args], text=True, cwd=REPO_ROOT, stderr=subprocess.DEVNULL).strip()
         except Exception:
             return None
-    info = {"exp_name": a.exp_name, "version": env_cfg["run_version"], "env_module": ENV_MODULE,
+    info = {"exp_name": a.exp_name, "version": env_cfg["run_version"], "env_module": a.env, "unified2": env_cfg.get("unified2"),
             "init": str(init_path.relative_to(REPO_ROOT)), "init_sha256": sha256(init_path),
             "walk_stats": str(stats_path.relative_to(REPO_ROOT)), "nominal_share": a.nominal_share, "alpha": env_cfg["unified1"]["alpha"],
             "std_fix": a.std_fix, "entropy": 0.0, "delta": env_cfg["action"]["delta"], "gap": env_cfg["action"]["gap"],
@@ -195,6 +214,8 @@ def main() -> int:
     print(f"[unified1] {init_path.relative_to(REPO_ROOT)} から（入力を 190 に広げた、元の方策との出力の差の最大 {diff:.2e}）。"
           f"段階 {env_cfg['curriculum']['levels'][env.level]}、公称姿勢の割合 {a.nominal_share}、std {a.std_fix} 固定、"
           f"速さの制限 {env_cfg['action']['delta']}、α {env_cfg['unified1']['alpha']}", flush=True)
+    if getattr(env, "foot_ref_z", None) is not None:
+        info["foot_ref_z"] = [round(float(x), 5) for x in env.foot_ref_z.flatten()]
     if diff > 1e-4:
         raise RuntimeError(f"広げた方策の出力が元の起き上がりの方策と違う（{diff}）")
     (log_dir / "run_info.json").write_text(json.dumps(info, ensure_ascii=False, indent=2) + "\n")
@@ -207,6 +228,8 @@ def main() -> int:
     info["learn_seconds"] = round(sec, 1)
     info["iter_per_min"] = round(a.max_iterations / sec * 60, 2)
     info["contacts_max_per_env"] = int(env.contacts_max)
+    if getattr(env, "foot_ref_z", None) is not None:
+        info["foot_ref_z"] = [round(float(v), 5) for v in env.foot_ref_z.flatten()]
     if torch.cuda.is_available() and not a.cpu:
         info["gpu_max_mem_gb"] = round(torch.cuda.max_memory_allocated() / 2**30, 2)
     (log_dir / "run_info.json").write_text(json.dumps(info, ensure_ascii=False, indent=2) + "\n")

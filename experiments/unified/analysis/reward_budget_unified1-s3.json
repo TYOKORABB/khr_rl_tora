@@ -1,0 +1,80 @@
+{
+ "exp": "unified1-s3",
+ "ckpt": 3999,
+ "share_pct": {
+  "stand": 89.43,
+  "getup": 10.57
+ },
+ "per_s": {
+  "stand": {
+   "height": 1.9689,
+   "upright": 0.9988,
+   "pose": 0.0,
+   "success": 0.0,
+   "body_ground_contact": 0.0,
+   "torque_limits": -0.0,
+   "dof_vel_limits": 0.0,
+   "dof_pos_limits": -0.0255,
+   "action_rate": -0.0,
+   "stand_smooth": 0.0,
+   "w_tracking_lin_vel": 3.9555,
+   "w_tracking_ang_vel": 0.7006,
+   "w_lin_vel_z": -0.0001,
+   "w_action_rate": -0.0129,
+   "w_action_smoothness2": -0.012,
+   "w_alive": 0.5,
+   "w_ang_vel_xy": -0.0362,
+   "w_base_height": -0.0,
+   "w_dof_vel": -0.0047,
+   "w_drift": -0.7465,
+   "w_feet_clearance": 0.922,
+   "w_feet_orientation": -0.0458,
+   "w_gait_contact": 0.5932,
+   "w_heading_error": -0.147,
+   "w_joint_torques": -0.0003,
+   "w_knee_swing_flexion": 0.4221,
+   "w_orientation": -0.0119,
+   "w_torque_limits": -0.0009,
+   "_total": 9.0172
+  },
+  "getup": {
+   "height": 0.527,
+   "upright": 0.6147,
+   "pose": 0.0041,
+   "success": 0.0,
+   "body_ground_contact": -0.0138,
+   "torque_limits": -0.0008,
+   "dof_vel_limits": 0.0,
+   "dof_pos_limits": -0.557,
+   "action_rate": -0.0277,
+   "stand_smooth": 0.0,
+   "w_tracking_lin_vel": 3.3121,
+   "w_tracking_ang_vel": 0.5262,
+   "w_lin_vel_z": -0.0,
+   "w_action_rate": -0.0023,
+   "w_action_smoothness2": -0.0021,
+   "w_alive": 0.1084,
+   "w_ang_vel_xy": -0.0162,
+   "w_base_height": -0.0008,
+   "w_dof_vel": -0.001,
+   "w_drift": -1.1884,
+   "w_feet_clearance": 0.159,
+   "w_feet_orientation": -0.1695,
+   "w_gait_contact": 0.0907,
+   "w_heading_error": -5.4396,
+   "w_joint_torques": -0.0001,
+   "w_knee_swing_flexion": 0.0764,
+   "w_orientation": -0.0272,
+   "w_torque_limits": -0.0002,
+   "_total": -2.0281
+  }
+ },
+ "rew_std_per_step": {
+  "stand": 0.05493,
+  "getup": 0.16847
+ },
+ "td_abs_mean": {
+  "stand": 0.05798,
+  "getup": 0.22469
+ }
+}

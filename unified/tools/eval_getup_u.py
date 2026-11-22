@@ -14,6 +14,10 @@
   python -m unified.tools.eval_getup_u -e unified1-s1 --ckpt 3999
   python -m unified.tools.eval_getup_u -e getup13-kpjk-long-s1 --ckpt 8995           # 比べる相手を同じ判定で
 結果は experiments/unified/getup_eval/<exp>_<ckpt>.json。動画（A・D の 1 本目、T の 1 本目）は media/videos/unified/（git に入れない）。
+切り替えの参照（11/22、段階 1 の分析）: --switch GETUP_EXP:CK,WALK_EXP:CK で、-e の環境（段階 1）のまま、2 つの方策を α で切り替えて動かす
+（α ≥ --switch_on で歩行の方策へ、歩行中に α < --switch_off で起き上がりの方策へ戻る）。起き上がりの方策は train_unified1 と同じく入力を 190 に広げる。
+1 つの方策がめざす到達点（2 つを別々に学習して切り替えれば何ができるか）を同じ測り方で出す。記録の名前は switch_<起き上がり>_<歩行>。
+  python -m unified.tools.eval_getup_u -e unified1-s1 --ckpt 3999 --switch getup13-kpjk-long-s1:8995,unified0b-kplow-s1:3999 --no_video
 既定は CPU（GPU の学習と並べて回すため）。--gpu で GPU。CPU では動画 3 本を 1 つのプロセスで撮れないので、
   python -m unified.tools.eval_getup_u -e unified1-s1 --ckpt 3999 --videos prone0,supine0
   python -m unified.tools.eval_getup_u -e unified1-s1 --ckpt 3999 --parts "" --videos supine0_walk   # 動画だけ
@@ -59,6 +63,9 @@ def main() -> int:
     ap.add_argument("--videos", default="prone0,supine0,supine0_walk",
                     help="撮る動画（CPU では 1 つのプロセスでカメラつきの場面を 3 つ作ると OpenGL の文脈が切れるので、分けて回す）")
     ap.add_argument("--gpu", action="store_true")
+    ap.add_argument("--switch", default=None, help="GETUP_EXP:CK,WALK_EXP:CK（切り替えの参照）")
+    ap.add_argument("--switch_on", type=float, default=0.99)
+    ap.add_argument("--switch_off", type=float, default=0.3)
     a = ap.parse_args()
     chdir_repo_root()
     import genesis as gs
@@ -69,7 +76,26 @@ def main() -> int:
     from khr_common.joint_map import JOINT_NAMES
 
     exp, ck = a.exp_name, a.ckpt
-    env_cfg0, obs_cfg, reward_cfg, train_cfg = pickle.load(open(LOG_ROOT / exp / "cfgs.pkl", "rb"))[:4]
+    if a.switch:
+        (sw_g, sw_gck), (sw_w, sw_wck) = [x.split(":") for x in a.switch.split(",")]
+        exp, ck = f"switch_{sw_g}_{sw_w}", f"{sw_gck}_{sw_wck}"
+
+    class SwitchPolicy:
+        """α で 2 つの方策を切り替える（体ごとに、ヒステリシスつき）。rollout の始めに reset() で起き上がりの方策に戻す。"""
+
+        def __init__(self, env, pg, pw):
+            self.env, self.pg, self.pw, self.walk = env, pg, pw, None
+
+        def reset(self):
+            self.walk = None
+
+        def __call__(self, obs):
+            al = self.env._alpha()
+            if self.walk is None:
+                self.walk = torch.zeros_like(al, dtype=torch.bool)
+            self.walk = torch.where(self.walk, al >= a.switch_off, al >= a.switch_on)
+            return torch.where(self.walk.unsqueeze(1), self.pw(obs), self.pg(obs))
+    env_cfg0, obs_cfg, reward_cfg, train_cfg = pickle.load(open(LOG_ROOT / a.exp_name / "cfgs.pkl", "rb"))[:4]
     unified = "walk" in env_cfg0
     mod = importlib.import_module(env_cfg0["env_module"])
     Env = mod.UnifiedEnv if unified else mod.GetupEnv
@@ -96,6 +122,14 @@ def main() -> int:
         if camera:
             kw["camera_res"] = (960, 544)
         env = Env(B, cfg, copy.deepcopy(obs_cfg), copy.deepcopy(reward_cfg), **kw)
+        if a.switch:
+            from unified.train_unified1 import widened_state
+            rg = OnPolicyRunner(env, copy.deepcopy(train_cfg), None, device=gs.device)
+            asd, _, _ = widened_state(LOG_ROOT / sw_g / f"model_{sw_gck}.pt", LOG_ROOT / sw_w / f"model_{sw_wck}.pt")
+            rg.alg._raw_actor.load_state_dict({k: v.to(gs.device) for k, v in asd.items()})
+            rw = OnPolicyRunner(env, copy.deepcopy(train_cfg), None, device=gs.device)
+            rw.load(str(LOG_ROOT / sw_w / f"model_{sw_wck}.pt"), map_location=str(gs.device))
+            return env, SwitchPolicy(env, rg.get_inference_policy(device=gs.device), rw.get_inference_policy(device=gs.device))
         rn = OnPolicyRunner(env, copy.deepcopy(train_cfg), None, device=gs.device)
         rn.load(str(LOG_ROOT / exp / f"model_{ck}.pt"), map_location=str(gs.device))
         return env, rn.get_inference_policy(device=gs.device)
@@ -120,6 +154,8 @@ def main() -> int:
 
     def rollout(env, pol, idx, record=None, track_alpha=False):
         obs = env.force_reset(torch.as_tensor(idx, device=gs.device), top)
+        if hasattr(pol, "reset"):
+            pol.reset()
         u0 = env.u.cpu().numpy().copy()
         B = len(idx)
         hold_n = int(round(s_cfg["hold_s"] / env.dt))
