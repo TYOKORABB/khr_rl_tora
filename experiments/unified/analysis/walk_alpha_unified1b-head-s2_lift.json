@@ -1,0 +1,61 @@
+{
+ "exp": "unified1b-head-s2",
+ "delta": 0.03,
+ "cmd": [
+  0.3,
+  0.0,
+  0.0
+ ],
+ "ckpt": {
+  "3999": {
+   "kp": {
+    "7": {
+     "speed_mps": 0.172,
+     "falls": 0,
+     "alpha_mean": 1.0,
+     "alpha_lt099_pct": 0.0,
+     "alpha_lt07_pct": 0.0,
+     "h_med": 0.1848,
+     "h_p10": 0.1787,
+     "u_med": 0.9979,
+     "stand_smooth_q": 0.488,
+     "swing_lift_mean_mm": [
+      2.0,
+      2.7,
+      18.0,
+      19.1
+     ],
+     "swing_lift_peak_mm": [
+      4.2,
+      4.8,
+      19.4,
+      20.2
+     ]
+    },
+    "train": {
+     "speed_mps": 0.144,
+     "falls": 0,
+     "alpha_mean": 0.995,
+     "alpha_lt099_pct": 7.9,
+     "alpha_lt07_pct": 0.1,
+     "h_med": 0.1827,
+     "h_p10": 0.1752,
+     "u_med": 0.9972,
+     "stand_smooth_q": 0.483,
+     "swing_lift_mean_mm": [
+      2.8,
+      3.1,
+      15.7,
+      15.3
+     ],
+     "swing_lift_peak_mm": [
+      5.1,
+      5.3,
+      17.2,
+      16.8
+     ]
+    }
+   }
+  }
+ }
+}

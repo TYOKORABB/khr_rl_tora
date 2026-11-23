@@ -1,0 +1,39 @@
+{
+ "exp": "unified1b-head-s2",
+ "ckpt": 3999,
+ "unified": true,
+ "kp": {
+  "5": {
+   "supine": {
+    "h_med": 0.1553,
+    "h_ge_0175_pct": 27.2,
+    "u_gt_0966_pct": 74.1,
+    "joint_speed_mean": 0.332,
+    "feet_off_pct": 35.9
+   },
+   "prone": {
+    "h_med": 0.1529,
+    "h_ge_0175_pct": 9.2,
+    "u_gt_0966_pct": 82.3,
+    "joint_speed_mean": 0.315,
+    "feet_off_pct": 27.2
+   }
+  },
+  "7": {
+   "supine": {
+    "h_med": 0.1933,
+    "h_ge_0175_pct": 97.2,
+    "u_gt_0966_pct": 99.7,
+    "joint_speed_mean": 0.45,
+    "feet_off_pct": 47.6
+   },
+   "prone": {
+    "h_med": 0.1917,
+    "h_ge_0175_pct": 98.5,
+    "u_gt_0966_pct": 100.0,
+    "joint_speed_mean": 0.448,
+    "feet_off_pct": 46.9
+   }
+  }
+ }
+}

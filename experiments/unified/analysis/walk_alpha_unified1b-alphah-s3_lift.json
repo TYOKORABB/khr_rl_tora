@@ -1,0 +1,61 @@
+{
+ "exp": "unified1b-alphah-s3",
+ "delta": 0.03,
+ "cmd": [
+  0.3,
+  0.0,
+  0.0
+ ],
+ "ckpt": {
+  "3999": {
+   "kp": {
+    "7": {
+     "speed_mps": 0.116,
+     "falls": 0,
+     "alpha_mean": 1.0,
+     "alpha_lt099_pct": 0.0,
+     "alpha_lt07_pct": 0.0,
+     "h_med": 0.1895,
+     "h_p10": 0.1881,
+     "u_med": 0.9993,
+     "stand_smooth_q": 0.472,
+     "swing_lift_mean_mm": [
+      1.6,
+      2.1,
+      18.7,
+      17.4
+     ],
+     "swing_lift_peak_mm": [
+      2.8,
+      3.4,
+      20.3,
+      18.7
+     ]
+    },
+    "train": {
+     "speed_mps": 0.107,
+     "falls": 0,
+     "alpha_mean": 1.0,
+     "alpha_lt099_pct": 0.0,
+     "alpha_lt07_pct": 0.0,
+     "h_med": 0.1889,
+     "h_p10": 0.1861,
+     "u_med": 0.9989,
+     "stand_smooth_q": 0.471,
+     "swing_lift_mean_mm": [
+      1.6,
+      1.8,
+      16.9,
+      15.4
+     ],
+     "swing_lift_peak_mm": [
+      3.1,
+      3.4,
+      18.4,
+      16.9
+     ]
+    }
+   }
+  }
+ }
+}

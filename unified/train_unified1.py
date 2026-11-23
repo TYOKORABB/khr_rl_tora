@@ -43,23 +43,27 @@ N_WALK_OBS = 6                # 段階 0 で足した観測（指令 3、cos・s
 N_WALK_PRIV = 1               # 段階 0 で足した特権観測（ノイズなしの累積ヨー角誤差）
 
 
-def get_cfgs(init_exp: str, nominal_share: float = 0.5, alpha=None, env_module: str = ENV_MODULE, unified2=None):
-    """起き上がり（init_exp）の設定 ＋ 段階 0 の歩行の設定。env_module が unified_env2 なら unified2 の設定を足す。"""
+def get_cfgs(init_exp: str, nominal_share: float = 0.5, alpha=None, env_module: str = ENV_MODULE, unified2=None, unified3=None):
+    """起き上がり（init_exp）の設定 ＋ 段階 0 の歩行の設定。env_module が unified_env2・3 なら unified2 の設定を、unified_env3 なら unified3 の設定を足す。"""
     from unified.envs.unified_env1 import ALPHA_DEFAULT, MIX_DEFAULT
     from unified.train_unified0 import get_cfgs as get_cfgs0
     g_env, g_obs, g_rew, _ = pickle.load(open(LOG_ROOT / init_exp / "cfgs.pkl", "rb"))
     u_env, u_obs, u_rew = get_cfgs0(delta=float(g_env["action"]["delta"]), env_module=env_module)
     env_cfg = copy.deepcopy(g_env)
-    env_cfg.update({"env_module": env_module, "run_version": "unified-v2" if env_module.endswith("unified_env2") else "unified-v1",
+    env_cfg.update({"env_module": env_module, "run_version": {"unified_env2": "unified-v2", "unified_env3": "unified-v3"}.get(env_module.rsplit(".", 1)[-1], "unified-v1"),
                     "episode_length_s": 20.0,
                     "walk": copy.deepcopy(u_env["walk"])})
     env_cfg["walk"].update({"init": "mix", "terminate_on_fall": False})
     env_cfg["unified1"] = {"init_exp": init_exp, "alpha": copy.deepcopy(alpha or ALPHA_DEFAULT), "nominal_share": float(nominal_share),
                            "mix": copy.deepcopy(MIX_DEFAULT)}
-    if env_module.endswith("unified_env2"):
+    if env_module.endswith(("unified_env2", "unified_env3")):
         env_cfg["unified2"] = {"foot_ref": "nominal", "heading": "alpha_wz", **(unified2 or {})}
     elif unified2:
-        raise ValueError("unified2 の設定は unified_env2 でだけ使える")
+        raise ValueError("unified2 の設定は unified_env2・3 でだけ使える")
+    if env_module.endswith("unified_env3"):
+        env_cfg["unified3"] = {"still_prob": 0.2, **(unified3 or {})}
+    elif unified3:
+        raise ValueError("unified3 の設定は unified_env3 でだけ使える")
     obs_cfg = copy.deepcopy(g_obs)
     obs_cfg["num_obs"] = u_obs["num_obs"]
     if {k: v for k, v in g_obs.items() if k != "num_obs"} != {k: v for k, v in u_obs.items() if k != "num_obs"}:
@@ -144,10 +148,11 @@ def main() -> int:
     ap.add_argument("--nominal_share", type=float, default=0.5, help="初期状態のうち四脚の公称姿勢の割合（残りは起き上がりのバンク）")
     ap.add_argument("--std_fix", type=float, default=0.5)
     ap.add_argument("--cpu", action="store_true", help="CPU で動かす（動作確認用）")
-    ap.add_argument("--env", default=ENV_MODULE, choices=[ENV_MODULE, "unified.envs.unified_env2"])
+    ap.add_argument("--env", default=ENV_MODULE, choices=[ENV_MODULE, "unified.envs.unified_env2", "unified.envs.unified_env3"])
     ap.add_argument("--foot_ref", default=None, choices=["nominal", "first_step"], help="unified_env2 の足の基準の高さ（既定 nominal）")
     ap.add_argument("--heading", default=None, choices=["alpha_wz", "alpha_err"], help="unified_env2 の累積ヨー角誤差のため方（既定 alpha_wz）")
     ap.add_argument("--alpha_h", default=None, help="α の高さの範囲 h0,h1 [m]（既定 0.12,0.175）")
+    ap.add_argument("--still_prob", type=float, default=None, help="unified_env3 で指令の引き直しを 0 にする割合（既定 0.2）")
     a = ap.parse_args()
     chdir_repo_root()
     import genesis as gs
@@ -164,7 +169,8 @@ def main() -> int:
     if a.alpha_h:
         alpha["h"] = tuple(float(x) for x in a.alpha_h.split(","))
     u2 = {k: v for k, v in (("foot_ref", a.foot_ref), ("heading", a.heading)) if v is not None}
-    env_cfg, obs_cfg, reward_cfg = get_cfgs(init_exp, nominal_share=a.nominal_share, alpha=alpha, env_module=a.env, unified2=u2)
+    u3 = {"still_prob": a.still_prob} if a.still_prob is not None else {}
+    env_cfg, obs_cfg, reward_cfg = get_cfgs(init_exp, nominal_share=a.nominal_share, alpha=alpha, env_module=a.env, unified2=u2, unified3=u3)
     train_cfg = get_train_cfg(a.exp_name)
     train_cfg["algorithm"]["symmetry_cfg"]["data_augmentation_func"] = a.env + ":data_augmentation"
     log_dir = LOG_ROOT / a.exp_name
@@ -182,7 +188,7 @@ def main() -> int:
             return subprocess.check_output(["git", *args], text=True, cwd=REPO_ROOT, stderr=subprocess.DEVNULL).strip()
         except Exception:
             return None
-    info = {"exp_name": a.exp_name, "version": env_cfg["run_version"], "env_module": a.env, "unified2": env_cfg.get("unified2"),
+    info = {"exp_name": a.exp_name, "version": env_cfg["run_version"], "env_module": a.env, "unified2": env_cfg.get("unified2"), "unified3": env_cfg.get("unified3"),
             "init": str(init_path.relative_to(REPO_ROOT)), "init_sha256": sha256(init_path),
             "walk_stats": str(stats_path.relative_to(REPO_ROOT)), "nominal_share": a.nominal_share, "alpha": env_cfg["unified1"]["alpha"],
             "std_fix": a.std_fix, "entropy": 0.0, "delta": env_cfg["action"]["delta"], "gap": env_cfg["action"]["gap"],

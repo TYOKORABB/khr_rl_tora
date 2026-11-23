@@ -1,4 +1,4 @@
-# 四脚歩行と起き上がりを 1 つの方策で: まとめ（2026-11-23 16 時時点）
+# 四脚歩行と起き上がりを 1 つの方策で: まとめ（2026-11-23 17 時時点）
 
 論文には入れない本人の興味の課題（11/20 から）。このファイルは全体の要約。細かい経緯は `unified/DIARY.md`、段階 1 の分析は `experiments/unified/stage1_analysis.md`、コードの地図は `unified/README.md`。
 
@@ -83,9 +83,11 @@
 
 ## 7. 今の状況と残り
 
-- A・B・C の待ち行列は 11/23 15:57 に終わり、whisper の cron を戻した。
-- 足の持ち上げの高さ（`walk_alpha --tag _lift`）を A・B・C の 9 本で測っている（GPU、16:20 から）。
-- 次の段階は本人と決める。候補: 比例ゲイン 5 の起き上がりの余裕を取り戻す（指令 0 のときの足踏みと胴体の沈みへの対策など）、D 2 つの方策から 1 つへの蒸留、E 組ごとのアドバンテージ、F 段階 0b の重みから、実機で動かす準備（張りつきは実機ではまだ試していない）。
+- A・B・C の待ち行列は 11/23 15:57 に終わった。
+- C を調べると、指令 0 でも足踏みしていて、比例ゲイン 5 では足踏みしたまま胴体が 0.12〜0.155 m に沈んでいた（`stage1_analysis.md` §7）。
+- 次の案「指令 0 では立ち止まる」（unified1b-still、`unified/envs/unified_env3.py`）を 11/23 16:32 に開始。終わりは 22 時ごろ。判定の基準は本人と決める。
+- 各版の動画を 1 本にまとめた: `media/videos/unified/unified_digest.mp4`（`unified/tools/make_digest.py`、git に入れない）。
+- その先の候補: D 2 つの方策から 1 つへの蒸留、E 組ごとのアドバンテージ、F 段階 0b の重みから、実機で動かす準備（張りつきは実機ではまだ試していない）。
 
 ## 8. 決まりごと
 
@@ -105,8 +107,9 @@
 | `experiments/unified/stage1_plan.md` | 段階 1 の計画・基準・結果 |
 | `experiments/unified/stage1_analysis.md` | 段階 1 の分析、改善案 A〜G、A・B・C の判定の基準 |
 | `experiments/unified/eval/`・`getup_eval/`・`analysis/` | 歩行・起き上がり・分析の測定の記録（JSON） |
-| `unified/envs/unified_env0.py`〜`unified_env2.py` | 段階 0・0r・1・1b の環境 |
+| `unified/envs/unified_env0.py`〜`unified_env3.py` | 段階 0・0r・1・1b・指令 0 で立ち止まる版の環境 |
 | `unified/train_unified0.py`・`train_unified1.py` | 段階 0・段階 1 の学習 |
 | `unified/eval_walk.py`・`tools/eval_getup_u.py` | 歩行の測定・起き上がりの測定（`--switch` で切り替えの参照） |
-| `unified/tools/walk_alpha.py`・`reward_budget.py`・`kl_split.py` | 段階 1 の分析の道具 |
+| `unified/tools/walk_alpha.py`・`reward_budget.py`・`kl_split.py`・`diag_still.py` | 段階 1 の分析の道具 |
+| `unified/tools/make_digest.py` | 各版の動画を 1 本にまとめる |
 | `unified/jobs/run_stage1x.sh` | 改善案を 3 シードずつ回す待ち行列 |
