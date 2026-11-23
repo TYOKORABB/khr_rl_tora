@@ -118,6 +118,10 @@ def main() -> int:
             w = cfg["walk"]
             w.update({"lin_vel_x_range": [cmd[0], cmd[0]], "lin_vel_y_range": [cmd[1], cmd[1]], "ang_vel_range": [cmd[2], cmd[2]],
                       "push": False, "terminate_on_fall": False, "init": "bank"})
+        if "unified2" in cfg:
+            # 足の基準の高さ（報酬 w_feet_clearance だけが使う）は、公称姿勢から始まる体がいないと決められない。
+            # この測定は報酬を使わないので、段階 1 と同じ決め方にする（方策の入力・動きは変わらない。2026-11-23）
+            cfg["unified2"] = dict(cfg["unified2"], foot_ref="first_step")
         kw = {"eval_mode": True, "level": top}
         if camera:
             kw["camera_res"] = (960, 544)
