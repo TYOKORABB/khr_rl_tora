@@ -57,6 +57,7 @@ def main() -> int:
     ap.add_argument("--tag", default="")
     ap.add_argument("--cpu", action="store_true")
     ap.add_argument("--delta", type=float, default=None, help="速さの制限を学習と違う値で動かす（段階 1 の設計の確かめ、11/22）。省略で学習と同じ")
+    ap.add_argument("--gap", type=float, default=None, help="目標角と関節角のずれの上限 gap を学習と違う値で動かす（11/24、比例ゲイン 5 の診断）。省略で学習と同じ。--tag と一緒に使う")
     ap.add_argument("--stochastic", action="store_true", help="方策の平均ではなく、学習中と同じ分布から行動を引いて動かす（ゆらぎがあると歩くかを見る）")
     a = ap.parse_args()
     chdir_repo_root()
@@ -100,6 +101,10 @@ def main() -> int:
         policy = lambda o: actor(o, stochastic_output=True)  # noqa: E731
     if a.delta is not None:
         env.post.delta = float(a.delta)
+    if a.gap is not None:
+        if not a.tag:
+            raise SystemExit("--gap を変えるときは --tag で記録の名前を分ける")
+        env.post.gap = float(a.gap)
     dt = env.dt
     n_steps, n_warm = int(round(a.seconds / dt)), int(round(a.warmup / dt))
     delta, gap = float(env.post.delta), env.post.gap

@@ -90,6 +90,9 @@
 - A・B・C の待ち行列は 11/23 15:57 に終わった。
 - C を調べると、指令 0 でも足踏みしていて、比例ゲイン 5 では足踏みしたまま胴体が 0.12〜0.155 m に沈んでいた（`stage1_analysis.md` §7）。
 - 次の案「指令 0 では立ち止まる」（unified1b-still、`unified/envs/unified_env3.py`）は 11/23 22:07 に終わり、不合格（M1 35.5 %・M2 19.6 %、基準 82・84。N4 93.9 %）。1 つの方策の候補は C のまま。
+- 11/24 に比例ゲイン 5 で沈む原因を学習なしで調べた（`stage1_analysis.md` §8）。原因は gap（目標角と関節角のずれの上限 0.08 rad）で出せる力が足りないこと。C を gap 0.10 で動かすだけで M1 97.6 %・M2 98.7 %、歩行 0.192 m/s、N1・N4 100 %（動かし方の変更なので合格とは数えない）。学習の硬さは関節ごとに別々に引くので、体全体が弱い体が学習に出てこない。
+- 次の案「体全体が弱いエピソード」（unified1b-weak、`unified/envs/unified_env4.py`、3 割のエピソードで全関節の硬さを 4〜6 に）を 11/24 12:36 に開始。終わりは 19 時ごろ。判定の基準は unified1b-still と同じ。
+- 参考動画（版ごとに 4 つの視点＋計測の表示）: `media/videos/unified/reference/ref_<版>.mp4`（`unified/tools/make_reference.py`、git に入れない）。
 - 各版の動画を 1 本にまとめた: `media/videos/unified/unified_digest.mp4`（`unified/tools/make_digest.py`、git に入れない）。
 - その先の候補: D 2 つの方策から 1 つへの蒸留、E 組ごとのアドバンテージ、F 段階 0b の重みから、実機で動かす準備（張りつきは実機ではまだ試していない）。
 

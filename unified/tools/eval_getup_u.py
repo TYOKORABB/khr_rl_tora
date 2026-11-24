@@ -63,6 +63,8 @@ def main() -> int:
     ap.add_argument("--videos", default="prone0,supine0,supine0_walk",
                     help="撮る動画（CPU では 1 つのプロセスでカメラつきの場面を 3 つ作ると OpenGL の文脈が切れるので、分けて回す）")
     ap.add_argument("--gpu", action="store_true")
+    ap.add_argument("--gap", type=float, default=None, help="ずれの上限 gap を学習と違う値で動かす（11/24）。--tag と一緒に使う")
+    ap.add_argument("--tag", default="", help="記録と動画の名前の後ろにつける")
     ap.add_argument("--switch", default=None, help="GETUP_EXP:CK,WALK_EXP:CK（切り替えの参照）")
     ap.add_argument("--switch_on", type=float, default=0.99)
     ap.add_argument("--switch_off", type=float, default=0.3)
@@ -101,6 +103,10 @@ def main() -> int:
     Env = mod.UnifiedEnv if unified else mod.GetupEnv
     top = len(env_cfg0["curriculum"]["levels"]) - 1
     gap = float(env_cfg0["action"].get("gap") or 0.08)
+    if a.gap is not None:
+        if not a.tag:
+            raise SystemExit("--gap を変えるときは --tag で記録の名前を分ける")
+        gap = float(a.gap)
     n = len(JOINT_NAMES)
     est = HeightEstimator()
     s_cfg = env_cfg0["success"]
@@ -257,7 +263,7 @@ def main() -> int:
         print("T", res["T"], flush=True)
         del env, pol
     if parts:                                     # --parts "" は動画だけ（記録を上書きしない）
-        dst = EXPERIMENT_ROOT / "unified" / "getup_eval" / f"{exp}_{ck}.json"
+        dst = EXPERIMENT_ROOT / "unified" / "getup_eval" / f"{exp}_{ck}{a.tag}.json"
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         print(f"[記録] {dst.relative_to(REPO_ROOT)}", flush=True)
@@ -269,7 +275,7 @@ def main() -> int:
                 continue
             env, pol = make(1, a.kp, seconds=secs, cmd=cmd, camera=True)
             put_starts(env, starts)
-            mp4 = vid / f"{exp}_{ck}_getup_{tag}_kp{a.kp:g}.mp4"
+            mp4 = vid / f"{exp}_{ck}_getup_{tag}_kp{a.kp:g}{a.tag}.mp4"
             rollout(env, pol, np.array([0]), record=str(mp4), track_alpha=unified)
             print(f"[動画] {mp4.relative_to(REPO_ROOT)}", flush=True)
             del env, pol
