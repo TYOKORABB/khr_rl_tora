@@ -53,6 +53,7 @@ def main() -> int:
     ap.add_argument("--warmup", type=float, default=2.0)
     ap.add_argument("-r", "--repeats", type=int, default=3)
     ap.add_argument("--push", action="store_true", help="押しあり（最初から全強度、最大 1.0 m/s、3 秒ごと）")
+    ap.add_argument("--push_max", type=float, default=None, help="押しの最大の速度 [m/s]（省略で学習と同じ 1.0。11/24）。--tag と一緒に使う")
     ap.add_argument("--video_kp", type=float, nargs="*", default=[7.0, 25.0], help="動画を撮る硬さ（空なら撮らない）")
     ap.add_argument("--tag", default="")
     ap.add_argument("--cpu", action="store_true")
@@ -81,6 +82,8 @@ def main() -> int:
     wc["lin_vel_y_range"] = [a.cmd[1], a.cmd[1]]
     wc["ang_vel_range"] = [a.cmd[2], a.cmd[2]]
     wc["push"] = bool(a.push)
+    if a.push_max is not None:
+        wc["max_push_vel_xy"] = float(a.push_max)
     wc["push_curriculum_steps"] = 0
     wc["init"] = "nominal"
     wc["terminate_on_fall"] = True
@@ -113,7 +116,7 @@ def main() -> int:
         env.env_cfg["dr"]["kp_range"] = (kp, kp)
         torch.manual_seed(rng); torch.cuda.manual_seed_all(rng); np.random.seed(rng); random.seed(rng)
         obs = env.reset()
-        xy, tau, gm, steps, rate_b, gap_b, wz = [], [], [], [], [], [], []
+        xy, tau, gm, steps, rate_b, gap_b, wz, vy = [], [], [], [], [], [], [], []
         falls = torch.zeros((), dtype=torch.long, device=gs.device)
         falls_w = torch.zeros((), dtype=torch.long, device=gs.device)
         writer = None
@@ -139,6 +142,7 @@ def main() -> int:
                 falls += env.fall.sum()
                 xy.append(env.base_pos[:, :2].cpu().numpy())
                 wz.append(env.loco_ang_vel[:, 2].cpu().numpy())
+                vy.append(env.loco_lin_vel[:, 1].cpu().numpy())      # 歩行の座標の横（v31 の測定の vy_mps と同じ量。11/24）
                 tau.append((env.torque.abs() / EFFORT).cpu().numpy())
                 gm.append((~(env.feet_contact ^ (env.leg_phase < 0.55))).float().mean().item())
                 steps.append(env.q_tgt_step.abs().cpu().numpy())
@@ -147,8 +151,9 @@ def main() -> int:
                     gap_b.append(((env.q_tgt_prev - q_meas).abs() >= gap - 1e-5).float().mean().item())
         if writer is not None:
             writer.close()
-        xy, tau, steps, wz = np.array(xy), np.array(tau), np.array(steps), np.array(wz)
+        xy, tau, steps, wz, vy = np.array(xy), np.array(tau), np.array(steps), np.array(wz), np.array(vy)
         dur = (n_steps - n_warm) * dt
+        yaw_accum = np.degrees(wz.mean(axis=0) * dur)   # 1 体ごとのヨー角の累積 [deg]（v31 の測定と同じ。旋回の追従 = これ ÷ (0.5 rad/s × 10 s)）
         speed, lateral = [], []
         for c in range(a.num_robots):
             p = xy[:, c, :] - xy[0, c, :]
@@ -158,13 +163,13 @@ def main() -> int:
             lateral.append(abs(float(np.dot(p[-1], perp))) / max(along, 1e-9) * 100)
             speed.append(along / dur)
         return {"speed_mps": float(np.mean(speed)), "lateral_pct": float(np.mean(lateral)),
-                "yaw_rate_mean": float(wz.mean()), "falls": int(falls.item()), "falls_warmup": int(falls_w.item()),
+                "yaw_rate_mean": float(wz.mean()), "yaw_accum_deg": float(yaw_accum.mean()), "vy_mps": float(vy.mean()), "falls": int(falls.item()), "falls_warmup": int(falls_w.item()),
                 "gait_match_pct": float(np.mean(gm) * 100), "torque_p99_pct": float(np.percentile(tau, 99) * 100),
                 "torque_mean_pct": float(tau.mean() * 100), "tgt_step_p99": float(np.percentile(steps, 99)),
                 "rate_bind_pct": float(np.mean(rate_b) * 100), "gap_bind_pct": float(np.mean(gap_b) * 100) if gap_b else None}
 
     out = {"exp_name": a.exp_name, "ckpt": ckpt, "cmd": a.cmd, "push": a.push, "num_robots": a.num_robots, "seconds": a.seconds,
-           "warmup": a.warmup, "repeats": a.repeats, "stochastic": a.stochastic, "delta": delta, "gap": gap, "kp": {}}
+           "warmup": a.warmup, "repeats": a.repeats, "stochastic": a.stochastic, "delta": delta, "gap": gap, "push_max": wc["max_push_vel_xy"] if a.push else None, "kp": {}}
     for kp in a.kp:
         reps = [run(kp, s) for s in range(a.repeats)]
         agg = {k: float(np.mean([r[k] for r in reps])) for k in reps[0] if reps[0][k] is not None}

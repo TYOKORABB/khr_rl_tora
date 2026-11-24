@@ -31,7 +31,7 @@ EFFORT_LIMIT = 1.373  # URDF の effort limit [Nm]。トルクはこれに対す
 
 
 def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, joint_offset,
-            rng_seed=0, push=False, kp=None):
+            rng_seed=0, push=False, kp=None, push_max=None):
     """1 条件ぶんの測定。戻り値は指標の dict。
 
     rng_seed: 測定そのものの乱数種。**プロセスをまたいで再現させるために必須**。
@@ -63,6 +63,8 @@ def measure(exp_name, env_module, ckpt, num_robots, seconds, warmup_s, cmd, join
     if push:
         env_cfg["Mode_push_vel"] = True
         env_cfg["push_curriculum_steps"] = 0
+        if push_max is not None:              # [2026-11-24] 押しの強さ（最大の速度 m/s）を学習時と変える（1 つの方策との比較）
+            env_cfg["max_push_vel_xy"] = float(push_max)
 
     # 個体差の引き方を版間で揃え、かつプロセスをまたいで再現させる（全 RNG をシードする）
     torch.manual_seed(rng_seed)
@@ -241,6 +243,7 @@ def main():
                     help="測定の繰り返し回数（乱数種 0..N-1）。測定ばらつきを分離するため既定3")
     ap.add_argument("--push", action="store_true",
                     help="push 外乱を最初から全強度で与える（転倒耐性の測定用）")
+    ap.add_argument("--push_max", type=float, default=None, help="--push の最大の速度 [m/s] を上書きする（省略時は学習時の値。2026-11-24）")
     ap.add_argument("--kp", type=float, default=None, help="比例ゲインを上書きする [N·m/rad]（省略時は学習時の値）")
     ap.add_argument("--with-offset-only", action="store_true", help="個体差ありの測定だけ行う")
     ap.add_argument("-o", "--out", default=None)
@@ -251,11 +254,11 @@ def main():
 
     result = {"exp_name": args.exp_name, "env_module": args.env, "ckpt": args.ckpt,
               "num_robots": args.num_robots, "measure_seconds": args.seconds - args.warmup,
-              "command": args.cmd, "repeats": args.repeats, "push": bool(args.push), "kp": args.kp}
+              "command": args.cmd, "repeats": args.repeats, "push": bool(args.push), "kp": args.kp, "push_max": args.push_max}
     labels = (("no_offset", False), ("with_offset", True))[1 if args.with_offset_only else 0:]
     for label, offset in labels:
         runs = [measure(args.exp_name, args.env, args.ckpt, args.num_robots,
-                        args.seconds, args.warmup, args.cmd, offset, rng_seed=r, push=args.push, kp=args.kp)
+                        args.seconds, args.warmup, args.cmd, offset, rng_seed=r, push=args.push, kp=args.kp, push_max=args.push_max)
                 for r in range(args.repeats)]
         agg = {}
         for key in runs[0]:

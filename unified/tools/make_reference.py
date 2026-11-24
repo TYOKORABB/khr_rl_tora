@@ -11,6 +11,8 @@
   2 仰向けから前進 0.3 m/s（比例ゲイン 7、14 秒）: 起き上がりから歩行へのつながり、歩き方
   3 四脚から前進 0.15 m/s ＋ 左旋回 0.5 rad/s（比例ゲイン 7、8 秒）: 旋回（測定の表には無い動き）
   4 うつ伏せから指令 0（比例ゲイン 5、8 秒）: サーボが弱いときの起き上がりと姿勢の保持（M2 の条件）
+  5 四脚から前進 0.3 m/s、3 秒ごとに押す（最大 2.0 m/s、比例ゲイン 7、20 秒。11/24 追加）: 押されて転んだら起き上がって歩き直すか。
+    押しは v31 と同じ作り（胴体の水平の速度へランダムな向き・大きさ 0〜最大 の蹴り）。押した時刻はグラフに縦の線で出す
 起き上がりだけの方策（getup13）は 1 と 4、歩行だけの方策（段階 0b）は四脚から始める。
 
   python -m unified.tools.make_reference --versions getup13,switch,stage1,A,B,C,C2,still -j 4
@@ -79,6 +81,7 @@ SCENES = [
     ("supine_walk_kp7", "supine", (0.3, 0.0, 0.0), 7.0, 14.0, "仰向けから 前進 0.3 m/s（比例ゲイン 7）"),
     ("quad_turn_kp7", "quad", (0.15, 0.0, 0.5), 7.0, 8.0, "四脚から 前進 0.15 m/s ＋ 左旋回 0.5 rad/s（比例ゲイン 7）"),
     ("prone_still_kp5", "prone", (0.0, 0.0, 0.0), 5.0, 8.0, "うつ伏せから 指令 0（比例ゲイン 5・サーボが弱い）"),
+    ("quad_push_kp7", "quad", (0.3, 0.0, 0.0), 7.0, 20.0, "四脚から 前進 0.3 m/s・3 秒ごとに押す（最大 2.0 m/s、比例ゲイン 7）", {"push": 2.0}),
 ]
 FEET = ("l_lowerarm", "r_lowerarm", "l_foot", "r_foot")
 FEET_JP = ("前左", "前右", "後左", "後右")
@@ -91,7 +94,7 @@ def scenes_for(kind):
     if kind == "getup":
         return [SCENES[0], SCENES[3]]
     if kind == "walk":
-        return [(n, "quad", c, kp, s, d.replace("仰向けから", "四脚から").replace("うつ伏せから", "四脚から")) for n, _, c, kp, s, d in SCENES]
+        return [(sc[0], "quad", *sc[2:5], sc[5].replace("仰向けから", "四脚から").replace("うつ伏せから", "四脚から"), *sc[6:]) for sc in SCENES]
     return list(SCENES)
 
 
@@ -122,7 +125,8 @@ def render_scene(version: str, scene_name: str, out_path: str) -> None:
     label, change, result, kind, spec = VERSIONS[version][:5]
     opts = VERSIONS[version][5] if len(VERSIONS[version]) > 5 else {}
     scene = next(s for s in scenes_for(kind) if s[0] == scene_name)
-    _, start, cmd, kp, seconds, desc = scene
+    start, cmd, kp, seconds, desc = scene[1:6]
+    sopt = scene[6] if len(scene) > 6 else {}
     n = len(JOINT_NAMES)
     est = HeightEstimator()
     parts = spec.split("|")
@@ -145,6 +149,8 @@ def render_scene(version: str, scene_name: str, out_path: str) -> None:
     if unified:
         cfg["walk"].update({"lin_vel_x_range": [cmd[0], cmd[0]], "lin_vel_y_range": [cmd[1], cmd[1]], "ang_vel_range": [cmd[2], cmd[2]],
                             "push": False, "terminate_on_fall": False, "init": "bank"})
+        if sopt.get("push"):
+            cfg["walk"].update({"push": True, "max_push_vel_xy": float(sopt["push"]), "push_curriculum_steps": 0, "push_interval_s": 3.0})
     if "unified2" in cfg:
         cfg["unified2"] = dict(cfg["unified2"], foot_ref="first_step")
     env = Env(1, cfg, copy.deepcopy(obs_cfg), copy.deepcopy(reward_cfg), eval_mode=True, level=top, camera_res=(VW, VH))
@@ -202,6 +208,8 @@ def render_scene(version: str, scene_name: str, out_path: str) -> None:
     view_names = ("左横", "正面", "後ろ斜め上", "足元（後ろ斜め下）")
 
     steps = int(round(seconds / env.dt))
+    push_n = int(round(3.0 / env.dt)) if sopt.get("push") else 0
+    push_t = []
     hist_t, hist_h, hist_v, hist_a = [], [], [], []
     contacts = deque(maxlen=int(round(3.0 / env.dt)))
     xy_path = []
@@ -218,6 +226,8 @@ def render_scene(version: str, scene_name: str, out_path: str) -> None:
             q_meas = env.q_obs_prev.clone()
             obs, _, _, _ = env.step(pol(obs))
             t = (i + 1) * env.dt
+            if push_n and (i + 1) % push_n == 0:
+                push_t.append(t)
             p = env.base_pos[0].cpu().numpy().astype(float)
             bq = env.base_quat[0].cpu().numpy().astype(float)
             f_w = qrot(bq, fwd_body); f_xy = np.array([f_w[0], f_w[1], 0.0])
@@ -299,10 +309,13 @@ def render_scene(version: str, scene_name: str, out_path: str) -> None:
                 for rv, rc in ((ref, (120, 125, 135)), (ref2, (90, 140, 200))):
                     if rv is not None:
                         d.line([x0, Y(rv), x0 + w, Y(rv)], fill=rc, width=1)
+                for tp in push_t:                                      # 押した時刻
+                    d.line([x0 + tp / seconds * w, y0_, x0 + tp / seconds * w, y0_ + hgt], fill=(235, 120, 60), width=1)
                 pts = [(x0 + (tt / seconds) * w, Y(v)) for tt, v in zip(hist_t, ys) if v is not None]
                 if len(pts) > 1:
                     d.line(pts, fill=col, width=2)
-            plot(380, y0 + 8, 330, 130, hist_h, 0.0, 0.25, s_cfg["h_thr"], "胴体の高さ（0〜0.25 m、灰の線 = 判定 0.175 m）", (120, 200, 255))
+            plot(380, y0 + 8, 330, 130, hist_h, 0.0, 0.25, s_cfg["h_thr"],
+                 "胴体の高さ（0〜0.25 m、灰 = 判定 0.175 m" + ("、橙 = 押した時刻）" if push_n else "）"), (120, 200, 255))
             plot(380, y0 + 158, 330, 130, hist_v, -0.1, 0.4, 0.0, "前進の速さ（−0.1〜0.4 m/s、青の線 = 指令）", (250, 200, 90), ref2=cmd[0] if kind != "getup" else None)
             # C 足の接地（最近 3 秒）とトルク
             gx, gy, gw = 730, y0 + 8, 270

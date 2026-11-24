@@ -1,0 +1,82 @@
+{
+ "exp_name": "unified1b-head-s1",
+ "ckpt": 3999,
+ "cmd": [
+  0.0,
+  0.0,
+  0.5
+ ],
+ "push": false,
+ "num_robots": 128,
+ "seconds": 12.0,
+ "warmup": 2.0,
+ "repeats": 3,
+ "stochastic": false,
+ "delta": 0.03,
+ "gap": 0.1,
+ "push_max": null,
+ "kp": {
+  "7.0": {
+   "speed_mps": 0.003483722448678842,
+   "lateral_pct": 549.5146100410677,
+   "yaw_rate_mean": 0.49136365453402203,
+   "yaw_accum_deg": 281.53061930338544,
+   "vy_mps": -0.011901791828374067,
+   "falls": 0.0,
+   "falls_warmup": 0.0,
+   "gait_match_pct": 83.64583333333333,
+   "torque_p99_pct": 35.480475107828774,
+   "torque_mean_pct": 11.157834688822428,
+   "tgt_step_p99": 0.030000001192092896,
+   "rate_bind_pct": 90.83641374905903,
+   "gap_bind_pct": 35.2131639023622,
+   "repeats": [
+    {
+     "speed_mps": 0.0031785084651346548,
+     "lateral_pct": 574.8185285876173,
+     "yaw_rate_mean": 0.4916248917579651,
+     "yaw_accum_deg": 281.6802978515625,
+     "vy_mps": -0.011625215411186218,
+     "falls": 0,
+     "falls_warmup": 0,
+     "gait_match_pct": 83.717578125,
+     "torque_p99_pct": 35.50993347167969,
+     "torque_mean_pct": 11.156888008117676,
+     "tgt_step_p99": 0.030000001192092896,
+     "rate_bind_pct": 90.78366752862931,
+     "gap_bind_pct": 35.19900669455529
+    },
+    {
+     "speed_mps": 0.0038078499834227845,
+     "lateral_pct": 554.2151174587029,
+     "yaw_rate_mean": 0.4920611083507538,
+     "yaw_accum_deg": 281.93023681640625,
+     "vy_mps": -0.012157495133578777,
+     "falls": 0,
+     "falls_warmup": 0,
+     "gait_match_pct": 83.587890625,
+     "torque_p99_pct": 35.471435546875,
+     "torque_mean_pct": 11.166584014892578,
+     "tgt_step_p99": 0.030000001192092896,
+     "rate_bind_pct": 90.87883797883988,
+     "gap_bind_pct": 35.146520876884466
+    },
+    {
+     "speed_mps": 0.003464808897479088,
+     "lateral_pct": 519.510184076883,
+     "yaw_rate_mean": 0.49040496349334717,
+     "yaw_accum_deg": 280.9813232421875,
+     "vy_mps": -0.011922664940357208,
+     "falls": 0,
+     "falls_warmup": 0,
+     "gait_match_pct": 83.63203125000001,
+     "torque_p99_pct": 35.46005630493164,
+     "torque_mean_pct": 11.150032043457031,
+     "tgt_step_p99": 0.030000001192092896,
+     "rate_bind_pct": 90.84673573970795,
+     "gap_bind_pct": 35.293964135646824
+    }
+   ]
+  }
+ }
+}

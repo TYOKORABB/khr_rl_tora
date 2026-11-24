@@ -1,0 +1,130 @@
+{
+ "exp_name": "unified1b-head-s1",
+ "ckpt": 3999,
+ "num_robots": 128,
+ "seconds": 20.0,
+ "repeats": 2,
+ "gap": 0.08,
+ "cmd": [
+  0.3,
+  0.0,
+  0.0
+ ],
+ "push_interval_s": 3.0,
+ "res": {
+  "kp7_push1": {
+   "falls_per_robot": 0.0546875,
+   "robots_fell_pct": 5.46875,
+   "fall_events": 7.0,
+   "fall_events_judged": 5.5,
+   "recovered_pct": 100.0,
+   "t_recover_med_s": 3.38,
+   "upright_end_pct": 90.625,
+   "speed_last5_fell": 0.12564614042639732,
+   "speed_last5_all": 0.13101743906736374,
+   "progress_mps": 0.1383489891886711,
+   "repeats": [
+    {
+     "falls_per_robot": 0.0546875,
+     "robots_fell_pct": 5.46875,
+     "fall_events": 7,
+     "fall_events_judged": 5,
+     "recovered_pct": 100.0,
+     "t_recover_med_s": 3.4,
+     "upright_end_pct": 89.0625,
+     "speed_last5_fell": 0.1215834990143776,
+     "speed_last5_all": 0.13179337978363037,
+     "progress_mps": 0.13851144909858704
+    },
+    {
+     "falls_per_robot": 0.0546875,
+     "robots_fell_pct": 5.46875,
+     "fall_events": 7,
+     "fall_events_judged": 6,
+     "recovered_pct": 100.0,
+     "t_recover_med_s": 3.36,
+     "upright_end_pct": 92.1875,
+     "speed_last5_fell": 0.12970878183841705,
+     "speed_last5_all": 0.1302414983510971,
+     "progress_mps": 0.1381865292787552
+    }
+   ]
+  },
+  "kp7_push1.5": {
+   "falls_per_robot": 0.5078125,
+   "robots_fell_pct": 44.921875,
+   "fall_events": 65.0,
+   "fall_events_judged": 53.5,
+   "recovered_pct": 100.0,
+   "t_recover_med_s": 3.68,
+   "upright_end_pct": 82.8125,
+   "speed_last5_fell": 0.12383310124278069,
+   "speed_last5_all": 0.12650619447231293,
+   "progress_mps": 0.1282641887664795,
+   "repeats": [
+    {
+     "falls_per_robot": 0.4296875,
+     "robots_fell_pct": 39.0625,
+     "fall_events": 55,
+     "fall_events_judged": 42,
+     "recovered_pct": 100.0,
+     "t_recover_med_s": 3.62,
+     "upright_end_pct": 80.46875,
+     "speed_last5_fell": 0.12475405633449554,
+     "speed_last5_all": 0.12734472751617432,
+     "progress_mps": 0.13009323179721832
+    },
+    {
+     "falls_per_robot": 0.5859375,
+     "robots_fell_pct": 50.78125,
+     "fall_events": 75,
+     "fall_events_judged": 65,
+     "recovered_pct": 100.0,
+     "t_recover_med_s": 3.74,
+     "upright_end_pct": 85.15625,
+     "speed_last5_fell": 0.12291214615106583,
+     "speed_last5_all": 0.12566766142845154,
+     "progress_mps": 0.12643514573574066
+    }
+   ]
+  },
+  "kp7_push2": {
+   "falls_per_robot": 0.91015625,
+   "robots_fell_pct": 71.484375,
+   "fall_events": 116.5,
+   "fall_events_judged": 93.0,
+   "recovered_pct": 97.75581395348837,
+   "t_recover_med_s": 3.97,
+   "upright_end_pct": 73.828125,
+   "speed_last5_fell": 0.12412219867110252,
+   "speed_last5_all": 0.12382275611162186,
+   "progress_mps": 0.11802254617214203,
+   "repeats": [
+    {
+     "falls_per_robot": 0.8359375,
+     "robots_fell_pct": 68.75,
+     "fall_events": 107,
+     "fall_events_judged": 86,
+     "recovered_pct": 96.51162790697674,
+     "t_recover_med_s": 3.88,
+     "upright_end_pct": 71.875,
+     "speed_last5_fell": 0.1263308823108673,
+     "speed_last5_all": 0.12479919195175171,
+     "progress_mps": 0.11885310709476471
+    },
+    {
+     "falls_per_robot": 0.984375,
+     "robots_fell_pct": 74.21875,
+     "fall_events": 126,
+     "fall_events_judged": 100,
+     "recovered_pct": 99.0,
+     "t_recover_med_s": 4.0600000000000005,
+     "upright_end_pct": 75.78125,
+     "speed_last5_fell": 0.12191351503133774,
+     "speed_last5_all": 0.122846320271492,
+     "progress_mps": 0.11719198524951935
+    }
+   ]
+  }
+ }
+}
