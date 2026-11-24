@@ -67,9 +67,9 @@ VERSIONS = {
     "still": ("指令 0 では立ち止まる（unified1b-still、不合格）", "C ＋ 学習の指令の 2 割を 0 にし、指令 0 では 4 本とも接地を報酬に",
               "歩行 0.157 m/s・N1 100 %・N4 93.9 %・M1 35.5 %・M2 19.6 %", "unified", "unified1b-still-s1:3999"),
     "C_gap010": ("改善案 C を gap 0.10 で動かす（学習なしの代わりの案）", "C の方策のまま、目標角と関節角のずれの上限 gap を 0.08 → 0.10 rad に",
-                 "gap 0.10 の値は experiments/unified/（stage1_analysis §8）", "unified", "unified1b-head-s1:3999", {"gap": 0.10}),
+                 "gap 0.10 で: 歩行 0.192 m/s・N1 100 %・N4 100 %・M1 97.6 %・M2 98.7 %（gap 0.08 では M1 44.9・M2 10.4）", "unified", "unified1b-head-s1:3999", {"gap": 0.10}),
     "C2_gap010": ("改善案 C のシード 2 を gap 0.10 で", "C のシード 2（実機の候補）のまま、gap を 0.08 → 0.10 rad に",
-                  "gap 0.10 の値は experiments/unified/（stage1_analysis §8）", "unified", "unified1b-head-s2:3999", {"gap": 0.10}),
+                  "このシード・gap 0.10 で: 歩行 0.201 m/s・N1 100 %・N4 100 %・M1 100 %・M2 100 %", "unified", "unified1b-head-s2:3999", {"gap": 0.10}),
     "weak": ("体全体が弱いエピソード（unified1b-weak、11/24 学習）", "C ＋ 3 割のエピソードで全関節の硬さを 4〜6 に",
              "（学習中。結果は experiments/unified/）", "unified", "unified1b-weak-s1:3999"),
 }
