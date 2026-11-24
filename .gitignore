@@ -233,3 +233,6 @@ media/mp4/
 
 # 実機の歩行の測り直しの印刷用マーカー（real/marker_track.py sheets で作り直せる、2026-11-20）
 media/markers/
+
+# 参考動画の場面ごとの途中のファイル（unified/tools/make_reference.py、2026-11-24）
+media/videos/unified/reference/_scenes/
