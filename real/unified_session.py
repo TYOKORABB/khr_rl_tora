@@ -47,6 +47,7 @@ DEFAULT_EXP, DEFAULT_CKPT = "unified1b-head-s2", 3999       # C（unified1b-head
 N_WALK_OBS = 6
 CMD_LIMITS = (0.3, 0.15, 0.5)                               # 学習の指令の範囲（env_cfg["walk"]）
 MAX_SCHEDULE_S = 40.0
+LONG_SCHEDULE_S = 120.0                                     # --long のとき（walk_session の go --long と同じ上限、11/25 本人「指令０で40秒、前進で20秒」）
 PH_LIMP, PH_ARM, PH_RUN, PH_HOLD = 0, 1, 2, 3
 PHASE_NAME = {PH_LIMP: "脱力", PH_ARM: "通電", PH_RUN: "方策", PH_HOLD: "保持"}
 U_GROUPS = dict(GROUPS, 指令=slice(184, 187), 位相=slice(187, 189), 向きの誤差=slice(189, 190))
@@ -62,7 +63,7 @@ def quat_to_mat(q) -> np.ndarray:
                      [2 * (x * z - w * y), 2 * (y * z + w * x), 1 - 2 * (x * x + y * y)]])
 
 
-def parse_schedule(text: str) -> list[tuple[np.ndarray, float]]:
+def parse_schedule(text: str, max_s: float = MAX_SCHEDULE_S) -> list[tuple[np.ndarray, float]]:
     """「vx[/vy[/wz]]:秒」をカンマでつないだ列（walk_session と同じ書き方）。"""
     out = []
     for item in text.split(","):
@@ -71,8 +72,8 @@ def parse_schedule(text: str) -> list[tuple[np.ndarray, float]]:
         if any(abs(v[i]) > CMD_LIMITS[i] + 1e-9 for i in range(3)):
             raise SystemExit(f"[error] 指令 {v.tolist()} が学習時の範囲 ±{CMD_LIMITS} を超えています")
         out.append((v, float(sec)))
-    if sum(s for _, s in out) > MAX_SCHEDULE_S:
-        raise SystemExit(f"[error] 指令の列は合計 {MAX_SCHEDULE_S} 秒まで")
+    if sum(s for _, s in out) > max_s:
+        raise SystemExit(f"[error] 指令の列は合計 {max_s:g} 秒まで（40 秒を超えるときは --long、120 秒まで）")
     return out
 
 
@@ -271,7 +272,7 @@ def unified_run(a, link, R: np.ndarray, out_raw: Path, sign: np.ndarray, stop_fi
         raise SystemExit(f"[error] {a.exp} は 1 つの方策（歩行の指令を観測に持つ方策）ではありません")
     if a.gap is not None:
         env_cfg = dict(env_cfg, action=dict(env_cfg["action"], gap=a.gap))
-    sched = parse_schedule(a.schedule)
+    sched = parse_schedule(a.schedule, LONG_SCHEDULE_S if getattr(a, "long", False) else MAX_SCHEDULE_S)
     total = sum(s for _, s in sched)
     ob = UnifiedObsBuilder(env_cfg, obs_cfg)
     order = [HOLD_SLOTS.index(s_) for s_ in SLOTS]
@@ -520,7 +521,7 @@ def cmd_run(a) -> int:
     mount = json.loads((REPO_ROOT / "real" / "calib" / "imu_mount.json").read_text())
     if not mount.get("pass"):
         sys.exit("[error] IMU の取り付け回転が未校正です（real/calib/imu_mount.json が合格でない）")
-    parse_schedule(a.schedule)
+    parse_schedule(a.schedule, LONG_SCHEDULE_S if a.long else MAX_SCHEDULE_S)
     sign = joint_sign()
     flipped = [JOINT_NAMES[i] for i in np.nonzero(sign < 0)[0]]
     print(f"[info] 符号を反転して読み書きする関節（{SIGN_FILE.relative_to(REPO_ROOT)}）: {flipped or 'なし'}", flush=True)
@@ -618,6 +619,7 @@ def main(argv=None) -> int:
     s = sub.add_parser("run", help="実機: 通電して 1 つの方策を指令の列どおりに動かす")
     s.add_argument("--label", required=True, help="置いた姿勢（prone、supine、quad など。記録用）")
     s.add_argument("--schedule", required=True, help="指令の列 vx[/vy[/wz]]:秒 をカンマでつなぐ（例 0:5,0.3:6,0:3）")
+    s.add_argument("--long", action="store_true", help="指令の列を 120 秒まで許す（既定は 40 秒まで）")
     s.add_argument("--hold", type=float, default=2.0, help="指令の列のあと最後の目標角で保持する秒数")
     s.add_argument("--e-sat-deg", type=float, default=7.0, help="目標角とのずれの中止の閾値 [deg]")
     s.add_argument("--gap", type=float, default=None, help="目標角と測った角度のずれの上限 [rad]（既定は学習時の 0.08）")

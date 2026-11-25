@@ -1,0 +1,120 @@
+{
+ "exp": "unified1b-head-s2",
+ "ckpt": 3999,
+ "label": "supine",
+ "schedule": "0:6,0.3:6,0:3",
+ "reason": "最後まで動いた",
+ "aborted": false,
+ "e_sat_deg": 7.0,
+ "gap_rad": 0.08,
+ "raw": "real/data/raw/unified_trial/unified_trial_supine_20261125_181615.npz",
+ "phases_s": {
+  "脱力": 0.0,
+  "通電": 1.52,
+  "方策": 15.0,
+  "保持": 2.0
+ },
+ "getup_success": true,
+ "getup_success_time_s": 14.22,
+ "getup_success_criterion": "u > u_min かつ推定の胴体高 ≥ h_thr が 1 秒（unified/tools/eval_getup_u.py と同じ）",
+ "getup_v13_full_success_time_s": null,
+ "alpha_099_time_s": 12.3,
+ "u_min_after_standing": 0.92,
+ "h_est_min_after_standing_m": 0.194,
+ "segments": [
+  {
+   "cmd": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "from_s": 0.0,
+   "to_s": 5.98,
+   "alpha_mean": 0.0,
+   "alpha_min": 0.0,
+   "h_est_mean_m": 0.069,
+   "u_min": -0.895,
+   "wz_mean": 0.054,
+   "err_max_deg": 6.1
+  },
+  {
+   "cmd": [
+    0.3,
+    0.0,
+    0.0
+   ],
+   "from_s": 6.0,
+   "to_s": 11.98,
+   "alpha_mean": 0.023,
+   "alpha_min": 0.0,
+   "h_est_mean_m": 0.115,
+   "u_min": -0.643,
+   "wz_mean": 0.021,
+   "err_max_deg": 5.9
+  },
+  {
+   "cmd": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "from_s": 12.0,
+   "to_s": 14.98,
+   "alpha_mean": 0.909,
+   "alpha_min": 0.217,
+   "h_est_mean_m": 0.2,
+   "u_min": 0.914,
+   "wz_mean": -0.047,
+   "err_max_deg": 5.7
+  }
+ ],
+ "heading_obs_end": 0.004,
+ "period_ms": {
+  "p50": 20.0,
+  "p99": 20.02
+ },
+ "rx_age_ms_p99": 49.5,
+ "err_max_deg": {
+  "l_hip_pitch": 6.1,
+  "r_shoulder_roll": 5.9,
+  "l_shoulder_roll": 5.7
+ },
+ "sat_cum_s_max": {
+  "l_shoulder_pitch": 0.0,
+  "l_shoulder_roll": 0.0,
+  "l_elbow_yaw": 0.0
+ },
+ "action_abs_p99": 1.571,
+ "servo_tel": {
+  "fail": 0,
+  "cur_abs_A": {
+   "l_shoulder_pitch": {
+    "mean": 0.22,
+    "p95": 0.5,
+    "max": 0.8
+   },
+   "l_elbow_pitch": {
+    "mean": 0.16,
+    "p95": 0.3,
+    "max": 0.5
+   },
+   "r_shoulder_pitch": {
+    "mean": 0.2,
+    "p95": 0.4,
+    "max": 0.8
+   },
+   "r_elbow_pitch": {
+    "mean": 0.21,
+    "p95": 0.4,
+    "max": 0.7
+   }
+  },
+  "tmp_C_median": {
+   "l_shoulder_pitch": 42.5,
+   "l_elbow_pitch": 41.7,
+   "r_shoulder_pitch": 41.7,
+   "r_elbow_pitch": 41.7
+  },
+  "note": "電流は仮の換算（1 = 0.1 A）"
+ }
+}

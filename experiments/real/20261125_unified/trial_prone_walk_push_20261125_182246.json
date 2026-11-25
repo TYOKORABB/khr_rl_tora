@@ -1,0 +1,105 @@
+{
+ "exp": "unified1b-head-s2",
+ "ckpt": 3999,
+ "label": "prone_walk_push",
+ "schedule": "0:5,0.3:20",
+ "reason": "最後まで動いた",
+ "aborted": false,
+ "e_sat_deg": 7.0,
+ "gap_rad": 0.08,
+ "raw": "real/data/raw/unified_trial/unified_trial_prone_walk_push_20261125_182246.npz",
+ "phases_s": {
+  "脱力": 0.0,
+  "通電": 1.52,
+  "方策": 25.0,
+  "保持": 2.0
+ },
+ "getup_success": true,
+ "getup_success_time_s": 2.46,
+ "getup_success_criterion": "u > u_min かつ推定の胴体高 ≥ h_thr が 1 秒（unified/tools/eval_getup_u.py と同じ）",
+ "getup_v13_full_success_time_s": null,
+ "alpha_099_time_s": 1.42,
+ "u_min_after_standing": -0.526,
+ "h_est_min_after_standing_m": 0.091,
+ "segments": [
+  {
+   "cmd": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "from_s": 0.0,
+   "to_s": 4.98,
+   "alpha_mean": 0.783,
+   "alpha_min": 0.0,
+   "h_est_mean_m": 0.177,
+   "u_min": 0.933,
+   "wz_mean": 0.006,
+   "err_max_deg": 6.5
+  },
+  {
+   "cmd": [
+    0.3,
+    0.0,
+    0.0
+   ],
+   "from_s": 5.0,
+   "to_s": 24.98,
+   "alpha_mean": 0.718,
+   "alpha_min": 0.0,
+   "h_est_mean_m": 0.194,
+   "u_min": -0.526,
+   "wz_mean": -0.096,
+   "err_max_deg": 7.0
+  }
+ ],
+ "heading_obs_end": -1.352,
+ "period_ms": {
+  "p50": 20.0,
+  "p99": 20.02
+ },
+ "rx_age_ms_p99": 33.2,
+ "err_max_deg": {
+  "r_ankle_roll": 7.0,
+  "l_elbow_pitch": 6.5,
+  "l_hip_pitch": 6.3
+ },
+ "sat_cum_s_max": {
+  "l_shoulder_pitch": 0.38,
+  "r_shoulder_pitch": 0.32,
+  "l_elbow_yaw": 0.0
+ },
+ "action_abs_p99": 1.59,
+ "servo_tel": {
+  "fail": 0,
+  "cur_abs_A": {
+   "l_shoulder_pitch": {
+    "mean": 0.22,
+    "p95": 0.4,
+    "max": 0.6
+   },
+   "l_elbow_pitch": {
+    "mean": 0.15,
+    "p95": 0.2,
+    "max": 0.5
+   },
+   "r_shoulder_pitch": {
+    "mean": 0.23,
+    "p95": 0.5,
+    "max": 0.7
+   },
+   "r_elbow_pitch": {
+    "mean": 0.2,
+    "p95": 0.3,
+    "max": 0.7
+   }
+  },
+  "tmp_C_median": {
+   "l_shoulder_pitch": 42.5,
+   "l_elbow_pitch": 42.5,
+   "r_shoulder_pitch": 42.5,
+   "r_elbow_pitch": 42.5
+  },
+  "note": "電流は仮の換算（1 = 0.1 A）"
+ }
+}

@@ -8,7 +8,8 @@
 - 土台: `s-kajita/Meridian_LITE@85a62d1`（2026-04-21 "IMU eular angle bug fixed"、起動時の表示は
   `Meridian_LITE_v1.1.1_2025_08.22(kajita)`）。上流は `Ninagawa123/Meridian_LITE`（MIT License, © 2021 Ninagawa123 and Project Meridian Team）。
 - Wi-Fi の設定 `keys.h` は元のリポジトリの作業ツリーから毎回コピーする。どこにもコミットしない。
-- **実機に入っているのは khr-getup.5**（2026-11-09 19:18 に書き込み。本人の決定で梶田版には戻さない）。確かめた内容は `experiments/real/20261109_getup_r2/README.md`。.4 までの記録は `experiments/real/20261013_hw_check/`。
+- **2026-11-25 から、実機に入っているのは梶田版**（共用の機体。実機のたびに梶田版へ書き換えられていたので、11/25 は .5 を書き込んで使い、終わったあと本人の指示で控え `_work/backup/flash_20261125_180355.bin` を書き戻した）。次に使うときは .5 を書き込む。
+- それまで: khr-getup.5（2026-11-09 19:18 に書き込み。このときは本人の決定で梶田版には戻さなかった）。確かめた内容は `experiments/real/20261109_getup_r2/README.md`。.4 までの記録は `experiments/real/20261013_hw_check/`。
 - `build_fw.sh` の既定は .5（.4 に戻すときは `KHR_PATCH=$PWD/khr-getup.4.patch ./build_fw.sh`）。
 
 | 版 | 日付 | 内容 |
