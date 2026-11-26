@@ -1,0 +1,124 @@
+{
+ "exp": "unified1b-head-s2",
+ "ckpt": 3999,
+ "kp": 7.0,
+ "reps": 64,
+ "seconds": 15.0,
+ "cmd": [
+  0.3,
+  0.0,
+  0.0
+ ],
+ "real_trial7_56_60s": {
+  "u_limb_plane": 0.993,
+  "u_imu": 0.884,
+  "offset_deg": 23.7,
+  "axis_base": [
+   -0.094,
+   0.973,
+   0.211
+  ]
+ },
+ "def": "最後の 5 秒の値。sensed は方策が見る重力（ずれを入れた後）の u、true は本当の u。sensed_stand_frac = 見かけの u > 0.966 かつ本当の高さ ≥ 0.175 m の時間の割合（実機で α ≥ 0.99 に当たるもの）",
+ "verdict_def": "実機の値のずれで、体の過半数が「見かけの u < 0.9 の時間が 50 % 以上」かつ「前進 0.05 m/s 未満」→ 再現した。過半数が見かけの立っている割合 50 % 以上かつ前進 0.10 m/s 以上 → 方策が補った（再現しない）。ほかは間",
+ "angles": {
+  "0": {
+   "offset_deg": 0.0,
+   "u_true_med": 0.991,
+   "u_sensed_med": 0.991,
+   "h_med_m": 0.1782,
+   "speed_mps_mean": 0.139,
+   "sensed_low_frac_med": 0.0,
+   "sensed_stand_frac_med": 0.996,
+   "true_alpha_mean": 0.995,
+   "stuck_pct": 0.0,
+   "compensated_pct": 59.4,
+   "fell_pct": 0.0,
+   "verdict": "方策が補った"
+  },
+  "5": {
+   "offset_deg": 5.0,
+   "u_true_med": 0.996,
+   "u_sensed_med": 0.993,
+   "h_med_m": 0.1797,
+   "speed_mps_mean": 0.098,
+   "sensed_low_frac_med": 0.0,
+   "sensed_stand_frac_med": 1.0,
+   "true_alpha_mean": 0.99,
+   "stuck_pct": 0.0,
+   "compensated_pct": 32.8,
+   "fell_pct": 0.0,
+   "verdict": "間"
+  },
+  "10": {
+   "offset_deg": 10.0,
+   "u_true_med": 0.993,
+   "u_sensed_med": 0.967,
+   "h_med_m": 0.1762,
+   "speed_mps_mean": 0.086,
+   "sensed_low_frac_med": 0.0,
+   "sensed_stand_frac_med": 0.246,
+   "true_alpha_mean": 0.916,
+   "stuck_pct": 3.1,
+   "compensated_pct": 6.2,
+   "fell_pct": 17.2,
+   "verdict": "間"
+  },
+  "15": {
+   "offset_deg": 15.0,
+   "u_true_med": 0.991,
+   "u_sensed_med": 0.933,
+   "h_med_m": 0.1721,
+   "speed_mps_mean": 0.089,
+   "sensed_low_frac_med": 0.012,
+   "sensed_stand_frac_med": 0.0,
+   "true_alpha_mean": 0.729,
+   "stuck_pct": 15.6,
+   "compensated_pct": 0.0,
+   "fell_pct": 48.4,
+   "verdict": "間"
+  },
+  "20": {
+   "offset_deg": 20.0,
+   "u_true_med": 0.987,
+   "u_sensed_med": 0.88,
+   "h_med_m": 0.1611,
+   "speed_mps_mean": 0.069,
+   "sensed_low_frac_med": 0.994,
+   "sensed_stand_frac_med": 0.0,
+   "true_alpha_mean": 0.52,
+   "stuck_pct": 34.4,
+   "compensated_pct": 0.0,
+   "fell_pct": 45.3,
+   "verdict": "間"
+  },
+  "25": {
+   "offset_deg": 25.0,
+   "u_true_med": 0.995,
+   "u_sensed_med": 0.867,
+   "h_med_m": 0.1598,
+   "speed_mps_mean": 0.1,
+   "sensed_low_frac_med": 1.0,
+   "sensed_stand_frac_med": 0.0,
+   "true_alpha_mean": 0.673,
+   "stuck_pct": 10.9,
+   "compensated_pct": 0.0,
+   "fell_pct": 6.2,
+   "verdict": "間"
+  },
+  "real": {
+   "offset_deg": 23.7,
+   "u_true_med": 0.992,
+   "u_sensed_med": 0.864,
+   "h_med_m": 0.1591,
+   "speed_mps_mean": 0.103,
+   "sensed_low_frac_med": 1.0,
+   "sensed_stand_frac_med": 0.0,
+   "true_alpha_mean": 0.643,
+   "stuck_pct": 10.9,
+   "compensated_pct": 0.0,
+   "fell_pct": 9.4,
+   "verdict": "間"
+  }
+ }
+}
