@@ -1,0 +1,129 @@
+%% docs/CodeGuide/01_overview.md の元
+# 1. 全体の流れ
+
+[目次へ戻る](README.md)
+
+## 1.1 何をしているプログラムか
+
+近藤科学の小型の人型ロボット KHR-3HV を、腕を前脚にして四脚で歩かせ、転んだら起き上がらせる方策を、シミュレーション（Genesis）の中で強化学習（PPO）で作り、実機で動かすためのプログラムです。
+
+| ディレクトリ | 役割 | 主なファイル |
+|---|---|---|
+| `quad/` | 四脚歩行の学習環境・学習・測定。版ごとに複製（v13〜v31） | `khr_quad_env21.py`（環境）、`khr_train_quad31.py`（v31 の学習） |
+| `getup/` | 起き上がりの学習環境・学習・測定 | `envs/getup_env3.py`（環境）、`train_getup11.py`（v11〜v13 の学習） |
+| `khr_common/` | シミュと実機で同じものを使う部品（Genesis に依存しない） | `joint_map.py`、`action_post.py`、`gravity.py`、`height_est.py` |
+| `real/` | 実機で方策を動かす道具と、ESP32 の改造ファームのパッチ | `walk_session.py`、`getup_session.py`、`firmware_patches/` |
+| `sysid/` | 実機とシミュの比較（同じ指令でシミュを動かす） | `closed_loop.py`、`walk_sweep.py` |
+| `unified/` | 四脚歩行と起き上がりを 1 つの方策で（論文には入れていない） | `envs/unified_env1.py`、`train_unified1.py` |
+| `biped/`・`go2_reference/` | 元の二足歩行の土台と、Genesis の四足の見本（参考） | `khr_env.py`、`go2_env.py` |
+| `experiments/` | 研究の記録と、卒論の図を作るスクリプト | `thesis_figs/make_figs.py` |
+
+外にあるもの（このリポジトリには入れていない）:
+
+- `../Genesis/`: 物理シミュレータ（genesis-world 0.4.6）。
+- `../assets/khr3hv/`: 機体のモデル（URDF とメッシュ）。非公開なので、どこにも上げない。
+- rsl-rl-lib 5.4.0: PPO の実装（`OnPolicyRunner`）。pip で入れたもの。
+- `../Meridian_LITE/`: 機体の ESP32 のファームウェア（研究室のもの）。改造はパッチの形で `real/firmware_patches/` に置いている。
+
+## 1.2 学習の流れ
+
+```text
+khr_train_quad31.py            ← 設定（env_cfg・obs_cfg・reward_cfg・command_cfg・train_cfg）を作る
+   │  cfgs.pkl に保存（検証と実機はここから同じ設定を読む）
+   ▼
+KHRQuadEnv（khr_quad_env21.py） ← 4096 体を同時にシミュレーションする環境
+   │  step(行動) → (観測, 報酬, 終わったか)
+   ▼
+OnPolicyRunner（rsl-rl の PPO）
+   1 イテレーション = 4096 体 × 24 周期のデータを集める
+                    → 方策と価値関数を 5 エポック × 4 ミニバッチで更新
+   │  100 イテレーションごとに logs/<実験名>/model_<番号>.pt を保存
+   ▼
+logs/khr-quadruped31-s2/model_3999.pt   ← 実機で使った方策（real/policies/ に凍結コピー）
+```
+
+起き上がりも同じ形です（`getup/train_getup11.py` → `GetupEnv` → `OnPolicyRunner`）。違いは、初期状態を「転んだ姿勢の一覧（初期状態バンク）」から選ぶこと、段階（カリキュラム）があること、PPO に行動の範囲の罰と左右反転のデータ拡張を足していることです（5 章）。
+
+## 1.3 1 周期（20 ms）に起きること: シミュと実機
+
+方策は、シミュでも実機でも 20 ms に 1 回動きます。学習した方策が実機で同じように動くためには、観測の作り方と、行動から目標角への変換が両方で同じでないといけません。その対応は次のとおりです（四脚歩行の場合）。
+
+| 順 | シミュ（`khr_quad_env21.py` の `step`） | 実機（`real/walk_session.py` の `serve`） |
+|---|---|---|
+| 1 | 観測（122 次元）を方策に入れ、行動（22 次元）を得る | 同じ（`run_policy`。推論は平均の行動で、乱数なし） |
+| 2 | 目標角 = 公称姿勢 + 0.15 × 行動（＋学習中だけ 0 点のずれ） | 目標角 = 公称姿勢 + 0.15 × 行動。可動域の内側 0.03 rad に収める |
+| 3 | 1 周期前の行動を使う（実機の遅れをまねる） | すぐ送る（通信と処理で約 1 周期遅れる） |
+| 4 | Genesis が PD 制御で関節を動かす（kp 25・kd 0.5） | ESP32 がサーボ（ICS）に目標角を送り、サーボの中の制御で動く |
+| 5 | Genesis から関節角・角速度・重力の向きを読む | Meridim から関節角 [21..71]・ジャイロ [5..7]・重力 [8..10] を読む |
+| 6 | 観測を作る（`_update_observation`） | 同じ並び・同じ倍率で作る（`ObsBuilder.build`） |
+| 7 | 報酬を計算し、転倒・時間切れならその体をやり直す | 報酬はない。転倒（45° を 0.3 秒）・関節の引っかかり（30° を 0.5 秒）で全サーボ脱力 |
+
+実機の送受信は 10 ms ごと（100 Hz）で、方策はそのうち 2 回に 1 回だけ動きます。間の回は、前の目標角を送り直します。
+
+## 1.4 実機の構成
+
+```text
+PC（Python、real/walk_session.py など）
+   │  Wi-Fi・UDP（PC → ESP32 は 22224 番、ESP32 → PC は 22222 番）、Meridim90 を 100 Hz で往復
+   ▼
+ESP32（Meridian_LITE ＋ 改造パッチ khr-getup.5）
+   │  ICS（近藤のサーボの通信）で 22 個のサーボに目標角を送り、角度を読む
+   │  I2C で IMU（BNO055）から重力の向き・角速度を読む
+   ▼
+KHR-3HV（22 関節。電源は AC アダプター 12 V・5 A）
+```
+
+改造ファームが足したもの（6 章）: 重力ベクトルを送る、状態語、通信監視（PC からの指令が 0.2 秒途絶えたら保持、1.2 秒で全サーボ脱力）、受信の読み捨て（往復の遅れ 52〜61 ms → 15〜20 ms）、サーボの電流・設定の読み出し（読むだけ）。
+
+## 1.5 検証の流れ
+
+| 何を確かめるか | 道具 | 出力 |
+|---|---|---|
+| 四脚歩行の指標（速さ・横ずれ・トルクなど） | `quad/khr_quad_eval_metrics.py` | JSON（卒論の表の数値） |
+| 版の違いがシードのばらつきを超えるか（2σ） | `quad/khr_quad_compare.py` | 表 |
+| 歩行の動画 | `quad/khr_quad_record21.py` | MP4（git に入れない） |
+| 起き上がりの成功率と動画 | `getup/eval_getup.py`、`getup/tools/eval_v13.py` | JSON と MP4 |
+| 実機の記録の分析 | `real/walk_analyze.py`、`real/marker_track.py` | JSON |
+| 実機とシミュの比較 | `sysid/closed_loop.py`、`sysid/walk_sweep.py` | JSON |
+
+検証では毎回動画を撮ります（本人の決まり）。判定の基準は、結果を見る前に計画の文書に書いて固定しています。
+
+## 1.6 起き上がってから歩く
+
+`real/getup_then_walk.sh` が 2 つの道具をつなぎます。
+
+```text
+1. walk_session serve --wait-file <合図>   歩行の方策を読み込んで、合図のファイルを待つ（まだ何も送らない）
+2. getup_session getup --freeze 5 ...      起き上がりの方策を動かす。四脚の条件が 5 周期続いたら目標角を固定し、1.5 秒後に終える
+3. 成功したら合図のファイルを作る          → 歩行の道具が受信を始め、四脚の初期姿勢へ 1 秒で寄せて歩き出す
+```
+
+## 1.7 版とファイルの対応
+
+四脚歩行は版ごとに学習スクリプトと環境を複製し、学習に使った版は書き換えません（同じ名前の `logs/` は学習の始めに消されるので、別の名前で学習します）。
+
+| 学習の版 | 学習スクリプト | 環境 |
+|---|---|---|
+| v16 | `khr_train_quad16.py` | `khr_quad_env13.py` |
+| v17 | `khr_train_quad17.py` | `khr_quad_env14.py` |
+| v18・v19 | `khr_train_quad18.py`・`19.py` | `khr_quad_env15.py` |
+| v20・v21 | `khr_train_quad20.py`・`21.py` | `khr_quad_env16.py` |
+| v22・v23 | `khr_train_quad22.py`・`23.py` | `khr_quad_env17.py` |
+| v24 | `khr_train_quad24.py` | `khr_quad_env18.py` |
+| v25・v27〜v29 | `khr_train_quad25.py`・`27_p080.py`・`28.py`・`29.py` | `khr_quad_env19.py` |
+| v26 | `khr_train_quad26.py` | `khr_quad_env20.py` |
+| v30・**v31** | `khr_train_quad30.py`・**`khr_train_quad31.py`** | **`khr_quad_env21.py`** |
+
+起き上がりは、学習スクリプトが前の版の設定を読んで差し替える形で積み重なっています。今の候補（getup-v13）の設定は次の順にできています。
+
+```text
+train_getup11.py（v11〜v13: 弱さの個体差・ずれの上限・関節ごとの硬さ）
+  └ train_getup9 の SYM_CFG（左右反転のデータ拡張）
+  └ train_getup7.get_cfgs_from（苦手な状態を多く選ぶ・胸が床を向くまでトルクの閾値を緩める）
+      └ train_getup6.get_cfgs（段階 L3 を足す、初期状態バンク v2）
+          └ train_getup4.get_cfgs（cap90・delta03・thr60）
+              └ train_getup2.get_cfgs（土台: 報酬・観測・個体差・カリキュラム）
+環境: getup/envs/getup_env3.py（train_getup6 の main が読み込む）
+```
+
+設定が何段にも分かれているので、実際に学習に使った値は `logs/<実験名>/cfgs.pkl` を読むのが確かです（5 章の表はそこから取りました）。

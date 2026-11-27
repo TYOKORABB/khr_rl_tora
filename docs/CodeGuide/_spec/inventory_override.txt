@@ -1,0 +1,16 @@
+%% 全ファイル一覧で、先頭の説明文の代わりに出す文（パス<TAB>文）。先頭の説明文が中身を表していないファイルだけ
+real/firmware_patches/khr-getup.4.patch	改造ファーム .4: 重力ベクトル・状態語・通信監視・IMU のまとめ読み・受信の読み捨て（6 章）
+real/firmware_patches/khr-getup.5.patch	改造ファーム .5（今の版）: .4 ＋ サーボの電流・温度・設定の読み出し（読むだけ）（6 章）
+real/firmware_patches/udp-drain-only.patch	受信の読み捨てだけを研究室の版にそのまま当てられる形に取り出した単独のパッチ（教授への説明用。実機には書き込んでいない）
+real/servo_failure_analysis.py	11/10 の左肘のピッチのサーボの記録を、実機のログ全部から調べる（2026-11-11、本人の依頼。卒論では扱わない）
+real/servo_drive_check.py	起き上がりの 1 回ごとに、肘のピッチのサーボが「遅れているのに押していない」かを見る（2026-11-13。卒論では扱わない）
+experiments/retrain_fixurdf/make_queue.py	機体のモデルの可動域に合わせた、全版の学習し直しの待ち行列を作る（卒論では扱わない）
+experiments/retrain_fixurdf/summarize.py	全版の学習し直し（fixurdf-*）を版ごとに集計する（卒論では扱わない）
+biped/khr_env.py	二足歩行の学習環境（khr_rl_sample 由来、脚 12 関節、観測 71 次元）
+biped/khr_train.py	二足歩行の学習スクリプト（設定は get_cfgs・get_train_cfg）
+biped/khr_train_ql.py	二足歩行の学習スクリプトの別の版（脚の初期の角度だけが違う）
+biped/khr_eval.py	二足歩行の方策を画面で再生する（CPU）
+biped/pd_test.py	二足の機体の PD 制御の単体テスト（図を出す）
+go2_reference/go2_env.py	Genesis の四足ロボット Go2 の見本の環境（参考。どこからも import しない）
+go2_reference/go2_train.py	Go2 の見本の学習スクリプト（参考）
+go2_reference/go2_eval.py	Go2 の見本の再生（参考）

@@ -1,0 +1,48 @@
+%% docs/CodeGuide/09_inventory.md の元
+# 9. 全ファイルの一覧
+
+[目次へ戻る](README.md)
+
+リポジトリの中のプログラム（`.py`・`.sh`・`.patch`）を、ディレクトリごとに並べました。
+`quad/` は版ごとの複製が多いので、まとめて書いています。それ以外は、各ファイルの先頭の説明文の 1 行目を自動で取り出したものです（先頭の説明文が中身を表していないものだけ、`_spec/inventory_override.txt` で書き換えています）。
+`quad/archive_v1_v15/`（v1〜v15 の環境と学習、39 本）は除いています。
+
+## 9.1 quad/（四脚歩行、93 本）
+
+| ファイル | 本数 | 何をするか |
+|---|---|---|
+| `khr_quad_env13.py`〜`khr_quad_env21.py` | 9 | 四脚歩行の学習環境の各版（版との対応は 1 章 1.7）。v30・v31 は env21（2 章） |
+| `khr_quad_env17_abl_clearance.py` | 1 | 報酬の総点検のため、足上げの項を変えた env17 |
+| `khr_train_quad16.py`〜`khr_train_quad31.py`、`khr_train_quad27_p075.py`・`27_p080.py` | 17 | 各版の学習スクリプト（v31 は 3 章）。v27 は着地の直前の位相 0.75・0.80 の 2 案を比べ、0.80 を採った |
+| `khr_train_quad23_abl_*.py`（4）、`khr_train_quad27_abl_*.py`（13）、`khr_train_quad28_combo9.py` | 18 | 報酬の総点検: 1 項・1 群ずつ外して学習し直す。9 項をまとめて外した combo9 が v28 になった |
+| `khr_train_quad31_abl.py` | 1 | v31 を基準に報酬を外して学習し直す（報酬の総点検） |
+| `khr_train_quad31_tqsens.py` | 1 | トルクの罰の閾値だけを変えて学習する（感度分析: 50・60・70 %） |
+| `khr_quad_eval.py` | 1 | 方策を画面で再生する（CPU） |
+| `khr_quad_eval_metrics.py` | 1 | 測る条件を固定した定量の測定（7 章） |
+| `khr_quad_compare.py` | 1 | 測った値をノイズ床に対して 2σ で判定する（7 章） |
+| `khr_quad_eval_symmetry.py` | 1 | 後脚の左右の対称と、接地の質を測る |
+| `khr_quad_plot_torque.py` | 1 | 22 関節のトルクの時間の変化を図にする |
+| `khr_quad_progress.py` | 1 | 学習の経過（100 イテレーションごとの方策）を同じ条件で測り、図と動画にする |
+| `khr_quad_report.py` | 1 | 学習のあとに研究の記録（設定・指標・経過）を自動で作る |
+| `khr_quad_record13.py`〜`khr_quad_record21.py` | 8 | 方策の動きを MP4 に録画する（画面なし）。版ごとの環境用 |
+| `khr_quad_record_seeds.py` | 1 | 複数のシードの方策を同じ場面に並べて録画する |
+| `build_noise_floor.py` | 1 | シード間のばらつき（ノイズ床）を作る |
+| `summarize_abl31.py`・`summarize_abl31_ext.py`・`summarize_tqsens.py`・`summarize_v28v30.py` | 4 | 報酬の総点検・感度分析・シードの追加の結果を、学習の前に決めた基準でまとめる |
+| `update_reward_reference.py` | 1 | 報酬の総点検の結果から `docs/RewardReference.md` の自動の部分を更新する |
+| `quad_pose_test.py` | 1 | 四脚の初期姿勢の試作と、静的・動的な安定の確かめ（四脚化の最初の段階） |
+| `quad_compat.py` | 1 | 古い版の環境を、今の測定の道具で公平に測れるようにする互換の層 |
+| `run_record.py` | 1 | `quad/` から `khr_common.run_record` を使う入口 |
+| `fix_joint_limits.py`・`train_with_urdf_fix.py`・`train_fixurdf_abl.py`・`eval_with_urdf_fix.py`・`record_with_urdf_fix.py`・`sym_with_urdf_fix.py`・`prove_hip_limit_asymmetry.py`・`check_joint_saturation.py` | 8 | 機体のモデル（URDF）の可動域の点検と、それに合わせた全版の学習し直し・測り直しの道具（卒論では扱わない） |
+| `jobs/run_abl31.sh`・`run_abl31_ext.sh`・`run_ablation_queue.sh` | 3 | 報酬の総点検の学習を、GPU の空きに合わせて自動で回す |
+| `jobs/run_tqsens.sh` | 1 | トルクの罰の閾値の感度分析を自動で回す |
+| `jobs/run_v28v30.sh` | 1 | v28 と v30 にシード 4〜6 を足して回す |
+| `jobs/run_kp_robust.sh` | 1 | 比例ゲインのずれへの強さを測る（3 並列） |
+| `jobs/run_retrain_fixurdf.sh`・`measure_strafe_fixurdf.sh` | 2 | 全版の学習し直しと、横移動の測り直し（卒論では扱わない） |
+| `jobs/verify_v28.sh` | 1 | v28 の方向ごとの追従の確かめと動画 |
+| `jobs/v31_progress_videos.sh`・`v31_seeds_compare_video.sh` | 2 | v31 の学習の経過の動画と、3 シードを並べた動画 |
+| `jobs/repeat_until_done.sh` | 1 | 待ち行列のスクリプトを、全部終わるまで一定の間隔で呼び直す |
+| `jobs/whisper_overlap_test.sh` | 1 | 音声の解析（whisper）と学習を重ねてよいかの試験 |
+
+## 9.2 そのほかのディレクトリ
+
+@inventory khr_common getup real sysid unified experiments docs/tools biped go2_reference
